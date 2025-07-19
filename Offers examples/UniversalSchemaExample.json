@@ -1,26 +1,20 @@
 {
   "id": "string", // Unikalny identyfikator oferty
   "source": "string", // Źródło oferty (np. "pracuj.pl", "olx", "justjoinit", "jooble")
-  "sourceId": "string", // Oryginalny identyfikator oferty w systemie źródłowym
   "url": "string", // Link do oryginalnej oferty
-  "title": "string", // Tytuł stanowiska
+  "job_title": "string", // Tytuł stanowiska
   "company": {
     "name": "string", // Nazwa firmy
     "logoUrl": "string|null", // URL logo firmy
-    "profileUrl": "string|null", // URL profilu firmy
     "isVerified": "boolean|null" // Czy firma jest zweryfikowana
   },
-  "description": {
-    "full": "string", // Pełny opis oferty
-    "short": "string|null" // Krótki opis oferty
-  },
+  "description": "string|null",
   "salary": {
     "from": "number|null", // Wynagrodzenie minimalne
     "to": "number|null", // Wynagrodzenie maksymalne
     "currency": "string|null", // Waluta (np. "PLN", "USD")
     "period": "string|null", // Okres (np. "monthly", "hourly")
-    "type": "string|null", // Typ (np. "brutto", "netto")
-    "displayText": "string|null" // Tekst do wyświetlenia
+    "type": "string|null" // Typ (np. "brutto", "netto")
   },
   "location": {
     "city": "string|null", // Miasto
@@ -30,13 +24,12 @@
       "longitude": "number|null" // Długość geograficzna
     },
     "isRemote": "boolean", // Czy praca zdalna
-    "isHybrid": "boolean", // Czy praca hybrydowa
-    "regions": "array|null" // Lista regionów (dla pracy w całej Polsce)
+    "isHybrid": "boolean" // Czy praca hybrydowa
   },
   "technologies": "array", // Wymagane technologie (np. ["Python", "Django"])
   "requirements": {
     "experienceLevel": "array", // Poziomy doświadczenia (np. ["Mid", "Senior"])
-    "education": "string|null", // Wymagane wykształcenie
+    "education": "array|null", // Wymagane wykształcenie
     "languages": "array|null" // Wymagane języki
   },
   "employment": {
@@ -49,10 +42,5 @@
   },
   "benefits": "array|null", // Benefity
   "isUrgent": "boolean", // Czy oferta jest pilna
-  "isForUkrainians": "boolean", // Czy oferta jest przyjazna dla Ukraińców
-  "metadata": {
-    "isPromoted": "boolean", // Czy oferta jest promowana
-    "isSuperOffer": "boolean|null", // Czy to super oferta (dotyczy pracuj.pl)
-    "lastRefresh": "string|null" // Data ostatniej aktualizacji
-  }
+  "isForUkrainians": "boolean" // Czy oferta jest przyjazna dla Ukraińców
 }
