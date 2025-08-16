@@ -1,46 +1,49 @@
 {
-  "id": "string", // Unikalny identyfikator oferty
-  "source": "string", // Źródło oferty (np. "pracuj.pl", "olx", "justjoinit", "jooble")
-  "url": "string", // Link do oryginalnej oferty
-  "job_title": "string", // Tytuł stanowiska
-  "company": {
-    "name": "string", // Nazwa firmy
-    "logoUrl": "string|null", // URL logo firmy
-    "isVerified": "boolean|null" // Czy firma jest zweryfikowana
-  },
-  "description": "string|null",
-  "salary": {
-    "from": "number|null", // Wynagrodzenie minimalne
-    "to": "number|null", // Wynagrodzenie maksymalne
-    "currency": "string|null", // Waluta (np. "PLN", "USD")
-    "period": "string|null", // Okres (np. "monthly", "hourly")
-    "type": "string|null" // Typ (np. "brutto", "netto")
-  },
-  "location": {
-    "city": "string|null", // Miasto
-    "street": "string|null", // Ulica
-    "coordinates": {
-      "latitude": "number|null", // Szerokość geograficzna
-      "longitude": "number|null" // Długość geograficzna
+    "id": "",
+    "source": "",
+    "url": "",
+    "jobTitle": "",
+    "company": {
+        "name": "",
+        "logoUrl": null,
+        "isVerified": null
     },
-    "isRemote": "boolean", // Czy praca zdalna
-    "isHybrid": "boolean" // Czy praca hybrydowa
-  },
-  "technologies": "array", // Wymagane technologie (np. ["Python", "Django"])
-  "requirements": {
-    "experienceLevel": "array", // Poziomy doświadczenia (np. ["Mid", "Senior"])
-    "education": "array|null", // Wymagane wykształcenie
-    "languages": "array|null" // Wymagane języki
-  },
-  "employment": {
-    "types": "array", // Typy umów (np. ["Umowa o pracę", "B2B"])
-    "schedules": "array" // Wymiar czasu pracy (np. ["Pełny etat"])
-  },
-  "dates": {
-    "published": "string", // Data publikacji (ISO 8601)
-    "expires": "string|null" // Data wygaśnięcia (ISO 8601)
-  },
-  "benefits": "array|null", // Benefity
-  "isUrgent": "boolean", // Czy oferta jest pilna
-  "isForUkrainians": "boolean" // Czy oferta jest przyjazna dla Ukraińców
+    "description": null,
+    "salary": {
+        "from": null,
+        "to": null,
+        "currency": null,
+        "period": null,
+        "type": null
+    },
+    "location": {
+        "buildingNumber": null,
+        "street": null,
+        "city": null,
+        "postalCode": null,
+        "coordinates": {
+            "latitude": null,
+            "longitude": null
+        },
+        "isRemote": null,
+        "isHybrid": null
+    },
+    "requirements": {
+        "skills": null,
+        "experienceLevel": null,
+        "experienceYears": null,
+        "education": null,
+        "languages": null
+    },
+    "employment": {
+        "types": [],
+        "schedules": []
+    },
+    "dates": {
+        "published": "",
+        "expires": null
+    },
+    "benefits": null,
+    "isUrgent": false,
+    "isForUkrainians": false
 }
