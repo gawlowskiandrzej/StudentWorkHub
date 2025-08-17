@@ -30,7 +30,7 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
 #### `Unified offer schema` structure: ####
 ```json
 {
-    "id": "",
+    "id": null,
     "source": "",
     "url": "",
     "jobTitle": "",
@@ -80,50 +80,50 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
 ```
 
 #### `Unified offer schema` fields description ####
-- `id`: *string* - Unique offer identifier.
-- `source`: *string* - Offer source (e.g. "pracuj.pl", "olx"), used to quickly identify offer provider
-- `url`: *string* - Offer url, used to redirect to original offer source
-- `jobTitle`: *string* - Job title listed in offer
-- `company`: *object* - Issuer company details
-    - `name`: *string* - Issuer company name
-    - `logoUrl`: *string|null* - Issuer company logo *(optional)*
-- `description`: *string|null* - Offer description, used for ai-powered tag extraction *(optional)*
-- `salary`: *object* - Job salary details
-    - `from`: *number|null* - Minimum salary *(optional)*
-    - `to`: *number|null* - Maximum salary *(optional)*
-    - `currency`: *string|null* - The currency in which the salary is paid (e.g. "PLN", "EUR") *(optional when `from` and `to` are **null**)*
-    - `period`: *string|null* - Payment period (e.g. monthly, weekly, daily) *(optional when `from` and `to` are **null**)*
-    - `type`: *string|null* - Salary (gross/net) *(optional when `from` and `to` are **null**)*
-- `location`: *object* - Work location
-    - `buildingNumber`: *string|null* - Building number of the work location *(optional)*
-    - `street`: *string|null* - Street name of the work location *(optional)*
-    - `city`: *string|null* - City where the work is located *(optional)*
-    - `postalCode`: *string|null* - Postal code of the work location *(optional)*
-    - `coordinates`: *object* - Location coordinates
-        - `latitude`: *number|null* - Location latitude, used to estimate distance *(is **null** when longitude is **null**)*
-        - `longitude`: *number|null* - Location longitude, used to estimate distance *(is **null** when latitude is **null**)*
-    - `isRemote`: *boolean|null* - Is work remote or on-site *(is **null** when isHybrid is not **null**)*
-    - `isHybrid`: *boolean|null* - Is work hybrid (partially remote, partially on-site) *(is **null** when isRemote is not **null**)*
-- `requirements`: *object* - Work requirements
-    - `skills`: *array|null* - Skills required for work (e.g. ["C++", "Django", Driver's license]) *(optional)*
-    - `experienceLevel`: *array|null* - Experience level required for work (e.g. ["Senior", "Intermediate"]) *(optional)*
-    - `experienceYears`: *number|null* - Experience years required for work *(optional)*
-    - `education`: *array|null* - Required education (e.g. ["Bachelor's degree", "CCNA"]) *(optional)*
-    - `languages`: *array|null* - Required languages (e.g. ["English", "Polish"]) *(optional)*
-- `employment`: *object* - Employment type details
-    - `types`: *array* - Employment contract (e.g. ["Contract of mandate", "B2B"])
-    - `schedules`: *array* - Work schedule (e.g. ["Full-time", "Part-time"])
-- `dates`: *object*: - Offer lifecycle dates
-    - `published`: *string* - Offer publication date (in format `YYYY-MM-DD HH:MI:SS`)
-    - `expires`: *string|null* - Offer expiration date (in format `YYYY-MM-DD HH:MI:SS`) *(optional)*
-- `benefits`: *array|null* - Employee benefits offered by the company (e.g. private medical care, sports card) *(optional)*
-- `isUrgent`: *boolean* - Does company need an employee urgently
-- `isForUkrainians`: *boolean* - This position is mainly intended for Ukrainian applicants
+- `id`: *string|null* - Unique offer identifier. Should be left as **null**, and later filled by database (base62).
+- `source`: *string* - Offer source **(e.g. "pracuj.pl", "olx")**, used to quickly identify offer provider.
+- `url`: *string* - Offer URL, used to redirect to the original offer source.
+- `jobTitle`: *string* - Job title listed in offer.
+- `company`: *object* - Issuing company details:
+    - `name`: *string* - Company name.
+    - `logoUrl`: *string|null* - Company logo *(optional)*.
+- `description`: *string|null* - Offer description, used for AI-powered tag extraction *(optional)*.
+- `salary`: *object* - Job salary details:
+    - `from`: *number|null* - Minimum salary *(optional)*.
+    - `to`: *number|null* - Maximum salary *(optional)*.
+    - `currency`: *string|null* - Salary currency **(e.g. "PLN", "EUR")** *(optional when `from` and `to` are **null**)*.
+    - `period`: *string|null* - Payment period **(e.g. monthly, weekly, daily)** *(optional when `from` and `to` are **null**)*
+    - `type`: *string|null* - Salary type **(e.g. gross/net)** *(optional when `from` and `to` are **null**)*.
+- `location`: *object* - Work location:
+    - `buildingNumber`: *string|null* - Building number *(optional)*.
+    - `street`: *string|null* - Street name *(optional)*.
+    - `city`: *string|null* - City *(optional)*.
+    - `postalCode`: *string|null* - Postal code *(optional)*.
+    - `coordinates`: *object* - Location coordinates:
+        - `latitude`: *number|null* - Latitude, used to estimate distance *(is **null** when longitude is **null**)*.
+        - `longitude`: *number|null* - Longitude, used to estimate distance *(is **null** when latitude is **null**)*.
+    - `isRemote`: *boolean|null* - Indicates if the work is fully remote *(is **null** when isHybrid is not **null**)*.
+    - `isHybrid`: *boolean|null* - Indicates if the work is hybrid **(partially remote, partially on-site)** *(is **null** when isRemote is not **null**)*.
+- `requirements`: *object* - Work requirements:
+    - `skills`: *array|null* - Required skills **(e.g. ["C++", "Django", Driver's license])** *(optional)*.
+    - `experienceLevel`: *array|null* - Required experience level **(e.g. ["Senior", "Intermediate"])** *(optional)*.
+    - `experienceYears`: *number|null* - Required years of experience *(optional)*.
+    - `education`: *array|null* - Required education **(e.g. ["Bachelor's degree", "CCNA"])** *(optional)*.
+    - `languages`: *array|null* - Required languages **(e.g. ["English", "Polish"])** *(optional)*.
+- `employment`: *object* - Employment details:
+    - `types`: *array* - Type of employment contract **(e.g. ["Contract of mandate", "B2B"])**.
+    - `schedules`: *array* - Work schedule **(e.g. ["Full-time", "Part-time"])**.
+- `dates`: *object*: - Offer lifecycle dates:
+    - `published`: *string* - Offer publication date **(format: `YYYY-MM-DD HH:MI:SS`)**.
+    - `expires`: *string|null* - Offer expiration date **(format: `YYYY-MM-DD HH:MI:SS`)** *(optional)*.
+- `benefits`: *array|null* - Employee benefits offered by the company **(e.g. private medical care, sports card)** *(optional)*.
+- `isUrgent`: *boolean* - Indicates whether the company needs to hire urgently.
+- `isForUkrainians`: *boolean* - Indicates whether the position is mainly intended for Ukrainian applicants.
 
 #### Unified offer schema example ####
 ```json
 {
-    "id": "1234",
+    "id": "abc1234",
     "source": "pracuj.pl",
     "url": "https://www.pracuj.pl/praca/inzynier-ka-oprogramowania-python-mid-senior-warszawa-kolska-12,oferta,1004183523",
     "jobTitle": "Inżynier /-ka oprogramowania Python (mid/senior)",
