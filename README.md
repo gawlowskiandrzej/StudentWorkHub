@@ -36,8 +36,7 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
     "jobTitle": "",
     "company": {
         "name": "",
-        "logoUrl": null,
-        "isVerified": null
+        "logoUrl": null
     },
     "description": null,
     "salary": {
@@ -88,7 +87,6 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
 - `company`: *object* - Issuer company details
     - `name`: *string* - Issuer company name
     - `logoUrl`: *string|null* - Issuer company logo *(optional)*
-    - `isVerified`: *boolean|null* - *(optional)* TODO
 - `description`: *string|null* - Offer description, used for ai-powered tag extraction *(optional)*
 - `salary`: *object* - Job salary details
     - `from`: *number|null* - Minimum salary *(optional)*
@@ -131,8 +129,7 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
     "jobTitle": "Inżynier /-ka oprogramowania Python (mid/senior)",
     "company": {
         "name": "NASK",
-        "logoUrl": "https://logos.gpcdn.pl/loga-firm/20011564/54330000-56be-0050-f1b2-08dd9c317145_280x280.png",
-        "isVerified": null
+        "logoUrl": "https://logos.gpcdn.pl/loga-firm/20011564/54330000-56be-0050-f1b2-08dd9c317145_280x280.png"
     },
     "description": "Twój zakres obowiązków, Implementacja rozwiązań na podstawie wymagań projektowych, Implementacja testów automatycznych, Przeglądy kodu kolegów z zespołu, Aktywny udział w spotkaniach zespołu projektowego, w tym proponowanie nowych rozwiązań i...",
     "salary": {
