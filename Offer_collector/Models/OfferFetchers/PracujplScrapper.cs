@@ -2,9 +2,12 @@
 {
     internal class PracujplScrapper : BaseHtmlScraper
     {
-        public override Task<string> GetOfferAsync(string url)
+        const string baseUrl = "https://www.pracuj.pl/";
+        public override async Task<string> GetOfferAsync(string parameters = "", string url = "")
         {
-            throw new NotImplementedException();
+            string htmlSource = await GetHtmlAsync(url);
+
+            return null;
         }
     }
 }

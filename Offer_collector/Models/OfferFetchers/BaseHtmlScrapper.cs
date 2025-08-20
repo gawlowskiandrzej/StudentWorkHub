@@ -5,9 +5,11 @@ public abstract class BaseHtmlScraper
     protected readonly HttpClient _client;
     private string htmlBody;
     private string jsonFragment;
+    
     public BaseHtmlScraper()
     {
         _client = new HttpClient();
+
     }
 
     /// <summary>
@@ -32,5 +34,5 @@ public abstract class BaseHtmlScraper
     /// <summary>
     /// Abstract method for getting offer
     /// </summary>
-    public abstract Task<string> GetOfferAsync(string url);
+    public abstract Task<string> GetOfferAsync(string parameters = "", string url = "");
 }

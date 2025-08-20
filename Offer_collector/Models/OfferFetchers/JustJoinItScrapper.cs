@@ -2,9 +2,11 @@
 {
     internal class JustJoinItScrapper : BaseHtmlScraper
     {
-        public override Task<string> GetOfferAsync(string url)
+        public override async Task<string> GetOfferAsync(string url)
         {
-            throw new NotImplementedException();
+            string htmlSource = await GetHtmlAsync(url);
+
+            return null;
         }
     }
 }
