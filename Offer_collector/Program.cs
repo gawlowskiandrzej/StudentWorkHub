@@ -1,5 +1,4 @@
-﻿using Offer_collector.Interfaces;
-using Offer_collector.Models.OfferFetchers;
+﻿using Offer_collector.Models.OfferFetchers;
 
 namespace Offer_collector
 {
@@ -8,8 +7,8 @@ namespace Offer_collector
         static void Main(string[] args)
         {
             BaseHtmlScraper scraper;
-
-            switch (args[1])
+            //args[1] = "1";
+            switch ("1")
             {
                 case "1": scraper = new PracujplScrapper(); break;
                 case "2": scraper = new OlxpracaScrapper(); break;
@@ -20,8 +19,9 @@ namespace Offer_collector
                     scraper = new PracujplScrapper();
                     break;
             }
-
-
+            string asd = scraper.GetOfferAsync().Result;
+            Console.WriteLine(asd);
+            Console.ReadKey();
         }
     }
 }
