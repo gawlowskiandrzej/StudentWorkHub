@@ -1,0 +1,13 @@
+Questions for the profile builder when you first log in:
+
+1. Please indicate the city where you would like to work? (select or enter city).
+2. Please select the jobs you are interested in (prepared offers, multiple options possible).
+3. Please select the industries in which you would like to work (multiple options possible).
+4. Please indicate your preferred salary range (two number fields).
+5. What mode of work do you prefer (remote, on-site, hybrid) – multiple options possible.
+6. Are company perks important to you? (categories e.g. health, sports, general).
+7. Please indicate the working hours that suit you (two number fields).
+8. Are you in urgent need of work? (checkbox).
+9. What form of contract do you prefer (contract of employment, contract of mandate, B2B, contract for specific work, fixed-term contract)?
+
+... possible additional questions for our portal, e.g. when you prefer to receive new job offers (e-mail notification)

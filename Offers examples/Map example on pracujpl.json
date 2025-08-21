@@ -1,0 +1,51 @@
+{
+  "id": "9c3d0000-56be-0050-4a29-08ddb32911ba",
+  "source": "pracuj.pl",
+  "sourceId": "9c3d0000-56be-0050-4a29-08ddb32911ba",
+  "url": "https://www.pracuj.pl/praca/inzynier-ka-oprogramowania-python-mid-senior-warszawa-kolska-12,oferta,1004183523",
+  "title": "Inżynier /-ka oprogramowania Python (mid/senior)",
+  "company": {
+    "name": "NASK",
+    "logoUrl": "https://logos.gpcdn.pl/loga-firm/20011564/54330000-56be-0050-f1b2-08dd9c317145_280x280.png",
+    "profileUrl": "https://pracodawcy.pracuj.pl/company/20011564",
+    "isVerified": true
+  },
+  "description": {
+    "full": "Twój zakres obowiązków, Implementacja rozwiązań na podstawie wymagań projektowych...",
+    "short": "Do Działu Rozwoju Systemów Informatycznych poszukujemy inżyniera oprogramowania..."
+  },
+  "salary": {
+    "from": 7000,
+    "to": 16000,
+    "currency": "PLN",
+    "period": "monthly",
+    "type": "brutto",
+    "displayText": "7 000–16 000 zł brutto / mies."
+  },
+  "location": {
+    "city": "Warszawa",
+    "street": "Wola",
+    "coordinates": {
+      "latitude": 52.25102615356445,
+      "longitude": 20.975749969482422
+    },
+    "isRemote": false,
+    "isHybrid": true
+  },
+  "technologies": ["Python", "Django", "FastAPI", "Web Services", "http", "REST", "SQL", "ORM"],
+  "requirements": {
+    "experienceLevel": ["Mid", "Senior"]
+  },
+  "employment": {
+    "types": ["Umowa o pracę"],
+    "schedules": ["Pełny etat"]
+  },
+  "dates": {
+    "published": "2025-07-04T14:33:00Z",
+    "expires": "2025-07-24T21:59:59Z"
+  },
+  "metadata": {
+    "isPromoted": false,
+    "isSuperOffer": false
+  }
+}
