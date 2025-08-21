@@ -34,5 +34,5 @@ public abstract class BaseHtmlScraper
     /// <summary>
     /// Abstract method for getting offer
     /// </summary>
-    public abstract Task<string> GetOfferAsync(string parameters = "", string url = "");
+    public abstract Task<string> GetOfferAsync(string url = "");
 }

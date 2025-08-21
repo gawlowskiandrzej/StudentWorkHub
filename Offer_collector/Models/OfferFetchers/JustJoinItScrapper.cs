@@ -2,7 +2,7 @@
 {
     internal class JustJoinItScrapper : BaseHtmlScraper
     {
-        public override async Task<string> GetOfferAsync(string parameters = "", string url = "")
+        public override async Task<string> GetOfferAsync(string url = "")
         {
             string htmlSource = await GetHtmlAsync(url);
 

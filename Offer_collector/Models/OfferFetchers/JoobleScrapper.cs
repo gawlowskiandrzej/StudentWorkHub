@@ -2,7 +2,7 @@
 {
     internal class JoobleScrapper : BaseHtmlScraper
     {
-        public override Task<string> GetOfferAsync(string parameters = "", string url = "")
+        public override Task<string> GetOfferAsync(string url = "")
         {
             throw new NotImplementedException();
         }

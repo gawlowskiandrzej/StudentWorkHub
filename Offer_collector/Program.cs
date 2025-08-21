@@ -1,4 +1,5 @@
 ﻿using Offer_collector.Models.OfferFetchers;
+using Offer_collector.Models.UrlBuilders;
 
 namespace Offer_collector
 {
@@ -6,20 +7,16 @@ namespace Offer_collector
     {
         static void Main(string[] args)
         {
-            BaseHtmlScraper scraper;
-            //args[1] = "1";
-            switch ("1")
-            {
-                case "1": scraper = new PracujplScrapper(); break;
-                case "2": scraper = new OlxpracaScrapper(); break;
-                case "3": scraper = new JoobleScrapper(); break;
-                case "4": scraper = new JustJoinItScrapper(); break;
+            OfferSitesTypes type = OfferSitesTypes.Pracujpl;
 
-                default:
-                    scraper = new PracujplScrapper();
-                    break;
-            }
-            string asd = scraper.GetOfferAsync().Result;
+            PracujplScrapper scraper = (PracujplScrapper)FactoryScrapper.CreateScrapper(type);
+            PracujPlUrlBuilder urlBuilder = (PracujPlUrlBuilder)UrlBuilderFactory.Create(type);
+
+            string fullUrl = urlBuilder.BuildUrl();
+            string asd = scraper.GetOfferAsync(fullUrl).Result;
+
+
+
             Console.WriteLine(asd);
             Console.ReadKey();
         }
