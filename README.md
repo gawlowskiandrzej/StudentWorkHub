@@ -87,7 +87,7 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
 ```
 
 #### `Unified offer schema` fields description ####
-- `id`: *string|null* - Unique offer identifier. Should be left as **null**, and later filled by database (base62).
+- `id`: *number* - Unique offer identifier.
 - `source`: *string* - Offer source **(e.g. "pracuj.pl", "olx")**, used to quickly identify offer provider.
 - `url`: *string* - Offer URL, used to redirect to the original offer source.
 - `jobTitle`: *string* - Job title listed in offer.
