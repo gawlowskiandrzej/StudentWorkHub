@@ -35,4 +35,19 @@ public abstract class BaseHtmlScraper
     /// Abstract method for getting offer
     /// </summary>
     public abstract Task<string> GetOfferAsync(string url = "");
+    /// <summary>
+    /// Decode unnessesary unicode characters
+    /// </summary>
+    protected string DecodeUnicodeStrict(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return input;
+
+        return Regex.Replace(input, @"\\u([0-9A-Fa-f]{4})", match =>
+        {
+            string hex = match.Groups[1].Value;
+            int code = Convert.ToInt32(hex, 16);
+            return char.ConvertFromUtf32(code);
+        });
+    }
 }

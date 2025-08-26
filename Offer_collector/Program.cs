@@ -7,17 +7,22 @@ namespace Offer_collector
     {
         static void Main(string[] args)
         {
-            OfferSitesTypes type = OfferSitesTypes.Pracujpl;
+            //OfferSitesTypes type = OfferSitesTypes.Pracujpl;
 
-            PracujplScrapper scraper = (PracujplScrapper)FactoryScrapper.CreateScrapper(type);
-            PracujPlUrlBuilder urlBuilder = (PracujPlUrlBuilder)UrlBuilderFactory.Create(type);
+            //PracujplScrapper scraper = (PracujplScrapper)FactoryScrapper.CreateScrapper(type);
+            //PracujPlUrlBuilder urlBuilder = (PracujPlUrlBuilder)UrlBuilderFactory.Create(type);
+
+            OfferSitesTypes type = OfferSitesTypes.Olxpraca;
+
+            OlxpracaScrapper scraper = (OlxpracaScrapper)FactoryScrapper.CreateScrapper(type);
+            OlxPracaUrlBuilder urlBuilder = (OlxPracaUrlBuilder)UrlBuilderFactory.Create(type);
 
             string fullUrl = urlBuilder.BuildUrl();
-            string asd = scraper.GetOfferAsync(fullUrl).Result;
+            string outputJson = scraper.GetOfferAsync(fullUrl).Result;
 
 
 
-            Console.WriteLine(asd);
+            Console.WriteLine(outputJson);
             Console.ReadKey();
         }
     }

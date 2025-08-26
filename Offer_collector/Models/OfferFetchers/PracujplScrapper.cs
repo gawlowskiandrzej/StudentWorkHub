@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Offer_collector.Models.UrlBuilders;
 
 namespace Offer_collector.Models.OfferFetchers
@@ -22,7 +23,7 @@ namespace Offer_collector.Models.OfferFetchers
                 pracujplSchemas.Add(GetPracujplObject(offer));
             }
 
-            return offerListJs.ToString() ?? "";
+            return JsonConvert.SerializeObject(offerListJs, Formatting.Indented) ?? "";
         }
         private async Task<string> GetHtmlSource(string url) => await GetHtmlAsync(url);
         private string GetAllJson(string html) => GetJsonFragment(html, "<script id=\"__NEXT_DATA__\" type=\"application/json\">(.*?)</script>");
