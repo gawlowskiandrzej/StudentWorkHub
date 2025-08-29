@@ -12,17 +12,18 @@ namespace Offer_collector
             //PracujplScrapper scraper = (PracujplScrapper)FactoryScrapper.CreateScrapper(type);
             //PracujPlUrlBuilder urlBuilder = (PracujPlUrlBuilder)UrlBuilderFactory.Create(type);
 
-            OfferSitesTypes type = OfferSitesTypes.Olxpraca;
+            
+            OfferSitesTypes type = OfferSitesTypes.Jooble;
 
-            OlxpracaScrapper scraper = (OlxpracaScrapper)FactoryScrapper.CreateScrapper(type);
-            OlxPracaUrlBuilder urlBuilder = (OlxPracaUrlBuilder)UrlBuilderFactory.Create(type);
+            JoobleScrapper scraper = (JoobleScrapper)FactoryScrapper.CreateScrapper(type);
+            JoobleUrlBuilder urlBuilder = (JoobleUrlBuilder)UrlBuilderFactory.Create(type);
 
             string fullUrl = urlBuilder.BuildUrl();
             string outputJson = scraper.GetOfferAsync(fullUrl).Result;
 
 
 
-            Console.WriteLine(outputJson);
+            //Console.WriteLine(outputJson);
             Console.ReadKey();
         }
     }
