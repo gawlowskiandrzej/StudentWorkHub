@@ -190,17 +190,17 @@ CREATE TABLE public.offers (
 -- Subtypes of offers
 -- =========================================================
 CREATE TABLE public.external_offers (
-    id BIGINT PRIMARY KEY,
+    offer_id BIGINT PRIMARY KEY,
     query_string TEXT NOT NULL,
     offer_lifespan_expiration TIMESTAMPTZ NOT NULL,
     CONSTRAINT fk_external_offers_offer
-        FOREIGN KEY (id) REFERENCES public.offers(id) ON DELETE CASCADE
+        FOREIGN KEY (offer_id) REFERENCES public.offers(id) ON DELETE CASCADE
 );
 
 CREATE TABLE public.internal_offers (
-    id BIGINT PRIMARY KEY,
+    offer_id BIGINT PRIMARY KEY,
     CONSTRAINT fk_internal_offers_offer
-        FOREIGN KEY (id) REFERENCES public.offers(id) ON DELETE CASCADE
+        FOREIGN KEY (offer_id) REFERENCES public.offers(id) ON DELETE CASCADE
 );
 
 -- =========================================================
