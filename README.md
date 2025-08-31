@@ -6,6 +6,14 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
 
 ## Database schemas ##
 ### Offers database ###
+
+#### First revision of physical schema for offers database ####
+> ℹ Internal offer–specific fields will be included in future revisions, after the creation of the internal offer schema.
+
+> ℹ Physical model is developed with `PostgreSQL` in mind, so field types are using `PostgreSQL` naming.
+
+![physical schema v1](diagrams/images/physical_schema_v1.png)
+
 #### First revision of logical ERD schema for offers database ####
 > ℹ Internal offer–specific fields will be included in future revisions, after the creation of the internal offer schema.
 
