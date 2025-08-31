@@ -5,6 +5,7 @@ ENV TZ="Europe/Warsaw"
 
 COPY --chown=postgres:postgres ./scripts/00_hardening.sql /docker-entrypoint-initdb.d/00_hardening.sql
 COPY --chown=postgres:postgres ./scripts/create_database.ddl.sql /docker-entrypoint-initdb.d/10_create_database.ddl.sql
+COPY --chown=postgres:postgres ./scripts/sample_data.dml.sql /docker-entrypoint-initdb.d/20_sample_data.dml.sql
 
 EXPOSE 5432
 
