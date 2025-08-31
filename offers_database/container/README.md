@@ -1,0 +1,1 @@
+# Soon there will be explanations about the container properties and configuration #
