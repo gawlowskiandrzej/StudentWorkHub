@@ -8,7 +8,13 @@ public abstract class BaseHtmlScraper
     
     public BaseHtmlScraper()
     {
-        _client = new HttpClient();
+        var handler = new HttpClientHandler
+        {
+            AutomaticDecompression = System.Net.DecompressionMethods.GZip
+                           | System.Net.DecompressionMethods.Deflate
+                           | System.Net.DecompressionMethods.Brotli
+        };
+        _client = new HttpClient(handler);
 
     }
 

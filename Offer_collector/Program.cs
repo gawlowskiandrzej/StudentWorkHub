@@ -23,7 +23,7 @@ namespace Offer_collector
 
 
 
-            //Console.WriteLine(outputJson);
+            Console.WriteLine(fullUrl);
             Console.ReadKey();
         }
     }
