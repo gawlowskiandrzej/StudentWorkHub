@@ -7,19 +7,36 @@ namespace Offer_collector
     {
         static void Main(string[] args)
         {
-            //OfferSitesTypes type = OfferSitesTypes.Pracujpl;
-
-            //PracujplScrapper scraper = (PracujplScrapper)FactoryScrapper.CreateScrapper(type);
-            //PracujPlUrlBuilder urlBuilder = (PracujPlUrlBuilder)UrlBuilderFactory.Create(type);
-
             
-            OfferSitesTypes type = OfferSitesTypes.Jooble;
-
-            JoobleScrapper scraper = (JoobleScrapper)FactoryScrapper.CreateScrapper(type);
-            JoobleUrlBuilder urlBuilder = (JoobleUrlBuilder)UrlBuilderFactory.Create(type);
+            OfferSitesTypes type = OfferSitesTypes.Justjoinit;
+            BaseHtmlScraper? scrapper = null;
+            BaseUrlBuilder? urlBuilder = null;
+            switch (type)
+            {
+                case OfferSitesTypes.Pracujpl:
+                    scrapper = (PracujplScrapper)FactoryScrapper.CreateScrapper(type);
+                    urlBuilder = (PracujPlUrlBuilder)UrlBuilderFactory.Create(type);
+                    break;
+                case OfferSitesTypes.Justjoinit:
+                    scrapper = (JustJoinItScrapper)FactoryScrapper.CreateScrapper(type);
+                    urlBuilder = (JustJoinItBuilder)UrlBuilderFactory.Create(type);
+                    break;
+                case OfferSitesTypes.Olxpraca:
+                    scrapper = (OlxpracaScrapper)FactoryScrapper.CreateScrapper(type);
+                    urlBuilder = (OlxPracaUrlBuilder)UrlBuilderFactory.Create(type);
+                    break;
+                case OfferSitesTypes.Jooble:
+                    scrapper = (JoobleScrapper)FactoryScrapper.CreateScrapper(type);
+                    urlBuilder = (JoobleUrlBuilder)UrlBuilderFactory.Create(type);
+                    break;
+                default:
+                    scrapper = (PracujplScrapper)FactoryScrapper.CreateScrapper(type);
+                    urlBuilder = (PracujPlUrlBuilder)UrlBuilderFactory.Create(type);
+                    break;
+            }
 
             string fullUrl = urlBuilder.BuildUrl();
-            string outputJson = scraper.GetOfferAsync(fullUrl).Result;
+            string outputJson = scrapper.GetOfferAsync(fullUrl).Result;
 
             Console.WriteLine(outputJson);
             Console.ReadKey();

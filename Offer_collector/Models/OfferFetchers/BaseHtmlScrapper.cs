@@ -30,12 +30,17 @@ public abstract class BaseHtmlScraper
     /// <summary>
     /// Get script or some patter from html
     /// </summary>
-    protected string GetJsonFragment(string htmlSource, string regexPattern)
+    protected string GetJsonFragment(string htmlSource, string regexPattern, int index = 0)
     {
-        var match = Regex.Match(htmlSource, regexPattern,
+        var matches = Regex.Matches(htmlSource, regexPattern,
         RegexOptions.Singleline | RegexOptions.IgnoreCase);
-        var jsonFragment = match.Success ? match.Groups[1].Value : null;
-        return jsonFragment;
+
+        if (matches.Count > index)
+        {
+            return matches[index].Groups[1].Value;
+        }
+
+        return "";
     }
 
     /// <summary>
