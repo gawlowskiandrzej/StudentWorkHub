@@ -2,7 +2,6 @@
 using Newtonsoft.Json.Linq;
 using Offer_collector.Models.BrowserTools;
 using Offer_collector.Models.UrlBuilders;
-using System.Text.Json;
 
 namespace Offer_collector.Models.OfferFetchers
 {
@@ -16,24 +15,20 @@ namespace Offer_collector.Models.OfferFetchers
             string html = await GetHtmlSource(baseUrl);
             string allJs = GetAllJson(html);
 
-            List<JToken> offerListJs = GetOffersJson(allJs);
+            JToken jooblePaginationJToken = GetPaginationJToken(allJs);
+            List<JToken> offertJToken = GetOffersJsonJToken(allJs);
             List<JoobleSchema> joobleSchemas = new List<JoobleSchema>();
 
-            foreach (JToken offer in offerListJs)
-            {
-                joobleSchemas.Add(GetJoobleObject(offer));
-            }
+            foreach (JToken token in offertJToken)
+                joobleSchemas.Add(GetOfferObject(token));
 
-            return JsonConvert.SerializeObject(offerListJs, Formatting.Indented) ?? "";
+            JooblePagination pagination = GetPaginationObject(jooblePaginationJToken);
+            JoobleSchemaWithPagination validObject = GetValidObject(pagination, joobleSchemas);
+
+            return JsonConvert.SerializeObject(validObject, Formatting.Indented) ?? "";
         }
         private async Task<string> GetHtmlSource(string url)
         {
-
-            // TODO nodejs server with stealth plugin
-            // IMPLEMENT api and automatisation to craeate token playwright instead
-
-
-            // Creating headless browser and send get request
             HeadlessBrowser headlessBrowser = new HeadlessBrowser(url);
             string htmlSource = await headlessBrowser.GetWebPageSource(url);
 
@@ -65,13 +60,15 @@ namespace Offer_collector.Models.OfferFetchers
             //DecodeUnicode(json)
             return json;
         }
-        private JoobleSchema GetJoobleObject(JToken token) => token.ToObject<JoobleSchema>() ?? new JoobleSchema();
-        public JToken GetPagination(string allJson)
+        private JoobleSchema GetOfferObject(JToken token) => token.ToObject<JoobleSchema>() ?? new JoobleSchema();
+        private JooblePagination GetPaginationObject(JToken token) => token.ToObject<JooblePagination>() ?? new JooblePagination();
+        private JoobleSchemaWithPagination GetValidObject(JooblePagination pagination, List<JoobleSchema> schemas) => new JoobleSchemaWithPagination(pagination, schemas);
+        private JToken GetPaginationJToken(string allJson)
         {
             JsonParser parser = new JsonParser(allJson);
             return GetPagination(allJson, parser);
         }
-        private List<JToken> GetOffersJson(string allJson)
+        private List<JToken> GetOffersJsonJToken(string allJson)
         {
             // TODO make auto adding new page and feth all offers
             JsonParser parser = new JsonParser(allJson);

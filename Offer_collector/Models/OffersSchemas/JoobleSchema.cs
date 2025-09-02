@@ -184,6 +184,15 @@ public class TopBlock
 public class JoobleSchemaWithPagination
 {
     public int currentPage { get; set; }
-    public int maxPages { get; set; }
+    public int maxElements { get; set; }
+    public int perPage { get; set; }
     public List<JoobleSchema> joobleOffers { get; set; }
+
+    public JoobleSchemaWithPagination(JooblePagination pagination, List<JoobleSchema> schemas)
+    {
+        currentPage = pagination.currentPage;
+        maxElements = pagination.jobsAmount;
+        perPage = pagination.perPage;
+        joobleOffers = schemas;
+    }
 }

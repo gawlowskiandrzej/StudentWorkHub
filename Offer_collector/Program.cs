@@ -21,9 +21,7 @@ namespace Offer_collector
             string fullUrl = urlBuilder.BuildUrl();
             string outputJson = scraper.GetOfferAsync(fullUrl).Result;
 
-
-
-            Console.WriteLine(fullUrl);
+            Console.WriteLine(outputJson);
             Console.ReadKey();
         }
     }
