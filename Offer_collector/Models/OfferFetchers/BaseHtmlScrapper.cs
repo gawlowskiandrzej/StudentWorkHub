@@ -32,8 +32,9 @@ public abstract class BaseHtmlScraper
     /// </summary>
     protected string GetJsonFragment(string htmlSource, string regexPattern)
     {
-        var match = Regex.Match(htmlSource, regexPattern, RegexOptions.Singleline);
-        jsonFragment = match.Success? match.Groups[1].Value : null;
+        var match = Regex.Match(htmlSource, regexPattern,
+        RegexOptions.Singleline | RegexOptions.IgnoreCase);
+        var jsonFragment = match.Success ? match.Groups[1].Value : null;
         return jsonFragment;
     }
 

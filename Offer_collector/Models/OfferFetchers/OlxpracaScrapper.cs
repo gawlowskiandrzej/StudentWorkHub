@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Offer_collector.Models.UrlBuilders;
+using OlxPraca;
 using System.Text.Json;
 
 namespace Offer_collector.Models.OfferFetchers
