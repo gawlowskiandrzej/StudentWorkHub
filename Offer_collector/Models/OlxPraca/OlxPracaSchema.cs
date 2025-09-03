@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OlxPraca
+namespace Offer_collector.Models.OlxPraca
 {
     public class Category
     {

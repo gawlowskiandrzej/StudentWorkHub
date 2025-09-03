@@ -10,10 +10,10 @@ namespace Offer_collector.Models
         {
             _JObject = JObject.Parse(rawJson); 
         }
-        public string GetSpecificJsonFragment(string attrPath)
+        public JToken? GetSpecificJsonFragment(string attrPath)
         {
-           _JObject.SelectToken(attrPath);
-           return _JObject.ToString();
+           JToken? selectedToken = _JObject.SelectToken(attrPath) ?? null;
+            return selectedToken;
         }
         public List<JToken> GetSpecificJsonFragments(string attrPath)
         {

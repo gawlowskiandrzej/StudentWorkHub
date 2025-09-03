@@ -8,7 +8,7 @@ namespace Offer_collector
         static void Main(string[] args)
         {
             
-            OfferSitesTypes type = OfferSitesTypes.Justjoinit;
+            OfferSitesTypes type = OfferSitesTypes.Pracujpl;
             BaseHtmlScraper? scrapper = null;
             BaseUrlBuilder? urlBuilder = null;
             switch (type)

@@ -1,6 +1,6 @@
 ﻿// Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
 
-namespace JustJoinIt
+namespace Offer_collector.Models.JustJoinIt
 {
     public class EmploymentType
     {
