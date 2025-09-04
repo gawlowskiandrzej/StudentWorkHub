@@ -1,4 +1,5 @@
-﻿using Offer_collector.Models.OfferFetchers;
+﻿using Newtonsoft.Json;
+using Offer_collector.Models.OfferFetchers;
 using Offer_collector.Models.UrlBuilders;
 
 namespace Offer_collector
@@ -37,6 +38,8 @@ namespace Offer_collector
 
             string fullUrl = urlBuilder.BuildUrl();
             string outputJson = scrapper.GetOfferAsync(fullUrl).Result;
+
+            
 
             Console.WriteLine(outputJson);
             Console.ReadKey();

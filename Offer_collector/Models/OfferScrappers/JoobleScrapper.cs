@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Offer_collector.Models.BrowserTools;
+using Offer_collector.Models.Json;
 using Offer_collector.Models.UrlBuilders;
+using Offer_collector.Models.Jooble;
 
 namespace Offer_collector.Models.OfferFetchers
 {

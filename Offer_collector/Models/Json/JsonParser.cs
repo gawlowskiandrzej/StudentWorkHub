@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
 
-namespace Offer_collector.Models
+namespace Offer_collector.Models.Json
 {
     internal class JsonParser
     {

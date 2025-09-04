@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Offer_collector.Interfaces;
+using System;
 
 namespace Offer_collector.Models.OlxPraca
 {
@@ -76,7 +77,7 @@ namespace Offer_collector.Models.OlxPraca
         public object offer_id { get; set; }
     }
 
-    public class OlxPracaSchema
+    public class OlxPracaSchema : IUnificatable
     {
         public int? id { get; set; }
         public string title { get; set; }
@@ -112,6 +113,11 @@ namespace Offer_collector.Models.OlxPraca
         public Safedeal safedeal { get; set; }
         public string searchReason { get; set; }
         public bool? isNewFavouriteAd { get; set; }
+
+        public UnifiedOfferSchema UnifiedSchema()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class Safedeal

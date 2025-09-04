@@ -15,5 +15,6 @@ namespace Offer_collector.Models.OfferFetchers
                 _ => throw new ArgumentException($"No implementation for {type}")
             };
         }
+
     }
 }

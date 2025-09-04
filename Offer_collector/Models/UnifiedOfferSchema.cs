@@ -1,6 +1,7 @@
 ﻿using Offer_collector.Models.JustJoinIt;
 using Offer_collector.Models.OlxPraca;
 using Offer_collector.Models.PracujPl;
+using Offer_collector.Models.Tools;
 using System.Text.RegularExpressions;
 
 namespace Offer_collector.Models
@@ -63,77 +64,11 @@ namespace Offer_collector.Models
         public Employment? employment { get; set; }
         public Dates? dates { get; set; }
         public List<string>? benefits { get; set; }
-        public bool isUrgent { get; set; }
-        public bool isForUkrainians { get; set; }
-
-        public UnifiedOfferSchema(PracujplSchema pracujPl, PracujPlCompany pracujCompany)
-        {
-            jobTitle = pracujPl.jobTitle;
-            description = pracujPl.jobDescription;
-            source = OfferSitesTypes.Pracujpl;
-            url = pracujPl.offers.FirstOrDefault()?.offerAbsoluteUri ?? "";
-            company = new Company()
-            {
-                logoUrl = pracujPl.companyLogoUri,
-                name = pracujPl.companyName
-            };
-            GetSalaryFromString(pracujPl.salaryDisplayText);
-            GetCompanyLocation(pracujCompany.addressContract, pracujPl.workModes.Contains("hybrydow"), pracujPl.isRemoteWorkAllowed);
-            requirements = new Requirements
-            {
-                //education = 
-            };
-
-            // Getting salary from second request
-            //salary = pracujPl.
-        }
-        public Salary GetSalaryFromString(string salaryString)
-        {
-            // Regex to match salary ranges, currency, net/gross, and period
-            var regex = new Regex(@"(\d{1,3}(?:\s\d{3})*)–(\d{1,3}(?:\s\d{3})*)\s*(zł)\s*(netto|brutto)?(?:\s*\(\+ VAT\))?\s*/\s*(mies\.|godz\.)");
-
-
-            var match = regex.Match(salaryString);
-            if (match.Success)
-            {
-                var salaryRange = new Salary
-                {
-                    from = decimal.Parse(match.Groups[1].Value.Replace(" ", "")),
-                    to = decimal.Parse(match.Groups[2].Value.Replace(" ", "")),
-                    currency = match.Groups[3].Value,
-                    type = match.Groups[4].Value == "brutto" ? "Brutto" : match.Groups[4].Value == "netto" ? "Netto" : "Unspecified",
-                    period = match.Groups[5].Value == "mies." ? "mies." : "godz."
-                };
-                salary = salaryRange;
-            }
-            return new Salary();
-        }
-        public Location GetCompanyLocation(AddressContract addr, bool isHybrid, bool isRemote)
-        {
-
-            return new Location
-            {
-                city = addr.city,
-                postalCode = addr.postalCode,
-                buildingNumber = String.IsNullOrEmpty(addr.apartmentNumber) ? addr.houseNumber : addr.apartmentNumber,
-                street = addr.street,
-                coordinates = null,
-                isHybrid = isHybrid,
-                isRemote = isRemote
-            };
-        }
-        public UnifiedOfferSchema(JoobleSchema pracujPl)
-        {
-
-        }
-        public UnifiedOfferSchema(JustJoinItSchema pracujPl)
-        {
-
-        }
-        public UnifiedOfferSchema(OlxPracaSchema olxPraca)
-        {
-
-        }
+        public bool isUrgent { get; set; } = false;
+        public bool isForUkrainians { get; set; } = true;
+        public bool isManyvacancies { get; set; } = true;
+        //TODO LISTA POMYSŁÓW UWAG
+        // pole które będzie wskazywać na link do formularza z e-recruiter zeby można było odesłać użytkownika
     }
 
     public class Salary

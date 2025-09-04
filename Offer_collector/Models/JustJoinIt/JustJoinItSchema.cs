@@ -1,5 +1,7 @@
 ﻿// Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
 
+using Offer_collector.Interfaces;
+
 namespace Offer_collector.Models.JustJoinIt
 {
     public class EmploymentType
@@ -31,7 +33,7 @@ namespace Offer_collector.Models.JustJoinIt
         public double longitude { get; set; }
     }
 
-    public class JustJoinItSchema
+    public class JustJoinItSchema : IUnificatable
     {
         public string guid { get; set; }
         public string slug { get; set; }
@@ -55,6 +57,11 @@ namespace Offer_collector.Models.JustJoinIt
         public DateTime expiredAt { get; set; }
         public bool openToHireUkrainians { get; set; }
         public List<Language?>? languages { get; set; }
+
+        public UnifiedOfferSchema UnifiedSchema()
+        {
+            throw new NotImplementedException();
+        }
     }
     public class Language
     {

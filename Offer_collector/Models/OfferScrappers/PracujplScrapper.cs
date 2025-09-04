@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Offer_collector.Models.Json;
 using Offer_collector.Models.PracujPl;
+using Offer_collector.Models.Tools;
 using Offer_collector.Models.UrlBuilders;
 
 namespace Offer_collector.Models.OfferFetchers
@@ -21,16 +23,14 @@ namespace Offer_collector.Models.OfferFetchers
 
             foreach (JToken offer in offerListJs)
             {
-                PracujplSchema schemaOffer = GetPracujplOfferObject(offer);
+                PracujplSchema schemaOffer = OfferMapper.DeserializeJToken<PracujplSchema>(offer);
                 pracujplSchemas.Add(schemaOffer);
-                //Offer? offerObiect = schemaOffer.offers.FirstOrDefault();
-                //if (offerObiect != null)
-                //    GetOfferDetails(offerObiect.offerAbsoluteUri);
-                PracujPlCompany? pracujCompany;
+                Offer? offerObiect = schemaOffer.offers.FirstOrDefault();
+                if (offerObiect != null)
+                    schemaOffer.details = OfferMapper.DeserializeJToken<PracujPlOfferDetails>(await GetOfferDetails(offerObiect.offerAbsoluteUri));
+
                 if (schemaOffer.companyProfileAbsoluteUri != null)
-                   pracujCompany = GetPracujplCompanyObject(await GetCompanyDetails(schemaOffer.companyProfileAbsoluteUri));
-
-
+                   schemaOffer.company = OfferMapper.DeserializeJToken<PracujPlCompany>(await GetCompanyDetails(schemaOffer.companyProfileAbsoluteUri));
             }
 
             return JsonConvert.SerializeObject(offerListJs, Formatting.Indented) ?? "";
@@ -39,8 +39,6 @@ namespace Offer_collector.Models.OfferFetchers
         string GetAllJson(string html) => GetJsonFragment(html, "<script id=\"__NEXT_DATA__\" type=\"application/json\">(.*?)</script>");
         string GetCompanyJson(string html) => GetJsonFragment(html, @"<script id=""__NEXT_DATA__"" type=""application/json""(?: nonce=""[^""]*"")?\s*>\s*({.*?})\s*</script>");
 
-        PracujplSchema GetPracujplOfferObject(JToken token) => token.ToObject<PracujplSchema>() ?? new PracujplSchema();
-        PracujPlCompany GetPracujplCompanyObject(JToken? token) => token?.ToObject<PracujPlCompany>() ?? new PracujPlCompany();
         List<JToken> GetOffersJToken(string allJson)
         {
             JsonParser parser = new JsonParser(allJson);
@@ -51,6 +49,8 @@ namespace Offer_collector.Models.OfferFetchers
                 ".state" +
                 ".data" +
                 ".groupedOffers[*]");
+
+            var stringg = JsonConvert.SerializeObject(offerListJs, Formatting.Indented);
             return offerListJs;
         }
         JToken? GetCompanyJToken(string allJson)
@@ -70,25 +70,23 @@ namespace Offer_collector.Models.OfferFetchers
             return GetCompanyJToken(allJs);
         }
         // TODO take hourly money from details in offer
-        //private JToken GetOfferDetailJson(string allJson)
-        //{
-        //    JsonParser parser = new JsonParser(allJson);
-        //    List<JToken> offerListJs = parser.GetSpecificJsonFragments("props" +
-        //        ".pageProps" +
-        //        ".dehydratedState" +
-        //        ".queries[0]" +
-        //        ".state" +
-        //        ".data" +
-        //        ".groupedOffers[*]");
-        //    return offerListJs;
-        //}
-        //private async Task<JToken> GetOfferDetails(string url)
-        //{
-        //    string htmlSource =  await GetHtmlSource(url);
-        //    string json = GetAllJson(htmlSource);
-
-
-        //    return null;
-        //}
+        private JToken? GetOfferDetailJson(string allJson)
+        {
+            JsonParser parser = new JsonParser(allJson);
+            JToken? offerDetails = parser.GetSpecificJsonFragment("props" +
+                ".pageProps" +
+                ".dehydratedState" +
+                ".queries[0]" +
+                ".state" +
+                ".data");
+            return offerDetails;
+        }
+        private async Task<JToken?> GetOfferDetails(string url)
+        {
+            string htmlSource =  await GetHtmlSource(url);
+            string json = GetAllJson(htmlSource);
+            JToken? offerJToken = GetOfferDetailJson(json);
+            return offerJToken;
+        }
     }
 }

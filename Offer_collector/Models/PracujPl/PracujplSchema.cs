@@ -1,36 +1,127 @@
-﻿
-public class PracujplSchema
+﻿using Offer_collector.Interfaces;
+using Offer_collector.Models;
+using Offer_collector.Models.PracujPl;
+using Offer_collector.Models.Tools;
+using System.Text.RegularExpressions;
+
+public class PracujplSchema : IUnificatable
 {
-    public List<string> technologies { get; set; }
-    public string aboutProjectShortDescription { get; set; }
-    public string groupId { get; set; }
-    public string jobTitle { get; set; }
-    public string companyName { get; set; }
-    public string companyProfileAbsoluteUri { get; set; }
+    public List<string>? technologies { get; set; }
+    public string? aboutProjectShortDescription { get; set; }
+    public string? groupId { get; set; }
+    public string? jobTitle { get; set; }
+    public string? companyName { get; set; }
+    public string? companyProfileAbsoluteUri { get; set; }
     public int companyId { get; set; }
-    public string companyLogoUri { get; set; }
+    public string? companyLogoUri { get; set; }
     public DateTime lastPublicated { get; set; }
     public DateTime expirationDate { get; set; }
-    public string salaryDisplayText { get; set; }
-    public string jobDescription { get; set; }
+    public string? salaryDisplayText { get; set; }
+    public string? jobDescription { get; set; }
     public bool isSuperOffer { get; set; }
     public bool isFranchise { get; set; }
     public bool isOptionalCv { get; set; }
     public bool isOneClickApply { get; set; }
     public bool isJobiconCompany { get; set; }
     public bool isRemoteWorkAllowed { get; set; }
-    public List<Offer> offers { get; set; }
-    public List<string> positionLevels { get; set; }
-    public List<string> typesOfContract { get; set; }
-    public List<string> workSchedules { get; set; }
-    public List<string> workModes { get; set; }
-    public List<PrimaryAttribute> primaryAttributes { get; set; }
-    public object commonOfferId { get; set; }
+    public List<Offer>? offers { get; set; }
+    public List<string>? positionLevels { get; set; }
+    public List<string>? typesOfContract { get; set; }
+    public List<string>? workSchedules { get; set; }
+    public List<string>? workModes { get; set; }
+    public List<PrimaryAttribute>? primaryAttributes { get; set; }
+    public object? commonOfferId { get; set; }
     public int searchEngineRelevancyScore { get; set; }
-    public object mobileBannerUri { get; set; }
-    public object desktopBannerUri { get; set; }
-    public object aiSummary { get; set; }
-    public List<object> appliedProducts { get; set; }
+    public object? mobileBannerUri { get; set; }
+    public object? desktopBannerUri { get; set; }
+    public object? aiSummary { get; set; }
+    public List<object>? appliedProducts { get; set; }
+
+    public PracujPlOfferDetails? details { get; set; }
+    public PracujPlCompany? company { get; set; }
+
+    public UnifiedOfferSchema UnifiedSchema()
+    {
+        UnifiedOfferSchema s = new UnifiedOfferSchema();
+        s.jobTitle = jobTitle ?? "nazwa pracy pusta";
+
+            s.description = jobDescription;
+
+        s.source = OfferSitesTypes.Pracujpl;
+
+        s.url = offers?.FirstOrDefault()?.offerAbsoluteUri ?? "";
+
+        s.company = new Offer_collector.Models.Company
+        {
+            logoUrl = companyLogoUri ?? "",
+            name = companyName ?? "nazwa firmy pusta",
+        };
+        s.salary = GetSalaryFromString();
+
+        s.location = GetCompanyLocation();
+
+        s.requirements = GetRequirements();
+
+        s.employment = new Offer_collector.Models.Employment
+        {
+            schedules = workSchedules ?? new List<string>(),
+            types = typesOfContract ?? new List<string>(),
+        };
+
+        s.dates = new Dates
+        {
+            expires = expirationDate,
+            published = lastPublicated
+        };
+
+        Offer_collector.Models.PracujPl.Model model = details?.sections.Where(_ => _.sectionType.Contains("benefits")).FirstOrDefault()?.model ?? new Offer_collector.Models.PracujPl.Model();
+        List<string> custBenefits = model.customItems.Select(_ => _.name).ToList();
+        List<string> benefits = model.items.Select(_ => _.name).ToList();
+        benefits.AddRange(custBenefits);
+        s.benefits = benefits;
+
+        s.isUrgent = primaryAttributes?.Count(_ =>!String.IsNullOrEmpty(_.code) && _.code.Contains("immediate-employment")) > 0;
+        s.isForUkrainians = primaryAttributes?.Where(_ => !String.IsNullOrEmpty(_.code) && _.code.Contains("ukrainian-friendly")).Count() > 0;
+        s.isManyvacancies = primaryAttributes?.Where(_ => !String.IsNullOrEmpty(_.code) && _.code.Contains("many-vacancies")).Count() > 0;
+
+        return s;
+    }
+    Requirements GetRequirements() => RequirementsParser.ParseRequirements(details?.sections.Where(_ => _.sectionType.Contains("requirements")).FirstOrDefault()?.subSections.FirstOrDefault()?.model.bullets ?? new List<string>());
+    Salary GetSalaryFromString()
+    {
+        // Regex to match salary ranges, currency, net/gross, and period
+        var regex = new Regex(@"(\d{1,3}(?:\s\d{3})*)–(\d{1,3}(?:\s\d{3})*)\s*(zł)\s*(netto|brutto)?(?:\s*\(\+ VAT\))?\s*/\s*(mies\.|godz\.)");
+
+
+        var match = regex.Match(salaryDisplayText ?? "");
+        if (match.Success)
+        {
+            var salaryRange = new Salary
+            {
+                from = decimal.Parse(match.Groups[1].Value.Replace(" ", "")),
+                to = decimal.Parse(match.Groups[2].Value.Replace(" ", "")),
+                currency = match.Groups[3].Value,
+                type = match.Groups[4].Value == "brutto" ? "Brutto" : match.Groups[4].Value == "netto" ? "Netto" : "Unspecified",
+                period = match.Groups[5].Value == "mies." ? "mies." : "godz."
+            };
+
+            return salaryRange;
+        }
+        return new Salary();
+    }
+    Offer_collector.Models.Location GetCompanyLocation()
+    {
+        return new Offer_collector.Models.Location
+        {
+            city = company?.addressContract.city,
+            postalCode = company?.addressContract.postalCode,
+            buildingNumber = String.IsNullOrEmpty(company?.addressContract.apartmentNumber) ? company?.addressContract.houseNumber : company.addressContract.apartmentNumber,
+            street = company?.addressContract.street,
+            coordinates = offers?.FirstOrDefault()?.coordinates,
+            isHybrid = workModes?.Contains("hybrydow") ?? false,
+            isRemote = isRemoteWorkAllowed
+        };
+    }
 }
 
 public class Coordinates
@@ -41,31 +132,31 @@ public class Coordinates
 
 public class Label
 {
-    public string text { get; set; }
-    public string pracujPlText { get; set; }
-    public string primaryTargetSiteText { get; set; }
+    public string? text { get; set; }
+    public string? pracujPlText { get; set; }
+    public string? primaryTargetSiteText { get; set; }
 }
 
 public class Model
 {
-    public string modelType { get; set; }
+    public string? modelType { get; set; }
     public bool flag { get; set; }
 }
 
 public class Offer
 {
     public int partitionId { get; set; }
-    public string offerAbsoluteUri { get; set; }
-    public string displayWorkplace { get; set; }
+    public string? offerAbsoluteUri { get; set; }
+    public string? displayWorkplace { get; set; }
     public bool isWholePoland { get; set; }
-    public List<object> appliedProducts { get; set; }
-    public Coordinates coordinates { get; set; }
-    public object distanceInKilometers { get; set; }
+    public List<object>? appliedProducts { get; set; }
+    public Offer_collector.Models.Coordinates? coordinates { get; set; }
+    public object? distanceInKilometers { get; set; }
 }
 
 public class PrimaryAttribute
 {
-    public string code { get; set; }
-    public Label label { get; set; }
-    public Model model { get; set; }
+    public string? code { get; set; }
+    public Label? label { get; set; }
+    public Model? model { get; set; }
 }

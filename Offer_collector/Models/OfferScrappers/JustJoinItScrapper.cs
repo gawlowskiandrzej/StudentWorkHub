@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Offer_collector.Models.Json;
 using Offer_collector.Models.JustJoinIt;
 using Offer_collector.Models.UrlBuilders;
 using System.Text.Json;
