@@ -75,8 +75,8 @@ public class PracujplSchema : IUnificatable
         };
 
         Offer_collector.Models.PracujPl.Model model = details?.sections.Where(_ => _.sectionType.Contains("benefits")).FirstOrDefault()?.model ?? new Offer_collector.Models.PracujPl.Model();
-        List<string> custBenefits = model.customItems.Select(_ => _.name).ToList();
-        List<string> benefits = model.items.Select(_ => _.name).ToList();
+        List<string> custBenefits = model.customItems?.Select(_ => _.name).ToList() ?? new List<string>();
+        List<string> benefits = model.items?.Select(_ => _.name).ToList() ?? new List<string>();
         benefits.AddRange(custBenefits);
         s.benefits = benefits;
 

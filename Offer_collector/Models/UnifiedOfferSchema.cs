@@ -1,10 +1,4 @@
-﻿using Offer_collector.Models.JustJoinIt;
-using Offer_collector.Models.OlxPraca;
-using Offer_collector.Models.PracujPl;
-using Offer_collector.Models.Tools;
-using System.Text.RegularExpressions;
-
-namespace Offer_collector.Models
+﻿namespace Offer_collector.Models
 {
     public class Company
     {

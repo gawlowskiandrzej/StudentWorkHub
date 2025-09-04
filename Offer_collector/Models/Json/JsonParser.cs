@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json.Linq;
-using System.Text.RegularExpressions;
 
 namespace Offer_collector.Models.Json
 {

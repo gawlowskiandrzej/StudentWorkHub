@@ -18,9 +18,8 @@ namespace Offer_collector.Models.OfferFetchers
             string html = await GetHtmlSource(baseUrl);
             string allJs = GetAllJson(html);
 
-            List<JToken> offerListJs = GetOffersJToken(allJs);
+            List<JToken> offerListJs = GetOffersJToken(allJs).Take(3).ToList();
             List<PracujplSchema> pracujplSchemas = new List<PracujplSchema>();
-
             foreach (JToken offer in offerListJs)
             {
                 PracujplSchema schemaOffer = OfferMapper.DeserializeJToken<PracujplSchema>(offer);
@@ -30,7 +29,17 @@ namespace Offer_collector.Models.OfferFetchers
                     schemaOffer.details = OfferMapper.DeserializeJToken<PracujPlOfferDetails>(await GetOfferDetails(offerObiect.offerAbsoluteUri));
 
                 if (schemaOffer.companyProfileAbsoluteUri != null)
-                   schemaOffer.company = OfferMapper.DeserializeJToken<PracujPlCompany>(await GetCompanyDetails(schemaOffer.companyProfileAbsoluteUri));
+                {
+                    JToken? token = await GetCompanyDetails(schemaOffer.companyProfileAbsoluteUri);
+                    // TODO cast to profile or company
+                    // map fields to company 
+                    //if (token?.SelectToken("slug") != null)
+                        //schemaOffer.company = OfferMapper.DeserializeJToken<PracujPlProfile>(token);
+                  //  else
+                        schemaOffer.company = OfferMapper.DeserializeJToken<PracujPlCompany>(token);
+                }
+                   
+                await Task.Delay(500);
             }
 
             return JsonConvert.SerializeObject(offerListJs, Formatting.Indented) ?? "";
@@ -60,7 +69,18 @@ namespace Offer_collector.Models.OfferFetchers
                 ".pageProps" +
                 ".data" +
                 ".companyData");
+            if (offerCompany == null)
+                offerCompany = GetProfileJToken(allJson);
             return offerCompany;
+        }
+        JToken? GetProfileJToken(string json)
+        {
+            JsonParser parser = new JsonParser(json);
+            JToken? offerProfile = parser.GetSpecificJsonFragment("props" +
+                ".pageProps" +
+                ".data" +
+                ".profileData");
+            return offerProfile;
         }
         async Task<JToken?> GetCompanyDetails(string url)
         {

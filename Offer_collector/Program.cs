@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
+using Offer_collector.Models;
 using Offer_collector.Models.OfferFetchers;
+using Offer_collector.Models.Tools;
 using Offer_collector.Models.UrlBuilders;
 
 namespace Offer_collector
@@ -38,6 +40,15 @@ namespace Offer_collector
 
             string fullUrl = urlBuilder.BuildUrl();
             string outputJson = scrapper.GetOfferAsync(fullUrl).Result;
+
+
+
+            List<PracujplSchema> schemas = OfferMapper.DeserializeJson<List<PracujplSchema>>(outputJson);
+            List<UnifiedOfferSchema> unifSchemas = new List<UnifiedOfferSchema>();
+            foreach (PracujplSchema offer in schemas)
+                unifSchemas.Add(OfferMapper.ToUnifiedSchema<List<PracujplSchema>>(offer));
+
+            
 
             
 
