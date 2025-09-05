@@ -7,6 +7,10 @@ namespace Offer_collector.Models.Tools
         public static Requirements ParseRequirements(List<string> bullets)
         {
             var requirements = new Requirements();
+            requirements.skills = new List<string>();
+            requirements.education = new List<string>();
+            requirements.languages = new List<string>();
+            requirements.experienceLevel = new List<string>();
 
             foreach (var bullet in bullets)
             {
@@ -23,7 +27,7 @@ namespace Offer_collector.Models.Tools
                 var educationMatch = Regex.Match(bullet, @"wykształcenie|edukacja|studia|dyplom|magister|inżynier", RegexOptions.IgnoreCase);
                 if (educationMatch.Success)
                 {
-                    requirements.education.Add(bullet);
+                    requirements?.education.Add(bullet);
                     continue;
                 }
 
@@ -31,15 +35,13 @@ namespace Offer_collector.Models.Tools
                 var languageMatch = Regex.Match(bullet, @"język|language|znajomość języka", RegexOptions.IgnoreCase);
                 if (languageMatch.Success && !bullet.ToLower().Contains("programowania"))
                 {
-                    requirements.languages.Add(bullet);
+                    requirements?.languages.Add(bullet);
                     continue;
                 }
-
-                // Domyślnie dodaj do skills
-                requirements.skills.Add(bullet);
+                requirements?.skills?.Add(bullet);
             }
 
-            return requirements;
+            return requirements ?? new Requirements();
         }
     }
 }

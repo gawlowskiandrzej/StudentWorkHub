@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 
 public class PracujplSchema : IUnificatable
 {
+    // Basic fields by pracuj
     public List<string>? technologies { get; set; }
     public string? aboutProjectShortDescription { get; set; }
     public string? groupId { get; set; }
@@ -37,8 +38,10 @@ public class PracujplSchema : IUnificatable
     public object? aiSummary { get; set; }
     public List<object>? appliedProducts { get; set; }
 
+    // Own added fields
     public PracujPlOfferDetails? details { get; set; }
     public PracujPlCompany? company { get; set; }
+    public PracujPlProfile? profile { get; set; }
 
     public UnifiedOfferSchema UnifiedSchema()
     {
@@ -58,7 +61,7 @@ public class PracujplSchema : IUnificatable
         };
         s.salary = GetSalaryFromString();
 
-        s.location = GetCompanyLocation();
+        s.location = company != null ? GetCompanyLocation() : GetCompanyLocationByProfile();
 
         s.requirements = GetRequirements();
 
@@ -73,6 +76,9 @@ public class PracujplSchema : IUnificatable
             expires = expirationDate,
             published = lastPublicated
         };
+
+        s.leadingCategory = details?.attributes.leadingCategory.name ?? "";
+        s.categories = details?.attributes.categories.Select(_ => _.name).ToList() ?? new List<string>();
 
         Offer_collector.Models.PracujPl.Model model = details?.sections.Where(_ => _.sectionType.Contains("benefits")).FirstOrDefault()?.model ?? new Offer_collector.Models.PracujPl.Model();
         List<string> custBenefits = model.customItems?.Select(_ => _.name).ToList() ?? new List<string>();
@@ -90,8 +96,8 @@ public class PracujplSchema : IUnificatable
     Salary GetSalaryFromString()
     {
         // Regex to match salary ranges, currency, net/gross, and period
-        var regex = new Regex(@"(\d{1,3}(?:\s\d{3})*)–(\d{1,3}(?:\s\d{3})*)\s*(zł)\s*(netto|brutto)?(?:\s*\(\+ VAT\))?\s*/\s*(mies\.|godz\.)");
-
+        var regex = new Regex(@"(\d{1,3}(?:[ \u00A0]\d{3})*)–(\d{1,3}(?:[ \u00A0]\d{3})*)\s*(zł)\s*(netto|brutto)?(?:\s*\(\+\s*VAT\))?\s*/\s*(mies\.|godz\.)");
+        //new Regex(@"(\d{1,3}(?:[\p{Zs}]\d{3})*)–(\d{1,3}(?:[\p{Zs}]\d{3})*)\s*(zł)\s*(netto|brutto)?(?:\s*\(\+\s*VAT\))?\s*/\s*(mies\.|godz\.)");
 
         var match = regex.Match(salaryDisplayText ?? "");
         if (match.Success)
@@ -118,6 +124,23 @@ public class PracujplSchema : IUnificatable
             buildingNumber = String.IsNullOrEmpty(company?.addressContract.apartmentNumber) ? company?.addressContract.houseNumber : company.addressContract.apartmentNumber,
             street = company?.addressContract.street,
             coordinates = offers?.FirstOrDefault()?.coordinates,
+            isHybrid = workModes?.Contains("hybrydow") ?? false,
+            isRemote = isRemoteWorkAllowed
+        };
+    }
+    Offer_collector.Models.Location GetCompanyLocationByProfile()
+    {
+        return new Offer_collector.Models.Location
+        {
+            city = profile?.locations.headOffice.city,
+            postalCode = profile?.locations.headOffice.postalCode,
+            buildingNumber = String.IsNullOrEmpty(profile?.locations.headOffice.addressOfficialName) ? profile?.locations.headOffice.addressOfficialName : "",
+            street = profile?.locations.headOffice.address,
+            coordinates = new Offer_collector.Models.Coordinates
+            {
+                latitude = profile?.locations.headOffice.latitude ?? 0,
+                longitude = profile?.locations.headOffice.longitude ?? 0
+            },
             isHybrid = workModes?.Contains("hybrydow") ?? false,
             isRemote = isRemoteWorkAllowed
         };

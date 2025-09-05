@@ -20,8 +20,8 @@
 
     public class Employment
     {
-        public List<string> types { get; set; } // Future enum type umowa o prace, umowa zlecenie
-        public List<string> schedules { get; set; } // Future enum type full time, partTime
+        public List<string>? types { get; set; } // Future enum type umowa o prace, umowa zlecenie
+        public List<string>? schedules { get; set; } // Future enum type full time, partTime
     }
 
     public class Location
@@ -37,11 +37,11 @@
 
     public class Requirements
     {
-        public List<string> skills { get; set; }
-        public List<string> experienceLevel { get; set; }
+        public List<string>? skills { get; set; }
+        public List<string>? experienceLevel { get; set; }
         public ushort experienceYears { get; set; }
-        public List<string> education { get; set; }
-        public List<string> languages { get; set; }
+        public List<string>? education { get; set; }
+        public List<string>? languages { get; set; }
     }
 
     public class UnifiedOfferSchema
@@ -63,6 +63,9 @@
         public bool isManyvacancies { get; set; } = true;
         //TODO LISTA POMYSŁÓW UWAG
         // pole które będzie wskazywać na link do formularza z e-recruiter zeby można było odesłać użytkownika
+
+        public string? leadingCategory { get; set; }
+        public List<string>? categories { get; set; }
     }
 
     public class Salary

@@ -33,16 +33,15 @@ namespace Offer_collector.Models.OfferFetchers
                     JToken? token = await GetCompanyDetails(schemaOffer.companyProfileAbsoluteUri);
                     // TODO cast to profile or company
                     // map fields to company 
-                    //if (token?.SelectToken("slug") != null)
-                        //schemaOffer.company = OfferMapper.DeserializeJToken<PracujPlProfile>(token);
-                  //  else
+                    if (token?.SelectToken("slug") != null)
+                       schemaOffer.profile = OfferMapper.DeserializeJToken<PracujPlProfile>(token);
+                    else
                         schemaOffer.company = OfferMapper.DeserializeJToken<PracujPlCompany>(token);
                 }
-                   
                 await Task.Delay(500);
             }
 
-            return JsonConvert.SerializeObject(offerListJs, Formatting.Indented) ?? "";
+            return JsonConvert.SerializeObject(pracujplSchemas, Formatting.Indented) ?? "";
         }
         async Task<string> GetHtmlSource(string url) => await GetHtmlAsync(url);
         string GetAllJson(string html) => GetJsonFragment(html, "<script id=\"__NEXT_DATA__\" type=\"application/json\">(.*?)</script>");
@@ -71,6 +70,7 @@ namespace Offer_collector.Models.OfferFetchers
                 ".companyData");
             if (offerCompany == null)
                 offerCompany = GetProfileJToken(allJson);
+            
             return offerCompany;
         }
         JToken? GetProfileJToken(string json)
