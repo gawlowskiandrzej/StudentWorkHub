@@ -11,13 +11,14 @@ namespace Offer_collector.Models.OfferFetchers
     {
         public override async Task<string> GetOfferAsync(string url = "")
         {
-            string baseUrl = PracujPlUrlBuilder.baseUrl;
+            string baseUrl = OlxPracaUrlBuilder.baseUrl;
             if (url != "")
                 baseUrl = url;
             string html = await GetHtmlSource(baseUrl);
             string allJs = GetAllJson(html);
 
             List<JToken> offerListJs = GetOffersJson(allJs);
+            string cos = JsonConvert.SerializeObject(offerListJs, Formatting.Indented);
             List<OlxPracaSchema> olxPracaSchema = new List<OlxPracaSchema>();
 
             foreach (JToken offer in offerListJs)

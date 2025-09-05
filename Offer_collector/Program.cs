@@ -11,7 +11,7 @@ namespace Offer_collector
         static void Main(string[] args)
         {
             
-            OfferSitesTypes type = OfferSitesTypes.Pracujpl;
+            OfferSitesTypes type = OfferSitesTypes.Olxpraca;
             BaseHtmlScraper? scrapper = null;
             BaseUrlBuilder? urlBuilder = null;
             switch (type)

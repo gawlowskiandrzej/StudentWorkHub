@@ -1,6 +1,4 @@
-﻿// Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
-
-using Offer_collector.Interfaces;
+﻿using Offer_collector.Interfaces;
 
 namespace Offer_collector.Models.JustJoinIt
 {

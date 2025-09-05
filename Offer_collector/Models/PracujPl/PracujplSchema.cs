@@ -97,7 +97,6 @@ public class PracujplSchema : IUnificatable
     {
         // Regex to match salary ranges, currency, net/gross, and period
         var regex = new Regex(@"(\d{1,3}(?:[ \u00A0]\d{3})*)–(\d{1,3}(?:[ \u00A0]\d{3})*)\s*(zł)\s*(netto|brutto)?(?:\s*\(\+\s*VAT\))?\s*/\s*(mies\.|godz\.)");
-        //new Regex(@"(\d{1,3}(?:[\p{Zs}]\d{3})*)–(\d{1,3}(?:[\p{Zs}]\d{3})*)\s*(zł)\s*(netto|brutto)?(?:\s*\(\+\s*VAT\))?\s*/\s*(mies\.|godz\.)");
 
         var match = regex.Match(salaryDisplayText ?? "");
         if (match.Success)
