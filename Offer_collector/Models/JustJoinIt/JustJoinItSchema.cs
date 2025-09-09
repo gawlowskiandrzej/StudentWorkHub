@@ -55,8 +55,7 @@ namespace Offer_collector.Models.JustJoinIt
         public DateTime expiredAt { get; set; }
         public bool openToHireUkrainians { get; set; }
         public List<Language?>? languages { get; set; }
-
-        public UnifiedOfferSchema UnifiedSchema()
+        public UnifiedOfferSchema UnifiedSchema(string rawHtml = "")
         {
             throw new NotImplementedException();
         }

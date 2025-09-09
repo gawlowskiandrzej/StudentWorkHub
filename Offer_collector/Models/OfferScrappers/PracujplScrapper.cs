@@ -10,7 +10,7 @@ namespace Offer_collector.Models.OfferFetchers
     internal class PracujplScrapper : BaseHtmlScraper
     {
         
-        public override async Task<string> GetOfferAsync(string url = "")
+        public override async Task<(string, string)> GetOfferAsync(string url = "")
         {
             string baseUrl = PracujPlUrlBuilder.baseUrl;
             if (url != "")
@@ -23,7 +23,7 @@ namespace Offer_collector.Models.OfferFetchers
             foreach (JToken offer in offerListJs)
             {
                 PracujplSchema schemaOffer = OfferMapper.DeserializeJToken<PracujplSchema>(offer);
-                pracujplSchemas.Add(schemaOffer);
+                
                 Offer? offerObiect = schemaOffer.offers.FirstOrDefault();
                 if (offerObiect != null)
                     schemaOffer.details = OfferMapper.DeserializeJToken<PracujPlOfferDetails>(await GetOfferDetails(offerObiect.offerAbsoluteUri));
@@ -38,10 +38,11 @@ namespace Offer_collector.Models.OfferFetchers
                     else
                         schemaOffer.company = OfferMapper.DeserializeJToken<PracujPlCompany>(token);
                 }
+                pracujplSchemas.Add(schemaOffer);
                 await Task.Delay(500);
             }
 
-            return JsonConvert.SerializeObject(pracujplSchemas, Formatting.Indented) ?? "";
+            return (JsonConvert.SerializeObject(pracujplSchemas, Formatting.Indented) ?? "", html);
         }
         async Task<string> GetHtmlSource(string url) => await GetHtmlAsync(url);
         string GetAllJson(string html) => GetJsonFragment(html, "<script id=\"__NEXT_DATA__\" type=\"application/json\">(.*?)</script>");
@@ -89,6 +90,13 @@ namespace Offer_collector.Models.OfferFetchers
 
             return GetCompanyJToken(allJs);
         }
+        private async Task<JToken?> GetOfferDetails(string url)
+        {
+            string htmlSource = await GetHtmlSource(url);
+            string json = GetAllJson(htmlSource);
+            JToken? offerJToken = GetOfferDetailJson(json);
+            return offerJToken;
+        }
         // TODO take hourly money from details in offer
         private JToken? GetOfferDetailJson(string allJson)
         {
@@ -101,12 +109,6 @@ namespace Offer_collector.Models.OfferFetchers
                 ".data");
             return offerDetails;
         }
-        private async Task<JToken?> GetOfferDetails(string url)
-        {
-            string htmlSource =  await GetHtmlSource(url);
-            string json = GetAllJson(htmlSource);
-            JToken? offerJToken = GetOfferDetailJson(json);
-            return offerJToken;
-        }
+        
     }
 }

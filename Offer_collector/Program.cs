@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Offer_collector.Models;
 using Offer_collector.Models.OfferFetchers;
+using Offer_collector.Models.OlxPraca;
 using Offer_collector.Models.Tools;
 using Offer_collector.Models.UrlBuilders;
 
@@ -39,14 +40,34 @@ namespace Offer_collector
             }
 
             string fullUrl = urlBuilder.BuildUrl();
-            string outputJson = scrapper.GetOfferAsync(fullUrl).Result;
+            (string outputJson, string htmlRaw) = scrapper.GetOfferAsync(fullUrl).Result;
 
+            switch (type)
+            {
+                case OfferSitesTypes.Pracujpl:
+                    List<PracujplSchema> pracujSchemas = OfferMapper.DeserializeJson<List<PracujplSchema>>(outputJson);
+                    List<UnifiedOfferSchema> pracujUnifSchemas = new List<UnifiedOfferSchema>();
+                    foreach (PracujplSchema offer in pracujSchemas)
+                        pracujUnifSchemas.Add(OfferMapper.ToUnifiedSchema<List<PracujplSchema>>(offer));
+                    break;
+                case OfferSitesTypes.Justjoinit:
+                   
+                    break;
+                case OfferSitesTypes.Olxpraca:
+                    List<OlxPracaSchema> olxSchemas = OfferMapper.DeserializeJson<List<OlxPracaSchema>>(outputJson);
+                    List<UnifiedOfferSchema> olxUnifSchemas = new List<UnifiedOfferSchema>();
+                    foreach (OlxPracaSchema offer in olxSchemas)
+                        olxUnifSchemas.Add(OfferMapper.ToUnifiedSchema<List<OlxPracaSchema>>(offer, htmlRaw));
+                    break;
+                case OfferSitesTypes.Jooble:
+                   
+                    break;
+                default:
+                   
+                    break;
+            }
 
-
-            List<PracujplSchema> schemas = OfferMapper.DeserializeJson<List<PracujplSchema>>(outputJson);
-            List<UnifiedOfferSchema> unifSchemas = new List<UnifiedOfferSchema>();
-            foreach (PracujplSchema offer in schemas)
-                unifSchemas.Add(OfferMapper.ToUnifiedSchema<List<PracujplSchema>>(offer));
+            
 
             
 

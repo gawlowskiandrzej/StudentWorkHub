@@ -1,5 +1,8 @@
-﻿using Offer_collector.Interfaces;
+﻿using HtmlAgilityPack;
+using Offer_collector.Interfaces;
+using Offer_collector.Models.PracujPl;
 using System;
+using System.Text.RegularExpressions;
 
 namespace Offer_collector.Models.OlxPraca
 {
@@ -100,7 +103,7 @@ namespace Offer_collector.Models.OlxPraca
         public List<Param> @params { get; set; }
         public string itemCondition { get; set; }
         public object price { get; set; }
-        public object salary { get; set; }
+        public Salary salary { get; set; }
         public Partner partner { get; set; }
         public bool? isJob { get; set; }
         public List<object> photos { get; set; }
@@ -114,9 +117,124 @@ namespace Offer_collector.Models.OlxPraca
         public string searchReason { get; set; }
         public bool? isNewFavouriteAd { get; set; }
 
-        public UnifiedOfferSchema UnifiedSchema()
+        public string htmlOfferDetail { get; set; }
+       
+
+        public UnifiedOfferSchema UnifiedSchema(string rawHtml = "")
         {
-            throw new NotImplementedException();
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(htmlOfferDetail);
+            // TODO Dodać kategorię
+            UnifiedOfferSchema un = new UnifiedOfferSchema();
+            un.jobTitle = title;
+            un.description = description;
+            un.source = OfferSitesTypes.Olxpraca;
+            un.url = url;
+            // TODO Get name of company from html becuse of not valid company name
+            un.company = new Company
+            {
+                name = doc.DocumentNode.SelectSingleNode("//*[@id=\"mainContent\"]/div[2]/main/aside/div[1]/div[2]/div/div/div/h4")?.InnerText ?? user.company_name,
+                logoUrl = user.logo
+            };
+            un.salary = new Models.Salary
+            {
+                currency = salary?.currencySymbol ?? "zł",
+                from = salary?.from == null ? 0 : (decimal)salary.from,
+                to = salary?.from == null ? 0 : (decimal)salary.to,
+                period = salary?.period ?? "",
+                type = "Brutto"
+            };
+            un.location = new Models.Location
+            {
+                city = location.cityName,
+                coordinates = new Coordinates
+                {
+                    latitude = map.lat ?? 0,
+                    longitude = map.lon ?? 0
+                },
+                postalCode = "",
+                buildingNumber = ""
+                 
+            };
+            un.requirements = ParseDescription(description);
+            if (un.requirements.experienceLevel?.Count == 0)
+            {
+                if (@params.Where(_ => _.key.Contains("experience")).FirstOrDefault()?.normalizedValue == "exp_yes")
+                    un.requirements.experienceLevel.Add("Wymagane");
+            }
+            // TUTAJ
+
+            return un;
+        }
+
+        public Requirements ParseDescription(string htmlDescription)
+        {
+            var offer = new Requirements();
+            var skills = new List<string>();
+            var experienceLevel = new List<string>();
+            var education = new List<string>();
+            var languages = new List<string>();
+            ushort experienceYears = 0;
+
+            // --- 1. Usuń HTML ---
+            var doc = new HtmlDocument();
+            doc.LoadHtml(htmlDescription);
+            string text = doc.DocumentNode.InnerText.ToLower();
+
+            // --- 2. Doświadczenie / poziom ---
+            if (text.Contains("młodszy") || text.Contains("junior"))
+                experienceLevel.Add("Junior");
+            if (text.Contains("mid"))
+                experienceLevel.Add("Mid");
+            if (text.Contains("senior") || text.Contains("starszy"))
+                experienceLevel.Add("Senior");
+
+            // Jeśli oferta to staż / młodszy specjalista → 0–1 lat
+            if (experienceLevel.Contains("Junior") || text.Contains("staż"))
+                experienceYears = 0;
+
+            // Regex do lat
+            var matchExp = Regex.Match(text, @"(\d+)\s*(lat|rok|years)", RegexOptions.IgnoreCase);
+            if (matchExp.Success)
+                experienceYears = ushort.Parse(matchExp.Groups[1].Value);
+
+            // --- 3. Języki ---
+            var langMap = new Dictionary<string, string> {
+            { "angiel", "English" }, { "english", "English" },
+            { "niemieck", "German" }, { "german", "German" },
+            { "francus", "French" }, { "french", "French" },
+            { "polsk", "Polish" }
+        };
+            foreach (var kv in langMap)
+            {
+                if (text.Contains(kv.Key))
+                    languages.Add(kv.Value);
+            }
+
+            // --- 4. Umiejętności ---
+            var skillKeywords = new[] {
+            "seo", "sem", "link building", "google ads", "facebook ads",
+            "excel", "arkusze google", "whitepress", "linkhouse",
+            "clickup", "content marketing", "raport", "pozycjonowanie"
+        };
+            foreach (var skill in skillKeywords)
+            {
+                if (text.Contains(skill))
+                    skills.Add(skill);
+            }
+
+            // --- 5. Edukacja (jeśli są słowa „studia”, „wykształcenie”) ---
+            if (text.Contains("studia") || text.Contains("wykształcenie"))
+                education.Add("Higher education");
+
+            // --- 6. Ustaw wyniki ---
+            offer.skills = skills.Count > 0 ? skills : null;
+            offer.experienceLevel = experienceLevel.Count > 0 ? experienceLevel : null;
+            offer.experienceYears = experienceYears;
+            offer.education = education.Count > 0 ? education : null;
+            offer.languages = languages.Count > 0 ? languages : null;
+            
+            return offer;
         }
     }
 

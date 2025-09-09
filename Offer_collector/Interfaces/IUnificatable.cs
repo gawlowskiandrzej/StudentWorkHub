@@ -4,6 +4,6 @@ namespace Offer_collector.Interfaces
 {
     public interface IUnificatable
     {
-         UnifiedOfferSchema UnifiedSchema();
+         UnifiedOfferSchema UnifiedSchema(string rawHtml = "");
     }
 }

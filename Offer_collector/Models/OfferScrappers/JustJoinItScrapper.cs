@@ -9,7 +9,7 @@ namespace Offer_collector.Models.OfferFetchers
 {
     internal class JustJoinItScrapper : BaseHtmlScraper
     {
-        public override async Task<string> GetOfferAsync(string url = "")
+        public override async Task<(string, string)> GetOfferAsync(string url = "")
         {
             string baseUrl = JustJoinItBuilder.baseUrl;
             if (url != "")
@@ -25,7 +25,7 @@ namespace Offer_collector.Models.OfferFetchers
                 justJoinItOffers.Add(GetJustJoinItSchema(offer));
             }
 
-            return JsonConvert.SerializeObject(justJoinItOffers, Formatting.Indented) ?? "";
+            return (JsonConvert.SerializeObject(justJoinItOffers, Formatting.Indented) ?? "", html);
         }
         private async Task<string> GetHtmlSource(string url) => await GetHtmlAsync(url);
         //private string GetAllJson(string html) => GetJsonFragment(html, "<script id=\"__NEXT_DATA__\" type=\"application/json\">(.*?)</script>");

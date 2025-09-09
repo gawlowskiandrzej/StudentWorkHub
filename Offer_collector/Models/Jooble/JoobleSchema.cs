@@ -93,8 +93,7 @@ namespace Offer_collector.Models.Jooble
         public object fitlyJobCard { get; set; }
         public object appliesCount { get; set; }
         public int? regionId { get; set; }
-
-        public UnifiedOfferSchema UnifiedSchema()
+        public UnifiedOfferSchema UnifiedSchema(string rawHtml = "")
         {
             throw new NotImplementedException();
         }

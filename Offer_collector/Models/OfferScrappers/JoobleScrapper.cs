@@ -9,7 +9,7 @@ namespace Offer_collector.Models.OfferFetchers
 {
     internal class JoobleScrapper : BaseHtmlScraper
     {
-        public override async Task<string> GetOfferAsync(string url = "")
+        public override async Task<(string, string)> GetOfferAsync(string url = "")
         {
             string baseUrl = JoobleUrlBuilder.baseUrl;
             if (url != "")
@@ -27,7 +27,7 @@ namespace Offer_collector.Models.OfferFetchers
             JooblePagination pagination = GetPaginationObject(jooblePaginationJToken);
             JoobleSchemaWithPagination validObject = GetValidObject(pagination, joobleSchemas);
 
-            return JsonConvert.SerializeObject(validObject, Formatting.Indented) ?? "";
+            return (JsonConvert.SerializeObject(validObject, Formatting.Indented) ?? "", html);
         }
         private async Task<string> GetHtmlSource(string url)
         {
