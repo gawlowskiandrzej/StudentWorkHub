@@ -31,38 +31,11 @@ namespace Offer_collector.Models.OfferFetchers
                 olxPracaSchema.Add(obj);
             }
 
-            return (JsonConvert.SerializeObject(olxPracaSchema, Formatting.Indented) ?? "", html);
+            return (JsonConvert.SerializeObject(offerListJs, Formatting.Indented) ?? "", html);
         }
         private async Task<string> GetHtmlSource(string url) => await GetHtmlAsync(url);
         
         private string GetAllJson(string html) => GetSubstringJson(html);
-        private string GetSubstringJsonFroOfferDetail(string htmlSource)
-        {
-            const string marker = "window.__INIT_CONFIG__ = ";
-            const string endMarker = "}}]}}\";";
-
-            var startIndex = htmlSource.IndexOf(marker);
-            if (startIndex == -1) return null;
-
-            startIndex = htmlSource.IndexOf('{', startIndex);
-            if (startIndex == -1) return null;
-
-            var endIndex = htmlSource.IndexOf(endMarker, startIndex);
-            if (endIndex == -1) return null;
-
-            endIndex += endMarker.Length;
-
-            var json = htmlSource.Substring(startIndex - 1, endIndex - startIndex).Trim();
-
-            if (json.EndsWith(";"))
-                json = json.Substring(0, json.Length - 1);
-            //json = DecodeUnicodeStrict(json);
-            json = JsonConvert.DeserializeObject<string>(json)!;
-            JsonDocument jsonDoc = JsonDocument.Parse(json);
-            string pretty = jsonDoc.RootElement.ToString();
-            //DecodeUnicode(json)
-            return pretty;
-        }
         private string GetSubstringJson(string htmlSource) 
         {
             const string marker = "window.__PRERENDERED_STATE__=";

@@ -51,23 +51,23 @@ namespace Offer_collector.Models.OlxPraca
 
     public class Param
     {
-        public string key { get; set; }
-        public string name { get; set; }
-        public string type { get; set; }
-        public string value { get; set; }
-        public object normalizedValue { get; set; }
+        public string? key { get; set; }
+        public string? name { get; set; }
+        public string? type { get; set; }
+        public string? value { get; set; }
+        public List<string>? normalizedValue { get; set; }
     }
 
     public class Partner
     {
-        public string code { get; set; }
+        public string? code { get; set; }
     }
 
     public class Promotion
     {
         public bool? highlighted { get; set; }
         public bool? top_ad { get; set; }
-        public List<string> options { get; set; }
+        public List<string>? options { get; set; }
         public bool? premium_ad_page { get; set; }
         public bool? urgent { get; set; }
         public bool? b2c_ad_page { get; set; }
@@ -159,16 +159,47 @@ namespace Offer_collector.Models.OlxPraca
             un.requirements = ParseDescription(description);
             if (un.requirements.experienceLevel?.Count == 0)
             {
-                if (@params.Where(_ => _.key.Contains("experience")).FirstOrDefault()?.normalizedValue == "exp_yes")
+                if (@params.Where(_ => _.key.Contains("experience")).FirstOrDefault()?.normalizedValue?.FirstOrDefault() == "exp_yes")
                     un.requirements.experienceLevel.Add("Wymagane");
             }
             // TUTAJ
+            List<string>workingSchedules = new List<string>();
+            List<string>workingTypes = new List<string>();
+            workingSchedules.Add(@params.Where(_ => _.key.Contains("type") && _.name.Contains("Wymiar pracy")).FirstOrDefault()?.normalizedValue.ToString() ?? "");
+            workingTypes = @params.Where(_ => _.key.Contains("agreement")).FirstOrDefault()?.normalizedValue ?? new List<string>();
+            un.employment = new Employment
+            {
+                schedules = workingSchedules,
+                types = workingTypes
+            };
+            un.dates = new Dates
+            {
+                expires = validToTime,
+                published = createdTime
+            };
+            //TODO benefity z description zparsować np. multisport, Prywatna opieka medyczna PZU Zdrowie, Elastyczne godziny pracy
+            un.benefits = GetBenefits();
 
             return un;
         }
-
-        public Requirements ParseDescription(string htmlDescription)
+        List<string> GetBenefits()
         {
+            List<string> benefits = new List<string>();
+
+            if (description.ToLower().Contains("pzu"))
+                benefits.Add("Opieka medyczna PZU");
+            if (description.ToLower().Contains("multisport"))
+                benefits.Add("Karta sportowa multisport");
+            if (description.ToLower().Contains("atmosfer"))
+                benefits.Add("Przyjazna atmosfera");
+            if (description.ToLower().Contains("szkolen"))
+                benefits.Add("Szkolenia");
+
+            return benefits;
+        }
+        Requirements ParseDescription(string htmlDescription)
+        {
+            // TODO sprawdzić czy nie ma schematu dlatego wstawiłem tutaj html np. pierwszy strong to wykształcenie itp..
             var offer = new Requirements();
             var skills = new List<string>();
             var experienceLevel = new List<string>();
@@ -176,12 +207,11 @@ namespace Offer_collector.Models.OlxPraca
             var languages = new List<string>();
             ushort experienceYears = 0;
 
-            // --- 1. Usuń HTML ---
+            
             var doc = new HtmlDocument();
             doc.LoadHtml(htmlDescription);
             string text = doc.DocumentNode.InnerText.ToLower();
 
-            // --- 2. Doświadczenie / poziom ---
             if (text.Contains("młodszy") || text.Contains("junior"))
                 experienceLevel.Add("Junior");
             if (text.Contains("mid"))
@@ -189,16 +219,16 @@ namespace Offer_collector.Models.OlxPraca
             if (text.Contains("senior") || text.Contains("starszy"))
                 experienceLevel.Add("Senior");
 
-            // Jeśli oferta to staż / młodszy specjalista → 0–1 lat
+           
             if (experienceLevel.Contains("Junior") || text.Contains("staż"))
                 experienceYears = 0;
 
-            // Regex do lat
+            
             var matchExp = Regex.Match(text, @"(\d+)\s*(lat|rok|years)", RegexOptions.IgnoreCase);
             if (matchExp.Success)
                 experienceYears = ushort.Parse(matchExp.Groups[1].Value);
 
-            // --- 3. Języki ---
+            
             var langMap = new Dictionary<string, string> {
             { "angiel", "English" }, { "english", "English" },
             { "niemieck", "German" }, { "german", "German" },
@@ -211,7 +241,7 @@ namespace Offer_collector.Models.OlxPraca
                     languages.Add(kv.Value);
             }
 
-            // --- 4. Umiejętności ---
+            
             var skillKeywords = new[] {
             "seo", "sem", "link building", "google ads", "facebook ads",
             "excel", "arkusze google", "whitepress", "linkhouse",
@@ -240,31 +270,31 @@ namespace Offer_collector.Models.OlxPraca
 
     public class Safedeal
     {
-        public List<object> allowed_quantity { get; set; }
+        public List<object>? allowed_quantity { get; set; }
         public int? weight_grams { get; set; }
     }
 
     public class Shop
     {
-        public string subdomain { get; set; }
+        public string? subdomain { get; set; }
     }
 
     public class User
     {
         public int? id { get; set; }
-        public string name { get; set; }
-        public object photo { get; set; }
-        public string logo { get; set; }
+        public string? name { get; set; }
+        public object? photo { get; set; }
+        public string? logo { get; set; }
         public bool? otherAdsEnabled { get; set; }
-        public object socialNetworkAccountType { get; set; }
+        public object? socialNetworkAccountType { get; set; }
         public bool? isOnline { get; set; }
         public DateTime? lastSeen { get; set; }
-        public string about { get; set; }
-        public string bannerDesktopURL { get; set; }
-        public string logo_ad_page { get; set; }
-        public string company_name { get; set; }
+        public string? about { get; set; }
+        public string? bannerDesktopURL { get; set; }
+        public string? logo_ad_page { get; set; }
+        public string? company_name { get; set; }
         public DateTime? created { get; set; }
-        public object sellerType { get; set; }
-        public string uuid { get; set; }
+        public object? sellerType { get; set; }
+        public string? uuid { get; set; }
     }
 }

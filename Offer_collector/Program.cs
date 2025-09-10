@@ -68,11 +68,6 @@ namespace Offer_collector
             }
 
             
-
-            
-
-            
-
             Console.WriteLine(outputJson);
             Console.ReadKey();
         }
