@@ -1,12 +1,9 @@
-﻿using HtmlAgilityPack;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Offer_collector.Models.Json;
 using Offer_collector.Models.OlxPraca;
-using Offer_collector.Models.Tools;
 using Offer_collector.Models.UrlBuilders;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 
 namespace Offer_collector.Models.OfferFetchers
 {
@@ -38,7 +35,7 @@ namespace Offer_collector.Models.OfferFetchers
                 olxPracaSchema.Add(obj);
             }
 
-            return (JsonConvert.SerializeObject(offerListJs, Formatting.Indented) ?? "", html);
+            return (JsonConvert.SerializeObject(olxPracaSchema, Formatting.Indented) ?? "", html);
         }
         private async Task<string> GetHtmlSource(string url) => await GetHtmlAsync(url);
         private OlxPracaCategory GetOlxPracaCategoryById(int id, string categoryJson)

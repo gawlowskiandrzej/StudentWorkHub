@@ -1,4 +1,6 @@
 ﻿using HtmlAgilityPack;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Offer_collector.Interfaces;
 using System.Text.RegularExpressions;
 
@@ -143,17 +145,24 @@ namespace Offer_collector.Models.OlxPraca
                 period = salary?.period ?? "",
                 type = "Brutto"
             };
+
+            Param? asd = @params.Where(_ => _.key.Contains("workplace")).FirstOrDefault();
+            string workl = asd?.normalizedValue?.ToString() ?? "";
+            List<string> workplaces = JsonConvert.DeserializeObject<List<string>>(workl) ?? new List<string>();
+
             un.location = new Models.Location
-            {
-                city = location.cityName,
-                coordinates = new Coordinates
                 {
-                    latitude = map.lat ?? 0,
-                    longitude = map.lon ?? 0
-                },
-                postalCode = "",
-                buildingNumber = ""
-                 
+                    city = location.cityName,
+                    coordinates = new Coordinates
+                    {
+                        latitude = map.lat ?? 0,
+                        longitude = map.lon ?? 0
+                    },
+                    postalCode = "",
+                    buildingNumber = "",
+                    isHybrid = workplaces.Any(_ => _ == "hybrid"),
+                    isRemote = workplaces.Any(_ => _ == "remote_work_possibility")
+
             };
             un.requirements = ParseDescription(description);
             if (un.requirements.experienceLevel?.Count == 0)
@@ -192,6 +201,8 @@ namespace Offer_collector.Models.OlxPraca
 
             un.leadingCategory = category.categoryDetails?.normalizedName;
             un.categories = new List<string> { un.leadingCategory ?? "" };
+
+            
 
 
             return un;
@@ -234,10 +245,8 @@ namespace Offer_collector.Models.OlxPraca
             if (text.Contains("senior") || text.Contains("starszy"))
                 experienceLevel.Add("Senior");
 
-           
             if (experienceLevel.Contains("Junior") || text.Contains("staż"))
                 experienceYears = 0;
-
             
             var matchExp = Regex.Match(text, @"(\d+)\s*(lat|rok|years)", RegexOptions.IgnoreCase);
             if (matchExp.Success)

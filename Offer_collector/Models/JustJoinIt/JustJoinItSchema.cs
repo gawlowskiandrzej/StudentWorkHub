@@ -1,4 +1,5 @@
 ﻿using Offer_collector.Interfaces;
+using Offer_collector.Models.UrlBuilders;
 
 namespace Offer_collector.Models.JustJoinIt
 {
@@ -36,6 +37,7 @@ namespace Offer_collector.Models.JustJoinIt
         public string guid { get; set; }
         public string slug { get; set; }
         public string title { get; set; }
+        public string description { get; set; }
         public List<string> requiredSkills { get; set; }
         public object niceToHaveSkills { get; set; }
         public string workplaceType { get; set; }
@@ -55,9 +57,22 @@ namespace Offer_collector.Models.JustJoinIt
         public DateTime expiredAt { get; set; }
         public bool openToHireUkrainians { get; set; }
         public List<Language?>? languages { get; set; }
+
+        public JustJoinItOfferDetails details { get; set; }  
+
         public UnifiedOfferSchema UnifiedSchema(string rawHtml = "")
         {
-            throw new NotImplementedException();
+            UnifiedOfferSchema unif = new UnifiedOfferSchema();
+            unif.source = OfferSitesTypes.Justjoinit;
+            unif.url = JustJoinItBuilder.baseUrlOfferDetail + slug;
+            unif.jobTitle = title;
+            unif.company = new Company
+            {
+                logoUrl = companyLogoThumbUrl,
+                name = companyName
+            };
+            unif.description = description;
+            return unif;
         }
     }
     public class Language

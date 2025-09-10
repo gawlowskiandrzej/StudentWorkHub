@@ -3,6 +3,8 @@
     internal class JustJoinItBuilder : BaseUrlBuilder
     {
         public static string baseUrl = "https://justjoin.it/job-offers/all-locations";
+        public static string baseUrlOfferDetail = "https://justjoin.it/job-offer/";
+
         public JustJoinItBuilder() : base(baseUrl) { }
         protected override string BuildBaseUrl(Dictionary<string, string> parameters, Dictionary<string, string> tags)
         {

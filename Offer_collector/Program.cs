@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Offer_collector.Models;
+using Offer_collector.Models.JustJoinIt;
 using Offer_collector.Models.OfferFetchers;
 using Offer_collector.Models.OlxPraca;
 using Offer_collector.Models.Tools;
@@ -12,7 +13,7 @@ namespace Offer_collector
         static void Main(string[] args)
         {
             
-            OfferSitesTypes type = OfferSitesTypes.Olxpraca;
+            OfferSitesTypes type = OfferSitesTypes.Justjoinit;
             BaseHtmlScraper? scrapper = null;
             BaseUrlBuilder? urlBuilder = null;
             switch (type)
@@ -50,14 +51,17 @@ namespace Offer_collector
                     foreach (PracujplSchema offer in pracujSchemas)
                         pracujUnifSchemas.Add(OfferMapper.ToUnifiedSchema<List<PracujplSchema>>(offer));
                     break;
-                case OfferSitesTypes.Justjoinit:
-                   
-                    break;
                 case OfferSitesTypes.Olxpraca:
                     List<OlxPracaSchema> olxSchemas = OfferMapper.DeserializeJson<List<OlxPracaSchema>>(outputJson);
                     List<UnifiedOfferSchema> olxUnifSchemas = new List<UnifiedOfferSchema>();
                     foreach (OlxPracaSchema offer in olxSchemas)
                         olxUnifSchemas.Add(OfferMapper.ToUnifiedSchema<List<OlxPracaSchema>>(offer, htmlRaw));
+                    break;
+                case OfferSitesTypes.Justjoinit:
+                    List<JustJoinItSchema> justJoinItSchemas = OfferMapper.DeserializeJson<List<JustJoinItSchema>>(outputJson);
+                    List<UnifiedOfferSchema> justJoinItUnifSchemas = new List<UnifiedOfferSchema>();
+                    foreach (JustJoinItSchema offer in justJoinItSchemas)
+                        justJoinItUnifSchemas.Add(OfferMapper.ToUnifiedSchema<List<JustJoinItSchema>>(offer, htmlRaw));
                     break;
                 case OfferSitesTypes.Jooble:
                    
