@@ -62,7 +62,7 @@
         public bool isForUkrainians { get; set; } = true;
         public bool isManyvacancies { get; set; } = true;
         //TODO LISTA POMYSŁÓW UWAG
-        // pole które będzie wskazywać na link do formularza z e-recruiter zeby można było odesłać użytkownika
+        // pole które będzie wskazywać na link do formularza z e-recruiter zeby można było odesłać użytkownika z html lub z pola json jak się da
 
         public string? leadingCategory { get; set; }
         public List<string>? categories { get; set; }

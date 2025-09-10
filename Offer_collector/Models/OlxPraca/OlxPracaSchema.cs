@@ -1,7 +1,5 @@
 ﻿using HtmlAgilityPack;
 using Offer_collector.Interfaces;
-using Offer_collector.Models.PracujPl;
-using System;
 using System.Text.RegularExpressions;
 
 namespace Offer_collector.Models.OlxPraca
@@ -9,8 +7,9 @@ namespace Offer_collector.Models.OlxPraca
     public class Category
     {
         public int? id { get; set; }
-        public string type { get; set; }
-        public string _nodeId { get; set; }
+        public string? type { get; set; }
+        public string? _nodeId { get; set; }
+        public OlxPracaCategory? categoryDetails { get; set; }   
     }
 
     public class Contact
@@ -55,7 +54,7 @@ namespace Offer_collector.Models.OlxPraca
         public string? name { get; set; }
         public string? type { get; set; }
         public string? value { get; set; }
-        public List<string>? normalizedValue { get; set; }
+        public object? normalizedValue { get; set; }
     }
 
     public class Partner
@@ -159,14 +158,16 @@ namespace Offer_collector.Models.OlxPraca
             un.requirements = ParseDescription(description);
             if (un.requirements.experienceLevel?.Count == 0)
             {
-                if (@params.Where(_ => _.key.Contains("experience")).FirstOrDefault()?.normalizedValue?.FirstOrDefault() == "exp_yes")
+                List<string> experienceParam = @params.Where(_ => _.key.Contains("experience"))?.FirstOrDefault()?.normalizedValue as List<string> ?? new List<string>();
+                if (experienceParam.FirstOrDefault() == "exp_yes")
                     un.requirements.experienceLevel.Add("Wymagane");
             }
             // TUTAJ
             List<string>workingSchedules = new List<string>();
             List<string>workingTypes = new List<string>();
-            workingSchedules.Add(@params.Where(_ => _.key.Contains("type") && _.name.Contains("Wymiar pracy")).FirstOrDefault()?.normalizedValue.ToString() ?? "");
-            workingTypes = @params.Where(_ => _.key.Contains("agreement")).FirstOrDefault()?.normalizedValue ?? new List<string>();
+
+            workingSchedules.Add(@params.Where(_ => _.key.Contains("type") && _.name.Contains("Wymiar pracy")).FirstOrDefault()?.normalizedValue?.ToString() ?? "");
+            workingTypes = @params.Where(_ => _.key.Contains("agreement")).FirstOrDefault()?.normalizedValue as List<string> ?? new List<string>();
             un.employment = new Employment
             {
                 schedules = workingSchedules,
@@ -179,6 +180,19 @@ namespace Offer_collector.Models.OlxPraca
             };
             //TODO benefity z description zparsować np. multisport, Prywatna opieka medyczna PZU Zdrowie, Elastyczne godziny pracy
             un.benefits = GetBenefits();
+
+            // Nie znalazłem info więc domyślna wartość
+            //un.isUrgent 
+
+            // Nie znlazłem domyślnie true, wszędzie jest tłumaczenie na ukraiński więc imo true
+            //un.isForUkrainians =
+
+            //Nie znalazłem ewentualnie w jakiś sposób sparsować z opisu
+            //un.isManyvacancies = false;
+
+            un.leadingCategory = category.categoryDetails?.normalizedName;
+            un.categories = new List<string> { un.leadingCategory ?? "" };
+
 
             return un;
         }
@@ -200,6 +214,7 @@ namespace Offer_collector.Models.OlxPraca
         Requirements ParseDescription(string htmlDescription)
         {
             // TODO sprawdzić czy nie ma schematu dlatego wstawiłem tutaj html np. pierwszy strong to wykształcenie itp..
+            // ewentualnie można użyć prostego modelu AI ewentualnie jakieś darmowe api (deepseek)
             var offer = new Requirements();
             var skills = new List<string>();
             var experienceLevel = new List<string>();
