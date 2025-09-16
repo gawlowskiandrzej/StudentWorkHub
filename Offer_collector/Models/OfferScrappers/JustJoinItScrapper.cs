@@ -12,6 +12,8 @@ namespace Offer_collector.Models.OfferFetchers
     {
         public override async Task<(string, string)> GetOfferAsync(string url = "")
         {
+            AiApi aiApi = new AiApi();
+
             string baseUrl = JustJoinItBuilder.baseUrl;
             if (url != "")
                 baseUrl = url;
@@ -35,7 +37,10 @@ namespace Offer_collector.Models.OfferFetchers
                 schema.details = GetJustJoinItOfferDetails(detailsToken ?? "");
                 schema.detailsHtml = detailsHtml;
                 schema.description = JsonConvert.DeserializeObject<JustJoinItDescription>(GetDescriptionSubString(detailsHtml) ?? "")?.description ?? "";
-                
+
+
+                //string resultFormAi = await aiApi.SendPrompt(new List<string>{ schema.description });
+
                 await Task.Delay(Constants.delayBetweenRequests);
             }
 

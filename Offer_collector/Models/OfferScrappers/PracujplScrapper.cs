@@ -21,8 +21,9 @@ namespace Offer_collector.Models.OfferFetchers
             string html = await GetHtmlSource(baseUrl);
             string allJs = GetAllJson(html);
 
-            List<JToken> offerListJs = GetOffersJToken(allJs).Take(3).ToList();
+            List<JToken> offerListJs = GetOffersJToken(allJs).Take(9).ToList();
             List<PracujplSchema> pracujplSchemas = new List<PracujplSchema>();
+            List<string> requirementsData = new List<string>();
             foreach (JToken offer in offerListJs)
             {
                 PracujplSchema schemaOffer = OfferMapper.DeserializeJToken<PracujplSchema>(offer);
@@ -45,6 +46,7 @@ namespace Offer_collector.Models.OfferFetchers
 
 
                 pracujplSchemas.Add(schemaOffer);
+                requirementsData.Add(String.Join(";",schemaOffer.details.sections.Where(_ => _.sectionType.Contains("requirements")).FirstOrDefault()?.subSections.FirstOrDefault()?.model.bullets));
                 await Task.Delay(Constants.delayBetweenRequests);
             }
 

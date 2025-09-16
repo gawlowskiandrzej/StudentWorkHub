@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-using Offer_collector.Models;
-using Offer_collector.Models.AI;
+﻿using Offer_collector.Models;
 using Offer_collector.Models.JustJoinIt;
 using Offer_collector.Models.OfferFetchers;
 using Offer_collector.Models.OlxPraca;
@@ -14,10 +12,9 @@ namespace Offer_collector
         static void Main(string[] args)
         {
             
-            OfferSitesTypes type = OfferSitesTypes.Justjoinit;
+            OfferSitesTypes type = OfferSitesTypes.Jooble;
             BaseHtmlScraper? scrapper = null;
             BaseUrlBuilder? urlBuilder = null;
-            AiApi aiApi = new AiApi();
             switch (type)
             {
                 case OfferSitesTypes.Pracujpl:

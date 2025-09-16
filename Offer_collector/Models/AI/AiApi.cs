@@ -30,7 +30,7 @@ namespace Offer_collector.Models.AI
             }
 
         }
-        string CreatePrompt(string myOfferString, PromptType promptType)
+        string CreatePrompt(List<string> myOfferString, PromptType promptType)
         {
             SendPromptObject prompt = new SendPromptObject();
             AiPromptParameters promptParameters = PromptFactory.GetPromptParameters(promptType);
@@ -39,7 +39,7 @@ namespace Offer_collector.Models.AI
             ### Example input:\n {promptParameters.ExampleDescriptionStructure}\n 
             ### Example output: {promptParameters.ExampleRequirementsStructure}\n
             ### Task: {promptParameters.ExampleTaskStructure}\n
-            ### Text: {myOfferString}
+            ### Text: {String.Join(';',myOfferString)}
             ";
             prompt.model = _aiModel;
             prompt.messages.Add(new Message
@@ -50,17 +50,19 @@ namespace Offer_collector.Models.AI
 
             return JsonConvert.SerializeObject(prompt);
         }
-        public async Task<DTOApiObject> SendPrompt(string myOfferString, PromptType promptType)
+        public async Task<string> SendPrompt(List<string> descriptionString)
         {
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, _restClient.BaseAddress);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, _restClient?.BaseAddress);
 
-            string prompt = CreatePrompt(myOfferString, promptType);
+            string prompt = CreatePrompt(descriptionString, descriptionString.Count > 1 ? PromptType.FromListOfSkills : PromptType.FromDescription);
 
             request.Content = new StringContent(prompt, Encoding.UTF8, "application/json");
-            HttpResponseMessage message = await _restClient.SendAsync(request);
+            HttpResponseMessage message = await _restClient?.SendAsync(request);
             string rawJsonResponse = await message.Content.ReadAsStringAsync();
 
-            return JsonConvert.DeserializeObject<DTOApiObject>(rawJsonResponse) ?? new DTOApiObject();
+            DTOApiObject? result = JsonConvert.DeserializeObject<DTOApiObject>(rawJsonResponse);
+            return JsonConvert.SerializeObject(result?.choices?.FirstOrDefault()?.message); 
         }
+        
     }
 }

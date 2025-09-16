@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Offer_collector.Interfaces;
+using Offer_collector.Models.JustJoinIt;
 using System.Text.RegularExpressions;
 
 namespace Offer_collector.Models.OlxPraca
@@ -165,12 +166,12 @@ namespace Offer_collector.Models.OlxPraca
 
             };
             un.requirements = ParseDescription(description);
-            if (un.requirements.experienceLevel?.Count == 0)
-            {
-                List<string> experienceParam = @params.Where(_ => _.key.Contains("experience"))?.FirstOrDefault()?.normalizedValue as List<string> ?? new List<string>();
-                if (experienceParam.FirstOrDefault() == "exp_yes")
-                    un.requirements.experienceLevel.Add("Wymagane");
-            }
+            //if (un.requirements.experienceLevel?.Count == 0)
+            //{
+            //    List<string> experienceParam = @params.Where(_ => _.key.Contains("experience"))?.FirstOrDefault()?.normalizedValue as List<string> ?? new List<string>();
+            //    if (experienceParam.FirstOrDefault() == "exp_yes")
+            //        un.requirements.experienceLevel.Add("Wymagane");
+            //}
             // TUTAJ
             List<string>workingSchedules = new List<string>();
             List<string>workingTypes = new List<string>();
@@ -227,10 +228,10 @@ namespace Offer_collector.Models.OlxPraca
             // TODO sprawdzić czy nie ma schematu dlatego wstawiłem tutaj html np. pierwszy strong to wykształcenie itp..
             // ewentualnie można użyć prostego modelu AI ewentualnie jakieś darmowe api (deepseek)
             var offer = new Requirements();
-            var skills = new List<string>();
+            var skills = new List<Skill>();
             var experienceLevel = new List<string>();
             var education = new List<string>();
-            var languages = new List<string>();
+            var languages = new List<LanguageSkill>();
             ushort experienceYears = 0;
 
             
@@ -262,7 +263,7 @@ namespace Offer_collector.Models.OlxPraca
             foreach (var kv in langMap)
             {
                 if (text.Contains(kv.Key))
-                    languages.Add(kv.Value);
+                    languages.Add( new LanguageSkill { language = kv.Value, level = experienceYears.ToString() });
             }
 
             
@@ -274,7 +275,7 @@ namespace Offer_collector.Models.OlxPraca
             foreach (var skill in skillKeywords)
             {
                 if (text.Contains(skill))
-                    skills.Add(skill);
+                    skills.Add(new Skill { name = skill, years = 0});
             }
 
             // --- 5. Edukacja (jeśli są słowa „studia”, „wykształcenie”) ---
@@ -283,8 +284,6 @@ namespace Offer_collector.Models.OlxPraca
 
             // --- 6. Ustaw wyniki ---
             offer.skills = skills.Count > 0 ? skills : null;
-            offer.experienceLevel = experienceLevel.Count > 0 ? experienceLevel : null;
-            offer.experienceYears = experienceYears;
             offer.education = education.Count > 0 ? education : null;
             offer.languages = languages.Count > 0 ? languages : null;
             
