@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Offer_collector.Models.AI;
 using Offer_collector.Models.Json;
 using Offer_collector.Models.JustJoinIt;
 using Offer_collector.Models.UrlBuilders;
@@ -18,22 +19,24 @@ namespace Offer_collector.Models.OfferFetchers
             string allJs = GetAllJson(html);
 
             List<JToken> offerListJs = GetOffersJson(allJs);
-            List<JustJoinItSchema> justJoinItOffers = new List<JustJoinItSchema>();
+            #if DEBUG
+                var listJs = JsonConvert.SerializeObject(offerListJs, Formatting.Indented);
+            #endif
 
+            List<JustJoinItSchema> justJoinItOffers = new List<JustJoinItSchema>();
+           
             foreach (JToken offer in offerListJs)
             {
                 JustJoinItSchema schema = GetJustJoinItSchema(offer);
                 justJoinItOffers.Add(schema);
 
-                if (schema.slug != "")
-                {
-                    string detailsHtml = await GetHtmlSource(JustJoinItBuilder.baseUrlOfferDetail + schema.slug);
-                    JToken? detailsToken = await GetCompanyDetails(detailsHtml);
-                    schema.details = GetJustJoinItOfferDetails(detailsToken ?? "");
-                    schema.description = JsonConvert.DeserializeObject<JustJoinItDescription>(GetDescriptionSubString(detailsHtml) ?? "")?.description ?? "";
-                }
-
-                Task.Delay(500);
+                string detailsHtml = await GetHtmlSource(JustJoinItBuilder.baseUrlOfferDetail + schema.slug);
+                JToken? detailsToken = await GetCompanyDetails(detailsHtml);
+                schema.details = GetJustJoinItOfferDetails(detailsToken ?? "");
+                schema.detailsHtml = detailsHtml;
+                schema.description = JsonConvert.DeserializeObject<JustJoinItDescription>(GetDescriptionSubString(detailsHtml) ?? "")?.description ?? "";
+                
+                await Task.Delay(Constants.delayBetweenRequests);
             }
 
             return (JsonConvert.SerializeObject(justJoinItOffers, Formatting.Indented) ?? "", html);
@@ -57,8 +60,8 @@ namespace Offer_collector.Models.OfferFetchers
             if (endIndex == -1) return null;
 
             endIndex += endMarker.Length;
-            
-            var json = htmlSource.Substring(startIndex, endIndex - startIndex-6).Trim();
+
+            var json = htmlSource.Substring(startIndex, endIndex - startIndex - 6).Trim();
             json = "\"" + json + "\"";
             if (json.EndsWith(";"))
                 json = json.Substring(1, json.Length - 1);
@@ -70,31 +73,32 @@ namespace Offer_collector.Models.OfferFetchers
             return pretty;
         }
         private string? GetDescriptionSubString(string htmlSource) => GetJsonFragment(htmlSource, @"<script[^>]*type=['""]application/ld\+json['""][^>]*>(.*?)</script>");
-            //// TODO Fix null issues with invalid casting JustJoinIt offers 
-            //const string marker = "<script type=\"application/ld+json\">";
-            //const string endMarker = "}}\\n</script>";
+        
+        //// TODO Fix null issues with invalid casting JustJoinIt offers 
+        //const string marker = "<script type=\"application/ld+json\">";
+        //const string endMarker = "}}\\n</script>";
 
-            //var startIndex = htmlSource.IndexOf(marker);
-            //if (startIndex == -1) return null;
+        //var startIndex = htmlSource.IndexOf(marker);
+        //if (startIndex == -1) return null;
 
-            //startIndex = htmlSource.IndexOf('{', startIndex);
-            //if (startIndex == -1) return null;
+        //startIndex = htmlSource.IndexOf('{', startIndex);
+        //if (startIndex == -1) return null;
 
-            //var endIndex = htmlSource.IndexOf(endMarker, startIndex);
-            //if (endIndex == -1) return null;
+        //var endIndex = htmlSource.IndexOf(endMarker, startIndex);
+        //if (endIndex == -1) return null;
 
-            //endIndex += endMarker.Length;
+        //endIndex += endMarker.Length;
 
-            //var json = htmlSource.Substring(startIndex, endIndex - startIndex - 6).Trim();
-            //json = "\"" + json + "\"";
-            //if (json.EndsWith(";"))
-            //    json = json.Substring(1, json.Length - 1);
-            ////json = DecodeUnicodeStrict(json);
-            //json = JsonConvert.DeserializeObject<string>(json)!;
-            //JsonDocument jsonDoc = JsonDocument.Parse(json);
-            //string pretty = jsonDoc.RootElement.ToString();
-            ////DecodeUnicode(json)
-            //return pretty;
+        //var json = htmlSource.Substring(startIndex, endIndex - startIndex - 6).Trim();
+        //json = "\"" + json + "\"";
+        //if (json.EndsWith(";"))
+        //    json = json.Substring(1, json.Length - 1);
+        ////json = DecodeUnicodeStrict(json);
+        //json = JsonConvert.DeserializeObject<string>(json)!;
+        //JsonDocument jsonDoc = JsonDocument.Parse(json);
+        //string pretty = jsonDoc.RootElement.ToString();
+        ////DecodeUnicode(json)
+        //return pretty;
 
         private JustJoinItSchema GetJustJoinItSchema(JToken token)
         {
@@ -105,7 +109,7 @@ namespace Offer_collector.Models.OfferFetchers
             catch (Exception)
             {
                 return new JustJoinItSchema();
-            }                
+            }
         }
         JustJoinItOfferDetails GetJustJoinItOfferDetails(JToken token)
         {
@@ -140,8 +144,8 @@ namespace Offer_collector.Models.OfferFetchers
         }
         async Task<JToken?> GetCompanyDetails(string html)
         {
-            
-            string allJs = GetSubstringJson(html);
+
+            string allJs = GetSubstringJson(html) ?? "";
 
             return GetOfferDetailsJson(allJs);//GetCompanyJToken(allJs);
         }

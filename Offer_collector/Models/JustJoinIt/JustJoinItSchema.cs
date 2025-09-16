@@ -5,22 +5,22 @@ namespace Offer_collector.Models.JustJoinIt
 {
     public class EmploymentType
     {
-        public int from { get; set; }
-        public int to { get; set; }
-        public string currency { get; set; }
-        public string type { get; set; }
-        public string unit { get; set; }
-        public bool gross { get; set; }
-        public double fromChf { get; set; }
-        public double fromEur { get; set; }
-        public double fromGbp { get; set; }
-        public int fromPln { get; set; }
-        public double fromUsd { get; set; }
-        public double toChf { get; set; }
-        public double toEur { get; set; }
-        public double toGbp { get; set; }
-        public int toPln { get; set; }
-        public double toUsd { get; set; }
+        public int? from { get; set; }
+        public int? to { get; set; }
+        public string? currency { get; set; }
+        public string? type { get; set; }
+        public string? unit { get; set; }
+        public bool? gross { get; set; }
+        public double? fromChf { get; set; }
+        public double? fromEur { get; set; }
+        public double? fromGbp { get; set; }
+        public int? fromPln { get; set; }
+        public double? fromUsd { get; set; }
+        public double? toChf { get; set; }
+        public double? toEur { get; set; }
+        public double? toGbp { get; set; }
+        public int? toPln { get; set; }
+        public double? toUsd { get; set; }
     }
 
     public class Multilocation
@@ -43,7 +43,7 @@ namespace Offer_collector.Models.JustJoinIt
         public string workplaceType { get; set; }
         public string workingTime { get; set; }
         public string experienceLevel { get; set; }
-        public List<EmploymentType> employmentTypes { get; set; }
+        public List<EmploymentType>? employmentTypes { get; set; }
         public int categoryId { get; set; }
         public List<Multilocation> multilocation { get; set; }
         public string city { get; set; }
@@ -59,6 +59,7 @@ namespace Offer_collector.Models.JustJoinIt
         public List<Language?>? languages { get; set; }
 
         public JustJoinItOfferDetails details { get; set; }  
+        public string detailsHtml{ get; set; }  
 
         public UnifiedOfferSchema UnifiedSchema(string rawHtml = "")
         {
@@ -72,8 +73,18 @@ namespace Offer_collector.Models.JustJoinIt
                 name = companyName
             };
             unif.description = description;
+
             return unif;
         }
+        
+        //string? GetBenefitsString()
+        //{
+
+        //}
+        //string? GetRequirements()
+        //{
+
+        //}
     }
     public class Language
     {

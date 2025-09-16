@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Offer_collector.Models.AI;
 using Offer_collector.Models.Json;
 using Offer_collector.Models.PracujPl;
 using Offer_collector.Models.Tools;
@@ -12,6 +13,8 @@ namespace Offer_collector.Models.OfferFetchers
         
         public override async Task<(string, string)> GetOfferAsync(string url = "")
         {
+            AiApi aiApi = new AiApi();
+
             string baseUrl = PracujPlUrlBuilder.baseUrl;
             if (url != "")
                 baseUrl = url;
@@ -24,22 +27,25 @@ namespace Offer_collector.Models.OfferFetchers
             {
                 PracujplSchema schemaOffer = OfferMapper.DeserializeJToken<PracujplSchema>(offer);
                 
-                Offer? offerObiect = schemaOffer.offers.FirstOrDefault();
+                Offer? offerObiect = schemaOffer.offers?.FirstOrDefault();
                 if (offerObiect != null)
                     schemaOffer.details = OfferMapper.DeserializeJToken<PracujPlOfferDetails>(await GetOfferDetails(offerObiect.offerAbsoluteUri));
 
                 if (schemaOffer.companyProfileAbsoluteUri != null)
                 {
                     JToken? token = await GetCompanyDetails(schemaOffer.companyProfileAbsoluteUri);
-                    // TODO cast to profile or company
-                    // map fields to company 
+                    
                     if (token?.SelectToken("slug") != null)
                        schemaOffer.profile = OfferMapper.DeserializeJToken<PracujPlProfile>(token);
                     else
                         schemaOffer.company = OfferMapper.DeserializeJToken<PracujPlCompany>(token);
                 }
+
+                // TODO parsing skills by AI 
+
+
                 pracujplSchemas.Add(schemaOffer);
-                await Task.Delay(500);
+                await Task.Delay(Constants.delayBetweenRequests);
             }
 
             return (JsonConvert.SerializeObject(pracujplSchemas, Formatting.Indented) ?? "", html);

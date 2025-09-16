@@ -33,6 +33,8 @@ namespace Offer_collector.Models.OfferFetchers
                 string categoriesListObj = JsonConvert.SerializeObject(pol);
                 obj.category.categoryDetails = GetOlxPracaCategoryById(obj.category.id ?? defaultCategory, categoriesListObj);
                 olxPracaSchema.Add(obj);
+
+                await Task.Delay(Constants.delayBetweenRequests);
             }
 
             return (JsonConvert.SerializeObject(olxPracaSchema, Formatting.Indented) ?? "", html);

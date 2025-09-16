@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Offer_collector.Models;
+using Offer_collector.Models.AI;
 using Offer_collector.Models.JustJoinIt;
 using Offer_collector.Models.OfferFetchers;
 using Offer_collector.Models.OlxPraca;
@@ -16,6 +17,7 @@ namespace Offer_collector
             OfferSitesTypes type = OfferSitesTypes.Justjoinit;
             BaseHtmlScraper? scrapper = null;
             BaseUrlBuilder? urlBuilder = null;
+            AiApi aiApi = new AiApi();
             switch (type)
             {
                 case OfferSitesTypes.Pracujpl:
@@ -42,6 +44,8 @@ namespace Offer_collector
 
             string fullUrl = urlBuilder.BuildUrl();
             (string outputJson, string htmlRaw) = scrapper.GetOfferAsync(fullUrl).Result;
+
+
 
             switch (type)
             {
