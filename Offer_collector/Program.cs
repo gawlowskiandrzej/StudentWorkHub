@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using Offer_collector.Models;
+﻿using Offer_collector.Models;
+using Offer_collector.Models.Jooble;
 using Offer_collector.Models.JustJoinIt;
 using Offer_collector.Models.OfferFetchers;
 using Offer_collector.Models.OlxPraca;
@@ -43,6 +43,8 @@ namespace Offer_collector
             string fullUrl = urlBuilder.BuildUrl();
             (string outputJson, string htmlRaw) = scrapper.GetOfferAsync(fullUrl).Result;
 
+
+
             switch (type)
             {
                 case OfferSitesTypes.Pracujpl:
@@ -64,7 +66,10 @@ namespace Offer_collector
                         justJoinItUnifSchemas.Add(OfferMapper.ToUnifiedSchema<List<JustJoinItSchema>>(offer, htmlRaw));
                     break;
                 case OfferSitesTypes.Jooble:
-                   
+                    List<JoobleSchema> joobleSchemas = OfferMapper.DeserializeJson<List<JoobleSchema>>(outputJson);
+                    List<UnifiedOfferSchema> joobleUnifSchemas = new List<UnifiedOfferSchema>();
+                    foreach (JoobleSchema offer in joobleSchemas)
+                        joobleUnifSchemas.Add(OfferMapper.ToUnifiedSchema<List<JoobleSchema>>(offer, htmlRaw));
                     break;
                 default:
                    

@@ -27,6 +27,8 @@ namespace Offer_collector.Models.OfferFetchers
             JooblePagination pagination = GetPaginationObject(jooblePaginationJToken);
             JoobleSchemaWithPagination validObject = GetValidObject(pagination, joobleSchemas);
 
+            await Task.Delay(Constants.delayBetweenRequests);
+
             return (JsonConvert.SerializeObject(validObject, Formatting.Indented) ?? "", html);
         }
         private async Task<string> GetHtmlSource(string url)

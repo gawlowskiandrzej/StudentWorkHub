@@ -1,4 +1,6 @@
-﻿namespace Offer_collector.Models
+﻿using Offer_collector.Models.JustJoinIt;
+
+namespace Offer_collector.Models
 {
     public class Company
     {
@@ -34,14 +36,22 @@
         public bool isRemote { get; set; }
         public bool isHybrid { get; set; }
     }
-
+    public class LanguageSkill
+    {
+        public string? language { get; set; }
+        public string? level{ get; set; }
+    }
+    public class Skill
+    {
+        public string? name { get; set; }
+        public int? years { get; set; }
+    }
     public class Requirements
     {
-        public List<string>? skills { get; set; }
-        public List<string>? experienceLevel { get; set; }
-        public ushort experienceYears { get; set; }
+        public List<Skill>? skills { get; set; }
         public List<string>? education { get; set; }
-        public List<string>? languages { get; set; }
+        public List<LanguageSkill>? languages { get; set; }
+        public List<string>? benefits { get; set; }
     }
 
     public class UnifiedOfferSchema
