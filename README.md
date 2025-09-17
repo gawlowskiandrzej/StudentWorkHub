@@ -4,6 +4,21 @@ The application allows searching for job offers and assignments for students by 
 ### Documentation online ###
 https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sharing&ouid=110049717963508518977&rtpof=true&sd=true
 
+## Database schemas ##
+### Offers database ###
+
+#### First revision of physical schema for offers database ####
+> ℹ Internal offer–specific fields will be included in future revisions, after the creation of the internal offer schema.
+
+> ℹ Physical model is developed with `PostgreSQL` in mind, so field types are using `PostgreSQL` naming.
+
+![physical schema v1](diagrams/images/physical_schema_v1.png)
+
+#### First revision of logical ERD schema for offers database ####
+> ℹ Internal offer–specific fields will be included in future revisions, after the creation of the internal offer schema.
+
+![Logical ERD schema v1](diagrams/images/logical_ERD_schema_v1.png)
+
 ### Offer positioning algorithm ###
 > ℹ Displayed offers are arranged according to user preferences. Algorithm weights may adjust based on user actions. To establish the initial weights, the user will be asked a few questions.
 
@@ -80,7 +95,7 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
 ```
 
 #### `Unified offer schema` fields description ####
-- `id`: *string|null* - Unique offer identifier. Should be left as **null**, and later filled by database (base62).
+- `id`: *number* - Unique offer identifier.
 - `source`: *string* - Offer source **(e.g. "pracuj.pl", "olx")**, used to quickly identify offer provider.
 - `url`: *string* - Offer URL, used to redirect to the original offer source.
 - `jobTitle`: *string* - Job title listed in offer.
