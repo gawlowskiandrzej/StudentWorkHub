@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Offer_collector.Models.BrowserTools
 {
@@ -24,7 +25,7 @@ namespace Offer_collector.Models.BrowserTools
             if (ServerIsRunning)
                 ServerIsRunning = await IsServerRunning();
             else
-                ServerIsRunning = StartNodeJsServer("../../../NodejsScrapper/scrapper-sever.js");
+                ServerIsRunning = await StartNodeJsServer("../../../NodejsScrapper/scrapper-sever.js");
 
             if (!ServerIsRunning) return "";
             string urll = $"{Client.BaseAddress}?url={urlOfScrapPage}";
@@ -43,7 +44,7 @@ namespace Offer_collector.Models.BrowserTools
         {
             return Task.Run(() => true);
         }
-        private bool StartNodeJsServer(string scriptPath = "")
+        private async Task<bool> StartNodeJsServer(string scriptPath = "")
         {
             if (string.IsNullOrEmpty(scriptPath))
                 throw new ArgumentException("Ścieżka do pliku JS nie może być pusta.");
@@ -57,6 +58,8 @@ namespace Offer_collector.Models.BrowserTools
             process.StartInfo.CreateNoWindow = true;
 
             process.Start();
+
+            await Task.Delay(2000);
 
             // opcjonalnie można czytać output
             string output = process.StandardOutput.ReadToEnd();
