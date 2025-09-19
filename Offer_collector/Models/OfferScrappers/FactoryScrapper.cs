@@ -1,6 +1,4 @@
-﻿using Offer_collector.Models.UrlBuilders;
-
-namespace Offer_collector.Models.OfferFetchers
+﻿namespace Offer_collector.Models.OfferFetchers
 {
     public static class FactoryScrapper
     {

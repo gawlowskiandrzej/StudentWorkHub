@@ -26,28 +26,36 @@ namespace Offer_collector.Models.OfferFetchers
             List<string> requirementsData = new List<string>();
             foreach (JToken offer in offerListJs)
             {
-                PracujplSchema schemaOffer = OfferMapper.DeserializeJToken<PracujplSchema>(offer);
-                
-                Offer? offerObiect = schemaOffer.offers?.FirstOrDefault();
-                if (offerObiect != null)
-                    schemaOffer.details = OfferMapper.DeserializeJToken<PracujPlOfferDetails>(await GetOfferDetails(offerObiect.offerAbsoluteUri));
-
-                if (schemaOffer.companyProfileAbsoluteUri != null)
+                try
                 {
-                    JToken? token = await GetCompanyDetails(schemaOffer.companyProfileAbsoluteUri);
-                    
-                    if (token?.SelectToken("slug") != null)
-                       schemaOffer.profile = OfferMapper.DeserializeJToken<PracujPlProfile>(token);
-                    else
-                        schemaOffer.company = OfferMapper.DeserializeJToken<PracujPlCompany>(token);
+                    PracujplSchema schemaOffer = OfferMapper.DeserializeJToken<PracujplSchema>(offer);
+
+                    Offer? offerObiect = schemaOffer.offers?.FirstOrDefault();
+                    if (offerObiect != null)
+                        schemaOffer.details = OfferMapper.DeserializeJToken<PracujPlOfferDetails>(await GetOfferDetails(offerObiect.offerAbsoluteUri));
+
+                    if (schemaOffer.companyProfileAbsoluteUri != null)
+                    {
+                        JToken? token = await GetCompanyDetails(schemaOffer.companyProfileAbsoluteUri);
+
+                        if (token?.SelectToken("slug") != null)
+                            schemaOffer.profile = OfferMapper.DeserializeJToken<PracujPlProfile>(token);
+                        else
+                            schemaOffer.company = OfferMapper.DeserializeJToken<PracujPlCompany>(token);
+                    }
+
+                    // TODO parsing skills by AI 
+
+
+                    pracujplSchemas.Add(schemaOffer);
+                    requirementsData.Add(String.Join(";", schemaOffer.details?.sections.Where(_ => _.sectionType.Contains("requirements"))?.FirstOrDefault()?.subSections?.FirstOrDefault()?.model?.bullets ?? new List<string>()));
+                    await Task.Delay(Constants.delayBetweenRequests);
                 }
-
-                // TODO parsing skills by AI 
-
-
-                pracujplSchemas.Add(schemaOffer);
-                requirementsData.Add(String.Join(";",schemaOffer.details.sections.Where(_ => _.sectionType.Contains("requirements")).FirstOrDefault()?.subSections.FirstOrDefault()?.model.bullets));
-                await Task.Delay(Constants.delayBetweenRequests);
+                catch (Exception e)
+                {
+                    
+                }
+                
             }
 
             return (JsonConvert.SerializeObject(pracujplSchemas, Formatting.Indented) ?? "", html);

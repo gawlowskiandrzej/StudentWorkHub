@@ -2,7 +2,7 @@
 {
     internal class JoobleUrlBuilder : BaseUrlBuilder
     {
-        public static string baseUrl = "https://pl.jooble.org/SearchResult";
+        public static string baseUrl = "https://www.aplikuj.pl/praca";
         public JoobleUrlBuilder() : base(baseUrl) { }
         protected override string BuildBaseUrl(Dictionary<string, string> parameters, Dictionary<string, string> tags)
         {
@@ -19,7 +19,7 @@
         }
         protected override string BuildQuery(Dictionary<string, string> parameters, Dictionary<string, string> tags)
         {
-            parameters["ukw"] = "programista%20python";
+            parameters["keyword"] = "programista%20python";
             return base.BuildQuery(parameters, tags);
         }
     }

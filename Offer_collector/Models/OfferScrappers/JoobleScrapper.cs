@@ -33,10 +33,12 @@ namespace Offer_collector.Models.OfferFetchers
         }
         private async Task<string> GetHtmlSource(string url)
         {
-            HeadlessBrowser headlessBrowser = new HeadlessBrowser(url);
-            string htmlSource = await headlessBrowser.GetWebPageSource(url);
+            //HeadlessBrowser headlessBrowser = new HeadlessBrowser(url);
+            //string htmlSource = await headlessBrowser.GetWebPageSource(url);
 
-            return htmlSource;
+            //return htmlSource;
+            var html = await GetHtmlAsync(url);
+            return html;
         }
         
         private string GetAllJson(string html) => GetSubstringJson(html); // @"(?is)<script\b(?=[^>]*\btype\s*=\s*(?:""|')?application/ld\+json(?:;[^""'>]*)?(?:""|')?)[^>]*>(.*?)</script>"
