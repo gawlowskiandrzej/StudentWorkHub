@@ -73,6 +73,10 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
         "isRemote": null,
         "isHybrid": null
     },
+    "categories": {
+        "leadingCategory": null,
+        "list": null
+    },
     "requirements": {
         "skills": null,
         "experienceLevel": null,
@@ -119,6 +123,9 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
         - `longitude`: *number|null* - Longitude, used to estimate distance *(is **null** when latitude is **null**)*.
     - `isRemote`: *boolean|null* - Indicates if the work is fully remote *(is **null** when isHybrid is not **null**)*.
     - `isHybrid`: *boolean|null* - Indicates if the work is hybrid **(partially remote, partially on-site)** *(is **null** when isRemote is not **null**)*.
+- `categories`: *object* - offer categories:
+    - `leadingCategory`: *string|null*.
+    - `list`: *array* - offer categories **(e.g. ["Proggraming", "Architecture", "Designing"])**.
 - `requirements`: *object* - Work requirements:
     - `skills`: *array|null* - Required skills **(e.g. ["C++", "Django", Driver's license])** *(optional)*.
     - `experienceLevel`: *array|null* - Required experience level **(e.g. ["Senior", "Intermediate"])** *(optional)*.
@@ -165,6 +172,10 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
         },
         "isRemote": null,
         "isHybrid": true
+    },
+    "categories": {
+        "leadingCategory": null,
+        "list": null
     },
     "requirements": {
         "skills": [
