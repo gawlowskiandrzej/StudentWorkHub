@@ -80,16 +80,16 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
     "requirements": {
         "skills": [
             {
-                name: "",
-                years: null
+                "skill": "",
+                "experienceYears": null,
+                "experienceLevel": null
             }
         ],
         "education": null,
-        "experienceLevel": null, 
         "languages": [
             {
-                name: "",
-                level: ""
+                "language": "",
+                "level": ""
             }
         ]
     },
@@ -136,10 +136,14 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
     - `leadingCategory`: *string* - Main offer category **(e.g. Information-Technology, Healthcare, Finance)**.
     - `subCategories`: *array|null* - offer categories **(e.g. ["Programming", "Architecture", "Designing"])** *(optional)*.
 - `requirements`: *object* - Work requirements:
-    - `skills`: *array|null* - Required skills **(e.g. [{"C++", 2}, {"Django", null}, {Driver's license, null}])** *(optional)*.
-    - `experienceLevel`: *array|null* - Required experience level **(e.g. ["Senior", "Intermediate"])** *(optional)*.
+    - `skills`: *array|null* - Required skills *(optional)*.
+        - `skill`: *string* - Skill name **(e.g. "C++", "Django", "Driver's license")**
+        - `experienceYears`: *number|null* - Required years of experience *(optional)*.
+        - `experienceLevel`: *array|null* - Required experience level **(e.g. ["Senior", "Intermediate"])** *(optional)*.
     - `education`: *array|null* - Required education **(e.g. ["Bachelor's degree", "CCNA"])** *(optional)*.
-    - `languages`: *array|null* - Required languages **(e.g. [{"English", "C1"}, {"Polish", "A2"}])** *(optional)*.
+    - `languages`: *array|null* - Required languages *(optional)*.
+        - `language`: *string* - Language name **(e.g. English, German)**.
+        - `level`: *string* - Language mastery level **(e.g. A2, C1)**
 - `employment`: *object* - Employment details:
     - `types`: *array* - Type of employment contract **(e.g. ["Contract of mandate", "B2B"])**.
     - `schedules`: *array* - Work schedule **(e.g. ["Full-time", "Part-time"])**.
@@ -181,28 +185,65 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
         "isRemote": null,
         "isHybrid": true
     },
-    "categories": {
-        "leadingCategory": null,
-        "subCategories": null
+    "category": {
+        "leadingCategory": "Information-Technology",
+        "subCategories": ["Programming", "Backend Development"]
     },
     "requirements": {
-        "skills": [
-            {"Python", 2},
-            {"Django", 1},
-            {"FastAPI", null},
-            {"Web Services", null},
-            {"http", null},
-            {"REST", null},
-            {"SQL", null},
-            {"ORM", null},
-            {"Celery", null}
-        ],
-        "experienceLevel": [
-            "Specjalista (Mid / Regular)",
-            "Starszy specjalista (Senior)"
+    "skills": [
+        {
+            "skill": "Python",
+            "experienceYears": 2,
+            "experienceLevel": ["Mid"]
+        },
+        {
+            "skill": "Django",
+            "experienceYears": 1,
+            "experienceLevel": ["Junior", "Mid"]
+        },
+        {
+            "skill": "FastAPI",
+            "experienceYears": null,
+            "experienceLevel": ["Mid"]
+        },
+        {
+            "skill": "Web Services",
+            "experienceYears": null,
+            "experienceLevel": ["Mid", "Senior"]
+        },
+        {
+            "skill": "HTTP",
+            "experienceYears": null,
+            "experienceLevel": ["Mid"]
+        },
+        {
+            "skill": "REST",
+            "experienceYears": null,
+            "experienceLevel": ["Mid"]
+        },
+        {
+            "skill": "SQL",
+            "experienceYears": 1,
+            "experienceLevel": ["Mid"]
+        },
+        {
+            "skill": "ORM",
+            "experienceYears": null,
+            "experienceLevel": ["Mid"]
+        },
+        {
+            "skill": "Celery",
+            "experienceYears": null,
+            "experienceLevel": ["Mid"]
+        }
         ],
         "education": null,
-        "languages": null
+        "languages": [
+            {
+                "language": "English",
+                "level": "B2"
+            }
+        ]
     },
     "employment": {
         "types": [
@@ -226,16 +267,5 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
 #### With database backup and logging service ####
 ![App schema v2.1](diagrams/images/app_schema_v2.1.png)
 
-### Second revision of application project schema ###
-![App schema v2](diagrams/images/app_schema_v2.png)
-
-
-#### Offers gathering schema ####
-![App schema v2](diagrams/images/app_schema_v2_details.png)
-
 **Icons used in the diagrams:**
 [react-wordmark](https://icon-sets.iconify.design/devicon/?icon-filter=react-wordmark), [dotnetcore](https://icon-sets.iconify.design/devicon/?icon-filter=dotnetcore), and [postgresql-wordmark](https://icon-sets.iconify.design/devicon/?icon-filter=postgresql-wordmark) icons by konpa, licensed under the MIT License.
-
-
-### First revision of application project schema ###
-![App schema](diagrams/images/StrukturaAplikacjiTech.png)
