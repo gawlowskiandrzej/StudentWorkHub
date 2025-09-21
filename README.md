@@ -78,11 +78,20 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
         "subCategories": null
     },
     "requirements": {
-        "skills": null,
-        "experienceLevel": null,
-        "experienceYears": null,
+        "skills": [
+            {
+                name: "",
+                years: null
+            }
+        ],
         "education": null,
-        "languages": null
+        "experienceLevel": null, 
+        "languages": [
+            {
+                name: "",
+                level: ""
+            }
+        ]
     },
     "employment": {
         "types": [],
@@ -127,11 +136,10 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
     - `leadingCategory`: *string* - Main offer category **(e.g. Information-Technology, Healthcare, Finance)**.
     - `subCategories`: *array|null* - offer categories **(e.g. ["Programming", "Architecture", "Designing"])** *(optional)*.
 - `requirements`: *object* - Work requirements:
-    - `skills`: *array|null* - Required skills **(e.g. ["C++", "Django", Driver's license])** *(optional)*.
+    - `skills`: *array|null* - Required skills **(e.g. [{"C++", 2}, {"Django", null}, {Driver's license, null}])** *(optional)*.
     - `experienceLevel`: *array|null* - Required experience level **(e.g. ["Senior", "Intermediate"])** *(optional)*.
-    - `experienceYears`: *number|null* - Required years of experience *(optional)*.
     - `education`: *array|null* - Required education **(e.g. ["Bachelor's degree", "CCNA"])** *(optional)*.
-    - `languages`: *array|null* - Required languages **(e.g. ["English", "Polish"])** *(optional)*.
+    - `languages`: *array|null* - Required languages **(e.g. [{"English", "C1"}, {"Polish", "A2"}])** *(optional)*.
 - `employment`: *object* - Employment details:
     - `types`: *array* - Type of employment contract **(e.g. ["Contract of mandate", "B2B"])**.
     - `schedules`: *array* - Work schedule **(e.g. ["Full-time", "Part-time"])**.
@@ -175,25 +183,24 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
     },
     "categories": {
         "leadingCategory": null,
-        "list": null
+        "subCategories": null
     },
     "requirements": {
         "skills": [
-            "Python",
-            "Django",
-            "FastAPI",
-            "Web Services",
-            "http",
-            "REST",
-            "SQL",
-            "ORM",
-            "Celery"
+            {"Python", 2},
+            {"Django", 1},
+            {"FastAPI", null},
+            {"Web Services", null},
+            {"http", null},
+            {"REST", null},
+            {"SQL", null},
+            {"ORM", null},
+            {"Celery", null}
         ],
         "experienceLevel": [
             "Specjalista (Mid / Regular)",
             "Starszy specjalista (Senior)"
         ],
-        "experienceYears": null,
         "education": null,
         "languages": null
     },
