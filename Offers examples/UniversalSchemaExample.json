@@ -1,5 +1,5 @@
 {
-    "id": "",
+    "id": null,
     "source": "",
     "url": "",
     "jobTitle": "",
@@ -26,6 +26,10 @@
         },
         "isRemote": null,
         "isHybrid": null
+    },
+    "category": {
+        "leadingCategory": "",
+        "subCategories": null
     },
     "requirements": {
         "skills": null,

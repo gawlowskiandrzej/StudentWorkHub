@@ -12,12 +12,12 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
 
 > ℹ Physical model is developed with `PostgreSQL` in mind, so field types are using `PostgreSQL` naming.
 
-![physical schema v1](diagrams/images/physical_schema_v1.png)
+![physical schema v1.1](diagrams/images/physical_schema_v1_1.png)
 
 #### First revision of logical ERD schema for offers database ####
 > ℹ Internal offer–specific fields will be included in future revisions, after the creation of the internal offer schema.
 
-![Logical ERD schema v1](diagrams/images/logical_ERD_schema_v1.png)
+![Logical ERD schema v1.1](diagrams/images/logical_ERD_schema_v1_1.png)
 
 ### Offer positioning algorithm ###
 > ℹ Displayed offers are arranged according to user preferences. Algorithm weights may adjust based on user actions. To establish the initial weights, the user will be asked a few questions.
@@ -73,9 +73,9 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
         "isRemote": null,
         "isHybrid": null
     },
-    "categories": {
-        "leadingCategory": null,
-        "list": null
+    "category": {
+        "leadingCategory": "",
+        "subCategories": null
     },
     "requirements": {
         "skills": null,
@@ -123,9 +123,9 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
         - `longitude`: *number|null* - Longitude, used to estimate distance *(is **null** when latitude is **null**)*.
     - `isRemote`: *boolean|null* - Indicates if the work is fully remote *(is **null** when isHybrid is not **null**)*.
     - `isHybrid`: *boolean|null* - Indicates if the work is hybrid **(partially remote, partially on-site)** *(is **null** when isRemote is not **null**)*.
-- `categories`: *object* - offer categories:
-    - `leadingCategory`: *string|null*.
-    - `list`: *array* - offer categories **(e.g. ["Proggraming", "Architecture", "Designing"])**.
+- `category`: *object* - offer category:
+    - `leadingCategory`: *string* - Main offer category **(e.g. Information-Technology, Healthcare, Finance)**.
+    - `subCategories`: *array|null* - offer categories **(e.g. ["Programming", "Architecture", "Designing"])** *(optional)*.
 - `requirements`: *object* - Work requirements:
     - `skills`: *array|null* - Required skills **(e.g. ["C++", "Django", Driver's license])** *(optional)*.
     - `experienceLevel`: *array|null* - Required experience level **(e.g. ["Senior", "Intermediate"])** *(optional)*.
