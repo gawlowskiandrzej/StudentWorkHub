@@ -32,11 +32,20 @@
         "subCategories": null
     },
     "requirements": {
-        "skills": null,
-        "experienceLevel": null,
-        "experienceYears": null,
+        "skills": [
+            {
+                "skill": "",
+                "experienceYears": null,
+                "experienceLevel": null
+            }
+        ],
         "education": null,
-        "languages": null
+        "languages": [
+            {
+                "language": "",
+                "level": ""
+            }
+        ]
     },
     "employment": {
         "types": [],
