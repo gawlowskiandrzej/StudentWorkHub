@@ -14,7 +14,7 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
 
 > ⚠ Database allows only one mastery level per language, in case of more than one mastery level listed in offer, lowest level should be selected. Same logic applies to skills. Every skill may have only one mastery level or/and experience years listed.
 
-![physical schema v1.1](diagrams/images/physical_schema_v1_2.png)
+![physical schema v1.2](diagrams/images/physical_schema_v1_2.png)
 
 #### First revision of logical ERD schema for offers database ####
 > ℹ Internal offer–specific fields will be included in future revisions, after the creation of the internal offer schema.
