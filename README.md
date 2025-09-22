@@ -12,12 +12,14 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
 
 > ℹ Physical model is developed with `PostgreSQL` in mind, so field types are using `PostgreSQL` naming.
 
-![physical schema v1.1](diagrams/images/physical_schema_v1_1.png)
+> ⚠ Database allows only one mastery level per language, in case of more than one mastery level listed in offer, lowest level should be selected. Same logic applies to skills. Every skill may have only one mastery level or/and experience years listed.
+
+![physical schema v1.1](diagrams/images/physical_schema_v1_2.png)
 
 #### First revision of logical ERD schema for offers database ####
 > ℹ Internal offer–specific fields will be included in future revisions, after the creation of the internal offer schema.
 
-![Logical ERD schema v1.1](diagrams/images/logical_ERD_schema_v1_1.png)
+![Logical ERD schema v1.2](diagrams/images/logical_ERD_schema_v1_2.png)
 
 ### Offer positioning algorithm ###
 > ℹ Displayed offers are arranged according to user preferences. Algorithm weights may adjust based on user actions. To establish the initial weights, the user will be asked a few questions.
@@ -81,7 +83,7 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
         "skills": [
             {
                 "skill": "",
-                "experienceYears": null,
+                "experienceMonths": null,
                 "experienceLevel": null
             }
         ],
@@ -138,7 +140,7 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
 - `requirements`: *object* - Work requirements:
     - `skills`: *array|null* - Required skills *(optional)*.
         - `skill`: *string* - Skill name **(e.g. "C++", "Django", "Driver's license")**
-        - `experienceYears`: *number|null* - Required years of experience *(optional)*.
+        - `experienceMonths`: *number|null* - Required months of experience *(optional)*.
         - `experienceLevel`: *array|null* - Required experience level **(e.g. ["Senior", "Intermediate"])** *(optional)*.
     - `education`: *array|null* - Required education **(e.g. ["Bachelor's degree", "CCNA"])** *(optional)*.
     - `languages`: *array|null* - Required languages *(optional)*.
@@ -193,47 +195,47 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
     "skills": [
         {
             "skill": "Python",
-            "experienceYears": 2,
+            "experienceMonths": 2,
             "experienceLevel": ["Mid"]
         },
         {
             "skill": "Django",
-            "experienceYears": 1,
+            "experienceMonths": 1,
             "experienceLevel": ["Junior", "Mid"]
         },
         {
             "skill": "FastAPI",
-            "experienceYears": null,
+            "experienceMonths": null,
             "experienceLevel": ["Mid"]
         },
         {
             "skill": "Web Services",
-            "experienceYears": null,
+            "experienceMonths": null,
             "experienceLevel": ["Mid", "Senior"]
         },
         {
             "skill": "HTTP",
-            "experienceYears": null,
+            "experienceMonths": null,
             "experienceLevel": ["Mid"]
         },
         {
             "skill": "REST",
-            "experienceYears": null,
+            "experienceMonths": null,
             "experienceLevel": ["Mid"]
         },
         {
             "skill": "SQL",
-            "experienceYears": 1,
+            "experienceMonths": 1,
             "experienceLevel": ["Mid"]
         },
         {
             "skill": "ORM",
-            "experienceYears": null,
+            "experienceMonths": null,
             "experienceLevel": ["Mid"]
         },
         {
             "skill": "Celery",
-            "experienceYears": null,
+            "experienceMonths": null,
             "experienceLevel": ["Mid"]
         }
         ],
