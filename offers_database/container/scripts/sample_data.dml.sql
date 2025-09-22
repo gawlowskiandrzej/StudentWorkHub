@@ -1,9 +1,6 @@
 -- =========================================================
 -- Test data for Jobs DB (PostgreSQL)
 -- =========================================================
-BEGIN;
-SET search_path TO public;
-
 -- ---------------------------------------------------------
 -- Sources
 -- ---------------------------------------------------------
@@ -1168,5 +1165,3 @@ edj AS (
     JOIN education_levels el ON el.level IN ('Bachelor','Master')
 )
 SELECT id FROM new_offer;
-
-COMMIT;
