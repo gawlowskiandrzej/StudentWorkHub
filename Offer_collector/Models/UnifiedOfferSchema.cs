@@ -1,73 +1,89 @@
-﻿namespace PracujPlSchema{
+﻿using Offer_collector.Models.JustJoinIt;
+
+namespace Offer_collector.Models
+{
     public class Company
     {
-        public string? name { get; set; }
-        public object? logoUrl { get; set; }
+        public string name { get; set; }
+        public string logoUrl { get; set; }
     }
 
     public class Coordinates
     {
-        public object? latitude { get; set; }
-        public object? longitude { get; set; }
+        public double latitude { get; set; }
+        public double longitude { get; set; }
     }
 
     public class Dates
     {
-        public string? published { get; set; }
-        public object? expires { get; set; }
+        public DateTime? published { get; set; }
+        public DateTime? expires { get; set; }
     }
 
     public class Employment
     {
-        public List<object>? types { get; set; }
-        public List<object>? schedules { get; set; }
+        public List<string>? types { get; set; } // Future enum type umowa o prace, umowa zlecenie
+        public List<string>? schedules { get; set; } // Future enum type full time, partTime
     }
 
     public class Location
     {
-        public object? buildingNumber { get; set; }
-        public object? street { get; set; }
-        public object? city { get; set; }
-        public object? postalCode { get; set; }
+        public string? buildingNumber { get; set; }
+        public string? street { get; set; }
+        public string? city { get; set; }
+        public string? postalCode { get; set; }
         public Coordinates? coordinates { get; set; }
-        public object? isRemote { get; set; }
-        public object? isHybrid { get; set; }
+        public bool isRemote { get; set; }
+        public bool isHybrid { get; set; }
     }
-
+    public class LanguageSkill
+    {
+        public string? language { get; set; }
+        public string? level{ get; set; }
+    }
+    public class Skill
+    {
+        public string? name { get; set; }
+        public int? years { get; set; }
+    }
     public class Requirements
     {
-        public object? skills { get; set; }
-        public object? experienceLevel { get; set; }
-        public object? experienceYears { get; set; }
-        public object? education { get; set; }
-        public object? languages { get; set; }
+        public List<Skill>? skills { get; set; }
+        public List<string>? education { get; set; }
+        public List<LanguageSkill>? languages { get; set; }
+        public List<string>? benefits { get; set; }
     }
 
     public class UnifiedOfferSchema
     {
-        public object? id { get; set; }
-        public string? source { get; set; }
-        public string? url { get; set; }
-        public string? jobTitle { get; set; }
+        public int id { get; set; }
+        public OfferSitesTypes source { get; set; } // Pracujpl / olx ...
+        public string url { get; set; } // redirect url to source of offer
+        public string jobTitle { get; set; }
         public Company? company { get; set; }
-        public object? description { get; set; }
+        public string? description { get; set; }
         public Salary? salary { get; set; }
         public Location? location { get; set; }
         public Requirements? requirements { get; set; }
         public Employment? employment { get; set; }
         public Dates? dates { get; set; }
-        public object? benefits { get; set; }
-        public bool? isUrgent { get; set; }
-        public bool? isForUkrainians { get; set; }
+        public List<string>? benefits { get; set; }
+        public bool isUrgent { get; set; } = false;
+        public bool isForUkrainians { get; set; } = true;
+        public bool isManyvacancies { get; set; } = true;
+        //TODO LISTA POMYSŁÓW UWAG
+        // pole które będzie wskazywać na link do formularza z e-recruiter zeby można było odesłać użytkownika z html lub z pola json jak się da
+
+        public string? leadingCategory { get; set; }
+        public List<string>? categories { get; set; }
     }
 
     public class Salary
     {
-        public object? from { get; set; }
-        public object? to { get; set; }
-        public object? currency { get; set; }
-        public object? period { get; set; }
-        public object? type { get; set; }
+        public decimal from { get; set; }
+        public decimal to { get; set; }
+        public string? currency { get; set; }
+        public string? period { get; set; } // Future enum type montly/weekly/daily
+        public string? type { get; set; } // future enum type gross/net
     }
-
 }

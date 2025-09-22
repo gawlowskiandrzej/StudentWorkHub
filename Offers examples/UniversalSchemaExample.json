@@ -1,5 +1,5 @@
 {
-    "id": "",
+    "id": null,
     "source": "",
     "url": "",
     "jobTitle": "",
@@ -27,12 +27,25 @@
         "isRemote": null,
         "isHybrid": null
     },
+    "category": {
+        "leadingCategory": "",
+        "subCategories": null
+    },
     "requirements": {
-        "skills": null,
-        "experienceLevel": null,
-        "experienceYears": null,
+        "skills": [
+            {
+                "skill": "",
+                "experienceMonths": null,
+                "experienceLevel": null
+            }
+        ],
         "education": null,
-        "languages": null
+        "languages": [
+            {
+                "language": "",
+                "level": ""
+            }
+        ]
     },
     "employment": {
         "types": [],
