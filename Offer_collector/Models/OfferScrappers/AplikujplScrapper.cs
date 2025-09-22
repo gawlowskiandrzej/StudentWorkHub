@@ -110,10 +110,22 @@ namespace Offer_collector.Models.OfferScrappers
             OfferDetails det =  new OfferDetails();
             det.dates = GetDates(node);
             det.company = GetCompany(node);
+            det.responsibilities = GetResponsibilities(node.SelectSingleNode(".//div[contains(@class, 'pt-6')]"));
 
 
 
             return det;
+        }
+
+        List<string> GetResponsibilities(HtmlNode node)
+        {
+            HtmlNode respoNode = node.SelectSingleNode(".//div[contains(@class, 'pb-4 sm:pb-12')]");
+            List<string> respoList = new List<string>();
+            foreach (HtmlNode respo in respoNode.SelectNodes(".//li[contains(@class, 'leading-6 flex py-1')]"))
+            {
+                respoList.Add(respo.SelectNodes(".//div").ElementAt(1)?.InnerText.Trim() ?? "");
+            }
+            return respoList;
         }
     }
 }
