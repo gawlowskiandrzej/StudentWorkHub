@@ -7,7 +7,7 @@
             return siteType switch
             {
                 OfferSitesTypes.Pracujpl => new PracujPlUrlBuilder(),
-                OfferSitesTypes.Jooble => new JoobleUrlBuilder(),
+                OfferSitesTypes.Aplikujpl => new AplikujPlUrlBuilder(),
                 OfferSitesTypes.Justjoinit => new JustJoinItBuilder(),
                 OfferSitesTypes.Olxpraca => new OlxPracaUrlBuilder(),
                 _ => throw new ArgumentException($"No implementation for {siteType}")

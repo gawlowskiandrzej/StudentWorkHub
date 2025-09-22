@@ -1,7 +1,9 @@
 ﻿using Offer_collector.Models;
+using Offer_collector.Models.AplikujPl;
 using Offer_collector.Models.Jooble;
 using Offer_collector.Models.JustJoinIt;
 using Offer_collector.Models.OfferFetchers;
+using Offer_collector.Models.OfferScrappers;
 using Offer_collector.Models.OlxPraca;
 using Offer_collector.Models.Tools;
 using Offer_collector.Models.UrlBuilders;
@@ -13,7 +15,7 @@ namespace Offer_collector
         static void Main(string[] args)
         {
             
-            OfferSitesTypes type = OfferSitesTypes.Pracujpl;
+            OfferSitesTypes type = OfferSitesTypes.Aplikujpl;
             BaseHtmlScraper? scrapper = null;
             BaseUrlBuilder? urlBuilder = null;
             switch (type)
@@ -30,9 +32,9 @@ namespace Offer_collector
                     scrapper = (OlxpracaScrapper)FactoryScrapper.CreateScrapper(type);
                     urlBuilder = (OlxPracaUrlBuilder)UrlBuilderFactory.Create(type);
                     break;
-                case OfferSitesTypes.Jooble:
-                    scrapper = (JoobleScrapper)FactoryScrapper.CreateScrapper(type);
-                    urlBuilder = (JoobleUrlBuilder)UrlBuilderFactory.Create(type);
+                case OfferSitesTypes.Aplikujpl:
+                    scrapper = (AplikujplScrapper)FactoryScrapper.CreateScrapper(type);
+                    urlBuilder = (AplikujPlUrlBuilder)UrlBuilderFactory.Create(type);
                     break;
                 default:
                     scrapper = (PracujplScrapper)FactoryScrapper.CreateScrapper(type);
@@ -65,11 +67,11 @@ namespace Offer_collector
                     foreach (JustJoinItSchema offer in justJoinItSchemas)
                         justJoinItUnifSchemas.Add(OfferMapper.ToUnifiedSchema<List<JustJoinItSchema>>(offer, htmlRaw));
                     break;
-                case OfferSitesTypes.Jooble:
-                    List<JoobleSchema> joobleSchemas = OfferMapper.DeserializeJson<List<JoobleSchema>>(outputJson);
-                    List<UnifiedOfferSchema> joobleUnifSchemas = new List<UnifiedOfferSchema>();
-                    foreach (JoobleSchema offer in joobleSchemas)
-                        joobleUnifSchemas.Add(OfferMapper.ToUnifiedSchema<List<JoobleSchema>>(offer, htmlRaw));
+                case OfferSitesTypes.Aplikujpl:
+                    List<AplikujplSchema> aplikujSchemas = OfferMapper.DeserializeJson<List<AplikujplSchema>>(outputJson);
+                    List<UnifiedOfferSchema> aplikujUnifSchemas = new List<UnifiedOfferSchema>();
+                    foreach (AplikujplSchema offer in aplikujSchemas)
+                        aplikujUnifSchemas.Add(OfferMapper.ToUnifiedSchema<List<AplikujplSchema>>(offer, htmlRaw));
                     break;
                 default:
                    

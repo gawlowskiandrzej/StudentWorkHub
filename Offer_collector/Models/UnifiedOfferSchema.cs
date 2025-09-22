@@ -51,6 +51,7 @@ namespace Offer_collector.Models
         public List<Skill>? skills { get; set; }
         public List<string>? education { get; set; }
         public List<LanguageSkill>? languages { get; set; }
+        public string experienceLevel { get; set; } 
         public List<string>? benefits { get; set; }
     }
 

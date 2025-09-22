@@ -5,5 +5,5 @@ public enum OfferSitesTypes
 	Pracujpl,
 	Justjoinit,
 	Olxpraca,
-	Jooble
+	Aplikujpl
 }

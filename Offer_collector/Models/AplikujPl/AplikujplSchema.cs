@@ -9,7 +9,7 @@ namespace Offer_collector.Models.AplikujPl
         public string location;
         public string? salary;
         public string? employmentType;
-        public string? remoteOption;
+        public bool? remoteOption;
         public string? companyLogoUrl;
         public string link;
         public string? dateAdded;
@@ -42,8 +42,8 @@ namespace Offer_collector.Models.AplikujPl
     }
     public class Dates
     {
-        public string expirationDate;
-        public string expirationInfo;
+        public DateTime expirationDate;
+        public DateTime publishionDate;
     }
     public class Localization
     {
@@ -52,12 +52,12 @@ namespace Offer_collector.Models.AplikujPl
     }
     public class OfferDetails
     {
-        Dates dates;
-        Company company;
-        List<string> responsibilities;
-        List<string> requirements;
-        List<string> benefits;
-        Localization localization;
+        public Dates dates;
+        public Company company;
+        public List<string> responsibilities;
+        public List<string> requirements;
+        public List<string> benefits;
+        public Localization localization;
     }
     internal class AplikujplSchema : IUnificatable
     {
