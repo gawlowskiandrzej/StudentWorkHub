@@ -95,8 +95,8 @@ namespace Offer_collector.Models.OfferScrappers
             HtmlNode companyNode = topDeatailHeader.SelectSingleNode(".//div[contains(@class,'text-md lg:text-base')]//a");
             AplikujPl.Company company = new AplikujPl.Company();
             company.company = companyNode.InnerText.Trim();
-            company.companyLink = companyNode.GetAttributeValue("href", "");
-            company.companyLogo = topDeatailHeader.SelectSingleNode(".//div[contains(@class,'mr-2 mt-2 sm:mr-8 sm:mt-0')]//img").GetAttributeValue("src", "");
+            company.companyLink = companyNode.GetAttributeValue("href", "") ?? "";
+            company.companyLogo = topDeatailHeader.SelectSingleNode(".//div[contains(@class,'mr-2 mt-2 sm:mr-8 sm:mt-0')]//img")?.GetAttributeValue("src", "") ?? "";
 
             return company;
         }
@@ -110,22 +110,39 @@ namespace Offer_collector.Models.OfferScrappers
             OfferDetails det =  new OfferDetails();
             det.dates = GetDates(node);
             det.company = GetCompany(node);
-            det.responsibilities = GetResponsibilities(node.SelectSingleNode(".//div[contains(@class, 'pt-6')]"));
-
+            HtmlNode detailsSection = node.SelectSingleNode(".//div[contains(@class, 'pt-6')]");
+            HtmlNodeCollection skillsSections = node.SelectNodes(".//div[contains(@class, 'pb-4 sm:pb-12')]");
+            det.responsibilities = GetFeature(skillsSections.FirstOrDefault());
+            det.requirements = GetFeature(skillsSections.ElementAt(1));
+            det.benefits = GetFeature(skillsSections.ElementAt(2));
 
 
             return det;
         }
 
-        List<string> GetResponsibilities(HtmlNode node)
+        List<string> GetFeature(HtmlNode? node)
         {
-            HtmlNode respoNode = node.SelectSingleNode(".//div[contains(@class, 'pb-4 sm:pb-12')]");
-            List<string> respoList = new List<string>();
-            foreach (HtmlNode respo in respoNode.SelectNodes(".//li[contains(@class, 'leading-6 flex py-1')]"))
+            List<string> featureList = new List<string>();
+            HtmlNodeCollection? skills = node?.SelectNodes(".//li");
+            HtmlNodeCollection? skills2 = node?.SelectNodes(".//p");
+
+            if (skills != null)
             {
-                respoList.Add(respo.SelectNodes(".//div").ElementAt(1)?.InnerText.Trim() ?? "");
+                foreach (HtmlNode respo in skills)
+                {
+                    featureList.Add(respo.SelectNodes(".//div").ElementAt(1)?.InnerText.Trim() ?? "");
+                }
+                return featureList;
             }
-            return respoList;
+            else if (skills2 != null && skills == null)
+            {
+                foreach (HtmlNode respo in skills2.Skip(1))
+                {
+                    featureList.Add(respo.InnerText.Trim() ?? "");
+                }
+                return featureList;
+            }
+            return new List<string>();
         }
     }
 }
