@@ -58,6 +58,8 @@ namespace Offer_collector.Models.AplikujPl
         public List<string> requirements;
         public List<string> benefits;
         public Localization localization;
+        public InfoFeatures infoFeatures;
+        public Salary salary;
     }
     internal class AplikujplSchema : IUnificatable
     {

@@ -111,13 +111,43 @@ namespace Offer_collector.Models.OfferScrappers
             det.dates = GetDates(node);
             det.company = GetCompany(node);
             HtmlNode detailsSection = node.SelectSingleNode(".//div[contains(@class, 'pt-6')]");
+            HtmlNode informationSection = node.SelectSingleNode(".//div[contains(@class, 'pt-8')]");
             HtmlNodeCollection skillsSections = node.SelectNodes(".//div[contains(@class, 'pb-4 sm:pb-12')]");
+            HtmlNode? salarySection = node.SelectSingleNode(".//div[contains(@class, 'flex bg-gray-100 rounded-lg py-1 lg:py-2.5 px-2 lg:px-4 mt-4')]");
             det.responsibilities = GetFeature(skillsSections.FirstOrDefault());
             det.requirements = GetFeature(skillsSections.ElementAt(1));
             det.benefits = GetFeature(skillsSections.ElementAt(2));
-
+            det.localization = GetLocalization(informationSection);
+            if (salarySection != null)
+                det.salary = GetSalary(salarySection);
 
             return det;
+        }
+
+        AplikujPl.Salary GetSalary(HtmlNode node)
+        {
+            AplikujPl.Salary salaryObj = new AplikujPl.Salary();
+            HtmlNode salaryBlock = node.SelectSingleNode(".//ul//li//div");
+            string typeofContract = salaryBlock.SelectSingleNode(".//span").InnerText.Trim();
+            string salary = salaryBlock.SelectSingleNode(".//div//span").InnerText.Trim();
+            if (salary.Contains("to"))
+            { 
+                string[] splitted = salary.Split("to");
+                salaryObj.from = decimal.Parse(splitted.First().Trim());
+                salaryObj.to = decimal.Parse(splitted.ElementAt(1).Trim());
+            }
+
+
+            return salaryObj;
+        }
+
+        Localization GetLocalization(HtmlNode? node)
+        {
+            Localization loc = new Localization();
+            HtmlNode? tempNode = node?.SelectSingleNode(".//div[contains(@class, 'pt-1')]");
+            string localizatinoString = tempNode?.SelectNodes(".//div").ElementAt(1).InnerText ?? "";
+            loc.city = localizatinoString.Split(',')[0];
+            return loc;
         }
 
         List<string> GetFeature(HtmlNode? node)
