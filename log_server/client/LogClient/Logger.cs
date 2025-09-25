@@ -44,7 +44,7 @@ namespace LogClient
         private readonly ConcurrentStack<string> _frontQueue = new();
 
         private readonly FrozenSet<string> _allowedTypes =
-            new[] { "INFO", "WARNING", "ERROR", "CRITICAL ERROR", "NOTIFICATION", "ATTENTION" }.ToFrozenSet();
+            new[] { "INFO", "WARNING", "ERROR", "CRITICAL ERROR", "NOTIFICATION", "ATTENTION", "DEBUG", "DIAGNOSTICS" }.ToFrozenSet();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Logger"/> class and starts the background worker thread.
@@ -277,7 +277,7 @@ namespace LogClient
         /// <summary>
         /// Adds a log entry to the in-memory queue. Restarts the worker thread on demand (bounded attempts).
         /// </summary>
-        /// <param name="type">Log entry type ("INFO", "WARNING", "ERROR", "CRITICAL ERROR", "NOTIFICATION", "ATTENTION"); validated against an allowlist.</param>
+        /// <param name="type">Log entry type ("INFO", "WARNING", "ERROR", "CRITICAL ERROR", "NOTIFICATION", "ATTENTION", "DEBUG", "DIAGNOSTICS"); validated against an allowlist.</param>
         /// <param name="tags">Optional tags (max 5), sanitized.</param>
         /// <param name="message">Message text (1..256 chars), sanitized and possibly truncated in no-throw mode.</param>
         /// <returns>
