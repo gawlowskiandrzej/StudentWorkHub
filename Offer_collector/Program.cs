@@ -54,18 +54,21 @@ namespace Offer_collector
                     List<UnifiedOfferSchema> pracujUnifSchemas = new List<UnifiedOfferSchema>();
                     foreach (PracujplSchema offer in pracujSchemas)
                         pracujUnifSchemas.Add(OfferMapper.ToUnifiedSchema<List<PracujplSchema>>(offer));
+                    //ExportToTxtt.ExportToTxt(pracujUnifSchemas, "pracujData.txt");
                     break;
                 case OfferSitesTypes.Olxpraca:
                     List<OlxPracaSchema> olxSchemas = OfferMapper.DeserializeJson<List<OlxPracaSchema>>(outputJson);
                     List<UnifiedOfferSchema> olxUnifSchemas = new List<UnifiedOfferSchema>();
                     foreach (OlxPracaSchema offer in olxSchemas)
                         olxUnifSchemas.Add(OfferMapper.ToUnifiedSchema<List<OlxPracaSchema>>(offer, htmlRaw));
+                    //ExportToTxtt.ExportToTxt(olxUnifSchemas, "olxData.txt");
                     break;
                 case OfferSitesTypes.Justjoinit:
                     List<JustJoinItSchema> justJoinItSchemas = OfferMapper.DeserializeJson<List<JustJoinItSchema>>(outputJson);
                     List<UnifiedOfferSchema> justJoinItUnifSchemas = new List<UnifiedOfferSchema>();
                     foreach (JustJoinItSchema offer in justJoinItSchemas)
                         justJoinItUnifSchemas.Add(OfferMapper.ToUnifiedSchema<List<JustJoinItSchema>>(offer, htmlRaw));
+                    //ExportToTxtt.ExportToTxt(justJoinItUnifSchemas, "justJoinItData.txt");
                     break;
                 case OfferSitesTypes.Aplikujpl:
                     List<AplikujplSchema> aplikujSchemas = OfferMapper.DeserializeJson<List<AplikujplSchema>>(outputJson);

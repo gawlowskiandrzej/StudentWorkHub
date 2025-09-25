@@ -61,10 +61,11 @@ namespace Offer_collector.Models.AplikujPl
         public InfoFeatures infoFeatures;
         public Salary salary;
     }
+    //TODO skipować zagraniczne offerty, puste localization sprawdzić co tam się dzieje w details dodać możliwość obsługi map google
     internal class AplikujplSchema : IUnificatable
     {
-        OfferListHeader header;
-        OfferDetails details;
+        public OfferListHeader header;
+        public OfferDetails details;
         public UnifiedOfferSchema UnifiedSchema(string rawHtml = "")
         {
             throw new NotImplementedException();

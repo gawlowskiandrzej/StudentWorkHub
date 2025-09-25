@@ -12,32 +12,41 @@ namespace Offer_collector.Models.OfferFetchers
         const int defaultCategory = 1;
         public override async Task<(string, string)> GetOfferAsync(string url = "")
         {
-            string baseUrl = OlxPracaUrlBuilder.baseUrl;
-            if (url != "")
-                baseUrl = url;
-            string html = await GetHtmlSource(baseUrl);
-            string allJs = GetAllJson(html);
-
-            List<JToken> offerListJs = GetOffersJson(allJs);
-            string cos = JsonConvert.SerializeObject(offerListJs, Formatting.Indented);
-            List<OlxPracaSchema> olxPracaSchema = new List<OlxPracaSchema>();
-
-            // TODO cashowanie kategori i tak są w jednym requset ale zawsze mniej operacji
-            foreach (JToken offer in offerListJs)
+            try
             {
-                OlxPracaSchema obj = GetOlxPracaObject(offer);
+                string baseUrl = OlxPracaUrlBuilder.baseUrl;
+                if (url != "")
+                    baseUrl = url;
+                string html = await GetHtmlSource(baseUrl);
+                string allJs = GetAllJson(html);
 
-                obj.htmlOfferDetail = await GetHtmlSource(obj.url);
-                string htmlOfferDetail = GetSubstringJson(obj.htmlOfferDetail);
-                List<JToken> pol = GetOfferDetailsJson(htmlOfferDetail);
-                string categoriesListObj = JsonConvert.SerializeObject(pol);
-                obj.category.categoryDetails = GetOlxPracaCategoryById(obj.category.id ?? defaultCategory, categoriesListObj);
-                olxPracaSchema.Add(obj);
+                List<JToken> offerListJs = GetOffersJson(allJs);
+                string cos = JsonConvert.SerializeObject(offerListJs, Formatting.Indented);
+                List<OlxPracaSchema> olxPracaSchema = new List<OlxPracaSchema>();
 
-                await Task.Delay(Constants.delayBetweenRequests);
+                // TODO cashowanie kategori i tak są w jednym requset ale zawsze mniej operacji
+                foreach (JToken offer in offerListJs)
+                {
+                    OlxPracaSchema obj = GetOlxPracaObject(offer);
+
+                    obj.htmlOfferDetail = await GetHtmlSource(obj.url);
+                    string htmlOfferDetail = GetSubstringJson(obj.htmlOfferDetail);
+                    List<JToken> pol = GetOfferDetailsJson(htmlOfferDetail);
+                    string categoriesListObj = JsonConvert.SerializeObject(pol);
+                    obj.category.categoryDetails = GetOlxPracaCategoryById(obj.category.id ?? defaultCategory, categoriesListObj);
+                    olxPracaSchema.Add(obj);
+
+                    await Task.Delay(Constants.delayBetweenRequests);
+                }
+
+                return (JsonConvert.SerializeObject(olxPracaSchema, Formatting.Indented) ?? "", html);
             }
+            catch (Exception)
+            {
 
-            return (JsonConvert.SerializeObject(olxPracaSchema, Formatting.Indented) ?? "", html);
+                
+            }
+            return (null, null);
         }
         private async Task<string> GetHtmlSource(string url) => await GetHtmlAsync(url);
         private OlxPracaCategory GetOlxPracaCategoryById(int id, string categoryJson)
