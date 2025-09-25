@@ -159,7 +159,7 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
 #### Unified offer schema example ####
 ```json
 {
-    "id": "abc1234",
+    "id": 123,
     "source": "pracuj.pl",
     "url": "https://www.pracuj.pl/praca/inzynier-ka-oprogramowania-python-mid-senior-warszawa-kolska-12,oferta,1004183523",
     "jobTitle": "Inżynier /-ka oprogramowania Python (mid/senior)",
