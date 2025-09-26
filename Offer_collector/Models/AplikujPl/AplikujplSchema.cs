@@ -19,10 +19,11 @@ namespace Offer_collector.Models.AplikujPl
     {
         public string city;
         public string province; // województwo
-        public string typeofwork; // phisical work
+        public string typeofWork; // phisical work
         public string placeofwork; // praca stacjonarna
         public bool isnotrequireExperience;
         public bool isUrgent;
+        public bool isRemote;
         public string typeofContract;
         public string logoUrl;
         public string description;

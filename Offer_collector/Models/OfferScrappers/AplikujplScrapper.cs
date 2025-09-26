@@ -1,20 +1,19 @@
-﻿
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
 using Offer_collector.Models.AplikujPl;
+using Offer_collector.Models.PracujPl;
 using Offer_collector.Models.Tools;
 using Offer_collector.Models.UrlBuilders;
-using System.Xml.Linq;
 
 namespace Offer_collector.Models.OfferScrappers
 {
     internal class AplikujplScrapper : BaseHtmlScraper
     {
-        string? _offerListHtml;
+        string _offerListHtml;
         public override async Task<(string, string)> GetOfferAsync(string url = "")
         {
             _offerListHtml = await GetHtmlSource(url);
             await GetOfferList();
-           
+
 
             throw new NotImplementedException();
         }
@@ -41,12 +40,9 @@ namespace Offer_collector.Models.OfferScrappers
 
                     offerList.Add(ap);
                 }
-                
             }
 
-
-
-            return null;
+            return offerList;
         }
         OfferListHeader GetHeader(HtmlNode node)
         {
@@ -54,19 +50,19 @@ namespace Offer_collector.Models.OfferScrappers
 
             //TODO fix nulls
 
-            header.title = node.SelectSingleNode(".//a[@class='offer-title']")?.InnerText.Trim();
+            header.title = node.SelectSingleNode(".//a[@class='offer-title']")?.InnerText.Trim() ?? "";
 
-            header.link = node.SelectSingleNode(".//a[@class='offer-title']")?.GetAttributeValue("href", null);
+            header.link = node.SelectSingleNode(".//a[@class='offer-title']")?.GetAttributeValue("href", "") ?? "";
 
-            header.company = node.SelectSingleNode(".//div[@class='text-sm']/a")?.InnerText.Trim();
+            header.company = node.SelectSingleNode(".//div[@class='text-sm']/a")?.InnerText.Trim() ?? "";
 
-            header.location = node.SelectSingleNode(".//li[contains(@class,'workPlace')]/span")?.InnerText.Trim();
+            header.location = node.SelectSingleNode(".//li[contains(@class,'workPlace')]/span")?.InnerText.Trim() ?? "";
 
-            header.employmentType = node.SelectSingleNode(".//li[contains(@class,'employmentType')]/span")?.InnerText.Trim();
+            header.employmentType = node.SelectSingleNode(".//li[contains(@class,'employmentType')]/span")?.InnerText.Trim() ?? "";
 
-            header.companyLogoUrl = node.SelectSingleNode(".//div[@class='offer-card-thumb']//img")?.GetAttributeValue("src", null);
+            header.companyLogoUrl = node.SelectSingleNode(".//div[@class='offer-card-thumb']//img")?.GetAttributeValue("src", "");
 
-            header.dateAdded = node.SelectSingleNode(".//time")?.InnerText.Trim();
+            header.dateAdded = node.SelectSingleNode(".//time")?.InnerText.Trim() ?? "";
 
             header.recomended = node.SelectSingleNode(".//span[contains(@class,'offer-badge')]") != null;
 
@@ -110,37 +106,53 @@ namespace Offer_collector.Models.OfferScrappers
         }
         OfferDetails GetOfferDetails(string html)
         {
-            try
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(html);
+
+            HtmlNode node = doc.DocumentNode.SelectSingleNode("//*[@id=\"offer-container\"]");
+
+            OfferDetails det = new OfferDetails();
+            det.dates = GetDates(node);
+            det.company = GetCompany(node);
+            HtmlNode detailsSection = node.SelectSingleNode(".//div[contains(@class, 'pt-6')]");
+            HtmlNode informationSection = node.SelectSingleNode(".//div[contains(@class, 'pt-8')]");
+            HtmlNodeCollection skillsSections = node.SelectNodes(".//div[contains(@class, 'pb-4 sm:pb-12')]");
+
+            HtmlNode? salarySection = node.SelectSingleNode(".//div[contains(@class, 'flex bg-gray-100 rounded-lg py-1 lg:py-2.5 px-2 lg:px-4 mt-4')]");
+
+            det.responsibilities = GetFeature(skillsSections.FirstOrDefault());
+            if (skillsSections.Count > 1)
+                det.requirements = GetFeature(skillsSections.ElementAt(1));
+            if (skillsSections.Count > 2)
+                det.benefits = GetFeature(skillsSections.ElementAt(2));
+            det.localization = GetLocalization(informationSection, doc.DocumentNode);
+            if (salarySection != null)
+                det.salary = GetSalary(salarySection);
+            det.infoFeatures = GetInfofeature(node);
+
+            return det;
+        }
+
+        private InfoFeatures GetInfofeature(HtmlNode document)
+        {
+            HtmlNode? infoSection = document.SelectSingleNode(".//div[contains(@class, 'grid grid-col-1 sm:grid-cols-2 gap-x-8 gap-y-3 py-3 md:pb-8 offer__label-wrapper')]");
+            HtmlNodeCollection descriptionSection = document.SelectNodes(".//div[contains(@class, 'leading-6 py-6')]");
+            InfoFeatures features = new InfoFeatures();
+            string typeofContract = infoSection.SelectSingleNode(".//div//div[2]//p").InnerText.Trim();
+            string typeofWork = infoSection.SelectSingleNode(".//div[2]//div[2]//p").InnerText.Trim();
+
+            features.typeofContract = typeofContract;
+            features.typeofWork = typeofWork;
+            features.isRemote = false;
+            foreach (HtmlNode node in infoSection.SelectNodes(".//div[contains(@class, 'flex-1')]"))
             {
-                HtmlDocument doc = new HtmlDocument();
-                doc.LoadHtml(html);
-
-                HtmlNode node = doc.DocumentNode.SelectSingleNode("//*[@id=\"offer-container\"]");
-
-                OfferDetails det = new OfferDetails();
-                det.dates = GetDates(node);
-                det.company = GetCompany(node);
-                HtmlNode detailsSection = node.SelectSingleNode(".//div[contains(@class, 'pt-6')]");
-                HtmlNode informationSection = node.SelectSingleNode(".//div[contains(@class, 'pt-8')]");
-                HtmlNodeCollection skillsSections = node.SelectNodes(".//div[contains(@class, 'pb-4 sm:pb-12')]");
-                HtmlNode? salarySection = node.SelectSingleNode(".//div[contains(@class, 'flex bg-gray-100 rounded-lg py-1 lg:py-2.5 px-2 lg:px-4 mt-4')]");
-                det.responsibilities = GetFeature(skillsSections.FirstOrDefault());
-                if (skillsSections.Count > 1)
-                    det.requirements = GetFeature(skillsSections.ElementAt(1));
-                if (skillsSections.Count > 2)
-                    det.benefits = GetFeature(skillsSections.ElementAt(2));
-                det.localization = GetLocalization(informationSection);
-                if (salarySection != null)
-                    det.salary = GetSalary(salarySection);
-
-                return det;
+                string? content = node.SelectSingleNode(".//p")?.InnerText.Trim();
+                if (content != null && content.Contains("Praca zdalna"))
+                { features.isRemote = true; break; }
             }
-            catch (Exception e)
-            {
+            features.description = string.Join("", descriptionSection.Select(n => n.InnerHtml)).Trim();
 
-                throw;
-            }
-           
+            return features;
         }
 
         AplikujPl.Salary GetSalary(HtmlNode node)
@@ -152,48 +164,37 @@ namespace Offer_collector.Models.OfferScrappers
 
             return SalaryParser.Parse(salary);
         }
-
-        Localization GetLocalization(HtmlNode? node)
+        Localization GetLocalization(HtmlNode? node, HtmlNode? allNodes)
         {
             Localization loc = new Localization();
-            HtmlNode? tempNode = node?.SelectSingleNode(".//div[contains(@class, 'pt-1')]");
-            string localizatinoString = tempNode?.SelectNodes(".//div").ElementAt(1).InnerText ?? "";
+            HtmlNode? tempNode = node?.SelectSingleNode(".//li[contains(@class, 'pt-1')]");
+            string localizatinoString = tempNode?.SelectSingleNode(".//div[2]//span//span").InnerText.Trim() ?? "";
             loc.city = localizatinoString.Split(',')[0];
             return loc;
         }
-
         List<string> GetFeature(HtmlNode? node)
         {
-            try
-            {
-                List<string> featureList = new List<string>();
-                HtmlNodeCollection? skills = node?.SelectNodes(".//li");
-                HtmlNodeCollection? skills2 = node?.SelectNodes(".//p");
+            List<string> featureList = new List<string>();
+            HtmlNodeCollection? skills = node?.SelectNodes(".//li");
+            HtmlNodeCollection? skills2 = node?.SelectNodes(".//p");
 
-                if (skills != null)
-                {
-                    foreach (HtmlNode respo in skills)
-                    {
-                        featureList.Add(respo.SelectNodes(".//div").ElementAt(1)?.InnerText.Trim() ?? "");
-                    }
-                    return featureList;
-                }
-                else if (skills2 != null && skills == null)
-                {
-                    foreach (HtmlNode respo in skills2.Skip(1))
-                    {
-                        featureList.Add(respo.InnerText.Trim() ?? "");
-                    }
-                    return featureList;
-                }
-                return new List<string>();
-            }
-            catch (Exception)
+            if (skills != null)
             {
-
-                throw;
+                foreach (HtmlNode respo in skills)
+                {
+                    featureList.Add(respo.SelectNodes(".//div").ElementAt(1)?.InnerText.Trim() ?? "");
+                }
+                return featureList;
             }
-            
+            else if (skills2 != null && skills == null)
+            {
+                foreach (HtmlNode respo in skills2.Skip(1))
+                {
+                    featureList.Add(respo.InnerText.Trim() ?? "");
+                }
+                return featureList;
+            }
+            return new List<string>();
         }
     }
 }
