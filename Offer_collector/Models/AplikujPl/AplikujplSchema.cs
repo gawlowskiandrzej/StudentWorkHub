@@ -18,12 +18,9 @@ namespace Offer_collector.Models.AplikujPl
     public class InfoFeatures
     {
         public string city;
-        public string province; // województwo
         public string typeofWork; // phisical work
-        public string placeofwork; // praca stacjonarna
-        public bool isnotrequireExperience;
-        public bool isUrgent;
         public bool isRemote;
+        public bool isforUkrainians;
         public string typeofContract;
         public string logoUrl;
         public string description;
@@ -60,6 +57,7 @@ namespace Offer_collector.Models.AplikujPl
         public List<string> benefits;
         public Localization localization;
         public InfoFeatures infoFeatures;
+        public string category;
         public Salary salary;
     }
     //TODO skipować zagraniczne offerty, puste localization sprawdzić co tam się dzieje w details dodać możliwość obsługi map google
@@ -69,7 +67,61 @@ namespace Offer_collector.Models.AplikujPl
         public OfferDetails details;
         public UnifiedOfferSchema UnifiedSchema(string rawHtml = "")
         {
-            throw new NotImplementedException();
+            UnifiedOfferSchema s = new UnifiedOfferSchema();
+
+            s.jobTitle = header.title;
+            s.description = details.infoFeatures.description;
+            s.source = OfferSitesTypes.Aplikujpl;
+            s.url = header.link;
+            s.company = new Offer_collector.Models.Company
+            {
+                logoUrl = header.companyLogoUrl ?? "",
+                name = header.company
+            };
+            s.salary = new Models.Salary
+            {
+                currency = details.salary.currency,
+                from = details.salary.from,
+                to = details.salary.to,
+                type = details.salary.type,
+            };
+            s.location = new Location
+            {
+                city = header.location,
+                isRemote = details.infoFeatures.isRemote,
+                isHybrid = false,
+            };
+            
+            s.requirements = new Requirements
+            {
+                benefits = details.benefits,
+                skills = GetSkills(),
+            };
+
+            s.employment = new Employment
+            {
+                schedules = new List<string> { details.infoFeatures.typeofWork },
+                types = new List<string> { details.infoFeatures.typeofContract }
+            };
+
+            s.categories = new List<string> { details.category };
+            s.leadingCategory = s.categories.First();
+            s.isForUkrainians = details.infoFeatures.isforUkrainians;
+
+            return s;
+        }
+        List<Skill> GetSkills()
+        {
+            List<Skill> skills = new List<Skill>();
+            foreach (string skill in details.requirements)
+            {
+                skills.Add(new Skill
+                {
+                    name = skill,
+                });
+            }
+            return skills;
         }
     }
+    
 }

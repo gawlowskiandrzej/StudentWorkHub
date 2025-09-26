@@ -95,8 +95,6 @@ namespace Offer_collector.Models.Jooble
         public int? regionId { get; set; }
         public UnifiedOfferSchema UnifiedSchema(string rawHtml = "")
         {
-
-
             throw new NotImplementedException();
         }
     }
