@@ -37,7 +37,7 @@ namespace Offer_collector.Models.Tools
                 //   // requirements?.languages.Add(bullet);
                 //    continue;
                 //}
-                requirements?.skills?.Add(new Skill { name = bullet, years = 0 });
+                requirements?.skills?.Add(new Skill { skill = bullet });
             }
 
             return requirements ?? new Requirements();

@@ -1,6 +1,5 @@
 ﻿using Offer_collector.Models;
 using Offer_collector.Models.AplikujPl;
-using Offer_collector.Models.Jooble;
 using Offer_collector.Models.JustJoinIt;
 using Offer_collector.Models.OfferFetchers;
 using Offer_collector.Models.OfferScrappers;
@@ -12,6 +11,8 @@ namespace Offer_collector
 {
     internal class Program
     {
+        // TODO 
+        // Obsługa błędów (Exceptions na każdy etap + wysalnie loga do bazy)
         static void Main(string[] args)
         {
             

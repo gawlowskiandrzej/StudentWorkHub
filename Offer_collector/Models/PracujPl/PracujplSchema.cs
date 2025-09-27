@@ -76,9 +76,11 @@ public class PracujplSchema : IUnificatable
             expires = expirationDate,
             published = lastPublicated
         };
-
-        s.leadingCategory = details?.attributes.leadingCategory.name ?? "";
-        s.categories = details?.attributes.categories.Select(_ => _.name).ToList() ?? new List<string>();
+        s.category = new Offer_collector.Models.Category
+        {
+            subCategories = details?.attributes.categories.Select(_ => _.name).ToList() ?? new List<string>(),
+            leadingCategory = details?.attributes.leadingCategory.name ?? ""
+        };
 
         Offer_collector.Models.PracujPl.Model model = details?.sections.Where(_ => _.sectionType.Contains("benefits")).FirstOrDefault()?.model ?? new Offer_collector.Models.PracujPl.Model();
         List<string> custBenefits = model.customItems?.Select(_ => _.name).ToList() ?? new List<string>();
@@ -88,7 +90,6 @@ public class PracujplSchema : IUnificatable
 
         s.isUrgent = primaryAttributes?.Count(_ =>!String.IsNullOrEmpty(_.code) && _.code.Contains("immediate-employment")) > 0;
         s.isForUkrainians = primaryAttributes?.Where(_ => !String.IsNullOrEmpty(_.code) && _.code.Contains("ukrainian-friendly")).Count() > 0;
-        s.isManyvacancies = primaryAttributes?.Where(_ => !String.IsNullOrEmpty(_.code) && _.code.Contains("many-vacancies")).Count() > 0;
 
         return s;
     }

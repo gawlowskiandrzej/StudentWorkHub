@@ -94,7 +94,6 @@ namespace Offer_collector.Models.AplikujPl
             
             s.requirements = new Requirements
             {
-                benefits = details.benefits,
                 skills = GetSkills(),
             };
 
@@ -103,10 +102,15 @@ namespace Offer_collector.Models.AplikujPl
                 schedules = new List<string> { details.infoFeatures.typeofWork },
                 types = new List<string> { details.infoFeatures.typeofContract }
             };
-
-            s.categories = new List<string> { details.category };
-            s.leadingCategory = s.categories.First();
+            s.benefits = details.benefits;
+            s.category = new Category
+            {
+                leadingCategory = details.category,
+                subCategories = new List<string> { details.category }
+            };
             s.isForUkrainians = details.infoFeatures.isforUkrainians;
+            // TODO check this field
+            s.isUrgent = false;
 
             return s;
         }
@@ -117,7 +121,7 @@ namespace Offer_collector.Models.AplikujPl
             {
                 skills.Add(new Skill
                 {
-                    name = skill,
+                    skill = skill,
                 });
             }
             return skills;

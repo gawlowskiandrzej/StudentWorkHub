@@ -198,13 +198,11 @@ namespace Offer_collector.Models.OlxPraca
             //un.isForUkrainians =
 
             //Nie znalazłem ewentualnie w jakiś sposób sparsować z opisu
-            //un.isManyvacancies = false;
-
-            un.leadingCategory = category.categoryDetails?.normalizedName;
-            un.categories = new List<string> { un.leadingCategory ?? "" };
-
-            
-
+            un.category = new Models.Category
+            {
+                subCategories = new List<string> { category.categoryDetails?.normalizedName ?? "None" },
+                leadingCategory = category.categoryDetails?.normalizedName ?? "None"
+            };
 
             return un;
         }
@@ -275,7 +273,7 @@ namespace Offer_collector.Models.OlxPraca
             foreach (var skill in skillKeywords)
             {
                 if (text.Contains(skill))
-                    skills.Add(new Skill { name = skill, years = 0});
+                    skills.Add(new Skill { skill = skill, experienceMonths = 0});
             }
 
             // --- 5. Edukacja (jeśli są słowa „studia”, „wykształcenie”) ---

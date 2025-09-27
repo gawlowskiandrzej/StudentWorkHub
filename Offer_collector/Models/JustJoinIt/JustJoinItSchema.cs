@@ -118,16 +118,14 @@ namespace Offer_collector.Models.JustJoinIt
                 expires = expiredAt,
                 published = publishedAt
             };
-            unif.categories = new List<string>
+            unif.category = new Models.Category
             {
-                details.category?.name ?? "None"
+                subCategories = new List<string> { details.category?.name ?? "None" },
+                leadingCategory = details.category?.name ?? "None",
             };
-            unif.leadingCategory = unif.categories.First();
-            // Get from Ai unif.benefits = 
-
+            // TODO check this field
             unif.isUrgent = false;
             unif.isForUkrainians = openToHireUkrainians;
-            unif.isManyvacancies = false;
 
             return unif;
         }
