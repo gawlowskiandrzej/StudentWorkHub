@@ -22,8 +22,8 @@ namespace Offer_collector.Models
 
     public class Employment
     {
-        public List<string>? types { get; set; } // Future enum type umowa o prace, umowa zlecenie
-        public List<string>? schedules { get; set; } // Future enum type full time, partTime
+        public List<string?>? types { get; set; } // Future enum type umowa o prace, umowa zlecenie
+        public List<string?>? schedules { get; set; } // Future enum type full time, partTime
     }
 
     public class Location
@@ -87,5 +87,11 @@ namespace Offer_collector.Models
         public string? currency { get; set; }
         public string? period { get; set; } // Future enum type montly/weekly/daily
         public string? type { get; set; } // future enum type gross/net
+    }
+
+    public class Output
+    {
+        public UnifiedOfferSchema unified;
+        public string aiGenerated;
     }
 }

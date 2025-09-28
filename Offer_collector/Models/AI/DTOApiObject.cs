@@ -37,6 +37,6 @@
     public class SendPromptObject
     {
         public string model { get; set; }
-        public List<Message> messages { get; set; }
+        public List<Message> messages { get; set; } = new List<Message>();
     }
 }

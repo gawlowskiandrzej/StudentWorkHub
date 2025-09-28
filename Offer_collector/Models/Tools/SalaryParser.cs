@@ -105,6 +105,13 @@ namespace Offer_collector.Models.Tools
                 if (Regex.IsMatch(original, "zł", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)) result.currency = "zł";
             }
 
+            if (String.IsNullOrEmpty(result.type))
+            {
+                if (result.from > 0 && result.from < 1000)
+                    result.period = "hourly";
+                else
+                    result.period = "monthly";
+            }
             return result;
         }
 

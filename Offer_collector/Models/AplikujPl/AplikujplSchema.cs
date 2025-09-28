@@ -1,4 +1,5 @@
 ﻿using Offer_collector.Interfaces;
+using Offer_collector.Models.UrlBuilders;
 
 namespace Offer_collector.Models.AplikujPl
 {
@@ -17,10 +18,10 @@ namespace Offer_collector.Models.AplikujPl
     }
     public class InfoFeatures
     {
-        public string city;
         public string typeofWork; // phisical work
         public bool isRemote;
         public bool isforUkrainians;
+        public bool isUrgent;
         public string typeofContract;
         public string logoUrl;
         public string description;
@@ -31,6 +32,7 @@ namespace Offer_collector.Models.AplikujPl
         public decimal to;
         public string currency;
         public string type; // Brutto/netto
+        public string period;
     }
     public class Company
     {
@@ -72,7 +74,7 @@ namespace Offer_collector.Models.AplikujPl
             s.jobTitle = header.title;
             s.description = details.infoFeatures.description;
             s.source = OfferSitesTypes.Aplikujpl;
-            s.url = header.link;
+            s.url = $"{AplikujPlUrlBuilder.baseUrl}{header.link}";
             s.company = new Offer_collector.Models.Company
             {
                 logoUrl = header.companyLogoUrl ?? "",
@@ -80,10 +82,11 @@ namespace Offer_collector.Models.AplikujPl
             };
             s.salary = new Models.Salary
             {
-                currency = details.salary.currency,
-                from = details.salary.from,
-                to = details.salary.to,
-                type = details.salary.type,
+                currency = details.salary?.currency,
+                from = details.salary?.from ?? 0,
+                to = details.salary?.to ?? 0,
+                type = details.salary?.type,
+                period = details.salary?.period
             };
             s.location = new Location
             {
@@ -99,8 +102,13 @@ namespace Offer_collector.Models.AplikujPl
 
             s.employment = new Employment
             {
-                schedules = new List<string> { details.infoFeatures.typeofWork },
-                types = new List<string> { details.infoFeatures.typeofContract }
+                schedules = new List<string?> { details.infoFeatures?.typeofWork},
+                types = new List<string?> { details.infoFeatures?.typeofContract}
+            };
+            s.dates = new Models.Dates
+            {
+                expires = details.dates.expirationDate,
+                published = details.dates.publishionDate
             };
             s.benefits = details.benefits;
             s.category = new Category
@@ -108,7 +116,7 @@ namespace Offer_collector.Models.AplikujPl
                 leadingCategory = details.category,
                 subCategories = new List<string> { details.category }
             };
-            s.isForUkrainians = details.infoFeatures.isforUkrainians;
+            s.isForUkrainians = details.infoFeatures?.isforUkrainians ?? false;
             // TODO check this field
             s.isUrgent = false;
 
@@ -117,7 +125,7 @@ namespace Offer_collector.Models.AplikujPl
         List<Skill> GetSkills()
         {
             List<Skill> skills = new List<Skill>();
-            foreach (string skill in details.requirements)
+            foreach (string skill in details.requirements ?? new List<string>())
             {
                 skills.Add(new Skill
                 {
