@@ -1,4 +1,5 @@
 ﻿using LLMParser;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Offer_collector.Models;
 using Offer_collector.Models.AI;
@@ -9,7 +10,7 @@ using Offer_collector.Models.OfferScrappers;
 using Offer_collector.Models.OlxPraca;
 using Offer_collector.Models.Tools;
 using Offer_collector.Models.UrlBuilders;
-using Microsoft.Extensions.Configuration;
+using System;
 
 namespace Offer_collector
 {
@@ -111,11 +112,12 @@ namespace Offer_collector
                     break;
             }
             // Processed by Ai
-            Task.Factory.StartNew(async () => await aiParser.ProcessUnifiedSchemas(unifiedOfferSchemas));
+            List<UnifiedOfferSchema> processedOffers = GetAiOutput(aiParser, unifiedOfferSchemas).Result;
 
 
             Console.WriteLine(outputJson);
             Console.ReadKey();
         }
+        static async Task<List<UnifiedOfferSchema>> GetAiOutput(AIProcessor llm, List<UnifiedOfferSchema> offers) => await llm.ProcessUnifiedSchemas(offers);
     }
 }
