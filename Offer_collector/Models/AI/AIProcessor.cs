@@ -1,7 +1,6 @@
 ﻿using LLMParser;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using Offer_collector.Models.PracujPl;
 namespace Offer_collector.Models.AI
 {
     internal class AIProcessor
@@ -43,7 +42,7 @@ namespace Offer_collector.Models.AI
             if (aiOffer?.benefits?.Count > 0 && (offer?.benefits == null || offer.benefits.Count > 0))
                 offer.benefits = aiOffer.benefits;
 
-            return offer.benefits;
+            return offer.benefits ?? new List<string>();
         }
 
         Requirements ProcessRequirements(UnifiedOfferSchema offer, UnifiedOfferSchema? aiOffer)

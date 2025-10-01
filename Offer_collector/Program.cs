@@ -23,7 +23,6 @@ namespace Offer_collector
         // Olxpraca logoUrl null - sprawdzić !!
         // JustJoinIt uzupełnić level skilla
         // Aplikujpl pełen url w polu w uniwersalnym schemacie
-        // JustJoinIt usunąć htmla żeby prompt nie był za długi
         // AplikujPl dodac logourl 
         // Rozdzielać skille które są po przecinku jeżeli są
         // 
