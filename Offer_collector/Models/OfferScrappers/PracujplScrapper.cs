@@ -21,7 +21,7 @@ namespace Offer_collector.Models.OfferFetchers
             string html = await GetHtmlSource(baseUrl);
             string allJs = GetAllJson(html);
 
-            List<JToken> offerListJs = GetOffersJToken(allJs).Take(9).ToList();
+            List<JToken> offerListJs = GetOffersJToken(allJs).Take(1).ToList();
             List<PracujplSchema> pracujplSchemas = new List<PracujplSchema>();
             List<string> requirementsData = new List<string>();
             foreach (JToken offer in offerListJs)
