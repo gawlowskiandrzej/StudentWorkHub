@@ -46,11 +46,11 @@ namespace Offer_collector.Models.OfferFetchers
                         else
                             schemaOffer.company = OfferMapper.DeserializeJToken<PracujPlCompany>(token);
                     }
+                    bool? isAbroad = schemaOffer.details?.attributes.workplaces
+                    .Any(_ => _.isAbroad.GetValueOrDefault());
 
-                    // TODO parsing skills by AI 
-
-
-                    pracujplSchemas.Add(schemaOffer);
+                    if (!isAbroad ?? true)
+                        pracujplSchemas.Add(schemaOffer);
                     requirementsData.Add(String.Join(";", schemaOffer.details?.sections.Where(_ => _.sectionType.Contains("requirements"))?.FirstOrDefault()?.subSections?.FirstOrDefault()?.model?.bullets ?? new List<string>()));
                     await Task.Delay(Constants.delayBetweenRequests);
                 }

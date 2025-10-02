@@ -24,7 +24,7 @@ namespace Offer_collector
         // Aplikujpl pełen url w polu w uniwersalnym schemacie
         // AplikujPl dodac logourl 
         // Rozdzielać skille które są po przecinku jeżeli są
-        // 
+        // JustJoinIt sprawdzać po mieście zpliku json
         static void Main(string[] args)
         {
             
