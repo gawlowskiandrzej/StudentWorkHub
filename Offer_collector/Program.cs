@@ -18,7 +18,6 @@ namespace Offer_collector
     {
         // TODO 
         // Obsługa błędów (Exceptions na każdy etap + wysalnie loga do bazy)
-        // Cashowanie danych - firmy
         // Tylko polskie oferty
         // Olxpraca logoUrl null - sprawdzić !!
         // JustJoinIt uzupełnić level skilla

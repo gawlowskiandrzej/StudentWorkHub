@@ -36,7 +36,10 @@ namespace Offer_collector.Models.OfferFetchers
 
                     if (schemaOffer.companyProfileAbsoluteUri != null)
                     {
-                        JToken? token = await GetCompanyDetails(schemaOffer.companyProfileAbsoluteUri);
+                        var token = await CompanyCache.GetOrAddAsync(
+                            schemaOffer.companyProfileAbsoluteUri,
+                            () => GetCompanyDetails(schemaOffer.companyProfileAbsoluteUri)
+                        );
 
                         if (token?.SelectToken("slug") != null)
                             schemaOffer.profile = OfferMapper.DeserializeJToken<PracujPlProfile>(token);

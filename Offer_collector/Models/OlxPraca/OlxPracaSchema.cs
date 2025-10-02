@@ -215,15 +215,6 @@ namespace Offer_collector.Models.OlxPraca
                 expires = validToTime,
                 published = createdTime
             };
-            //TODO benefity z description zparsować np. multisport, Prywatna opieka medyczna PZU Zdrowie, Elastyczne godziny pracy
-
-            // Nie znalazłem info więc domyślna wartość
-            //un.isUrgent 
-
-            // Nie znlazłem domyślnie true, wszędzie jest tłumaczenie na ukraiński więc imo true
-            //un.isForUkrainians =
-
-            //Nie znalazłem ewentualnie w jakiś sposób sparsować z opisu
             un.category = new Models.Category
             {
                 subCategories = new List<string> { category.categoryDetails?.normalizedName ?? "None" },
@@ -232,87 +223,6 @@ namespace Offer_collector.Models.OlxPraca
 
             return un;
         }
-        //List<string> GetBenefits()
-        //{
-        //    List<string> benefits = new List<string>();
-
-        //    if (description.ToLower().Contains("pzu"))
-        //        benefits.Add("Opieka medyczna PZU");
-        //    if (description.ToLower().Contains("multisport"))
-        //        benefits.Add("Karta sportowa multisport");
-        //    if (description.ToLower().Contains("atmosfer"))
-        //        benefits.Add("Przyjazna atmosfera");
-        //    if (description.ToLower().Contains("szkolen"))
-        //        benefits.Add("Szkolenia");
-
-        //    return benefits;
-        //}
-        //Requirements ParseDescription(string htmlDescription)
-        //{
-        ////    // TODO sprawdzić czy nie ma schematu dlatego wstawiłem tutaj html np. pierwszy strong to wykształcenie itp..
-        ////    // ewentualnie można użyć prostego modelu AI ewentualnie jakieś darmowe api (deepseek)
-        ////    var offer = new Requirements();
-        ////    var skills = new List<Skill>();
-        ////    var experienceLevel = new List<string>();
-        ////    var education = new List<string>();
-        ////    var languages = new List<LanguageSkill>();
-        ////    ushort experienceYears = 0;
-
-
-        ////    var doc = new HtmlDocument();
-        ////    doc.LoadHtml(htmlDescription);
-        ////    string text = doc.DocumentNode.InnerText.ToLower();
-
-        ////    if (text.Contains("młodszy") || text.Contains("junior"))
-        ////        experienceLevel.Add("Junior");
-        ////    if (text.Contains("mid"))
-        ////        experienceLevel.Add("Mid");
-        ////    if (text.Contains("senior") || text.Contains("starszy"))
-        ////        experienceLevel.Add("Senior");
-
-        ////    if (experienceLevel.Contains("Junior") || text.Contains("staż"))
-        ////        experienceYears = 0;
-
-        ////    var matchExp = Regex.Match(text, @"(\d+)\s*(lat|rok|years)", RegexOptions.IgnoreCase);
-        ////    if (matchExp.Success)
-        ////        experienceYears = ushort.Parse(matchExp.Groups[1].Value);
-
-
-        ////    var langMap = new Dictionary<string, string> {
-        ////    { "angiel", "English" }, { "english", "English" },
-        ////    { "niemieck", "German" }, { "german", "German" },
-        ////    { "francus", "French" }, { "french", "French" },
-        ////    { "polsk", "Polish" }
-        ////};
-        ////    foreach (var kv in langMap)
-        ////    {
-        ////        if (text.Contains(kv.Key))
-        ////            languages.Add( new LanguageSkill { language = kv.Value, level = experienceYears.ToString() });
-        ////    }
-
-
-        ////    var skillKeywords = new[] {
-        ////    "seo", "sem", "link building", "google ads", "facebook ads",
-        ////    "excel", "arkusze google", "whitepress", "linkhouse",
-        ////    "clickup", "content marketing", "raport", "pozycjonowanie"
-        ////};
-        ////    foreach (var skill in skillKeywords)
-        ////    {
-        ////        if (text.Contains(skill))
-        ////            skills.Add(new Skill { skill = skill, experienceMonths = 0});
-        ////    }
-
-        ////    // --- 5. Edukacja (jeśli są słowa „studia”, „wykształcenie”) ---
-        ////    if (text.Contains("studia") || text.Contains("wykształcenie"))
-        ////        education.Add("Higher education");
-
-        ////    // --- 6. Ustaw wyniki ---
-        ////    offer.skills = skills.Count > 0 ? skills : null;
-        ////    offer.education = education.Count > 0 ? education : null;
-        ////    offer.languages = languages.Count > 0 ? languages : null;
-
-        ////    return offer;
-        //}
     }
 
     public class Safedeal
