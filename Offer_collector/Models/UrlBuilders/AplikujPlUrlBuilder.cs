@@ -1,4 +1,6 @@
 ﻿
+using System;
+
 namespace Offer_collector.Models.UrlBuilders
 {
     internal class AplikujPlUrlBuilder : BaseUrlBuilder
@@ -7,14 +9,20 @@ namespace Offer_collector.Models.UrlBuilders
         public AplikujPlUrlBuilder() : base(baseUrl) { }
         protected override string BuildBaseUrl(Dictionary<string, string> parameters, Dictionary<string, string> tags)
         {
-            return $"{baseUrl}/praca";
+            string url = $"{baseUrl}/praca";
+            if (parameters.TryGetValue("page", out var pageValue) && int.TryParse(pageValue, out int pageNumber) && pageNumber > 1)
+            {
+                url += $"/strona-{pageNumber}";
+            }
+
+            return url;
         }
         protected override Dictionary<string, string> AddPaging(Dictionary<string, string> parameters, int pageId)
         {
-            if (pageId > 0)
-            {
-                //parameters["pn"] = pageId.ToString();
-            }
+            //if (pageId > 0)
+            //{
+            //    parameters["page"] = pageId.ToString();
+            //}
 
             return parameters;
         }

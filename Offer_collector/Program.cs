@@ -29,7 +29,7 @@ namespace Offer_collector
         static void Main(string[] args)
         {
             
-            OfferSitesTypes type = OfferSitesTypes.Pracujpl;
+            OfferSitesTypes type = OfferSitesTypes.Justjoinit;
             int offerAmount = 100;
             List<UnifiedOfferSchema> unifiedOfferSchemas = new List<UnifiedOfferSchema>();
             BaseHtmlScraper? scrapper = null;
@@ -63,10 +63,9 @@ namespace Offer_collector
                     break;
             }
 
-
-            string fullUrl = urlBuilder.BuildUrl();
-            (string outputJson, string htmlRaw) = scrapper.GetOfferAsync(fullUrl).Result;
-
+            var paginator = new PaginationModule(scrapper, urlBuilder, offerAmount);
+            (string outputJson, List<string> htmls) = paginator.FetchAllOffersAsync().Result;
+            int i = 0;
             switch (type)
             {
                 case OfferSitesTypes.Pracujpl:
@@ -87,7 +86,7 @@ namespace Offer_collector
                     List<string> outputs = new List<string>();
                     foreach (OlxPracaSchema offer in olxSchemas)
                     {
-                        UnifiedOfferSchema olxSch = OfferMapper.ToUnifiedSchema<List<OlxPracaSchema>>(offer, htmlRaw);
+                        UnifiedOfferSchema olxSch = OfferMapper.ToUnifiedSchema<List<OlxPracaSchema>>(offer, htmls.ElementAt(i++));
                         unifiedOfferSchemas.Add(olxSch);
                     }
                     break;
@@ -98,7 +97,7 @@ namespace Offer_collector
 
                     foreach (JustJoinItSchema offer in justJoinItSchemas)
                     {
-                        UnifiedOfferSchema unifOffer = OfferMapper.ToUnifiedSchema<List<JustJoinItSchema>>(offer, htmlRaw);
+                        UnifiedOfferSchema unifOffer = OfferMapper.ToUnifiedSchema<List<JustJoinItSchema>>(offer, htmls.ElementAt(i++));
                         unifiedOfferSchemas.Add(unifOffer);
                     }
                     //ExportToTxtt.ExportToTxt(justJoinItUnifSchemas, "justJoinItData.txt");
@@ -109,8 +108,8 @@ namespace Offer_collector
                     List<List<string>> aiOutputsAplikuj = new List<List<string>>();
                     foreach (AplikujplSchema offer in aplikujSchemas)
                     {
-                        UnifiedOfferSchema unifOffer = OfferMapper.ToUnifiedSchema<List<AplikujplSchema>>(offer, htmlRaw);
-                        unifiedOfferSchemas.Add(OfferMapper.ToUnifiedSchema<List<AplikujplSchema>>(offer, htmlRaw));
+                        UnifiedOfferSchema unifOffer = OfferMapper.ToUnifiedSchema<List<AplikujplSchema>>(offer, htmls.ElementAt(i++));
+                        unifiedOfferSchemas.Add(OfferMapper.ToUnifiedSchema<List<AplikujplSchema>>(offer, htmls.ElementAt(i++)));
                     }
                     
                     break;

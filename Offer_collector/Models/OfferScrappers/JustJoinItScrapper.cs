@@ -17,7 +17,7 @@ namespace Offer_collector.Models.OfferFetchers
                 baseUrl = url;
             string html = await GetHtmlSource(baseUrl);
             string allJs = GetAllJson(html);
-
+            maxOfferCount = GetOfferCount(allJs);
             List<JToken> offerListJs = GetOffersJson(allJs);
             #if DEBUG
                 var listJs = JsonConvert.SerializeObject(offerListJs, Formatting.Indented);
@@ -118,6 +118,16 @@ namespace Offer_collector.Models.OfferFetchers
                 ".state" +
                 ".data");
             return offerDetails;
+        }
+        private int GetOfferCount(string allJson)
+        {
+            JsonParser parser = new JsonParser(allJson);
+            JToken? offerCount = parser.GetSpecificJsonFragment("state" +
+                ".queries[2]" +
+                ".state" +
+                ".data" +
+                ".count");
+            return int.Parse(JsonConvert.SerializeObject(offerCount));
         }
         async Task<JToken?> GetCompanyDetails(string html)
         {

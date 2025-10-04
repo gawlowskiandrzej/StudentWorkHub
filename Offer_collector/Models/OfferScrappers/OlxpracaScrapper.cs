@@ -17,7 +17,7 @@ namespace Offer_collector.Models.OfferFetchers
                 baseUrl = url;
             string html = await GetHtmlSource(baseUrl);
             string allJs = GetAllJson(html);
-
+            maxOfferCount = GetOfferCount(allJs);
             List<JToken> offerListJs = GetOffersJson(allJs);
             List<OlxPracaSchema> olxPracaSchema = new List<OlxPracaSchema>();
 
@@ -82,6 +82,15 @@ namespace Offer_collector.Models.OfferFetchers
                 ".listing" +
                 ".ads[*]");
             return offerListJs;
+        }
+        private int GetOfferCount(string allJson)
+        {
+            JsonParser parser = new JsonParser(allJson);
+            JToken? offerCount = parser.GetSpecificJsonFragment("listing" +
+                ".listing" +
+                ".totalElements");
+            
+            return int.Parse(JsonConvert.SerializeObject(offerCount));
         }
         private List<JToken> GetOfferDetailsJson(string allJson)
         {

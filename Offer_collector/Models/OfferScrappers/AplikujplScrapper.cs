@@ -23,6 +23,7 @@ namespace Offer_collector.Models.OfferScrappers
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(_offerListHtml);
 
+            maxOfferCount = int.Parse(doc.DocumentNode.SelectSingleNode("//div[contains(@class,'hidden sm:flex sm:flex-1 sm:items-center sm:justify-between')]/div/p/span[3]").InnerText);
             HtmlNode node = doc.DocumentNode.SelectSingleNode("//*[@id=\"offer-list\"]");
             List<OfferListHeader> offerListHeader = new List<OfferListHeader>();
             List<AplikujplSchema> offerList = new List<AplikujplSchema>();
