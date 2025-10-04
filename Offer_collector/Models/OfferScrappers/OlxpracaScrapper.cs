@@ -12,41 +12,31 @@ namespace Offer_collector.Models.OfferFetchers
         const int defaultCategory = 1;
         public override async Task<(string, string)> GetOfferAsync(string url = "")
         {
-            try
+            string baseUrl = OlxPracaUrlBuilder.baseUrl;
+            if (url != "")
+                baseUrl = url;
+            string html = await GetHtmlSource(baseUrl);
+            string allJs = GetAllJson(html);
+
+            List<JToken> offerListJs = GetOffersJson(allJs);
+            List<OlxPracaSchema> olxPracaSchema = new List<OlxPracaSchema>();
+
+            // TODO cashowanie kategori i tak są w jednym requset ale zawsze mniej operacji
+            foreach (JToken offer in offerListJs)
             {
-                string baseUrl = OlxPracaUrlBuilder.baseUrl;
-                if (url != "")
-                    baseUrl = url;
-                string html = await GetHtmlSource(baseUrl);
-                string allJs = GetAllJson(html);
+                OlxPracaSchema obj = GetOlxPracaObject(offer);
 
-                List<JToken> offerListJs = GetOffersJson(allJs);
-                string cos = JsonConvert.SerializeObject(offerListJs, Formatting.Indented);
-                List<OlxPracaSchema> olxPracaSchema = new List<OlxPracaSchema>();
+                obj.htmlOfferDetail = await GetHtmlSource(obj.url);
+                string htmlOfferDetail = GetSubstringJson(obj.htmlOfferDetail);
+                List<JToken> pol = GetOfferDetailsJson(htmlOfferDetail);
+                string categoriesListObj = JsonConvert.SerializeObject(pol);
+                obj.category.categoryDetails = GetOlxPracaCategoryById(obj.category.id ?? defaultCategory, categoriesListObj);
+                olxPracaSchema.Add(obj);
 
-                // TODO cashowanie kategori i tak są w jednym requset ale zawsze mniej operacji
-                foreach (JToken offer in offerListJs)
-                {
-                    OlxPracaSchema obj = GetOlxPracaObject(offer);
-
-                    obj.htmlOfferDetail = await GetHtmlSource(obj.url);
-                    string htmlOfferDetail = GetSubstringJson(obj.htmlOfferDetail);
-                    List<JToken> pol = GetOfferDetailsJson(htmlOfferDetail);
-                    string categoriesListObj = JsonConvert.SerializeObject(pol);
-                    obj.category.categoryDetails = GetOlxPracaCategoryById(obj.category.id ?? defaultCategory, categoriesListObj);
-                    olxPracaSchema.Add(obj);
-
-                    await Task.Delay(Constants.delayBetweenRequests);
-                }
-
-                return (JsonConvert.SerializeObject(olxPracaSchema, Formatting.Indented) ?? "", html);
+                await Task.Delay(Constants.delayBetweenRequests);
             }
-            catch (Exception)
-            {
 
-                
-            }
-            return (null, null);
+            return (JsonConvert.SerializeObject(olxPracaSchema, Formatting.Indented) ?? "", html);
         }
         private async Task<string> GetHtmlSource(string url) => await GetHtmlAsync(url);
         private OlxPracaCategory GetOlxPracaCategoryById(int id, string categoryJson)
@@ -56,7 +46,7 @@ namespace Offer_collector.Models.OfferFetchers
             return categoriesList?.Where(_ => _.id == id).FirstOrDefault() ?? new OlxPracaCategory();
         }
         private string GetAllJson(string html) => GetSubstringJson(html);
-        private string GetSubstringJson(string htmlSource) 
+        private string GetSubstringJson(string htmlSource)
         {
             const string marker = "window.__PRERENDERED_STATE__=";
             const string endMarker = "}}]}}\";";
@@ -72,7 +62,7 @@ namespace Offer_collector.Models.OfferFetchers
 
             endIndex += endMarker.Length;
 
-            var json = htmlSource.Substring(startIndex-1, endIndex - startIndex).Trim();
+            var json = htmlSource.Substring(startIndex - 1, endIndex - startIndex).Trim();
 
             if (json.EndsWith(";"))
                 json = json.Substring(0, json.Length - 1);

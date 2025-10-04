@@ -1,6 +1,7 @@
 ﻿using HtmlAgilityPack;
 using Newtonsoft.Json;
 using Offer_collector.Models.AplikujPl;
+using Offer_collector.Models.ConstData;
 using Offer_collector.Models.Tools;
 using Offer_collector.Models.UrlBuilders;
 using System.Net;
@@ -34,10 +35,13 @@ namespace Offer_collector.Models.OfferScrappers
                 {
                     ap.header = header;
 
-                    string detailsUrl = AplikujPlUrlBuilder.baseUrl + header.link;
-                    ap.details = GetOfferDetails(await GetHtmlSource(detailsUrl));
+                    if (ConstValues.PolishCities.Any( _ => _.City == ap.header.location))
+                    {
+                        string detailsUrl = AplikujPlUrlBuilder.baseUrl + header.link;
+                        ap.details = GetOfferDetails(await GetHtmlSource(detailsUrl));
 
-                    offerList.Add(ap);
+                        offerList.Add(ap);
+                    }
                 }
             }
 

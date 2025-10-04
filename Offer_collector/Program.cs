@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Offer_collector.Models;
 using Offer_collector.Models.AI;
 using Offer_collector.Models.AplikujPl;
+using Offer_collector.Models.ConstData;
 using Offer_collector.Models.JustJoinIt;
 using Offer_collector.Models.OfferFetchers;
 using Offer_collector.Models.OfferScrappers;
@@ -33,6 +34,10 @@ namespace Offer_collector
             BaseHtmlScraper? scrapper = null;
             BaseUrlBuilder? urlBuilder = null;
             AIProcessor aiParser = new AIProcessor();
+            ConstValues.PolishCities = JsonConvert.DeserializeObject<List<PlCityObject>>(File.ReadAllText("cities.json")) ?? new List<PlCityObject>();
+
+
+
             switch (type)
             {
                 case OfferSitesTypes.Pracujpl:
