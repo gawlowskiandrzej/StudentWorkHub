@@ -4,7 +4,7 @@ public abstract class BaseHtmlScraper
 {
     protected readonly HttpClient _client;
     private string htmlBody;
-    private string jsonFragment;
+    protected int maxOfferCount;
     
     public BaseHtmlScraper()
     {
@@ -50,6 +50,11 @@ public abstract class BaseHtmlScraper
     /// <summary>
     /// Decode unnessesary unicode characters
     /// </summary>
+
+    /// <summary>
+    /// Abstract method for getting offer count
+    /// </summary>
+    public virtual int GetOfferCountFromHtml() => maxOfferCount;
     protected string DecodeUnicodeStrict(string input)
     {
         if (string.IsNullOrEmpty(input))

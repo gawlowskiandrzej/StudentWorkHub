@@ -88,14 +88,14 @@ namespace Offer_collector.Models.OlxPraca
         public string title { get; set; }
         public string description { get; set; }
         public Category category { get; set; }
-        public Map map { get; set; }
+        public Map? map { get; set; }
         public bool? isBusiness { get; set; }
         public string url { get; set; }
         public bool? isHighlighted { get; set; }
         public bool? isPromoted { get; set; }
-        public Promotion promotion { get; set; }
+        public Promotion? promotion { get; set; }
         public object externalUrl { get; set; }
-        public Delivery delivery { get; set; }
+        public Delivery? delivery { get; set; }
         public DateTime? createdTime { get; set; }
         public DateTime? lastRefreshTime { get; set; }
         public object pushupTime { get; set; }
@@ -155,8 +155,8 @@ namespace Offer_collector.Models.OlxPraca
                 city = location.cityName,
                 coordinates = new Coordinates
                 {
-                    latitude = map.lat ?? 0,
-                    longitude = map.lon ?? 0
+                    latitude = map?.lat ?? 0,
+                    longitude = map?.lon ?? 0
                 },
                 postalCode = "",
                 buildingNumber = "",

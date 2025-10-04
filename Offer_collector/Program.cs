@@ -11,7 +11,6 @@ using Offer_collector.Models.OfferScrappers;
 using Offer_collector.Models.OlxPraca;
 using Offer_collector.Models.Tools;
 using Offer_collector.Models.UrlBuilders;
-using System;
 
 namespace Offer_collector
 {
@@ -25,16 +24,18 @@ namespace Offer_collector
         // Aplikujpl pełen url w polu w uniwersalnym schemacie
         // AplikujPl dodac logourl 
         // Rozdzielać skille które są po przecinku jeżeli są
-        // JustJoinIt sprawdzać po mieście zpliku json
+        // JustJoinIt sprawdzać po mieście zpliku json\
+        // Parametr który określi ile oferty zaciągnąć procentowo 
         static void Main(string[] args)
         {
             
             OfferSitesTypes type = OfferSitesTypes.Pracujpl;
+            int offerAmount = 100;
             List<UnifiedOfferSchema> unifiedOfferSchemas = new List<UnifiedOfferSchema>();
             BaseHtmlScraper? scrapper = null;
             BaseUrlBuilder? urlBuilder = null;
             AIProcessor aiParser = new AIProcessor();
-            ConstValues.PolishCities = JsonConvert.DeserializeObject<List<PlCityObject>>(File.ReadAllText("cities.json")) ?? new List<PlCityObject>();
+            ConstValues.PolishCities = JsonConvert.DeserializeObject<List<PlCityObject>>(File.ReadAllText("../../../Models/ConstData/pl.json")) ?? new List<PlCityObject>();
 
 
 
@@ -61,6 +62,7 @@ namespace Offer_collector
                     urlBuilder = (PracujPlUrlBuilder)UrlBuilderFactory.Create(type);
                     break;
             }
+
 
             string fullUrl = urlBuilder.BuildUrl();
             (string outputJson, string htmlRaw) = scrapper.GetOfferAsync(fullUrl).Result;

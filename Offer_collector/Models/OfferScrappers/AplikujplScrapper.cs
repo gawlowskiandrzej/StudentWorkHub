@@ -211,5 +211,6 @@ namespace Offer_collector.Models.OfferScrappers
             }
             return new List<string>();
         }
+
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Offer_collector.Models.AI;
 using Offer_collector.Models.ConstData;
 using Offer_collector.Models.Json;
 using Offer_collector.Models.JustJoinIt;
