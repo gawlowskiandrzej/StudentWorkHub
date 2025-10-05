@@ -2,8 +2,8 @@
 
 public enum OfferSitesTypes
 {
-	Pracujpl,
-	Justjoinit,
-	Olxpraca,
-	Aplikujpl
+	Pracujpl = 1,
+	Justjoinit = 2,
+	Olxpraca = 3,
+	Aplikujpl = 4
 }

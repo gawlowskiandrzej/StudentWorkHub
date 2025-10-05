@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Offer_collector": {
+      "commandName": "Project",
+      "commandLineArgs": "1 100"
+    }
+  }
+}

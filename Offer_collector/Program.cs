@@ -1,6 +1,4 @@
-﻿using LLMParser;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Offer_collector.Models;
 using Offer_collector.Models.AI;
 using Offer_collector.Models.AplikujPl;
@@ -18,19 +16,32 @@ namespace Offer_collector
     {
         // TODO 
         // Obsługa błędów (Exceptions na każdy etap + wysalnie loga do bazy)
-        // Tylko polskie oferty
-        // Olxpraca logoUrl null - sprawdzić !!
-        // JustJoinIt uzupełnić level skilla
         // Aplikujpl pełen url w polu w uniwersalnym schemacie
         // AplikujPl dodac logourl 
-        // Rozdzielać skille które są po przecinku jeżeli są
-        // JustJoinIt sprawdzać po mieście zpliku json\
-        // Parametr który określi ile oferty zaciągnąć procentowo 
         static void Main(string[] args)
         {
-            
-            OfferSitesTypes type = OfferSitesTypes.Justjoinit;
-            int offerAmount = 100;
+
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Użycie: App.exe <siteTypeId> <offerAmount>");
+                Console.WriteLine("Przykład: App.exe 1 100");
+                return;
+            }
+
+            if (!int.TryParse(args[0], out int siteTypeId))
+            {
+                Console.WriteLine("Pierwszy parametr musi być liczbą określającą typ portalu.");
+                return;
+            }
+
+            if (!int.TryParse(args[1], out int offerAmount))
+            {
+                Console.WriteLine("Drugi parametr musi być liczbą określającą ilość ofert.");
+                return;
+            }
+
+            OfferSitesTypes type = (OfferSitesTypes)siteTypeId;
+
             List<UnifiedOfferSchema> unifiedOfferSchemas = new List<UnifiedOfferSchema>();
             BaseHtmlScraper? scrapper = null;
             BaseUrlBuilder? urlBuilder = null;
