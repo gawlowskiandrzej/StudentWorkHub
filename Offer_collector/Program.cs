@@ -131,8 +131,8 @@ namespace Offer_collector
             // Processed by Ai
             List<UnifiedOfferSchema> processedOffers = GetAiOutput(aiParser, unifiedOfferSchemas).Result;
 
-
-            Console.WriteLine(outputJson);
+            string output = JsonConvert.SerializeObject(processedOffers, Formatting.Indented);
+            Console.WriteLine(output);
             Console.ReadKey();
         }
         static async Task<List<UnifiedOfferSchema>> GetAiOutput(AIProcessor llm, List<UnifiedOfferSchema> offers) => await llm.ProcessUnifiedSchemas(offers);

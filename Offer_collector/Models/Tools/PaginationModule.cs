@@ -23,7 +23,7 @@ namespace Offer_collector.Models.Tools
         /// <summary>
         /// Pobiera wszystkie oferty z paginowanego źródła i zwraca je jako JSON.
         /// </summary>
-        public async Task<(string, List<string>)> FetchAllOffersAsync(int maxPages = 4)
+        public async Task<(string, List<string>)> FetchAllOffersAsync(int maxPages = int.MaxValue)
         {
             var allOffers = new List<JToken>();
             int currentPage = 1;
