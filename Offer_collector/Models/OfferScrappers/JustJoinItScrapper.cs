@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Offer_collector.Models.AI;
+using Offer_collector.Models.ConstData;
 using Offer_collector.Models.Json;
 using Offer_collector.Models.JustJoinIt;
 using Offer_collector.Models.UrlBuilders;
@@ -12,14 +12,12 @@ namespace Offer_collector.Models.OfferFetchers
     {
         public override async Task<(string, string)> GetOfferAsync(string url = "")
         {
-            AiApi aiApi = new AiApi();
-
             string baseUrl = JustJoinItBuilder.baseUrl;
             if (url != "")
                 baseUrl = url;
             string html = await GetHtmlSource(baseUrl);
             string allJs = GetAllJson(html);
-
+            maxOfferCount = GetOfferCount(allJs);
             List<JToken> offerListJs = GetOffersJson(allJs);
             #if DEBUG
                 var listJs = JsonConvert.SerializeObject(offerListJs, Formatting.Indented);
@@ -30,7 +28,8 @@ namespace Offer_collector.Models.OfferFetchers
             foreach (JToken offer in offerListJs)
             {
                 JustJoinItSchema schema = GetJustJoinItSchema(offer);
-                justJoinItOffers.Add(schema);
+               
+                
 
                 string detailsHtml = await GetHtmlSource(JustJoinItBuilder.baseUrlOfferDetail + schema.slug);
                 JToken? detailsToken = await GetCompanyDetails(detailsHtml);
@@ -38,8 +37,8 @@ namespace Offer_collector.Models.OfferFetchers
                 schema.detailsHtml = detailsHtml;
                 schema.description = JsonConvert.DeserializeObject<JustJoinItDescription>(GetDescriptionSubString(detailsHtml) ?? "")?.description ?? "";
 
-
-                //string resultFormAi = await aiApi.SendPrompt(new List<string>{ schema.description });
+                if ((bool)schema.multilocation?.Any(m => ConstValues.PolishCities.Any(p => p.City == m.city)))
+                    justJoinItOffers.Add(schema);
 
                 await Task.Delay(Constants.delayBetweenRequests);
             }
@@ -47,7 +46,6 @@ namespace Offer_collector.Models.OfferFetchers
             return (JsonConvert.SerializeObject(justJoinItOffers, Formatting.Indented) ?? "", html);
         }
         private async Task<string> GetHtmlSource(string url) => await GetHtmlAsync(url);
-        //private string GetAllJson(string html) => GetJsonFragment(html, "<script id=\"__NEXT_DATA__\" type=\"application/json\">(.*?)</script>");
         private string GetAllJson(string html) => GetSubstringJson(html) ?? "";
         private string? GetSubstringJson(string htmlSource)
         {
@@ -79,32 +77,6 @@ namespace Offer_collector.Models.OfferFetchers
         }
         private string? GetDescriptionSubString(string htmlSource) => GetJsonFragment(htmlSource, @"<script[^>]*type=['""]application/ld\+json['""][^>]*>(.*?)</script>");
         
-        //// TODO Fix null issues with invalid casting JustJoinIt offers 
-        //const string marker = "<script type=\"application/ld+json\">";
-        //const string endMarker = "}}\\n</script>";
-
-        //var startIndex = htmlSource.IndexOf(marker);
-        //if (startIndex == -1) return null;
-
-        //startIndex = htmlSource.IndexOf('{', startIndex);
-        //if (startIndex == -1) return null;
-
-        //var endIndex = htmlSource.IndexOf(endMarker, startIndex);
-        //if (endIndex == -1) return null;
-
-        //endIndex += endMarker.Length;
-
-        //var json = htmlSource.Substring(startIndex, endIndex - startIndex - 6).Trim();
-        //json = "\"" + json + "\"";
-        //if (json.EndsWith(";"))
-        //    json = json.Substring(1, json.Length - 1);
-        ////json = DecodeUnicodeStrict(json);
-        //json = JsonConvert.DeserializeObject<string>(json)!;
-        //JsonDocument jsonDoc = JsonDocument.Parse(json);
-        //string pretty = jsonDoc.RootElement.ToString();
-        ////DecodeUnicode(json)
-        //return pretty;
-
         private JustJoinItSchema GetJustJoinItSchema(JToken token)
         {
             try
@@ -146,6 +118,16 @@ namespace Offer_collector.Models.OfferFetchers
                 ".state" +
                 ".data");
             return offerDetails;
+        }
+        private int GetOfferCount(string allJson)
+        {
+            JsonParser parser = new JsonParser(allJson);
+            JToken? offerCount = parser.GetSpecificJsonFragment("state" +
+                ".queries[2]" +
+                ".state" +
+                ".data" +
+                ".count");
+            return int.Parse(JsonConvert.SerializeObject(offerCount));
         }
         async Task<JToken?> GetCompanyDetails(string html)
         {

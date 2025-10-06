@@ -17,9 +17,8 @@ namespace Offer_collector.Models.OfferFetchers
                 baseUrl = url;
             string html = await GetHtmlSource(baseUrl);
             string allJs = GetAllJson(html);
-
+            maxOfferCount = GetOfferCount(allJs);
             List<JToken> offerListJs = GetOffersJson(allJs);
-            string cos = JsonConvert.SerializeObject(offerListJs, Formatting.Indented);
             List<OlxPracaSchema> olxPracaSchema = new List<OlxPracaSchema>();
 
             // TODO cashowanie kategori i tak są w jednym requset ale zawsze mniej operacji
@@ -47,7 +46,7 @@ namespace Offer_collector.Models.OfferFetchers
             return categoriesList?.Where(_ => _.id == id).FirstOrDefault() ?? new OlxPracaCategory();
         }
         private string GetAllJson(string html) => GetSubstringJson(html);
-        private string GetSubstringJson(string htmlSource) 
+        private string GetSubstringJson(string htmlSource)
         {
             const string marker = "window.__PRERENDERED_STATE__=";
             const string endMarker = "}}]}}\";";
@@ -63,7 +62,7 @@ namespace Offer_collector.Models.OfferFetchers
 
             endIndex += endMarker.Length;
 
-            var json = htmlSource.Substring(startIndex-1, endIndex - startIndex).Trim();
+            var json = htmlSource.Substring(startIndex - 1, endIndex - startIndex).Trim();
 
             if (json.EndsWith(";"))
                 json = json.Substring(0, json.Length - 1);
@@ -83,6 +82,15 @@ namespace Offer_collector.Models.OfferFetchers
                 ".listing" +
                 ".ads[*]");
             return offerListJs;
+        }
+        private int GetOfferCount(string allJson)
+        {
+            JsonParser parser = new JsonParser(allJson);
+            JToken? offerCount = parser.GetSpecificJsonFragment("listing" +
+                ".listing" +
+                ".totalElements");
+            
+            return int.Parse(JsonConvert.SerializeObject(offerCount));
         }
         private List<JToken> GetOfferDetailsJson(string allJson)
         {

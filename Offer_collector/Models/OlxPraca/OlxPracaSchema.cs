@@ -12,7 +12,7 @@ namespace Offer_collector.Models.OlxPraca
         public int? id { get; set; }
         public string? type { get; set; }
         public string? _nodeId { get; set; }
-        public OlxPracaCategory? categoryDetails { get; set; }   
+        public OlxPracaCategory? categoryDetails { get; set; }
     }
 
     public class Contact
@@ -88,14 +88,14 @@ namespace Offer_collector.Models.OlxPraca
         public string title { get; set; }
         public string description { get; set; }
         public Category category { get; set; }
-        public Map map { get; set; }
+        public Map? map { get; set; }
         public bool? isBusiness { get; set; }
         public string url { get; set; }
         public bool? isHighlighted { get; set; }
         public bool? isPromoted { get; set; }
-        public Promotion promotion { get; set; }
+        public Promotion? promotion { get; set; }
         public object externalUrl { get; set; }
-        public Delivery delivery { get; set; }
+        public Delivery? delivery { get; set; }
         public DateTime? createdTime { get; set; }
         public DateTime? lastRefreshTime { get; set; }
         public object pushupTime { get; set; }
@@ -120,7 +120,7 @@ namespace Offer_collector.Models.OlxPraca
         public bool? isNewFavouriteAd { get; set; }
 
         public string htmlOfferDetail { get; set; }
-       
+
 
         public UnifiedOfferSchema UnifiedSchema(string rawHtml = "")
         {
@@ -132,7 +132,6 @@ namespace Offer_collector.Models.OlxPraca
             un.description = description;
             un.source = OfferSitesTypes.Olxpraca;
             un.url = url;
-            // TODO Get name of company from html becuse of not valid company name
             un.company = new Company
             {
                 name = doc.DocumentNode.SelectSingleNode("//*[@id=\"mainContent\"]/div[2]/main/aside/div[1]/div[2]/div/div/div/h4")?.InnerText ?? user.company_name,
@@ -152,142 +151,77 @@ namespace Offer_collector.Models.OlxPraca
             List<string> workplaces = JsonConvert.DeserializeObject<List<string>>(workl) ?? new List<string>();
 
             un.location = new Models.Location
+            {
+                city = location.cityName,
+                coordinates = new Coordinates
                 {
-                    city = location.cityName,
-                    coordinates = new Coordinates
-                    {
-                        latitude = map.lat ?? 0,
-                        longitude = map.lon ?? 0
-                    },
-                    postalCode = "",
-                    buildingNumber = "",
-                    isHybrid = workplaces.Any(_ => _ == "hybrid"),
-                    isRemote = workplaces.Any(_ => _ == "remote_work_possibility")
+                    latitude = map?.lat ?? 0,
+                    longitude = map?.lon ?? 0
+                },
+                postalCode = "",
+                buildingNumber = "",
+                isHybrid = workplaces.Any(_ => _ == "hybrid"),
+                isRemote = workplaces.Any(_ => _ == "remote_work_possibility")
 
             };
-            un.requirements = ParseDescription(description);
-            //if (un.requirements.experienceLevel?.Count == 0)
-            //{
-            //    List<string> experienceParam = @params.Where(_ => _.key.Contains("experience"))?.FirstOrDefault()?.normalizedValue as List<string> ?? new List<string>();
-            //    if (experienceParam.FirstOrDefault() == "exp_yes")
-            //        un.requirements.experienceLevel.Add("Wymagane");
-            //}
-            // TUTAJ
-            List<string>workingSchedules = new List<string>();
-            List<string>workingTypes = new List<string>();
-
-            workingSchedules.Add(@params.Where(_ => _.key.Contains("type") && _.name.Contains("Wymiar pracy")).FirstOrDefault()?.normalizedValue?.ToString() ?? "");
-            workingTypes = @params.Where(_ => _.key.Contains("agreement")).FirstOrDefault()?.normalizedValue as List<string> ?? new List<string>();
             un.employment = new Employment
             {
-                schedules = workingSchedules,
-                types = workingTypes
+                schedules = @params
+                    .Where(_ => _.key?.Contains("type") == true && _.name?.Contains("Wymiar pracy") == true)
+                    .SelectMany(_ =>
+                    {
+                        var val = _.normalizedValue?.ToString();
+                        if (string.IsNullOrWhiteSpace(val))
+                            return Enumerable.Empty<string?>();
+
+                        try
+                        {
+                            if (val.TrimStart().StartsWith("["))
+                                return JsonConvert.DeserializeObject<List<string?>>(val) ?? new List<string?>();
+                            return new List<string?> { val };
+                        }
+                        catch
+                        {
+                            return new List<string?> { val };
+                        }
+                    })
+                    .ToList(),
+
+                types = @params
+                    .Where(_ => _.key?.Contains("agreement") == true)
+                    .SelectMany(_ =>
+                    {
+                        var val = _.normalizedValue?.ToString();
+                        if (string.IsNullOrWhiteSpace(val))
+                            return Enumerable.Empty<string?>();
+
+                        try
+                        {
+                            if (val.TrimStart().StartsWith("["))
+                                return JsonConvert.DeserializeObject<List<string?>>(val) ?? new List<string?>();
+
+                            return new List<string?> { val };
+                        }
+                        catch
+                        {
+                            return new List<string?> { val };
+                        }
+                    })
+                    .ToList()
             };
+
             un.dates = new Dates
             {
                 expires = validToTime,
                 published = createdTime
             };
-            //TODO benefity z description zparsować np. multisport, Prywatna opieka medyczna PZU Zdrowie, Elastyczne godziny pracy
-            un.benefits = GetBenefits();
-
-            // Nie znalazłem info więc domyślna wartość
-            //un.isUrgent 
-
-            // Nie znlazłem domyślnie true, wszędzie jest tłumaczenie na ukraiński więc imo true
-            //un.isForUkrainians =
-
-            //Nie znalazłem ewentualnie w jakiś sposób sparsować z opisu
-            //un.isManyvacancies = false;
-
-            un.leadingCategory = category.categoryDetails?.normalizedName;
-            un.categories = new List<string> { un.leadingCategory ?? "" };
-
-            
-
+            un.category = new Models.Category
+            {
+                subCategories = new List<string> { category.categoryDetails?.normalizedName ?? "None" },
+                leadingCategory = category.categoryDetails?.normalizedName ?? "None"
+            };
 
             return un;
-        }
-        List<string> GetBenefits()
-        {
-            List<string> benefits = new List<string>();
-
-            if (description.ToLower().Contains("pzu"))
-                benefits.Add("Opieka medyczna PZU");
-            if (description.ToLower().Contains("multisport"))
-                benefits.Add("Karta sportowa multisport");
-            if (description.ToLower().Contains("atmosfer"))
-                benefits.Add("Przyjazna atmosfera");
-            if (description.ToLower().Contains("szkolen"))
-                benefits.Add("Szkolenia");
-
-            return benefits;
-        }
-        Requirements ParseDescription(string htmlDescription)
-        {
-            // TODO sprawdzić czy nie ma schematu dlatego wstawiłem tutaj html np. pierwszy strong to wykształcenie itp..
-            // ewentualnie można użyć prostego modelu AI ewentualnie jakieś darmowe api (deepseek)
-            var offer = new Requirements();
-            var skills = new List<Skill>();
-            var experienceLevel = new List<string>();
-            var education = new List<string>();
-            var languages = new List<LanguageSkill>();
-            ushort experienceYears = 0;
-
-            
-            var doc = new HtmlDocument();
-            doc.LoadHtml(htmlDescription);
-            string text = doc.DocumentNode.InnerText.ToLower();
-
-            if (text.Contains("młodszy") || text.Contains("junior"))
-                experienceLevel.Add("Junior");
-            if (text.Contains("mid"))
-                experienceLevel.Add("Mid");
-            if (text.Contains("senior") || text.Contains("starszy"))
-                experienceLevel.Add("Senior");
-
-            if (experienceLevel.Contains("Junior") || text.Contains("staż"))
-                experienceYears = 0;
-            
-            var matchExp = Regex.Match(text, @"(\d+)\s*(lat|rok|years)", RegexOptions.IgnoreCase);
-            if (matchExp.Success)
-                experienceYears = ushort.Parse(matchExp.Groups[1].Value);
-
-            
-            var langMap = new Dictionary<string, string> {
-            { "angiel", "English" }, { "english", "English" },
-            { "niemieck", "German" }, { "german", "German" },
-            { "francus", "French" }, { "french", "French" },
-            { "polsk", "Polish" }
-        };
-            foreach (var kv in langMap)
-            {
-                if (text.Contains(kv.Key))
-                    languages.Add( new LanguageSkill { language = kv.Value, level = experienceYears.ToString() });
-            }
-
-            
-            var skillKeywords = new[] {
-            "seo", "sem", "link building", "google ads", "facebook ads",
-            "excel", "arkusze google", "whitepress", "linkhouse",
-            "clickup", "content marketing", "raport", "pozycjonowanie"
-        };
-            foreach (var skill in skillKeywords)
-            {
-                if (text.Contains(skill))
-                    skills.Add(new Skill { name = skill, years = 0});
-            }
-
-            // --- 5. Edukacja (jeśli są słowa „studia”, „wykształcenie”) ---
-            if (text.Contains("studia") || text.Contains("wykształcenie"))
-                education.Add("Higher education");
-
-            // --- 6. Ustaw wyniki ---
-            offer.skills = skills.Count > 0 ? skills : null;
-            offer.education = education.Count > 0 ? education : null;
-            offer.languages = languages.Count > 0 ? languages : null;
-            
-            return offer;
         }
     }
 
@@ -304,7 +238,7 @@ namespace Offer_collector.Models.OlxPraca
 
     public class User
     {
-        public int? id { get; set; }
+        public long? id { get; set; }
         public string? name { get; set; }
         public object? photo { get; set; }
         public string? logo { get; set; }

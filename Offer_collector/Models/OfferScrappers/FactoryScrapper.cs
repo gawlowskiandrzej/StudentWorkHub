@@ -1,4 +1,4 @@
-﻿using Offer_collector.Models.UrlBuilders;
+﻿using Offer_collector.Models.OfferScrappers;
 
 namespace Offer_collector.Models.OfferFetchers
 {
@@ -9,7 +9,7 @@ namespace Offer_collector.Models.OfferFetchers
             return type switch
             {
                 OfferSitesTypes.Pracujpl => new PracujplScrapper(),
-                OfferSitesTypes.Jooble => new JoobleScrapper(),
+                OfferSitesTypes.Aplikujpl => new AplikujplScrapper(),
                 OfferSitesTypes.Justjoinit => new JustJoinItScrapper(),
                 OfferSitesTypes.Olxpraca => new OlxpracaScrapper(),
                 _ => throw new ArgumentException($"No implementation for {type}")

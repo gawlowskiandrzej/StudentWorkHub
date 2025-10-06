@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Offer_collector.Models.AI;
 using Offer_collector.Models.Json;
 using Offer_collector.Models.PracujPl;
 using Offer_collector.Models.Tools;
@@ -10,44 +9,54 @@ namespace Offer_collector.Models.OfferFetchers
 {
     internal class PracujplScrapper : BaseHtmlScraper
     {
-        
         public override async Task<(string, string)> GetOfferAsync(string url = "")
         {
-            AiApi aiApi = new AiApi();
-
             string baseUrl = PracujPlUrlBuilder.baseUrl;
             if (url != "")
                 baseUrl = url;
             string html = await GetHtmlSource(baseUrl);
             string allJs = GetAllJson(html);
+            maxOfferCount = GetOfferCount(allJs);
+            List<JToken> offerListJs = GetOffersJToken(allJs).ToList(); // always 50 offers 
 
-            List<JToken> offerListJs = GetOffersJToken(allJs).Take(9).ToList();
+
             List<PracujplSchema> pracujplSchemas = new List<PracujplSchema>();
             List<string> requirementsData = new List<string>();
             foreach (JToken offer in offerListJs)
             {
-                PracujplSchema schemaOffer = OfferMapper.DeserializeJToken<PracujplSchema>(offer);
-                
-                Offer? offerObiect = schemaOffer.offers?.FirstOrDefault();
-                if (offerObiect != null)
-                    schemaOffer.details = OfferMapper.DeserializeJToken<PracujPlOfferDetails>(await GetOfferDetails(offerObiect.offerAbsoluteUri));
-
-                if (schemaOffer.companyProfileAbsoluteUri != null)
+                try
                 {
-                    JToken? token = await GetCompanyDetails(schemaOffer.companyProfileAbsoluteUri);
-                    
-                    if (token?.SelectToken("slug") != null)
-                       schemaOffer.profile = OfferMapper.DeserializeJToken<PracujPlProfile>(token);
-                    else
-                        schemaOffer.company = OfferMapper.DeserializeJToken<PracujPlCompany>(token);
+                    PracujplSchema schemaOffer = OfferMapper.DeserializeJToken<PracujplSchema>(offer);
+
+                    Offer? offerObiect = schemaOffer.offers?.FirstOrDefault();
+                    if (offerObiect != null)
+                        schemaOffer.details = OfferMapper.DeserializeJToken<PracujPlOfferDetails>(await GetOfferDetails(offerObiect.offerAbsoluteUri));
+
+                    if (schemaOffer.companyProfileAbsoluteUri != null)
+                    {
+                        var token = await CompanyCache.GetOrAddAsync(
+                            schemaOffer.companyProfileAbsoluteUri,
+                            () => GetCompanyDetails(schemaOffer.companyProfileAbsoluteUri)
+                        );
+
+                        if (token?.SelectToken("slug") != null)
+                            schemaOffer.profile = OfferMapper.DeserializeJToken<PracujPlProfile>(token);
+                        else
+                            schemaOffer.company = OfferMapper.DeserializeJToken<PracujPlCompany>(token);
+                    }
+                    bool? isAbroad = schemaOffer.details?.attributes.workplaces
+                    .Any(_ => _.isAbroad.GetValueOrDefault());
+
+                    if (!isAbroad ?? true)
+                        pracujplSchemas.Add(schemaOffer);
+                    requirementsData.Add(String.Join(";", schemaOffer.details?.sections.Where(_ => _.sectionType.Contains("requirements"))?.FirstOrDefault()?.subSections?.FirstOrDefault()?.model?.bullets ?? new List<string>()));
+                    await Task.Delay(Constants.delayBetweenRequests);
                 }
-
-                // TODO parsing skills by AI 
-
-
-                pracujplSchemas.Add(schemaOffer);
-                requirementsData.Add(String.Join(";",schemaOffer.details.sections.Where(_ => _.sectionType.Contains("requirements")).FirstOrDefault()?.subSections.FirstOrDefault()?.model.bullets));
-                await Task.Delay(Constants.delayBetweenRequests);
+                catch (Exception e)
+                {
+                    
+                }
+                
             }
 
             return (JsonConvert.SerializeObject(pracujplSchemas, Formatting.Indented) ?? "", html);
@@ -69,6 +78,20 @@ namespace Offer_collector.Models.OfferFetchers
 
             var stringg = JsonConvert.SerializeObject(offerListJs, Formatting.Indented);
             return offerListJs;
+        }
+        int GetOfferCount(string allJson)
+        {
+            JsonParser parser = new JsonParser(allJson);
+            JToken? offerListJs = parser.GetSpecificJsonFragment("props" +
+                ".pageProps" +
+                ".dehydratedState" +
+                ".queries[0]" +
+                ".state" +
+                ".data" +
+                ".offersTotalCount");
+
+            var stringg = JsonConvert.SerializeObject(offerListJs) ?? "0";
+            return int.Parse(stringg);
         }
         JToken? GetCompanyJToken(string allJson)
         {
@@ -117,6 +140,5 @@ namespace Offer_collector.Models.OfferFetchers
                 ".data");
             return offerDetails;
         }
-        
     }
 }

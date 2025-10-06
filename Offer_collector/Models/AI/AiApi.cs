@@ -39,7 +39,7 @@ namespace Offer_collector.Models.AI
             ### Example input:\n {promptParameters.ExampleDescriptionStructure}\n 
             ### Example output: {promptParameters.ExampleRequirementsStructure}\n
             ### Task: {promptParameters.ExampleTaskStructure}\n
-            ### Text: {String.Join(';',myOfferString)}
+            ### Text: {String.Join("\n",myOfferString)}
             ";
             prompt.model = _aiModel;
             prompt.messages.Add(new Message

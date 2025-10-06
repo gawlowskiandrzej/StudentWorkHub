@@ -1,7 +1,11 @@
-﻿using Offer_collector.Models;
-using Offer_collector.Models.Jooble;
+﻿using Newtonsoft.Json;
+using Offer_collector.Models;
+using Offer_collector.Models.AI;
+using Offer_collector.Models.AplikujPl;
+using Offer_collector.Models.ConstData;
 using Offer_collector.Models.JustJoinIt;
 using Offer_collector.Models.OfferFetchers;
+using Offer_collector.Models.OfferScrappers;
 using Offer_collector.Models.OlxPraca;
 using Offer_collector.Models.Tools;
 using Offer_collector.Models.UrlBuilders;
@@ -10,12 +14,42 @@ namespace Offer_collector
 {
     internal class Program
     {
+        // TODO 
+        // Obsługa błędów (Exceptions na każdy etap + wysalnie loga do bazy)
+        // Aplikujpl pełen url w polu w uniwersalnym schemacie
+        // AplikujPl dodac logourl 
         static void Main(string[] args)
         {
-            
-            OfferSitesTypes type = OfferSitesTypes.Justjoinit;
+
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Użycie: App.exe <siteTypeId> <offerAmount>");
+                Console.WriteLine("Przykład: App.exe 1 100");
+                return;
+            }
+
+            if (!int.TryParse(args[0], out int siteTypeId))
+            {
+                Console.WriteLine("Pierwszy parametr musi być liczbą określającą typ portalu.");
+                return;
+            }
+
+            if (!int.TryParse(args[1], out int offerAmount))
+            {
+                Console.WriteLine("Drugi parametr musi być liczbą określającą ilość ofert.");
+                return;
+            }
+
+            OfferSitesTypes type = (OfferSitesTypes)siteTypeId;
+
+            List<UnifiedOfferSchema> unifiedOfferSchemas = new List<UnifiedOfferSchema>();
             BaseHtmlScraper? scrapper = null;
             BaseUrlBuilder? urlBuilder = null;
+            AIProcessor aiParser = new AIProcessor();
+            ConstValues.PolishCities = JsonConvert.DeserializeObject<List<PlCityObject>>(File.ReadAllText("../../../Models/ConstData/pl.json")) ?? new List<PlCityObject>();
+
+
+
             switch (type)
             {
                 case OfferSitesTypes.Pracujpl:
@@ -30,9 +64,9 @@ namespace Offer_collector
                     scrapper = (OlxpracaScrapper)FactoryScrapper.CreateScrapper(type);
                     urlBuilder = (OlxPracaUrlBuilder)UrlBuilderFactory.Create(type);
                     break;
-                case OfferSitesTypes.Jooble:
-                    scrapper = (JoobleScrapper)FactoryScrapper.CreateScrapper(type);
-                    urlBuilder = (JoobleUrlBuilder)UrlBuilderFactory.Create(type);
+                case OfferSitesTypes.Aplikujpl:
+                    scrapper = (AplikujplScrapper)FactoryScrapper.CreateScrapper(type);
+                    urlBuilder = (AplikujPlUrlBuilder)UrlBuilderFactory.Create(type);
                     break;
                 default:
                     scrapper = (PracujplScrapper)FactoryScrapper.CreateScrapper(type);
@@ -40,45 +74,67 @@ namespace Offer_collector
                     break;
             }
 
-            string fullUrl = urlBuilder.BuildUrl();
-            (string outputJson, string htmlRaw) = scrapper.GetOfferAsync(fullUrl).Result;
-
-
-
+            var paginator = new PaginationModule(scrapper, urlBuilder, offerAmount);
+            (string outputJson, List<string> htmls) = paginator.FetchAllOffersAsync().Result;
+            int i = 0;
             switch (type)
             {
                 case OfferSitesTypes.Pracujpl:
                     List<PracujplSchema> pracujSchemas = OfferMapper.DeserializeJson<List<PracujplSchema>>(outputJson);
-                    List<UnifiedOfferSchema> pracujUnifSchemas = new List<UnifiedOfferSchema>();
+                    List<string> unifSchemasJson = new List<string>();
+                    List<List<string>> pracujPlAiOutput = new List<List<string>>();
                     foreach (PracujplSchema offer in pracujSchemas)
-                        pracujUnifSchemas.Add(OfferMapper.ToUnifiedSchema<List<PracujplSchema>>(offer));
+                    {
+                        UnifiedOfferSchema unifOffer = OfferMapper.ToUnifiedSchema<List<PracujplSchema>>(offer);
+                        unifiedOfferSchemas.Add(unifOffer);
+                    }
+
+                    //ExportToTxtt.ExportToTxt(output, "pracujData.txt");
                     break;
                 case OfferSitesTypes.Olxpraca:
                     List<OlxPracaSchema> olxSchemas = OfferMapper.DeserializeJson<List<OlxPracaSchema>>(outputJson);
-                    List<UnifiedOfferSchema> olxUnifSchemas = new List<UnifiedOfferSchema>();
+                    List<List<string>> olxaiOutput = new List<List<string>>();
+                    List<string> outputs = new List<string>();
                     foreach (OlxPracaSchema offer in olxSchemas)
-                        olxUnifSchemas.Add(OfferMapper.ToUnifiedSchema<List<OlxPracaSchema>>(offer, htmlRaw));
+                    {
+                        UnifiedOfferSchema olxSch = OfferMapper.ToUnifiedSchema<List<OlxPracaSchema>>(offer, htmls.ElementAt(i++));
+                        unifiedOfferSchemas.Add(olxSch);
+                    }
                     break;
                 case OfferSitesTypes.Justjoinit:
                     List<JustJoinItSchema> justJoinItSchemas = OfferMapper.DeserializeJson<List<JustJoinItSchema>>(outputJson);
                     List<UnifiedOfferSchema> justJoinItUnifSchemas = new List<UnifiedOfferSchema>();
+                    List<List<string>> aiOutputsJustJoinit = new List<List<string>>();
+
                     foreach (JustJoinItSchema offer in justJoinItSchemas)
-                        justJoinItUnifSchemas.Add(OfferMapper.ToUnifiedSchema<List<JustJoinItSchema>>(offer, htmlRaw));
+                    {
+                        UnifiedOfferSchema unifOffer = OfferMapper.ToUnifiedSchema<List<JustJoinItSchema>>(offer, htmls.ElementAt(i++));
+                        unifiedOfferSchemas.Add(unifOffer);
+                    }
+                    //ExportToTxtt.ExportToTxt(justJoinItUnifSchemas, "justJoinItData.txt");
                     break;
-                case OfferSitesTypes.Jooble:
-                    List<JoobleSchema> joobleSchemas = OfferMapper.DeserializeJson<List<JoobleSchema>>(outputJson);
-                    List<UnifiedOfferSchema> joobleUnifSchemas = new List<UnifiedOfferSchema>();
-                    foreach (JoobleSchema offer in joobleSchemas)
-                        joobleUnifSchemas.Add(OfferMapper.ToUnifiedSchema<List<JoobleSchema>>(offer, htmlRaw));
+                case OfferSitesTypes.Aplikujpl:
+                    List<AplikujplSchema> aplikujSchemas = OfferMapper.DeserializeJson<List<AplikujplSchema>>(outputJson);
+                    List<UnifiedOfferSchema> aplikujUnifSchemas = new List<UnifiedOfferSchema>();
+                    List<List<string>> aiOutputsAplikuj = new List<List<string>>();
+                    foreach (AplikujplSchema offer in aplikujSchemas)
+                    {
+                        UnifiedOfferSchema unifOffer = OfferMapper.ToUnifiedSchema<List<AplikujplSchema>>(offer, htmls.ElementAt(i++));
+                        unifiedOfferSchemas.Add(OfferMapper.ToUnifiedSchema<List<AplikujplSchema>>(offer, htmls.ElementAt(i++)));
+                    }
+                    
                     break;
                 default:
                    
                     break;
             }
+            // Processed by Ai
+            List<UnifiedOfferSchema> processedOffers = GetAiOutput(aiParser, unifiedOfferSchemas).Result;
 
-            
-            Console.WriteLine(outputJson);
+            string output = JsonConvert.SerializeObject(processedOffers, Formatting.Indented);
+            Console.WriteLine(output);
             Console.ReadKey();
         }
+        static async Task<List<UnifiedOfferSchema>> GetAiOutput(AIProcessor llm, List<UnifiedOfferSchema> offers) => await llm.ProcessUnifiedSchemas(offers);
     }
 }

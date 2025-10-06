@@ -22,8 +22,8 @@ namespace Offer_collector.Models
 
     public class Employment
     {
-        public List<string>? types { get; set; } // Future enum type umowa o prace, umowa zlecenie
-        public List<string>? schedules { get; set; } // Future enum type full time, partTime
+        public List<string?>? types { get; set; } // Future enum type umowa o prace, umowa zlecenie
+        public List<string?>? schedules { get; set; } // Future enum type full time, partTime
     }
 
     public class Location
@@ -43,17 +43,21 @@ namespace Offer_collector.Models
     }
     public class Skill
     {
-        public string? name { get; set; }
-        public int? years { get; set; }
+        public string? skill { get; set; }
+        public int? experienceMonths { get; set; }
+        public string? experienceLevel { get; set; }
     }
     public class Requirements
     {
         public List<Skill>? skills { get; set; }
         public List<string>? education { get; set; }
         public List<LanguageSkill>? languages { get; set; }
-        public List<string>? benefits { get; set; }
     }
-
+    public class Category
+    {
+        public string leadingCategory { get; set; }
+        public List<string>? subCategories { get; set; }
+    }
     public class UnifiedOfferSchema
     {
         public int id { get; set; }
@@ -64,18 +68,16 @@ namespace Offer_collector.Models
         public string? description { get; set; }
         public Salary? salary { get; set; }
         public Location? location { get; set; }
+        public Category? category { get; set; }
         public Requirements? requirements { get; set; }
         public Employment? employment { get; set; }
         public Dates? dates { get; set; }
+        
         public List<string>? benefits { get; set; }
         public bool isUrgent { get; set; } = false;
         public bool isForUkrainians { get; set; } = true;
-        public bool isManyvacancies { get; set; } = true;
         //TODO LISTA POMYSŁÓW UWAG
         // pole które będzie wskazywać na link do formularza z e-recruiter zeby można było odesłać użytkownika z html lub z pola json jak się da
-
-        public string? leadingCategory { get; set; }
-        public List<string>? categories { get; set; }
     }
 
     public class Salary
@@ -85,5 +87,11 @@ namespace Offer_collector.Models
         public string? currency { get; set; }
         public string? period { get; set; } // Future enum type montly/weekly/daily
         public string? type { get; set; } // future enum type gross/net
+    }
+
+    public class Output
+    {
+        public UnifiedOfferSchema unified;
+        public string aiGenerated;
     }
 }
