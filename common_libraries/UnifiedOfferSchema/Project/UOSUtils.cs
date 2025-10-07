@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -115,6 +116,7 @@ namespace UnifiedOfferSchema
 
             JsonSerializerOptions localOptions = new(_options)
             {
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
                 WriteIndented = false
             };
 
@@ -159,6 +161,7 @@ namespace UnifiedOfferSchema
 
             JsonSerializerOptions localOptions = new(_options)
             {
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
                 WriteIndented = pretty
             };
 
