@@ -23,7 +23,7 @@ namespace Offer_collector.Models.Tools
         /// <summary>
         /// Pobiera wszystkie oferty z paginowanego źródła i zwraca je jako JSON.
         /// </summary>
-        public async Task<(string, List<string>)> FetchAllOffersAsync(int maxPages = int.MaxValue)
+        public async Task<(string, List<string>)> FetchAllOffersAsync(int maxPages = 1)
         {
             var allOffers = new List<JToken>();
             int currentPage = 1;
@@ -32,7 +32,7 @@ namespace Offer_collector.Models.Tools
             List<string> htmls = new List<string>();
             while (hasMore && currentPage <= maxPages && allOffers.Count <= _offerMaxCount)
             {
-                string url = _urlBuilder.BuildUrl(pageId: currentPage);
+                string url = _urlBuilder.BuildUrl(new(), new(),pageId: currentPage);
                 var (offersJson, htmlRaw) = await _scrapper.GetOfferAsync(url);
 
                 // wyciągamy dane ofert (możesz to zmienić na swój model)

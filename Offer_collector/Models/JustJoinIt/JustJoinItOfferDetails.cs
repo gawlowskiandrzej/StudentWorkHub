@@ -3,63 +3,63 @@
     public class Category
     {
         public int? id { get; set; }
-        public string name { get; set; }
-        public string key { get; set; }
-        public object parent_id { get; set; }
+        public string? name { get; set; }
+        public string? key { get; set; }
+        public object? parent_id { get; set; }
         public int? lft { get; set; }
         public int? rgt { get; set; }
         public int? depth { get; set; }
         public int? children_count { get; set; }
         public DateTime? created_at { get; set; }
         public DateTime? updated_at { get; set; }
-        public Icon icon { get; set; }
-        public string seo_slug { get; set; }
+        public Icon? icon { get; set; }
+        public string? seo_slug { get; set; }
         public bool? @static { get; set; }
-        public object redirect_to { get; set; }
+        public object? redirect_to { get; set; }
         public bool? editable_in_offer { get; set; }
-        public string button_width { get; set; }
+        public string? button_width { get; set; }
         public int? order { get; set; }
         public bool? active { get; set; }
-        public object deleted_at { get; set; }
-        public object is_new_until { get; set; }
+        public object? deleted_at { get; set; }
+        public object? is_new_until { get; set; }
         public int? childrenCount { get; set; }
-        public object parentId { get; set; }
+        public object? parentId { get; set; }
         public DateTime? createdAt { get; set; }
         public DateTime? updatedAt { get; set; }
     }
 
     public class ExperienceLevel
     {
-        public string label { get; set; }
-        public string value { get; set; }
+        public string? label { get; set; }
+        public string? value { get; set; }
     }
 
     public class Icon
     {
-        public string d { get; set; }
-        public string x1 { get; set; }
-        public string x2 { get; set; }
-        public string y1 { get; set; }
-        public string y2 { get; set; }
-        public object width { get; set; }
-        public object height { get; set; }
-        public string colorTo { get; set; }
-        public object viewBox { get; set; }
-        public string clipRule { get; set; }
-        public string fillRule { get; set; }
-        public string colorFrom { get; set; }
-        public string darkColorTo { get; set; }
-        public string darkColorFrom { get; set; }
-        public string gradientUnits { get; set; }
+        public string? d { get; set; }
+        public string? x1 { get; set; }
+        public string? x2 { get; set; }
+        public string? y1 { get; set; }
+        public string? y2 { get; set; }
+        public object? width { get; set; }
+        public object? height { get; set; }
+        public string? colorTo { get; set; }
+        public object? viewBox { get; set; }
+        public string? clipRule { get; set; }
+        public string? fillRule { get; set; }
+        public string? colorFrom { get; set; }
+        public string? darkColorTo { get; set; }
+        public string? darkColorFrom { get; set; }
+        public string? gradientUnits { get; set; }
     }
     public class OfferParent
     {
-        public string slug { get; set; }
+        public string? slug { get; set; }
     }
 
     public class RequiredSkill
     {
-        public string name { get; set; }
+        public string? name { get; set; }
         public int? level { get; set; }
     }
 

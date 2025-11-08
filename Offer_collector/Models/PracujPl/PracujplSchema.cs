@@ -27,8 +27,8 @@ public class PracujplSchema : IUnificatable
     public bool isRemoteWorkAllowed { get; set; }
     public List<Offer>? offers { get; set; }
     public List<string>? positionLevels { get; set; }
-    public List<string>? typesOfContract { get; set; }
-    public List<string>? workSchedules { get; set; }
+    public List<string?>? typesOfContract { get; set; }
+    public List<string?>? workSchedules { get; set; }
     public List<string>? workModes { get; set; }
     public List<PrimaryAttribute>? primaryAttributes { get; set; }
     public object? commonOfferId { get; set; }
@@ -78,11 +78,11 @@ public class PracujplSchema : IUnificatable
         };
         s.category = new Offer_collector.Models.Category
         {
-            subCategories = details?.attributes.categories.Select(_ => _.name).ToList() ?? new List<string>(),
-            leadingCategory = details?.attributes.leadingCategory.name ?? ""
+            subCategories = details?.attributes?.categories?.Select(_ => _.name).ToList(),
+            leadingCategory = details?.attributes?.leadingCategory?.name
         };
 
-        Offer_collector.Models.PracujPl.Model model = details?.sections.Where(_ => _.sectionType.Contains("benefits")).FirstOrDefault()?.model ?? new Offer_collector.Models.PracujPl.Model();
+        Offer_collector.Models.PracujPl.Model model = details?.sections?.Where(_ => _.sectionType.Contains("benefits")).FirstOrDefault()?.model ?? new Offer_collector.Models.PracujPl.Model();
         List<string> custBenefits = model.customItems?.Select(_ => _.name).ToList() ?? new List<string>();
         List<string> benefits = model.items?.Select(_ => _.name).ToList() ?? new List<string>();
         benefits.AddRange(custBenefits);
@@ -94,7 +94,7 @@ public class PracujplSchema : IUnificatable
 
         return s;
     }
-    Requirements? GetRequirements() => RequirementsParser.ParseRequirements(details?.sections.Where(_ => _.sectionType.Contains("requirements")).FirstOrDefault()?.subSections.FirstOrDefault()?.model.bullets ?? new List<string>());
+    Requirements? GetRequirements() => RequirementsParser.ParseRequirements(details?.sections?.Where(_ => _.sectionType.Contains("requirements")).FirstOrDefault()?.subSections?.FirstOrDefault()?.model?.bullets ?? new List<string>());
     Salary GetSalaryFromString()
     {
         // Regex to match salary ranges, currency, net/gross, and period
@@ -170,8 +170,8 @@ public class Model
 public class Offer
 {
     public int partitionId { get; set; }
-    public string? offerAbsoluteUri { get; set; }
-    public string? displayWorkplace { get; set; }
+    public string offerAbsoluteUri { get; set; } = "";
+    public string displayWorkplace { get; set; } = "";
     public bool isWholePoland { get; set; }
     public List<object>? appliedProducts { get; set; }
     public Offer_collector.Models.Coordinates? coordinates { get; set; }

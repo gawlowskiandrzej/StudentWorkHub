@@ -8,7 +8,7 @@
         {
             BaseUrl = baseUrl;
         }
-        public string BuildUrl(Dictionary<string, string> parameters = null, int pageId = 1, Dictionary<string, string> tags = null)
+        public string BuildUrl(Dictionary<string, string> parameters, Dictionary<string, string> tags, int pageId = 1)
         {
             parameters ??= new Dictionary<string, string>();
             tags ??= new Dictionary<string, string>();

@@ -10,7 +10,7 @@ namespace Offer_collector.Models.OfferScrappers
 {
     internal class AplikujplScrapper : BaseHtmlScraper
     {
-        string _offerListHtml;
+        string _offerListHtml = "";
         public override async Task<(string, string)> GetOfferAsync(string url = "")
         {
             _offerListHtml = await GetHtmlSource(url);
@@ -64,13 +64,13 @@ namespace Offer_collector.Models.OfferScrappers
 
             header.employmentType = node.SelectSingleNode(".//li[contains(@class,'employmentType')]/span")?.InnerText.Trim() ?? "";
 
-            header.companyLogoUrl = node.SelectSingleNode(".//div[@class='offer-card-thumb']//img")?.GetAttributeValue("src", "");
+            header.companyLogoUrl = node.SelectSingleNode(".//div[@class='offer-card-thumb']//img")?.GetAttributeValue("src", "") ?? "";
 
             header.dateAdded = node.SelectSingleNode(".//time")?.InnerText.Trim() ?? "";
 
             header.recomended = node.SelectSingleNode(".//span[contains(@class,'offer-badge')]") != null;
 
-            header.salary = node.SelectSingleNode(".//span[contains(@class,'offer-salary')]")?.InnerText.Trim();
+            header.salary = node.SelectSingleNode(".//span[contains(@class,'offer-salary')]")?.InnerText.Trim() ?? "";
             header.remoteOption = node.SelectSingleNode(".//span[contains(@class,'offer-card-labels-list-item--remoteWork')]") != null;
 
             return header;
@@ -83,7 +83,7 @@ namespace Offer_collector.Models.OfferScrappers
             if (dateCollection.First() != null)
             {
                 HtmlNode publishNode = dateCollection.First();
-                string publishRaw = publishNode.GetAttributeValue("datetime", null);
+                string publishRaw = publishNode.GetAttributeValue("datetime", "");
                 if (DateTime.TryParse(publishRaw, out var publishDate))
                     date.publishionDate = publishDate;
             }
@@ -91,7 +91,7 @@ namespace Offer_collector.Models.OfferScrappers
             if (dateCollection.ElementAt(1) != null)
             {
                 HtmlNode expireDate = dateCollection.ElementAt(1);
-                string expireRaw = expireDate.GetAttributeValue("datetime", null);
+                string expireRaw = expireDate.GetAttributeValue("datetime", "");
                 if (DateTime.TryParse(expireRaw, out var expirationDate))
                     date.expirationDate = expirationDate;
             }

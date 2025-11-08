@@ -3,7 +3,7 @@
 public abstract class BaseHtmlScraper
 {
     protected readonly HttpClient _client;
-    private string htmlBody;
+    private string htmlBody = "";
     protected int maxOfferCount;
     
     public BaseHtmlScraper()

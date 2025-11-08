@@ -32,12 +32,12 @@ namespace Offer_collector.Models.OfferFetchers
                 
 
                 string detailsHtml = await GetHtmlSource(JustJoinItBuilder.baseUrlOfferDetail + schema.slug);
-                JToken? detailsToken = await GetCompanyDetails(detailsHtml);
+                JToken? detailsToken = GetCompanyDetails(detailsHtml);
                 schema.details = GetJustJoinItOfferDetails(detailsToken ?? "");
                 schema.detailsHtml = detailsHtml;
                 schema.description = JsonConvert.DeserializeObject<JustJoinItDescription>(GetDescriptionSubString(detailsHtml) ?? "")?.description ?? "";
 
-                if ((bool)schema.multilocation?.Any(m => ConstValues.PolishCities.Any(p => p.City == m.city)))
+                if ((bool)schema.multilocation.Any(m => ConstValues.PolishCities.Any(p => p.City == m.city)))
                     justJoinItOffers.Add(schema);
 
                 await Task.Delay(Constants.delayBetweenRequests);
@@ -129,7 +129,7 @@ namespace Offer_collector.Models.OfferFetchers
                 ".count");
             return int.Parse(JsonConvert.SerializeObject(offerCount));
         }
-        async Task<JToken?> GetCompanyDetails(string html)
+        JToken? GetCompanyDetails(string html)
         {
 
             string allJs = GetSubstringJson(html) ?? "";

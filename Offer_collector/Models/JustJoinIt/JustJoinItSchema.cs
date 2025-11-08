@@ -25,9 +25,9 @@ namespace Offer_collector.Models.JustJoinIt
 
     public class Multilocation
     {
-        public string city { get; set; }
-        public string slug { get; set; }
-        public string street { get; set; }
+        public string city { get; set; } = "";
+        public string? slug { get; set; }
+        public string? street { get; set; }
         public double latitude { get; set; }
         public double longitude { get; set; }
     }
@@ -45,20 +45,20 @@ namespace Offer_collector.Models.JustJoinIt
         public string? experienceLevel { get; set; }
         public List<EmploymentType>? employmentTypes { get; set; }
         public int categoryId { get; set; }
-        public List<Multilocation>? multilocation { get; set; }
+        public List<Multilocation> multilocation { get; set; } = new List<Multilocation>();
         public string? city { get; set; }
         public string? street { get; set; }
         public double latitude { get; set; }
         public double longitude { get; set; }
         public bool remoteInterview { get; set; }
-        public string? companyName { get; set; }
-        public string? companyLogoThumbUrl { get; set; }
+        public string companyName { get; set; } = "";
+        public string companyLogoThumbUrl { get; set; } = "";
         public DateTime publishedAt { get; set; }
         public DateTime expiredAt { get; set; }
         public bool openToHireUkrainians { get; set; }
         public List<Language?>? languages { get; set; }
 
-        public JustJoinItOfferDetails details { get; set; }  
+        public JustJoinItOfferDetails? details { get; set; }  
         public string? detailsHtml{ get; set; }  
 
         public UnifiedOfferSchema UnifiedSchema(string rawHtml = "")
@@ -79,7 +79,7 @@ namespace Offer_collector.Models.JustJoinIt
             // TODO unifikacja wartości pól np. gdzieś może być Polska a tutaj pl
             List<LanguageSkill> languageList = new List<LanguageSkill>();
 
-            foreach (Language lang in languages ?? new List<Language?>())
+            foreach (Language? lang in languages ?? new List<Language?>())
                 languageList.Add(new LanguageSkill { level = lang?.level, language = lang?.code });
 
             // TODO make skill recoqnition
@@ -110,8 +110,8 @@ namespace Offer_collector.Models.JustJoinIt
             };
             unif.employment = new Employment
             {
-                schedules = new List<string> { workingTime ?? "fulltime" },
-                types = new List<string> { justSalary.type ?? "" }
+                schedules = new List<string?> { workingTime ?? "fulltime" },
+                types = new List<string?> { justSalary.type ?? "" }
             };
             unif.dates = new Dates
             {
@@ -120,8 +120,8 @@ namespace Offer_collector.Models.JustJoinIt
             };
             unif.category = new Models.Category
             {
-                subCategories = new List<string> { details.category?.name ?? "None" },
-                leadingCategory = details.category?.name ?? "None",
+                subCategories = new List<string?> { details?.category?.name ?? "None" },
+                leadingCategory = details?.category?.name ?? "None",
             };
             // TODO check this field
             unif.isUrgent = false;

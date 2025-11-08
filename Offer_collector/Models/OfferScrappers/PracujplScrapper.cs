@@ -17,7 +17,7 @@ namespace Offer_collector.Models.OfferFetchers
             string html = await GetHtmlSource(baseUrl);
             string allJs = GetAllJson(html);
             maxOfferCount = GetOfferCount(allJs);
-            List<JToken> offerListJs = GetOffersJToken(allJs).ToList(); // always 50 offers 
+            List<JToken> offerListJs = GetOffersJToken(allJs).Take(5).ToList(); // always 50 offers 
 
 
             List<PracujplSchema> pracujplSchemas = new List<PracujplSchema>();
@@ -44,15 +44,15 @@ namespace Offer_collector.Models.OfferFetchers
                         else
                             schemaOffer.company = OfferMapper.DeserializeJToken<PracujPlCompany>(token);
                     }
-                    bool? isAbroad = schemaOffer.details?.attributes.workplaces
+                    bool? isAbroad = schemaOffer.details?.attributes?.workplaces?
                     .Any(_ => _.isAbroad.GetValueOrDefault());
 
                     if (!isAbroad ?? true)
                         pracujplSchemas.Add(schemaOffer);
-                    requirementsData.Add(String.Join(";", schemaOffer.details?.sections.Where(_ => _.sectionType.Contains("requirements"))?.FirstOrDefault()?.subSections?.FirstOrDefault()?.model?.bullets ?? new List<string>()));
+                    requirementsData.Add(String.Join(";", schemaOffer.details?.sections?.Where(_ => _.sectionType.Contains("requirements"))?.FirstOrDefault()?.subSections?.FirstOrDefault()?.model?.bullets ?? new List<string>()));
                     await Task.Delay(Constants.delayBetweenRequests);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     
                 }

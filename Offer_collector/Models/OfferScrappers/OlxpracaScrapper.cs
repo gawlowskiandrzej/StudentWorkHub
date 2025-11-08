@@ -52,13 +52,13 @@ namespace Offer_collector.Models.OfferFetchers
             const string endMarker = "}}]}}\";";
 
             var startIndex = htmlSource.IndexOf(marker);
-            if (startIndex == -1) return null;
+            if (startIndex == -1) return "";
 
             startIndex = htmlSource.IndexOf('{', startIndex);
-            if (startIndex == -1) return null;
+            if (startIndex == -1) return "";
 
             var endIndex = htmlSource.IndexOf(endMarker, startIndex);
-            if (endIndex == -1) return null;
+            if (endIndex == -1) return "";
 
             endIndex += endMarker.Length;
 

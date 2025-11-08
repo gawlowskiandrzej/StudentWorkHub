@@ -4,8 +4,8 @@ namespace Offer_collector.Models
 {
     public class Company
     {
-        public string name { get; set; }
-        public string logoUrl { get; set; }
+        public string name { get; set; } = "";
+        public string logoUrl { get; set; } = "";
     }
 
     public class Coordinates
@@ -55,15 +55,15 @@ namespace Offer_collector.Models
     }
     public class Category
     {
-        public string leadingCategory { get; set; }
-        public List<string>? subCategories { get; set; }
+        public string? leadingCategory { get; set; }
+        public List<string?>? subCategories { get; set; }
     }
     public class UnifiedOfferSchema
     {
         public int id { get; set; }
         public OfferSitesTypes source { get; set; } // Pracujpl / olx ...
-        public string url { get; set; } // redirect url to source of offer
-        public string jobTitle { get; set; }
+        public string? url { get; set; } // redirect url to source of offer
+        public string? jobTitle { get; set; }
         public Company? company { get; set; }
         public string? description { get; set; }
         public Salary? salary { get; set; }
@@ -76,6 +76,7 @@ namespace Offer_collector.Models
         public List<string>? benefits { get; set; }
         public bool isUrgent { get; set; } = false;
         public bool isForUkrainians { get; set; } = true;
+        public List<string> aiErrorMessages { get; set; } = new List<string>(); 
         //TODO LISTA POMYSŁÓW UWAG
         // pole które będzie wskazywać na link do formularza z e-recruiter zeby można było odesłać użytkownika z html lub z pola json jak się da
     }
@@ -91,7 +92,7 @@ namespace Offer_collector.Models
 
     public class Output
     {
-        public UnifiedOfferSchema unified;
-        public string aiGenerated;
+        public UnifiedOfferSchema? unified;
+        public string? aiGenerated;
     }
 }
