@@ -20,6 +20,8 @@ namespace Offer_collector
         // AplikujPl dodac logourl 
         static void Main(string[] args)
         {
+            args[1] = "100";
+            args[0] = "1";
 
             if (args.Length < 2)
             {
@@ -39,7 +41,7 @@ namespace Offer_collector
                 Console.WriteLine("Drugi parametr musi być liczbą określającą ilość ofert.");
                 return;
             }
-
+            
             OfferSitesTypes type = (OfferSitesTypes)siteTypeId;
 
             List<UnifiedOfferSchema> unifiedOfferSchemas = new List<UnifiedOfferSchema>();
