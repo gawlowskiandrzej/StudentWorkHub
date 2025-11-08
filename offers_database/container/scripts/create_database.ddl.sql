@@ -2,7 +2,6 @@
 -- Clean drop in dependency order
 -- =========================================================
 DROP TABLE IF EXISTS public.sub_categories_junction;
-DROP TABLE IF EXISTS public.leading_sub_categories;
 
 DROP TABLE IF EXISTS public.benefits_junction;
 DROP TABLE IF EXISTS public.employment_types_junction;
@@ -137,13 +136,13 @@ CREATE TABLE public.benefits (
 );
 
 CREATE TABLE public.leading_categories (
-    id SMALLINT PRIMARY KEY,
+    id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     leading_category VARCHAR(50) NOT NULL,
     CONSTRAINT uq_leading_categories_leading_category UNIQUE (leading_category)
 );
 
 CREATE TABLE public.sub_categories (
-    id BIGINT PRIMARY KEY,
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     sub_category VARCHAR(50) NOT NULL,
     CONSTRAINT uq_sub_categories_sub_category UNIQUE (sub_category)
 );
@@ -235,7 +234,7 @@ CREATE TABLE public.internal_offers (
 CREATE TABLE public.skills_junction (
     offer_id BIGINT NOT NULL,
     skill_id INTEGER NOT NULL,
-    experience_level_id SMALLINT NOT NULL,
+    experience_level_id SMALLINT,
     experience_months SMALLINT,
 
     PRIMARY KEY (offer_id, skill_id),
@@ -260,7 +259,7 @@ CREATE TABLE public.education_levels_junction (
 CREATE TABLE public.languages_junction (
     offer_id BIGINT NOT NULL,
     language_id SMALLINT NOT NULL,
-    language_level_id SMALLINT NOT NULL,
+    language_level_id SMALLINT,
 
     PRIMARY KEY (offer_id, language_id),
     CONSTRAINT fk_languages_jun_language
@@ -309,16 +308,6 @@ CREATE TABLE public.sub_categories_junction (
         FOREIGN KEY (sub_category_id) REFERENCES public.sub_categories(id) ON DELETE CASCADE,
     CONSTRAINT fk_sub_categories_jun_offer
         FOREIGN KEY (offer_id) REFERENCES public.offers(id) ON DELETE CASCADE
-);
-
-CREATE TABLE public.leading_sub_categories (
-    leading_category_id SMALLINT NOT NULL,
-    sub_category_id BIGINT NOT NULL,
-    PRIMARY KEY (leading_category_id, sub_category_id),
-    CONSTRAINT fk_leading_sub_leading
-        FOREIGN KEY (leading_category_id) REFERENCES public.leading_categories(id) ON DELETE CASCADE,
-    CONSTRAINT fk_leading_sub_sub
-        FOREIGN KEY (sub_category_id) REFERENCES public.sub_categories(id) ON DELETE CASCADE
 );
 
 -- =========================================================
@@ -373,6 +362,3 @@ CREATE INDEX IF NOT EXISTS idx_benefits_junction_benefit_offer
 CREATE INDEX IF NOT EXISTS idx_sub_categories_junction_sub_offer
     ON public.sub_categories_junction (sub_category_id, offer_id);
 
--- leading_sub_categories helpers
-CREATE INDEX IF NOT EXISTS idx_leading_sub_categories_sub
-    ON public.leading_sub_categories (sub_category_id);
