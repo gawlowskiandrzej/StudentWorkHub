@@ -119,7 +119,7 @@ CREATE TABLE public.postal_codes (
 
 CREATE TABLE public.employment_schedules (
     id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    schedule VARCHAR(30) NOT NULL,
+    schedule VARCHAR(50) NOT NULL,
     CONSTRAINT uq_employment_schedules_schedule UNIQUE (schedule)
 );
 
@@ -137,7 +137,7 @@ CREATE TABLE public.benefits (
 
 CREATE TABLE public.leading_categories (
     id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    leading_category VARCHAR(50) NOT NULL,
+    leading_category VARCHAR(150) NOT NULL,
     CONSTRAINT uq_leading_categories_leading_category UNIQUE (leading_category)
 );
 
