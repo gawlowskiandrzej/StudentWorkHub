@@ -61,9 +61,9 @@ namespace Offer_collector.Models.JustJoinIt
         public JustJoinItOfferDetails? details { get; set; }  
         public string? detailsHtml{ get; set; }  
 
-        public UnifiedOfferSchema UnifiedSchema(string rawHtml = "")
+        public UnifiedOfferSchemaClass UnifiedSchema(string rawHtml = "")
         {
-            UnifiedOfferSchema unif = new UnifiedOfferSchema();
+            UnifiedOfferSchemaClass unif = new UnifiedOfferSchemaClass();
             unif.source = OfferSitesTypes.Justjoinit;
             unif.url = JustJoinItBuilder.baseUrlOfferDetail + slug;
             unif.jobTitle = title;

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Offer_collector.Models.Json;
+using Offer_collector.Models.OfferScrappers;
 using Offer_collector.Models.PracujPl;
 using Offer_collector.Models.Tools;
 using Offer_collector.Models.UrlBuilders;
@@ -9,6 +10,10 @@ namespace Offer_collector.Models.OfferFetchers
 {
     internal class PracujplScrapper : BaseHtmlScraper
     {
+        public PracujplScrapper(ClientType clientType) : base(clientType)
+        {
+        }
+
         public override async Task<(string, string)> GetOfferAsync(string url = "")
         {
             string baseUrl = PracujPlUrlBuilder.baseUrl;

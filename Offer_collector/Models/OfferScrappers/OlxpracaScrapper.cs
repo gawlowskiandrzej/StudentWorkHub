@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Offer_collector.Models.Json;
+using Offer_collector.Models.OfferScrappers;
 using Offer_collector.Models.OlxPraca;
 using Offer_collector.Models.UrlBuilders;
 using System.Text.Json;
@@ -10,6 +11,11 @@ namespace Offer_collector.Models.OfferFetchers
     internal class OlxpracaScrapper : BaseHtmlScraper
     {
         const int defaultCategory = 1;
+
+        public OlxpracaScrapper(ClientType clientType) : base(clientType)
+        {
+        }
+
         public override async Task<(string, string)> GetOfferAsync(string url = "")
         {
             string baseUrl = OlxPracaUrlBuilder.baseUrl;

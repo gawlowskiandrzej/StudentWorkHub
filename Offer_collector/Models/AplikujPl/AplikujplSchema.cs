@@ -67,9 +67,9 @@ namespace Offer_collector.Models.AplikujPl
     {
         public OfferListHeader header = new OfferListHeader();
         public OfferDetails details = new OfferDetails();
-        public UnifiedOfferSchema UnifiedSchema(string rawHtml = "")
+        public UnifiedOfferSchemaClass UnifiedSchema(string rawHtml = "")
         {
-            UnifiedOfferSchema s = new UnifiedOfferSchema();
+            UnifiedOfferSchemaClass s = new UnifiedOfferSchemaClass();
 
             s.jobTitle = header.title;
             s.description = details.infoFeatures?.description;

@@ -51,36 +51,46 @@ namespace Offer_collector.Models.AI
             }
             llmParser = new([apiSettings], reqSettings);
         }
-        public async Task<List<UnifiedOfferSchema>> ProcessUnifiedSchemas(List<UnifiedOfferSchema> offers)
+        public async Task<List<UnifiedOfferSchemaClass>> ProcessUnifiedSchemas(List<UnifiedOfferSchemaClass> offers)
         {
-            List<string>outputs = new List<string>();
-            foreach (UnifiedOfferSchema offer in offers)
-            {
-                string jsOffer = JsonConvert.SerializeObject(offer, Formatting.Indented);
-                string aiOutput = "";
-                try
+            
+                List<string> outputs = new List<string>();
+                foreach (UnifiedOfferSchemaClass offer in offers)
                 {
-                    aiOutput = (await llmParser.ParseBatchAsync(new List<string> { jsOffer}, promptSettings)).FirstOrDefault() ?? "";
-                }
-                catch (Exception ex)
-                {
-                    offer.aiErrorMessages.Add(ex.ToString());
-                    foreach (var a in llmParser.GetLastBatchErrors())
-                        Console.WriteLine(a.ToString());
-                }
+                    try
+                    {
+                        string jsOffer = JsonConvert.SerializeObject(offer, Formatting.Indented);
+                        string aiOutput = "";
+                        try
+                        {
+                            aiOutput = (await llmParser.ParseBatchAsync(new List<string> { jsOffer }, promptSettings)).FirstOrDefault() ?? "";
+                        }
+                        catch (Exception ex)
+                        {
+                            List<string> aierrorMessages = new List<string>();
+                            aierrorMessages.Add(ex.ToString());
+                            foreach (var a in llmParser.GetLastBatchErrors())
+                                Console.WriteLine(a.ToString());
+                        }
 
-                if (aiOutput != "" && offer != null)
-                {
-                    outputs.Add(aiOutput);
-                    UnifiedOfferSchema? aiOffer = JsonConvert.DeserializeObject<UnifiedOfferSchema>(aiOutput);
-                    offer.requirements = ProcessRequirements(offer, aiOffer);
-                    offer.benefits = ProcessBenefits(offer, aiOffer); 
-                }
+                        if (aiOutput != "" && offer != null)
+                        {
+                            outputs.Add(aiOutput);
+                            UnifiedOfferSchemaClass? aiOffer = JsonConvert.DeserializeObject<UnifiedOfferSchemaClass>(aiOutput);
+                            offer.requirements = ProcessRequirements(offer, aiOffer);
+                            offer.benefits = ProcessBenefits(offer, aiOffer);
+                        }
+                    }
+                    catch (Exception)
+                    {
+
+                        throw new Exception($"An error while processing ai {offer}");
+                    }
             }
-            return offers;
-        }
+                return offers;
+            }
 
-        private List<string>? ProcessBenefits(UnifiedOfferSchema offer, UnifiedOfferSchema? aiOffer)
+        private List<string>? ProcessBenefits(UnifiedOfferSchemaClass offer, UnifiedOfferSchemaClass? aiOffer)
         {
             if (aiOffer?.benefits?.Count > 0 && (offer.benefits == null || offer.benefits.Count > 0))
                 offer.benefits = aiOffer.benefits;
@@ -88,7 +98,7 @@ namespace Offer_collector.Models.AI
             return offer.benefits ?? new List<string>();
         }
 
-        Requirements ProcessRequirements(UnifiedOfferSchema offer, UnifiedOfferSchema? aiOffer)
+        Requirements ProcessRequirements(UnifiedOfferSchemaClass offer, UnifiedOfferSchemaClass? aiOffer)
         {
             if (offer == null)
                 throw new NullReferenceException("Offer cannot be null when processing requirements.");

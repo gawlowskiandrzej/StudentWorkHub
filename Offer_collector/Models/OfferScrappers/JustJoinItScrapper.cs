@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using Offer_collector.Models.ConstData;
 using Offer_collector.Models.Json;
 using Offer_collector.Models.JustJoinIt;
+using Offer_collector.Models.OfferScrappers;
 using Offer_collector.Models.UrlBuilders;
 using System.Text.Json;
 
@@ -10,6 +11,10 @@ namespace Offer_collector.Models.OfferFetchers
 {
     internal class JustJoinItScrapper : BaseHtmlScraper
     {
+        public JustJoinItScrapper(ClientType clientType) : base(clientType)
+        {
+        }
+
         public override async Task<(string, string)> GetOfferAsync(string url = "")
         {
             string baseUrl = JustJoinItBuilder.baseUrl;

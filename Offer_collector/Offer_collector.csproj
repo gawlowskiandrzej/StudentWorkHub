@@ -17,8 +17,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Models\Tools\Nodejs\" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="LLMParser">
       <HintPath>Models\AI\LLMParser.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="UnifiedOfferSchema">
+      <HintPath>Models\AI\UnifiedOfferSchema.dll</HintPath>
     </Reference>
   </ItemGroup>
 

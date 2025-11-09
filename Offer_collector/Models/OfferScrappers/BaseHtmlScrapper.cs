@@ -1,21 +1,38 @@
-﻿using System.Text.RegularExpressions;
+﻿using Offer_collector.Models.OfferScrappers;
+using Offer_collector.Models.Tools;
+using System.Text.RegularExpressions;
 
 public abstract class BaseHtmlScraper
 {
-    protected readonly HttpClient _client;
+    protected readonly HttpClient _client = new HttpClient();
+    private readonly ClientType _clientType = 0;
     private string htmlBody = "";
     protected int maxOfferCount;
+    private HeadlessBrowser headlessBrowser = new HeadlessBrowser();
     
-    public BaseHtmlScraper()
+    public BaseHtmlScraper(ClientType clientType)
     {
-        var handler = new HttpClientHandler
+        if (clientType == 0)
         {
-            AutomaticDecompression = System.Net.DecompressionMethods.GZip
-                           | System.Net.DecompressionMethods.Deflate
-                           | System.Net.DecompressionMethods.Brotli
-        };
-        _client = new HttpClient(handler);
+            _client.DefaultRequestHeaders.Add("User-Agent",
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+                    "AppleWebKit/537.36 (KHTML, like Gecko) " +
+                    "Chrome/122.0.0.0 Safari/537.36");
 
+            _client.DefaultRequestHeaders.Add("Accept",
+                "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+
+            _client.DefaultRequestHeaders.Add("Accept-Language", "pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7");
+            _client.DefaultRequestHeaders.Add("Referer", "https://www.google.com/");
+            _client.DefaultRequestHeaders.Add("Cache-Control", "no-cache");
+            _client.DefaultRequestHeaders.Add("Pragma", "no-cache");
+        }
+        else
+        {
+            headlessBrowser = new HeadlessBrowser();
+        }
+
+        _clientType = clientType;
     }
 
     /// <summary>
@@ -23,8 +40,16 @@ public abstract class BaseHtmlScraper
     /// </summary>
     public async Task<string> GetHtmlAsync(string url)
     {
-        htmlBody = await _client.GetStringAsync(url);
-        return htmlBody;
+        if (_clientType == 0)
+        {
+            var cos = await _client.GetAsync(url);
+            htmlBody = await cos.Content.ReadAsStringAsync();
+        }
+        else
+        {
+            htmlBody = await headlessBrowser.GetWebPageSource(url);
+        }
+            return htmlBody;
     }
 
     /// <summary>

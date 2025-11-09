@@ -38,20 +38,20 @@ namespace Offer_collector.Models.Tools
             }
         }
 
-        public static UnifiedOfferSchema ToUnifiedSchema<T>(IUnificatable? offerObj, string rawHtml = "")
+        public static UnifiedOfferSchemaClass ToUnifiedSchema<T>(IUnificatable? offerObj, string rawHtml = "")
             where T : new()
         {
             if (offerObj == null)
-                return new UnifiedOfferSchema();
+                return new UnifiedOfferSchemaClass();
 
             try
             {
                 var schema = offerObj.UnifiedSchema(rawHtml);
-                return schema ?? new UnifiedOfferSchema();
+                return schema ?? new UnifiedOfferSchemaClass();
             }
             catch
             {
-                return new UnifiedOfferSchema();
+                return new UnifiedOfferSchemaClass();
             }
         }
     }

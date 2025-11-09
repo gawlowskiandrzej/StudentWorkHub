@@ -11,6 +11,11 @@ namespace Offer_collector.Models.OfferScrappers
     internal class AplikujplScrapper : BaseHtmlScraper
     {
         string _offerListHtml = "";
+
+        public AplikujplScrapper(ClientType clientType) : base(clientType)
+        {
+        }
+
         public override async Task<(string, string)> GetOfferAsync(string url = "")
         {
             _offerListHtml = await GetHtmlSource(url);

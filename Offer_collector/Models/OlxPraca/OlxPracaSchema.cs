@@ -122,12 +122,12 @@ namespace Offer_collector.Models.OlxPraca
         public string htmlOfferDetail { get; set; } = "";
 
 
-        public UnifiedOfferSchema UnifiedSchema(string rawHtml = "")
+        public UnifiedOfferSchemaClass UnifiedSchema(string rawHtml = "")
         {
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(htmlOfferDetail);
             // TODO Dodać kategorię
-            UnifiedOfferSchema un = new UnifiedOfferSchema();
+            UnifiedOfferSchemaClass un = new UnifiedOfferSchemaClass();
             un.jobTitle = title;
             un.description = description;
             un.source = OfferSitesTypes.Olxpraca;

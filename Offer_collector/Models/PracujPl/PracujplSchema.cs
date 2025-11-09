@@ -43,9 +43,9 @@ public class PracujplSchema : IUnificatable
     public PracujPlCompany? company { get; set; }
     public PracujPlProfile? profile { get; set; }
 
-    public UnifiedOfferSchema UnifiedSchema(string rawHtml = "")
+    public UnifiedOfferSchemaClass UnifiedSchema(string rawHtml = "")
     {
-        UnifiedOfferSchema s = new UnifiedOfferSchema();
+        UnifiedOfferSchemaClass s = new UnifiedOfferSchemaClass();
         s.jobTitle = jobTitle ?? "nazwa pracy pusta";
 
             s.description = jobDescription;
