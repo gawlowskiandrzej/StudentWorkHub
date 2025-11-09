@@ -1,12 +1,13 @@
 -- =========================================================
 -- Clean drop in dependency order
 -- =========================================================
+DROP TABLE IF EXISTS public.sub_categories_junction;
+
 DROP TABLE IF EXISTS public.benefits_junction;
 DROP TABLE IF EXISTS public.employment_types_junction;
 DROP TABLE IF EXISTS public.employment_schedules_junction;
 DROP TABLE IF EXISTS public.languages_junction;
 DROP TABLE IF EXISTS public.education_levels_junction;
-DROP TABLE IF EXISTS public.experience_levels_junction;
 DROP TABLE IF EXISTS public.skills_junction;
 
 DROP TABLE IF EXISTS public.internal_offers;
@@ -14,6 +15,10 @@ DROP TABLE IF EXISTS public.external_offers;
 
 DROP TABLE IF EXISTS public.offers;
 DROP TABLE IF EXISTS public.location_details;
+
+DROP TABLE IF EXISTS public.sub_categories;
+DROP TABLE IF EXISTS public.leading_categories;
+DROP TABLE IF EXISTS public.language_levels;
 
 DROP TABLE IF EXISTS public.benefits;
 DROP TABLE IF EXISTS public.employment_types;
@@ -46,7 +51,6 @@ CREATE TABLE public.companies (
     name VARCHAR(50) NOT NULL,
     logo_url TEXT,
     CONSTRAINT uq_companies_name UNIQUE (name),
-    -- fixed: unique on logo_url (was mistakenly on name)
     CONSTRAINT uq_companies_logo_url UNIQUE (logo_url)
 );
 
@@ -89,6 +93,12 @@ CREATE TABLE public.languages (
     CONSTRAINT uq_languages_language UNIQUE (language)
 );
 
+CREATE TABLE public.language_levels (
+    id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    level VARCHAR(2) NOT NULL,
+    CONSTRAINT uq_language_levels_level UNIQUE (level)
+);
+
 CREATE TABLE public.cities (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     city VARCHAR(100) NOT NULL,
@@ -109,7 +119,7 @@ CREATE TABLE public.postal_codes (
 
 CREATE TABLE public.employment_schedules (
     id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    schedule VARCHAR(30) NOT NULL,
+    schedule VARCHAR(50) NOT NULL,
     CONSTRAINT uq_employment_schedules_schedule UNIQUE (schedule)
 );
 
@@ -123,6 +133,18 @@ CREATE TABLE public.benefits (
     id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     benefit VARCHAR(50) NOT NULL,
     CONSTRAINT uq_benefits_benefit UNIQUE (benefit)
+);
+
+CREATE TABLE public.leading_categories (
+    id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    leading_category VARCHAR(150) NOT NULL,
+    CONSTRAINT uq_leading_categories_leading_category UNIQUE (leading_category)
+);
+
+CREATE TABLE public.sub_categories (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    sub_category VARCHAR(50) NOT NULL,
+    CONSTRAINT uq_sub_categories_sub_category UNIQUE (sub_category)
 );
 
 -- =========================================================
@@ -145,7 +167,7 @@ CREATE TABLE public.location_details (
 );
 
 -- =========================================================
--- Offers (central entity) - cleaned to use ONLY junctions for M:N
+-- Offers (central entity)
 -- =========================================================
 CREATE TABLE public.offers (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -160,7 +182,6 @@ CREATE TABLE public.offers (
     is_remote BOOLEAN,
     is_hybrid BOOLEAN,
 
-    experience_years SMALLINT,
     published TIMESTAMPTZ NOT NULL,
     expires TIMESTAMPTZ,
     is_urgent BOOLEAN NOT NULL,
@@ -172,6 +193,7 @@ CREATE TABLE public.offers (
 
     currency_id SMALLINT,
     salary_period_id SMALLINT,
+    leading_category_id SMALLINT,
 
     CONSTRAINT fk_offers_source
         FOREIGN KEY (source_id) REFERENCES public.sources(id),
@@ -183,7 +205,9 @@ CREATE TABLE public.offers (
     CONSTRAINT fk_offers_currency
         FOREIGN KEY (currency_id) REFERENCES public.currencies(id),
     CONSTRAINT fk_offers_salary_period
-        FOREIGN KEY (salary_period_id) REFERENCES public.salary_periods(id)
+        FOREIGN KEY (salary_period_id) REFERENCES public.salary_periods(id),
+    CONSTRAINT fk_offers_leading_category
+        FOREIGN KEY (leading_category_id) REFERENCES public.leading_categories(id)
 );
 
 -- =========================================================
@@ -201,29 +225,25 @@ CREATE TABLE public.internal_offers (
     offer_id BIGINT PRIMARY KEY,
     CONSTRAINT fk_internal_offers_offer
         FOREIGN KEY (offer_id) REFERENCES public.offers(id) ON DELETE CASCADE
+    -- #TODO: extend as needed
 );
 
 -- =========================================================
--- Junction tables (M:N) - authoritative links to lookups
+-- Junction tables
 -- =========================================================
 CREATE TABLE public.skills_junction (
     offer_id BIGINT NOT NULL,
     skill_id INTEGER NOT NULL,
+    experience_level_id SMALLINT,
+    experience_months SMALLINT,
+
     PRIMARY KEY (offer_id, skill_id),
     CONSTRAINT fk_skills_jun_skill
         FOREIGN KEY (skill_id) REFERENCES public.skills(id) ON DELETE CASCADE,
     CONSTRAINT fk_skills_jun_offer
-        FOREIGN KEY (offer_id) REFERENCES public.offers(id) ON DELETE CASCADE
-);
-
-CREATE TABLE public.experience_levels_junction (
-    offer_id BIGINT NOT NULL,
-    experience_level_id SMALLINT NOT NULL,
-    PRIMARY KEY (offer_id, experience_level_id),
-    CONSTRAINT fk_experience_levels_jun_experience_level
-        FOREIGN KEY (experience_level_id) REFERENCES public.experience_levels(id) ON DELETE CASCADE,
-    CONSTRAINT fk_experience_levels_jun_offer
-        FOREIGN KEY (offer_id) REFERENCES public.offers(id) ON DELETE CASCADE
+        FOREIGN KEY (offer_id) REFERENCES public.offers(id) ON DELETE CASCADE,
+    CONSTRAINT fk_skills_jun_experience_level
+        FOREIGN KEY (experience_level_id) REFERENCES public.experience_levels(id) ON DELETE RESTRICT
 );
 
 CREATE TABLE public.education_levels_junction (
@@ -239,11 +259,15 @@ CREATE TABLE public.education_levels_junction (
 CREATE TABLE public.languages_junction (
     offer_id BIGINT NOT NULL,
     language_id SMALLINT NOT NULL,
+    language_level_id SMALLINT,
+
     PRIMARY KEY (offer_id, language_id),
     CONSTRAINT fk_languages_jun_language
         FOREIGN KEY (language_id) REFERENCES public.languages(id) ON DELETE CASCADE,
     CONSTRAINT fk_languages_jun_offer
-        FOREIGN KEY (offer_id) REFERENCES public.offers(id) ON DELETE CASCADE
+        FOREIGN KEY (offer_id) REFERENCES public.offers(id) ON DELETE CASCADE,
+    CONSTRAINT fk_languages_jun_language_level
+        FOREIGN KEY (language_level_id) REFERENCES public.language_levels(id) ON DELETE RESTRICT
 );
 
 CREATE TABLE public.employment_schedules_junction (
@@ -268,7 +292,7 @@ CREATE TABLE public.employment_types_junction (
 
 CREATE TABLE public.benefits_junction (
     offer_id BIGINT NOT NULL,
-    benefit_id SMALLINT NOT NULL,  -- renamed from benefits_id for consistency
+    benefit_id SMALLINT NOT NULL,
     PRIMARY KEY (offer_id, benefit_id),
     CONSTRAINT fk_benefits_jun_benefit
         FOREIGN KEY (benefit_id) REFERENCES public.benefits(id) ON DELETE CASCADE,
@@ -276,8 +300,18 @@ CREATE TABLE public.benefits_junction (
         FOREIGN KEY (offer_id) REFERENCES public.offers(id) ON DELETE CASCADE
 );
 
+CREATE TABLE public.sub_categories_junction (
+    offer_id BIGINT NOT NULL,
+    sub_category_id BIGINT NOT NULL,
+    PRIMARY KEY (offer_id, sub_category_id),
+    CONSTRAINT fk_sub_categories_jun_sub_category
+        FOREIGN KEY (sub_category_id) REFERENCES public.sub_categories(id) ON DELETE CASCADE,
+    CONSTRAINT fk_sub_categories_jun_offer
+        FOREIGN KEY (offer_id) REFERENCES public.offers(id) ON DELETE CASCADE
+);
+
 -- =========================================================
--- Foundational indexes only: PK/UNIQUE (implicit) + FK helpers
+-- Indexes
 -- =========================================================
 
 -- location_details -> lookups
@@ -288,31 +322,33 @@ CREATE INDEX IF NOT EXISTS idx_location_details_street_id
 CREATE INDEX IF NOT EXISTS idx_location_details_postal_code_id
     ON public.location_details (postal_code_id);
 
--- offers -> sources, companies, location_details
+-- offers -> lookups
 CREATE INDEX IF NOT EXISTS idx_offers_source_id
     ON public.offers (source_id);
 CREATE INDEX IF NOT EXISTS idx_offers_company_id
     ON public.offers (company_id);
 CREATE INDEX IF NOT EXISTS idx_offers_location_detail_id
     ON public.offers (location_detail_id);
-
--- offers -> money/lookups
 CREATE INDEX IF NOT EXISTS idx_offers_currency_id
     ON public.offers (currency_id);
 CREATE INDEX IF NOT EXISTS idx_offers_salary_period_id
     ON public.offers (salary_period_id);
+CREATE INDEX IF NOT EXISTS idx_offers_leading_category_id
+    ON public.offers (leading_category_id);
 
+-- junction helpers
 CREATE INDEX IF NOT EXISTS idx_skills_junction_skill_offer
     ON public.skills_junction (skill_id, offer_id);
-
-CREATE INDEX IF NOT EXISTS idx_experience_levels_junction_level_offer
-    ON public.experience_levels_junction (experience_level_id, offer_id);
-
-CREATE INDEX IF NOT EXISTS idx_education_levels_junction_level_offer
-    ON public.education_levels_junction (education_level_id, offer_id);
+CREATE INDEX IF NOT EXISTS idx_skills_junction_level_offer
+    ON public.skills_junction (experience_level_id, offer_id);
 
 CREATE INDEX IF NOT EXISTS idx_languages_junction_language_offer
     ON public.languages_junction (language_id, offer_id);
+CREATE INDEX IF NOT EXISTS idx_languages_junction_level_offer
+    ON public.languages_junction (language_level_id, offer_id);
+
+CREATE INDEX IF NOT EXISTS idx_education_levels_junction_level_offer
+    ON public.education_levels_junction (education_level_id, offer_id);
 
 CREATE INDEX IF NOT EXISTS idx_employment_schedules_junction_schedule_offer
     ON public.employment_schedules_junction (employment_schedule_id, offer_id);
@@ -322,3 +358,7 @@ CREATE INDEX IF NOT EXISTS idx_employment_types_junction_type_offer
 
 CREATE INDEX IF NOT EXISTS idx_benefits_junction_benefit_offer
     ON public.benefits_junction (benefit_id, offer_id);
+
+CREATE INDEX IF NOT EXISTS idx_sub_categories_junction_sub_offer
+    ON public.sub_categories_junction (sub_category_id, offer_id);
+

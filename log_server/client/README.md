@@ -1,6 +1,6 @@
 # Usage of LogClient #
 ## Add LogClient to project ##
-1. Right-click on `solution` -> `add` -> `Reference`.
+1. Right-click on `Dependencies` -> `add` -> `Project reference`.
 2. `Browse` on the bottom panel of `Reference manager`.
 3. Select `LogClient.dll` and click `Add`.
 4. Import library inside the code
@@ -56,7 +56,8 @@ else
     Console.Out.WriteLine("Successfully added log entry!");
 }
 ```
-> ℹ Available types are: **INFO, WARNING, ERROR, CRITICAL ERROR, NOTIFICATION, ATTENTION**. If `noThrow` is **true** then tags outside of this scope will be changed to **UNDEFINED**.
+> ℹ Available types are: **INFO, WARNING, ERROR, CRITICAL ERROR, NOTIFICATION, ATTENTION, DEBUG, DIAGNOSTICS**. \
+> If `noThrow` is **true** then tags outside of this scope will be changed to **UNDEFINED**.
 
 > ℹ You may specify **up to 5 tags**, they are used for easier filtering and are not mandatory. *You may pass null instead of an array if no tags are specified*.
 
