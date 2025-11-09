@@ -17,6 +17,8 @@ SELECT jsonb_build_object(
     'employment.types',
         COALESCE((SELECT jsonb_agg(type ORDER BY id) FROM public.employment_types), '[]'::jsonb),
     'employment.schedules',
-        COALESCE((SELECT jsonb_agg(schedule ORDER BY id) FROM public.employment_schedules), '[]'::jsonb)
+        COALESCE((SELECT jsonb_agg(schedule ORDER BY id) FROM public.employment_schedules), '[]'::jsonb),
+    'category.leadingCategory',
+        COALESCE((SELECT jsonb_agg(leading_category ORDER BY id) FROM public.leading_categories), '[]'::jsonb)
 );
 $$;
