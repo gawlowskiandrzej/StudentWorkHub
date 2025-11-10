@@ -5,6 +5,7 @@ namespace Offer_collector.Models.AI
 {
     internal class AIProcessor
     {
+        static int bathSize = 1;
         static string modelName = PredefinedElements.geminiApiModelNames[0];
         Settings.API apiSettings = new(
             "tu klucz api odczytany z env",
@@ -27,37 +28,48 @@ namespace Offer_collector.Models.AI
             Prompts.descriptionInformationExtratorSystemPredefinedSet,
             null
         );
-       LLMParser.Parser llmParser;
-        public AIProcessor(string geminiKey = "")
+        LLMParser.Parser llmParser;
+        public AIProcessor(Dictionary<string, string> systemPromptParams, string geminiKey = "")
         {
 
+            var config = new ConfigurationBuilder()
+            .AddUserSecrets<Program>()
+            .Build();
 
             if (String.IsNullOrEmpty(geminiKey))
             {
-                var config = new ConfigurationBuilder()
-                .AddUserSecrets<Program>()
-                .Build();
-
                 geminiKey = config["ApiKeys:GeminiKey"] ?? "";
-                apiSettings = new(
-                    geminiKey,
-                    PredefinedElements.geminiApiKeyHeader,
-                    PredefinedElements.GeminiApiStringBuilder(modelName),
-                    PredefinedElements.GeminiRequestBodyBuilder,
-                    PredefinedElements.GeminiResultParser,
-                    PredefinedElements.geminiModelMaxRequestInputTokens[modelName],
-                    PredefinedElements.geminiModelMaxRequestOutputTokens[modelName]
-                 );
             }
+
+            if (systemPromptParams != null && systemPromptParams?.Count > 0)
+            {
+                promptSettings = new(
+                    Prompts.defaultSystemPromptTemplate,
+                    Prompts.descriptionInformationExtratorUserPrompt,
+                    systemPromptParams,
+                    null
+                );
+            }
+
+            apiSettings = new(
+                geminiKey,
+                PredefinedElements.geminiApiKeyHeader,
+                PredefinedElements.GeminiApiStringBuilder(modelName),
+                PredefinedElements.GeminiRequestBodyBuilder,
+                PredefinedElements.GeminiResultParser,
+                PredefinedElements.geminiModelMaxRequestInputTokens[modelName],
+                PredefinedElements.geminiModelMaxRequestOutputTokens[modelName]
+             );
+
             llmParser = new([apiSettings], reqSettings);
         }
-        public async Task<(List<AiProcessedOffer>, List<string>)> ProcessUnifiedSchemas(List<UnifiedOfferSchemaClass> offers, int bathSize = 1)
+        public async Task<(List<string>, List<string>)> ProcessUnifiedSchemas(List<UnifiedOfferSchemaClass> offers)
         {
 
             List<string> outputs = new List<string>();
+            List<string> errors = new List<string>();
 
             List<AiProcessedOffer> aiProcessedOffers = new List<AiProcessedOffer>();
-            List<string> errors = new List<string>();
             for (int i = 0; i < offers.Count / bathSize; i++)
             {
                 IEnumerable<UnifiedOfferSchemaClass> bath = offers.Skip(i * bathSize).Take(bathSize);
@@ -70,10 +82,10 @@ namespace Offer_collector.Models.AI
                         {
                             serializedOffers.Add(JsonConvert.SerializeObject(item, Formatting.Indented));
                         }
-                        string aiOutput = "";
+                        List<string?> aiOutput = new List<string?>();
                         try
                         {
-                            aiOutput = (await llmParser.ParseBatchAsync(serializedOffers, promptSettings)).FirstOrDefault() ?? "";
+                            aiOutput = await llmParser.ParseBatchAsync(serializedOffers, promptSettings, ParserHelpers.ParsingErrorAction.Retry);
                         }
                         catch (Exception ex)
                         {
@@ -83,12 +95,12 @@ namespace Offer_collector.Models.AI
                                 errorMessages.Add(a);
                         }
 
-                        if (aiOutput != "")
+                        if (aiOutput.Count > 0)
                         {
                             try
                             {
-                                outputs.Add(aiOutput);
-                                List<UnifiedOfferSchemaClass>? aiOffers = JsonConvert.DeserializeObject<List<UnifiedOfferSchemaClass>>(aiOutput);
+                                outputs.AddRange(aiOutput);
+                                //List<UnifiedOfferSchemaClass>? aiOffers = JsonConvert.DeserializeObject<List<UnifiedOfferSchemaClass>>(aiOutput);
                                 //foreach (UnifiedOfferSchemaClass aiOffer in aiOffers ?? new List<UnifiedOfferSchemaClass>())
                                 //{
                                 //    offer.requirements = ProcessRequirements(offer, aiOffer);
@@ -100,7 +112,7 @@ namespace Offer_collector.Models.AI
                             {
                                 errorMessages.Add($"Error deserializing ai output for offers {bath}: {e.Message}");
                             }
-                           
+
                         }
                     }
                     catch (Exception e)
@@ -108,10 +120,10 @@ namespace Offer_collector.Models.AI
 
                         errors.Add($"An error while processing bath {e}");
                     }
-                    aiProcessedOffers.Add(new AiProcessedOffer { Offer = bath.First(), ErrorMessages = errorMessages });
+                    errors.AddRange(errorMessages);
                 }
             }
-            return (aiProcessedOffers, errors);
+            return (outputs, errors);
         }
 
         private List<string>? ProcessBenefits(UnifiedOfferSchemaClass offer, UnifiedOfferSchemaClass? aiOffer)
@@ -137,7 +149,7 @@ namespace Offer_collector.Models.AI
                 if (aiOffer.requirements.languages?.Count > 0 && (offer.requirements.languages == null || offer.requirements.languages.Count > 0))
                     offer.requirements.languages = aiOffer.requirements.languages;
             }
-            
+
             return offer.requirements ?? new Requirements();
         }
     }

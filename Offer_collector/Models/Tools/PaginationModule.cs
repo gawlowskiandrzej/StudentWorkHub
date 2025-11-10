@@ -72,17 +72,17 @@ namespace Offer_collector.Models.Tools
                     catch (HttpRequestException ex)
                     {
                         retryCount++;
-                        errors.Add($"Błąd sieci na stronie {currentPage}: {ex.Message}. Próba {retryCount}/{maxRetries}");
+                        errors.Add($"Error while fetching page {currentPage}: {ex.Message}. Try {retryCount}/{maxRetries}");
                         await Task.Delay(Constants.delayBetweenRequests * retryCount); // exponential backoff
                     }
                     catch (JsonException ex)
                     {
-                        errors.Add($"Błąd parsowania JSON na stronie {currentPage}: {ex.Message}");
+                        errors.Add($"Error parsing offer on page {currentPage}: {ex.Message}");
                         break; // nie ma sensu retry, jeśli JSON jest niepoprawny
                     }
                     catch (Exception ex)
                     {
-                        errors.Add($"Nieoczekiwany błąd na stronie {currentPage}: {ex.Message}");
+                        errors.Add($"Processing error on page {currentPage}: {ex.Message}");
                         break;
                     }
                 }

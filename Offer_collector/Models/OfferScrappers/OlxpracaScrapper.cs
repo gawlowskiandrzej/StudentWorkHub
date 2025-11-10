@@ -20,31 +20,95 @@ namespace Offer_collector.Models.OfferFetchers
         {
             string baseUrl = OlxPracaUrlBuilder.baseUrl;
             List<string> errors = new List<string>();
-            if (url != "")
+
+            if (!string.IsNullOrEmpty(url))
                 baseUrl = url;
-            string html = await GetHtmlSource(baseUrl);
-            string allJs = GetAllJson(html);
-            maxOfferCount = GetOfferCount(allJs);
-            List<JToken> offerListJs = GetOffersJson(allJs);
+
+            string html = string.Empty;
+            try
+            {
+                html = await GetHtmlSource(baseUrl);
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"Failed to load main HTML from '{baseUrl}': {ex.Message}");
+                return ("", html, errors);
+            }
+
+            string allJs;
+            try
+            {
+                allJs = GetAllJson(html);
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"Failed to extract JSON data from the HTML: {ex.Message}");
+                return ("", html, errors);
+            }
+
+            int maxOfferCount = 0;
+            try
+            {
+                maxOfferCount = GetOfferCount(allJs);
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"Failed to read offer count: {ex.Message}");
+            }
+
+            List<JToken> offerListJs = new List<JToken>();
+            try
+            {
+                offerListJs = GetOffersJson(allJs);
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"Failed to parse offers JSON: {ex.Message}");
+            }
+
             List<OlxPracaSchema> olxPracaSchema = new List<OlxPracaSchema>();
 
-            // TODO cashowanie kategori i tak są w jednym requset ale zawsze mniej operacji
             foreach (JToken offer in offerListJs)
             {
-                OlxPracaSchema obj = GetOlxPracaObject(offer);
+                try
+                {
+                    OlxPracaSchema obj = GetOlxPracaObject(offer);
 
-                obj.htmlOfferDetail = await GetHtmlSource(obj.url);
-                string htmlOfferDetail = GetSubstringJson(obj.htmlOfferDetail);
-                List<JToken> pol = GetOfferDetailsJson(htmlOfferDetail);
-                string categoriesListObj = JsonConvert.SerializeObject(pol);
-                obj.category.categoryDetails = GetOlxPracaCategoryById(obj.category.id ?? defaultCategory, categoriesListObj);
-                olxPracaSchema.Add(obj);
+                    try
+                    {
+                        obj.htmlOfferDetail = await GetHtmlSource(obj.url);
+                    }
+                    catch (Exception ex)
+                    {
+                        errors.Add($"Failed to load offer details for URL '{obj.url}': {ex.Message}");
+                        continue; // Skip to next offer
+                    }
 
-                await Task.Delay(Constants.delayBetweenRequests);
+                    try
+                    {
+                        string htmlOfferDetail = GetSubstringJson(obj.htmlOfferDetail);
+                        List<JToken> offerDetails = GetOfferDetailsJson(htmlOfferDetail);
+                        string categoriesListObj = JsonConvert.SerializeObject(offerDetails);
+                        obj.category.categoryDetails = GetOlxPracaCategoryById(obj.category.id ?? defaultCategory, categoriesListObj);
+                    }
+                    catch (Exception ex)
+                    {
+                        errors.Add($"Failed to parse details or categories for offer '{obj.url}': {ex.Message}");
+                    }
+
+                    olxPracaSchema.Add(obj);
+
+                    await Task.Delay(Constants.delayBetweenRequests);
+                }
+                catch (Exception ex)
+                {
+                    errors.Add($"Unexpected error while processing an offer: {ex.Message}");
+                }
             }
 
             return (JsonConvert.SerializeObject(olxPracaSchema, Formatting.Indented) ?? "", html, errors);
         }
+
         private async Task<string> GetHtmlSource(string url) => await GetHtmlAsync(url);
         private OlxPracaCategory GetOlxPracaCategoryById(int id, string categoryJson)
         {

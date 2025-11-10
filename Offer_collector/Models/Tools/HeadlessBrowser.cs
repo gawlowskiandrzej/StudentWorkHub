@@ -18,7 +18,7 @@ namespace Offer_collector.Models.Tools
         /// <returns></returns>
         public async Task<string> GetWebPageSource(string urlOfScrapPage)
         {
-             ServerIsRunning = await StartNodeJsServerAsync("../../../../Models/Tools/Nodejs/scrapper-sever.js");
+             ServerIsRunning = await StartNodeJsServerAsync($"{Program.projectDirectory}/Models/Tools/Nodejs/scrapper-sever.js");
 
             if (!ServerIsRunning) return "";
             string urll = $"{Client.BaseAddress}scrape?url={urlOfScrapPage}";

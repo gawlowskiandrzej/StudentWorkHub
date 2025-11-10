@@ -3,12 +3,15 @@ using Offer_collector.Models;
 using Offer_collector.Models.AI;
 using Offer_collector.Models.AplikujPl;
 using Offer_collector.Models.ConstData;
+using Offer_collector.Models.DatabaseService;
 using Offer_collector.Models.JustJoinIt;
 using Offer_collector.Models.OfferFetchers;
 using Offer_collector.Models.OfferScrappers;
 using Offer_collector.Models.OlxPraca;
+using Offer_collector.Models.PracujPl;
 using Offer_collector.Models.Tools;
 using Offer_collector.Models.UrlBuilders;
+using UnifiedOfferSchema;
 
 namespace Offer_collector
 {
@@ -18,7 +21,8 @@ namespace Offer_collector
         // Obsługa błędów (Exceptions na każdy etap + wysalnie loga do bazy)
         // Aplikujpl pełen url w polu w uniwersalnym schemacie
         // AplikujPl dodac logourl 
-        static void Main(string[] args)
+        public static string projectDirectory = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.Parent.FullName;
+        static async Task Main(string[] args)
         {
             args[2] = "1";
             args[1] = "100";
@@ -53,10 +57,12 @@ namespace Offer_collector
             ClientType clientTypeEnum = (ClientType)clientType;
 
             List<UnifiedOfferSchemaClass> unifiedOfferSchemas = new List<UnifiedOfferSchemaClass>();
+            DatabaseService databaseService = new DatabaseService();
             BaseHtmlScraper? scrapper = null;
             BaseUrlBuilder? urlBuilder = null;
-            AIProcessor aiParser = new AIProcessor();
-            ConstValues.PolishCities = JsonConvert.DeserializeObject<List<PlCityObject>>(File.ReadAllText("../../../../Models/ConstData/pl.json")) ?? new List<PlCityObject>();
+            AIProcessor aiParser = new AIProcessor(await databaseService.GetSystemPromptParamsAsync());
+            projectDirectory = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.Parent.FullName;
+            ConstValues.PolishCities = JsonConvert.DeserializeObject<List<PlCityObject>>(File.ReadAllText($"{projectDirectory}/Models/ConstData/pl.json")) ?? new List<PlCityObject>();
 
 
 
@@ -121,7 +127,7 @@ namespace Offer_collector
                         UnifiedOfferSchemaClass unifOffer = OfferMapper.ToUnifiedSchema<List<JustJoinItSchema>>(offer, htmls.ElementAt(i++));
                         unifiedOfferSchemas.Add(unifOffer);
                     }
-                    //ExportToTxtt.ExportToTxt(justJoinItUnifSchemas, "justJoinItData.txt");
+                    
                     break;
                 case OfferSitesTypes.Aplikujpl:
                     List<AplikujplSchema> aplikujSchemas = OfferMapper.DeserializeJson<List<AplikujplSchema>>(outputJson);
@@ -138,13 +144,21 @@ namespace Offer_collector
                    
                     break;
             }
+            ExportTo.ExportToJs(unifiedOfferSchemas, $"{Enum.GetName(typeof(OfferSitesTypes),siteTypeId)}.js");
             // Processed by Ai
-            (List<AiProcessedOffer>, List<string>) processedOffers = GetAiOutput(aiParser, unifiedOfferSchemas).Result;
+            (List<string> aioffers, List<string> errormessages) processedOffers = GetAiOutput(aiParser, unifiedOfferSchemas).Result;
+            try
+            {
+                await databaseService.AddOffersToDatabaseAsync(processedOffers.aioffers);
+            }
+            catch (Exception e)
+            {
+            }
 
-            string output = JsonConvert.SerializeObject(processedOffers, Formatting.Indented);
-            Console.WriteLine(output);
+            //string output = JsonConvert.SerializeObject(processedOffers, Formatting.Indented);
+            //Console.WriteLine(output);
             Console.ReadKey();
         }
-        static async Task<(List<AiProcessedOffer>, List<string>)> GetAiOutput(AIProcessor llm, List<UnifiedOfferSchemaClass> offers) => await llm.ProcessUnifiedSchemas(offers);
+        static async Task<(List<string>, List<string>)> GetAiOutput(AIProcessor llm, List<UnifiedOfferSchemaClass> offers) => await llm.ProcessUnifiedSchemas(offers);
     }
 }

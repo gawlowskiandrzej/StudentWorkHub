@@ -1,8 +1,9 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Offer_collector.Models.Tools
 {
-    internal class ExportToTxtt
+    internal class ExportTo
     {
         public static void ExportToTxt<T>(List<T> offers, string filePath)
         {
@@ -28,6 +29,43 @@ namespace Offer_collector.Models.Tools
                     }
                 }
             }
+        }
+        public static void ExportToJs(List<UnifiedOfferSchemaClass> offers, string filePath)
+        {
+            List<UnifiedOfferSchemaClass> existingOffers = new List<UnifiedOfferSchemaClass>();
+
+            // Wczytaj dotychczasowe oferty, jeśli plik istnieje
+            if (File.Exists(filePath))
+            {
+                string existingContent = File.ReadAllText(filePath).Trim();
+
+                // Usuń ewentualny średnik na końcu
+                if (existingContent.EndsWith(";"))
+                    existingContent = existingContent[..^1];
+
+                try
+                {
+                    existingOffers = JsonConvert.DeserializeObject<List<UnifiedOfferSchemaClass>>(existingContent)
+                                     ?? new List<UnifiedOfferSchemaClass>();
+                }
+                catch
+                {
+                    throw new Exception("Error while deserializing JSON object.");
+                }
+            }
+
+            // Dodaj tylko te oferty, których jeszcze nie ma (porównanie po Id)
+            foreach (var offer in offers)
+            {
+                if (!existingOffers.Any(e => e.jobTitle == offer.jobTitle && e.description == offer.description && e.url == offer.url))
+                {
+                    existingOffers.Add(offer);
+                }
+            }
+
+            // Serializuj ponownie i zapisz do pliku
+            string json = JsonConvert.SerializeObject(existingOffers, Formatting.Indented);
+            File.WriteAllText(filePath, $"{json};");
         }
     }
 }
