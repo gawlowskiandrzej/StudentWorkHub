@@ -23,10 +23,12 @@
   <ItemGroup>
     <Reference Include="LLMParser">
       <HintPath>Models\AI\LLMParser.dll</HintPath>
-      <Private>True</Private>
+    </Reference>
+    <Reference Include="OffersConnector">
+      <HintPath>..\offers_database\lib\OffersConnector.dll</HintPath>
     </Reference>
     <Reference Include="UnifiedOfferSchema">
-      <HintPath>Models\AI\UnifiedOfferSchema.dll</HintPath>
+      <HintPath>..\common_libraries\UnifiedOfferSchema\UnifiedOfferSchema.dll</HintPath>
     </Reference>
   </ItemGroup>
 

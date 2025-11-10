@@ -7,6 +7,10 @@ puppeteer.use(StealthPlugin());
 const app = express();
 const PORT = 3000;
 
+app.get("/health", (req, res) => {
+    res.status(200).send("OK");
+});
+
 app.get("/scrape", async (req, res) => {
   const url = req.query.url;
   if (!url) return res.status(400).send("Missing url");

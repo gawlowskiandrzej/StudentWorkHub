@@ -10,7 +10,7 @@ namespace Offer_collector.Models.Tools
         public HeadlessBrowser()
         {
             ServerIsRunning = false;
-            Client = new HttpClient() { BaseAddress = new Uri("http://localhost:3000/scrape") };
+            Client = new HttpClient() { BaseAddress = new Uri("http://localhost:3000") };
         }
         /// <summary>
         /// Getting web source from webpage driver, bypassing cloudflare
@@ -18,52 +18,58 @@ namespace Offer_collector.Models.Tools
         /// <returns></returns>
         public async Task<string> GetWebPageSource(string urlOfScrapPage)
         {
-
-            if (ServerIsRunning)
-                ServerIsRunning = await IsServerRunning();
-            else
-                ServerIsRunning = StartNodeJsServer("../../../../Models/Tools/Nodejs/scrapper-sever.js");
+             ServerIsRunning = await StartNodeJsServerAsync("../../../../Models/Tools/Nodejs/scrapper-sever.js");
 
             if (!ServerIsRunning) return "";
-            string urll = $"{Client.BaseAddress}?url={urlOfScrapPage}";
+            string urll = $"{Client.BaseAddress}scrape?url={urlOfScrapPage}";
             HttpResponseMessage response = await Client.GetAsync(urll);
 
             string content = await response.Content.ReadAsStringAsync();
 
             return content;
         }
-        private Task<bool> IsServerRunning()
-        {
-            return Task.Run(() => true);
-        }
-        private bool StartNodeJsServer(string scriptPath = "")
+        //private Task<bool> IsServerRunning()
+        //{
+        //    return Task.Run(() => true);
+        //}
+        private async Task<bool> StartNodeJsServerAsync(string scriptPath = "")
         {
             if (string.IsNullOrEmpty(scriptPath))
                 throw new ArgumentException("Ścieżka do pliku JS nie może być pusta.");
 
-            Process process = new Process();
-            process.StartInfo.FileName = "node"; 
-            process.StartInfo.Arguments = $"\"{scriptPath}\"";
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardError = true;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.CreateNoWindow = true;
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "node",
+                    Arguments = $"\"{scriptPath}\"",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
 
             process.Start();
 
-            // opcjonalnie można czytać output
-            string output = process.StandardOutput.ReadToEnd();
-            string error = process.StandardError.ReadToEnd();
-            if (!string.IsNullOrEmpty(error))
+            // Spróbuj połączyć się kilka razy co 1 sekundę
+
+            for (int i = 0; i < 10; i++)
             {
-                return false;
+                try
+                {
+                    var resp = await Client.GetAsync($"{Client.BaseAddress}health");
+                    if (resp.IsSuccessStatusCode)
+                        return true;
+                }
+                catch
+                {
+                    // Serwer jeszcze się nie uruchomił
+                }
+                await Task.Delay(1000);
             }
-            else
-            {
-                if (output == "Scraper API running on http://localhost:3000\n")
-                    return true;
-                else return false;
-            }
+
+            return false; // nie wystartował w 10 sekund
         }
     }
 }
