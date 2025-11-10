@@ -71,7 +71,7 @@ public abstract class BaseHtmlScraper
     /// <summary>
     /// Abstract method for getting offer
     /// </summary>
-    public abstract Task<(string, string)> GetOfferAsync(string url = "");
+    public abstract Task<(string, string, List<string>)> GetOfferAsync(string url = "");
     /// <summary>
     /// Decode unnessesary unicode characters
     /// </summary>

@@ -16,9 +16,10 @@ namespace Offer_collector.Models.OfferFetchers
         {
         }
 
-        public override async Task<(string, string)> GetOfferAsync(string url = "")
+        public override async Task<(string, string, List<string>)> GetOfferAsync(string url = "")
         {
             string baseUrl = OlxPracaUrlBuilder.baseUrl;
+            List<string> errors = new List<string>();
             if (url != "")
                 baseUrl = url;
             string html = await GetHtmlSource(baseUrl);
@@ -42,7 +43,7 @@ namespace Offer_collector.Models.OfferFetchers
                 await Task.Delay(Constants.delayBetweenRequests);
             }
 
-            return (JsonConvert.SerializeObject(olxPracaSchema, Formatting.Indented) ?? "", html);
+            return (JsonConvert.SerializeObject(olxPracaSchema, Formatting.Indented) ?? "", html, errors);
         }
         private async Task<string> GetHtmlSource(string url) => await GetHtmlAsync(url);
         private OlxPracaCategory GetOlxPracaCategoryById(int id, string categoryJson)

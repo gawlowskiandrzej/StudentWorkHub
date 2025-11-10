@@ -85,7 +85,7 @@ namespace Offer_collector
             }
 
             var paginator = new PaginationModule(scrapper, urlBuilder, offerAmount);
-            (string outputJson, List<string> htmls) = paginator.FetchAllOffersAsync().Result;
+            (string outputJson, List<string> htmls, List<string> errors) = paginator.FetchAllOffersAsync().Result;
             int i = 0;
             switch (type)
             {
@@ -139,12 +139,12 @@ namespace Offer_collector
                     break;
             }
             // Processed by Ai
-            List<UnifiedOfferSchemaClass> processedOffers = GetAiOutput(aiParser, unifiedOfferSchemas).Result;
+            (List<AiProcessedOffer>, List<string>) processedOffers = GetAiOutput(aiParser, unifiedOfferSchemas).Result;
 
             string output = JsonConvert.SerializeObject(processedOffers, Formatting.Indented);
             Console.WriteLine(output);
             Console.ReadKey();
         }
-        static async Task<List<UnifiedOfferSchemaClass>> GetAiOutput(AIProcessor llm, List<UnifiedOfferSchemaClass> offers) => await llm.ProcessUnifiedSchemas(offers);
+        static async Task<(List<AiProcessedOffer>, List<string>)> GetAiOutput(AIProcessor llm, List<UnifiedOfferSchemaClass> offers) => await llm.ProcessUnifiedSchemas(offers);
     }
 }

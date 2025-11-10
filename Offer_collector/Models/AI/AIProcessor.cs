@@ -51,44 +51,68 @@ namespace Offer_collector.Models.AI
             }
             llmParser = new([apiSettings], reqSettings);
         }
-        public async Task<List<UnifiedOfferSchemaClass>> ProcessUnifiedSchemas(List<UnifiedOfferSchemaClass> offers)
+        public async Task<(List<AiProcessedOffer>, List<string>)> ProcessUnifiedSchemas(List<UnifiedOfferSchemaClass> offers, int bathSize = 1)
         {
-            
-                List<string> outputs = new List<string>();
-                foreach (UnifiedOfferSchemaClass offer in offers)
+
+            List<string> outputs = new List<string>();
+
+            List<AiProcessedOffer> aiProcessedOffers = new List<AiProcessedOffer>();
+            List<string> errors = new List<string>();
+            for (int i = 0; i < offers.Count / bathSize; i++)
+            {
+                IEnumerable<UnifiedOfferSchemaClass> bath = offers.Skip(i * bathSize).Take(bathSize);
                 {
+                    List<string> errorMessages = new List<string>();
                     try
                     {
-                        string jsOffer = JsonConvert.SerializeObject(offer, Formatting.Indented);
+                        List<string> serializedOffers = new List<string>();
+                        foreach (UnifiedOfferSchemaClass item in bath)
+                        {
+                            serializedOffers.Add(JsonConvert.SerializeObject(item, Formatting.Indented));
+                        }
                         string aiOutput = "";
                         try
                         {
-                            aiOutput = (await llmParser.ParseBatchAsync(new List<string> { jsOffer }, promptSettings)).FirstOrDefault() ?? "";
+                            aiOutput = (await llmParser.ParseBatchAsync(serializedOffers, promptSettings)).FirstOrDefault() ?? "";
                         }
                         catch (Exception ex)
                         {
-                            List<string> aierrorMessages = new List<string>();
-                            aierrorMessages.Add(ex.ToString());
+
+                            errorMessages.Add(ex.ToString());
                             foreach (var a in llmParser.GetLastBatchErrors())
-                                Console.WriteLine(a.ToString());
+                                errorMessages.Add(a);
                         }
 
-                        if (aiOutput != "" && offer != null)
+                        if (aiOutput != "")
                         {
-                            outputs.Add(aiOutput);
-                            UnifiedOfferSchemaClass? aiOffer = JsonConvert.DeserializeObject<UnifiedOfferSchemaClass>(aiOutput);
-                            offer.requirements = ProcessRequirements(offer, aiOffer);
-                            offer.benefits = ProcessBenefits(offer, aiOffer);
+                            try
+                            {
+                                outputs.Add(aiOutput);
+                                List<UnifiedOfferSchemaClass>? aiOffers = JsonConvert.DeserializeObject<List<UnifiedOfferSchemaClass>>(aiOutput);
+                                //foreach (UnifiedOfferSchemaClass aiOffer in aiOffers ?? new List<UnifiedOfferSchemaClass>())
+                                //{
+                                //    offer.requirements = ProcessRequirements(offer, aiOffer);
+                                //    offer.benefits = ProcessBenefits(offer, aiOffer);
+                                //}
+
+                            }
+                            catch (Exception e)
+                            {
+                                errorMessages.Add($"Error deserializing ai output for offers {bath}: {e.Message}");
+                            }
+                           
                         }
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
 
-                        throw new Exception($"An error while processing ai {offer}");
+                        errors.Add($"An error while processing bath {e}");
                     }
+                    aiProcessedOffers.Add(new AiProcessedOffer { Offer = bath.First(), ErrorMessages = errorMessages });
+                }
             }
-                return offers;
-            }
+            return (aiProcessedOffers, errors);
+        }
 
         private List<string>? ProcessBenefits(UnifiedOfferSchemaClass offer, UnifiedOfferSchemaClass? aiOffer)
         {

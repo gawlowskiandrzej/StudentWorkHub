@@ -16,42 +16,102 @@ namespace Offer_collector.Models.OfferScrappers
         {
         }
 
-        public override async Task<(string, string)> GetOfferAsync(string url = "")
+        public override async Task<(string, string, List<string>)> GetOfferAsync(string url = "")
         {
-            _offerListHtml = await GetHtmlSource(url);
-            List<AplikujplSchema> offers = await GetOfferList();
-            return (JsonConvert.SerializeObject(offers, Formatting.Indented) ?? "", _offerListHtml);
+            List<string>errors = new List<string>();
+            try
+            {
+                _offerListHtml = await GetHtmlSource(url);
+            }
+            catch (Exception e)
+            {
+                errors.Add($"Error while downloading HTML from url: {url}: {e.Message}");
+                return (string.Empty, string.Empty, errors);
+            }
+            (List<AplikujplSchema> offers, List<string> errors2) = await GetOfferList();
+            return (JsonConvert.SerializeObject(offers, Formatting.Indented) ?? "", _offerListHtml, offers.Select(_ => string.Join('\n', _.errorMessages)).ToList());
         }
         private async Task<string> GetHtmlSource(string url) => await GetHtmlAsync(url);
-        async Task<List<AplikujplSchema>> GetOfferList()
+        async Task<(List<AplikujplSchema>, List<string>)> GetOfferList()
         {
-            HtmlDocument doc = new HtmlDocument();
-            doc.LoadHtml(_offerListHtml);
-
-            maxOfferCount = int.Parse(doc.DocumentNode.SelectSingleNode("//div[contains(@class,'hidden sm:flex sm:flex-1 sm:items-center sm:justify-between')]/div/p/span[3]").InnerText);
-            HtmlNode node = doc.DocumentNode.SelectSingleNode("//*[@id=\"offer-list\"]");
-            List<OfferListHeader> offerListHeader = new List<OfferListHeader>();
-            List<AplikujplSchema> offerList = new List<AplikujplSchema>();
-
-            foreach (HtmlNode offerNode in node.SelectNodes(".//li[contains(concat(' ', normalize-space(@class), ' '), ' offer-card ')]"))
+            var offerList = new List<AplikujplSchema>();
+            List<string> errors = new List<string>();
+            try
             {
-                AplikujplSchema ap = new AplikujplSchema();
-                OfferListHeader header = GetHeader(offerNode);
-                if (header != null)
+                HtmlDocument doc = new HtmlDocument();
+                doc.LoadHtml(_offerListHtml);
+
+                var maxOfferNode = doc.DocumentNode
+                    .SelectSingleNode("//div[contains(@class,'hidden sm:flex sm:flex-1 sm:items-center sm:justify-between')]/div/p/span[3]");
+
+                if (maxOfferNode != null && int.TryParse(maxOfferNode.InnerText, out int maxOffers))
                 {
-                    ap.header = header;
+                    maxOfferCount = maxOffers;
+                }
+                else
+                {
+                    errors.Add($"Cant get max number of offers.");
+                }
 
-                    if (ConstValues.PolishCities.Any( _ => _.City == ap.header.location))
+                HtmlNode node = doc.DocumentNode.SelectSingleNode("//*[@id=\"offer-list\"]");
+                if (node == null)
+                {
+                    errors.Add("Cant get list of offers on site");
+                    return (offerList, errors);
+                }
+
+                foreach (HtmlNode offerNode in node.SelectNodes(".//li[contains(concat(' ', normalize-space(@class), ' '), ' offer-card ')]") ?? Enumerable.Empty<HtmlNode>())
+                {
+                    try
                     {
-                        string detailsUrl = AplikujPlUrlBuilder.baseUrl + header.link;
-                        ap.details = GetOfferDetails(await GetHtmlSource(detailsUrl));
+                        AplikujplSchema ap = new AplikujplSchema();
+                        OfferListHeader header = GetHeader(offerNode);
 
-                        offerList.Add(ap);
+                        if (header != null)
+                        {
+                            ap.header = header;
+
+                            if (ConstValues.PolishCities.Any(_ => _.City == ap.header.location))
+                            {
+                                string detailsUrl = AplikujPlUrlBuilder.baseUrl + header.link;
+                                string detailsHtml = "";
+
+                                try
+                                {
+                                    detailsHtml = await GetHtmlSource(detailsUrl);
+                                }
+                                catch (Exception ex)
+                                {
+                                    errors.Add($"Cant get details of offer {detailsUrl}: {ex.Message}");
+                                }
+
+                                if (!string.IsNullOrEmpty(detailsHtml))
+                                {
+                                    try
+                                    {
+                                        ap.details = GetOfferDetails(detailsHtml);
+                                        offerList.Add(ap);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        errors.Add($"Error while parsing details of offer {detailsUrl}: {ex.Message}");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        errors.Add($"Error while processing offer {ex.Message}");
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                errors.Add($"Error while processing list of offers {ex.Message}");
+            }
 
-            return offerList;
+            return (offerList, errors);
         }
         OfferListHeader GetHeader(HtmlNode node)
         {
