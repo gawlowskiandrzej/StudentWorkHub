@@ -40,7 +40,7 @@ DROP TABLE IF EXISTS public.sources;
 -- =========================================================
 CREATE TABLE public.sources (
     id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
+    name VARCHAR(256) NOT NULL,
     base_url VARCHAR(256) NOT NULL,
     CONSTRAINT uq_sources_name UNIQUE (name),
     CONSTRAINT uq_sources_base_url UNIQUE (base_url)
@@ -77,19 +77,19 @@ CREATE TABLE public.skills (
 
 CREATE TABLE public.experience_levels (
     id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    level VARCHAR(50) NOT NULL,
+    level VARCHAR(256) NOT NULL,
     CONSTRAINT uq_experience_levels_level UNIQUE (level)
 );
 
 CREATE TABLE public.education_levels (
     id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    level VARCHAR(50) NOT NULL,
+    level VARCHAR(256) NOT NULL,
     CONSTRAINT uq_education_levels_level UNIQUE (level)
 );
 
 CREATE TABLE public.languages (
     id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    language VARCHAR(50) NOT NULL,
+    language VARCHAR(256) NOT NULL,
     CONSTRAINT uq_languages_language UNIQUE (language)
 );
 
@@ -101,7 +101,7 @@ CREATE TABLE public.language_levels (
 
 CREATE TABLE public.cities (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    city VARCHAR(100) NOT NULL,
+    city VARCHAR(256) NOT NULL,
     CONSTRAINT uq_cities_city UNIQUE (city)
 );
 
@@ -119,13 +119,13 @@ CREATE TABLE public.postal_codes (
 
 CREATE TABLE public.employment_schedules (
     id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    schedule VARCHAR(50) NOT NULL,
+    schedule VARCHAR(256) NOT NULL,
     CONSTRAINT uq_employment_schedules_schedule UNIQUE (schedule)
 );
 
 CREATE TABLE public.employment_types (
     id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    type VARCHAR(50) NOT NULL,
+    type VARCHAR(256) NOT NULL,
     CONSTRAINT uq_employment_types_type UNIQUE (type)
 );
 
@@ -143,7 +143,7 @@ CREATE TABLE public.leading_categories (
 
 CREATE TABLE public.sub_categories (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    sub_category VARCHAR(50) NOT NULL,
+    sub_category VARCHAR(256) NOT NULL,
     CONSTRAINT uq_sub_categories_sub_category UNIQUE (sub_category)
 );
 
@@ -172,7 +172,7 @@ CREATE TABLE public.location_details (
 CREATE TABLE public.offers (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 
-    job_title VARCHAR(100) NOT NULL,
+    job_title VARCHAR(256) NOT NULL,
     description TEXT,
 
     salary_from NUMERIC(8,2),
