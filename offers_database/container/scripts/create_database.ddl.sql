@@ -48,7 +48,7 @@ CREATE TABLE public.sources (
 
 CREATE TABLE public.companies (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
+    name VARCHAR(256) NOT NULL,
     logo_url TEXT,
     CONSTRAINT uq_companies_name UNIQUE (name),
     CONSTRAINT uq_companies_logo_url UNIQUE (logo_url)
@@ -71,7 +71,7 @@ CREATE TABLE public.salary_periods (
 
 CREATE TABLE public.skills (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    skill VARCHAR(50) NOT NULL,
+    skill VARCHAR(256) NOT NULL,
     CONSTRAINT uq_skills_skill UNIQUE (skill)
 );
 
@@ -125,13 +125,13 @@ CREATE TABLE public.employment_schedules (
 
 CREATE TABLE public.employment_types (
     id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    type VARCHAR(30) NOT NULL,
+    type VARCHAR(50) NOT NULL,
     CONSTRAINT uq_employment_types_type UNIQUE (type)
 );
 
 CREATE TABLE public.benefits (
     id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    benefit VARCHAR(50) NOT NULL,
+    benefit VARCHAR(256) NOT NULL,
     CONSTRAINT uq_benefits_benefit UNIQUE (benefit)
 );
 
