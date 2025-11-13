@@ -66,7 +66,7 @@ namespace OffersConnector
 
         public async Task<FrozenDictionary<int, BatchResult>> AddOffersBatch(List<UOS> uosOffers, bool no_throw = true, CancellationToken cancellationToken = default)
         {
-            if (uosOffers == null || uosOffers.Count == 0)
+            if (uosOffers == null || uosOffers.Count < 1)
             {
                 return FrozenDictionary<int, BatchResult>.Empty;
             }
@@ -119,7 +119,7 @@ namespace OffersConnector
                             uos.Salary.To,
                             Helpers.SanitizeInput(uos.Salary.Currency),
                             Helpers.SanitizeInput(uos.Salary.Period),
-                            uos.Salary.Type == "gross",
+                            uos.Salary.Type != null ? uos.Salary.Type == "gross" : null,
                             Helpers.SanitizeInput(uos.Location.BuildingNumber),
                             Helpers.SanitizeInput(uos.Location.Street),
                             Helpers.SanitizeInput(uos.Location.City),
@@ -187,7 +187,7 @@ namespace OffersConnector
                             {
                                 foreach (var res in dbResults)
                                 {
-                                    results[res.Idx] = res;
+                                    results.TryAdd(res.Idx, res);
                                 }
                             }
                             return results.ToFrozenDictionary();

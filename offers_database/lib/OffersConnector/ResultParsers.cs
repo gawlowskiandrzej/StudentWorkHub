@@ -4,7 +4,7 @@
     {
         internal static List<string> RestrictionsParser(Dictionary<string, List<string>> values)
         {
-            if (values.Count == 0)
+            if (values.Count < 1)
                 return [];
 
             List<string> result = new();
