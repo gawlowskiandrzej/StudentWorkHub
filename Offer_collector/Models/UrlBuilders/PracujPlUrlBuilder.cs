@@ -6,7 +6,7 @@
         public PracujPlUrlBuilder() : base(baseUrl) { }
         protected override string BuildBaseUrl(Dictionary<string, string> parameters, Dictionary<string, string> tags)
         {
-            return $"{baseUrl}/programista%20python;kw";
+            return $"{baseUrl}/informatyka;kw";
         }
         protected override Dictionary<string, string> AddPaging(Dictionary<string, string> parameters, int pageId)
         {

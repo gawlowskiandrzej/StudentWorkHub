@@ -1,11 +1,12 @@
 ﻿using LLMParser;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using Offer_collector.Models.DatabaseService;
 namespace Offer_collector.Models.AI
 {
     internal class AIProcessor
     {
-        static int bathSize = 1;
+        static int bathSize = 5;
         static string modelName = PredefinedElements.geminiApiModelNames[0];
         Settings.API apiSettings = new(
             "tu klucz api odczytany z env",
@@ -63,7 +64,7 @@ namespace Offer_collector.Models.AI
 
             llmParser = new([apiSettings], reqSettings);
         }
-        public async Task<(List<string>, List<string>)> ProcessUnifiedSchemas(List<UnifiedOfferSchemaClass> offers)
+        public async Task<(List<string>, List<string>)> ProcessUnifiedSchemas(List<UnifiedOfferSchemaClass> offers, DBService service)
         {
 
             List<string> outputs = new List<string>();
@@ -99,7 +100,16 @@ namespace Offer_collector.Models.AI
                         {
                             try
                             {
+
                                 outputs.AddRange(aiOutput);
+
+                                try
+                                {
+                                    await service.AddOffersToDatabaseAsync(aiOutput);
+                                }
+                                catch (Exception e)
+                                {
+                                }
                                 //List<UnifiedOfferSchemaClass>? aiOffers = JsonConvert.DeserializeObject<List<UnifiedOfferSchemaClass>>(aiOutput);
                                 //foreach (UnifiedOfferSchemaClass aiOffer in aiOffers ?? new List<UnifiedOfferSchemaClass>())
                                 //{

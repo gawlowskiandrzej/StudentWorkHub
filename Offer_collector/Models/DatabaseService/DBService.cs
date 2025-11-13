@@ -6,12 +6,12 @@ using LLMParser;
 
 namespace Offer_collector.Models.DatabaseService
 {
-    internal class DatabaseService
+    internal class DBService
     {
         private readonly DatabaseSettings _settings;
         private readonly PgConnector connector;
 
-        public DatabaseService()
+        public DBService()
         {
             // --- Wczytaj konfigurację z appsettings.json ---
             var configuration = new ConfigurationBuilder()

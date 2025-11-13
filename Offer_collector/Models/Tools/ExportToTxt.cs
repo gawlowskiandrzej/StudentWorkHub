@@ -67,5 +67,28 @@ namespace Offer_collector.Models.Tools
             string json = JsonConvert.SerializeObject(existingOffers, Formatting.Indented);
             File.WriteAllText(filePath, $"{json};");
         }
+        public static List<UnifiedOfferSchemaClass> LoadFromJs(string filePath)
+        {
+            if (!File.Exists(filePath))
+                return new List<UnifiedOfferSchemaClass>();
+
+            string content = File.ReadAllText(filePath).Trim();
+
+            // Usuń ewentualny średnik na końcu
+            if (content.EndsWith(";"))
+                content = content[..^1];
+
+            try
+            {
+                var offers = JsonConvert.DeserializeObject<List<UnifiedOfferSchemaClass>>(content)
+                             ?? new List<UnifiedOfferSchemaClass>();
+
+                return offers;
+            }
+            catch
+            {
+                throw new Exception("Error while deserializing JSON object from JS file.");
+            }
+        }
     }
 }

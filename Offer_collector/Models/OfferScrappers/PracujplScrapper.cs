@@ -35,7 +35,7 @@ namespace Offer_collector.Models.OfferFetchers
 
             string allJs = GetAllJson(html);
             maxOfferCount = GetOfferCount(allJs);
-            List<JToken> offerListJs = GetOffersJToken(allJs).Take(5).ToList(); // always 50 offers 
+            List<JToken> offerListJs = GetOffersJToken(allJs).ToList(); // always 50 offers 
 
 
             List<PracujplSchema> pracujplSchemas = new List<PracujplSchema>();
