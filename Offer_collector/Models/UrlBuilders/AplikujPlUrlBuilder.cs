@@ -19,16 +19,16 @@ namespace Offer_collector.Models.UrlBuilders
         }
         protected override Dictionary<string, string> AddPaging(Dictionary<string, string> parameters, int pageId)
         {
-            //if (pageId > 0)
-            //{
-            //    parameters["page"] = pageId.ToString();
-            //}
+            if (pageId > 0)
+            {
+                parameters["page"] = pageId.ToString();
+            }
 
             return parameters;
         }
         protected override string BuildQuery(Dictionary<string, string> parameters, Dictionary<string, string> tags)
         {
-            parameters["keyword"] = "magazynier";
+            parameters["keyword"] = "bioinformatyka";
             return base.BuildQuery(parameters, tags);
         }
     }

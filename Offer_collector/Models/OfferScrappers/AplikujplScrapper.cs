@@ -18,7 +18,7 @@ namespace Offer_collector.Models.OfferScrappers
 
         public override async Task<(string, string, List<string>)> GetOfferAsync(string url = "")
         {
-            List<string>errors = new List<string>();
+            List<string> errors = new List<string>();
             try
             {
                 _offerListHtml = await GetHtmlSource(url);
@@ -75,7 +75,7 @@ namespace Offer_collector.Models.OfferScrappers
                             {
                                 string detailsUrl = AplikujPlUrlBuilder.baseUrl + header.link;
                                 string detailsHtml = "";
-
+                                if (detailsUrl == "https://www.aplikuj.pl/oferta/3020174/asystent-umowa-o-prace-instytut-biotechnologii-przemyslu-rolno-spozywczego-im-prof-waclawa-dabrowskiego-panstwowy-instytut-badawczy") ;
                                 try
                                 {
                                     detailsHtml = await GetHtmlSource(detailsUrl);
@@ -165,10 +165,20 @@ namespace Offer_collector.Models.OfferScrappers
         }
         AplikujPl.Company GetCompany(HtmlNode topDeatailHeader)
         {
-            HtmlNode companyNode = topDeatailHeader.SelectSingleNode(".//div[contains(@class,'text-md lg:text-base')]//a");
+            HtmlNode companyNode = topDeatailHeader.SelectSingleNode(".//div[contains(@class,'text-md lg:text-base')]");
             AplikujPl.Company company = new AplikujPl.Company();
-            company.company = companyNode.InnerText.Trim();
-            company.companyLink = companyNode.GetAttributeValue("href", "") ?? "";
+            var companyLinkNode = companyNode?.SelectSingleNode(".//a");
+
+            if (companyLinkNode != null)
+            {
+                company.company = companyLinkNode.InnerText.Trim();
+                company.companyLink = companyNode?.GetAttributeValue("href", "") ?? "";
+            }
+            else
+            {
+                company.company = companyNode?.InnerText.Trim();
+            }
+
             company.companyLogo = topDeatailHeader.SelectSingleNode(".//div[contains(@class,'mr-2 mt-2 sm:mr-8 sm:mt-0')]//img")?.GetAttributeValue("src", "") ?? "";
 
             return company;
@@ -189,18 +199,21 @@ namespace Offer_collector.Models.OfferScrappers
 
             HtmlNode? salarySection = node.SelectSingleNode(".//div[contains(@class, 'flex bg-gray-100 rounded-lg py-1 lg:py-2.5 px-2 lg:px-4 mt-4')]");
 
-            det.responsibilities = GetFeature(skillsSections.FirstOrDefault());
-            if (skillsSections.Count > 1)
-                det.requirements = GetFeature(skillsSections.ElementAt(1));
-            if (skillsSections.Count > 2)
-                det.benefits = GetFeature(skillsSections.ElementAt(2));
+            det.responsibilities = GetFeature(skillsSections?.FirstOrDefault());
+            if (skillsSections?.Count > 1)
+                det.requirements = GetFeature(skillsSections?.ElementAt(1));
+            if (skillsSections?.Count > 2)
+                det.benefits = GetFeature(skillsSections?.ElementAt(2));
             det.localization = GetLocalization(informationSection, doc.DocumentNode);
             if (salarySection != null)
                 det.salary = GetSalary(salarySection);
             det.infoFeatures = GetInfofeature(node);
-            det.category = informationSection.SelectSingleNode(".//div//div[2]//div//div[2]//p").InnerText.Trim();
+            if (skillsSections == null)
+                det.infoFeatures.description = node.SelectSingleNode(".//div[contains(@class, 'leading-8 text-lg')]")?.InnerText.ToString() ?? "";
+            det.category = informationSection.SelectSingleNode(".//div//div[2]//div//div[2]//p")?.InnerText.Trim() ?? "";
 
             return det;
+
         }
 
         private InfoFeatures GetInfofeature(HtmlNode document)
@@ -213,13 +226,13 @@ namespace Offer_collector.Models.OfferScrappers
 
             features.typeofContract = typeofContract;
             features.typeofWork = typeofWork;
-           
+
             features.isRemote = false;
             foreach (HtmlNode node in infoSection.SelectNodes(".//div[contains(@class, 'flex-1')]"))
             {
                 string? content = node.SelectSingleNode(".//p")?.InnerText.Trim();
                 if (content != null && content.Contains("Praca zdalna"))
-                    features.isRemote = true; 
+                    features.isRemote = true;
                 if (content != null && content.Contains("Запрошуємо працівників з України"))
                     features.isforUkrainians = true;
                 if (content != null && content.Contains("Praca od zaraz"))

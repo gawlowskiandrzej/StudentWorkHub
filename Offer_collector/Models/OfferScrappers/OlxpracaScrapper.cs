@@ -46,9 +46,10 @@ namespace Offer_collector.Models.OfferFetchers
                 return ("", html, errors);
             }
 
-            int maxOfferCount = 0;
+            //int maxOfferCount = 0;
             try
             {
+
                 maxOfferCount = GetOfferCount(allJs);
             }
             catch (Exception ex)

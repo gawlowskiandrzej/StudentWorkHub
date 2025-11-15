@@ -23,7 +23,7 @@ namespace Offer_collector.Models.Tools
         /// <summary>
         /// Pobiera wszystkie oferty z paginowanego źródła i zwraca je jako JSON.
         /// </summary>
-        public async Task<(string, List<string>, List<string>)> FetchAllOffersAsync(int maxPages = 8)
+        public async Task<(string, List<string>, List<string>)> FetchAllOffersAsync(int maxPages = 5)
         {
             var allOffers = new List<JToken>();
             int currentPage = 1;
@@ -44,6 +44,7 @@ namespace Offer_collector.Models.Tools
                 {
                     try
                     {
+                        
                         var (offersJson, htmlRaw, scrappingErrors) = await _scrapper.GetOfferAsync(url);
                         errors.AddRange(scrappingErrors);
                         // wyciągamy dane ofert

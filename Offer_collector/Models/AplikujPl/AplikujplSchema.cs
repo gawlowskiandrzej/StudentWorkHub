@@ -78,8 +78,8 @@ namespace Offer_collector.Models.AplikujPl
             s.url = $"{AplikujPlUrlBuilder.baseUrl}{header.link}";
             s.company = new Offer_collector.Models.Company
             {
-                logoUrl = header.companyLogoUrl ?? "",
-                name = header.company
+                logoUrl = header.companyLogoUrl == "" ? details.company?.companyLogo ?? "" : header.companyLogoUrl,
+                name = header.company == "" ? details.company?.company ?? "" : header.company,
             };
             s.salary = new Models.Salary
             {

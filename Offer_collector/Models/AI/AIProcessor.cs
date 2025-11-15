@@ -6,8 +6,8 @@ namespace Offer_collector.Models.AI
 {
     internal class AIProcessor
     {
-        static int bathSize = 5;
-        static string modelName = PredefinedElements.geminiApiModelNames[0];
+        static int bathSize = 50;
+        static string modelName = PredefinedElements.geminiApiModelNames[1];
         Settings.API apiSettings = new(
             "tu klucz api odczytany z env",
             PredefinedElements.geminiApiKeyHeader,
@@ -102,6 +102,10 @@ namespace Offer_collector.Models.AI
                             {
 
                                 outputs.AddRange(aiOutput);
+                                foreach (var item in outputs)
+                                {
+
+                                }
 
                                 try
                                 {
