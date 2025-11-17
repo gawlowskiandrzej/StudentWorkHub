@@ -1,0 +1,200 @@
+BEGIN;
+
+INSERT INTO public.experience_levels (level) VALUES
+    ('Początkujący'),
+    ('Średniozaawansowany'),
+    ('Dobry'),
+    ('Młodszy specjalista'),
+    ('Zaawansowany'),
+    ('Specjalista'),
+    ('Starszy specjalista'),
+    ('Biegły'),
+    ('Ekspert'),
+    ('Inny')
+ON CONFLICT (level) DO NOTHING;
+
+INSERT INTO public.language_levels (level) VALUES
+    ('A1'),
+    ('A2'),
+    ('B1'),
+    ('B2'),
+    ('C1'),
+    ('C2')
+ON CONFLICT (level) DO NOTHING;
+
+INSERT INTO public.languages (language) VALUES
+    ('Albański'),
+    ('Angielski'),
+    ('Arabski'),
+    ('Azerbejdżański'),
+    ('Baskijski'),
+    ('Białoruski'),
+    ('Bośniacki'),
+    ('Bułgarski'),
+    ('Chiński'),
+    ('Chorwacki'),
+    ('Czeski'),
+    ('Duński'),
+    ('Estoński'),
+    ('Fiński'),
+    ('Francuski'),
+    ('Gruziński'),
+    ('Grecki'),
+    ('Hiszpański'),
+    ('Holenderski'),
+    ('Irlandzki'),
+    ('Islandzki'),
+    ('Japoński'),
+    ('Kataloński'),
+    ('Koreański'),
+    ('Litewski'),
+    ('Luksemburski'),
+    ('Łotewski'),
+    ('Macedoński'),
+    ('Maltański'),
+    ('Mołdawski'),
+    ('Niemiecki'),
+    ('Norweski'),
+    ('Ormiański'),
+    ('Polski'),
+    ('Portugalski'),
+    ('Rosyjski'),
+    ('Rumuński'),
+    ('Serbski'),
+    ('Słowacki'),
+    ('Słoweński'),
+    ('Szkocki gaelicki'),
+    ('Szwedzki'),
+    ('Turecki'),
+    ('Ukraiński'),
+    ('Węgierski'),
+    ('Walijski'),
+    ('Włoski'),
+    ('Hindi')
+ON CONFLICT (language) DO NOTHING;
+
+INSERT INTO public.currencies (currency) VALUES
+    ('PLN'),
+    ('EUR'),
+    ('GBP'),
+    ('USD'),
+    ('CHF'),
+    ('CZK'),
+    ('HUF'),
+    ('RON'),
+    ('BGN'),
+    ('DKK'),
+    ('SEK'),
+    ('NOK'),
+    ('ISK'),
+    ('TRY'),
+    ('RSD'),
+    ('MKD'),
+    ('ALL'),
+    ('AZN'),
+    ('BYN'),
+    ('UAH'),
+    ('RUB'),
+    ('GEL'),
+    ('MDL'),
+    ('GIP'),
+    ('CNY'),
+    ('JPY'),
+    ('KRW'),
+    ('INR'),
+    ('AED')
+ON CONFLICT (currency) DO NOTHING;
+
+INSERT INTO public.salary_periods (period) VALUES
+    ('Godzinowo'),
+    ('Dziennie'),
+    ('Tygodniowo'),
+    ('Miesięcznie'),
+    ('Kwartalnie'),
+    ('Rocznie'),
+    ('Jednorazowo'),
+    ('Za projekt'),
+    ('Inny')
+ON CONFLICT (period) DO NOTHING;
+
+INSERT INTO public.employment_schedules (schedule) VALUES
+    ('Pełny etat'),
+    ('Pełny etat - praca zmianowa'),
+    ('Pełny etat - praca nocna'),
+    ('Pełny etat - praca weekendowa'),
+    ('Część etatu'),
+    ('Część etatu - praca zmianowa'),
+    ('Część etatu - praca nocna'),
+    ('Część etatu - praca weekendowa'),
+    ('Elastyczny czas pracy'),
+    ('System zadaniowy'),
+    ('Inny')
+ON CONFLICT (schedule) DO NOTHING;
+
+INSERT INTO public.employment_types (type) VALUES
+    ('Umowa o pracę'),
+    ('Umowa o pracę tymczasową'),
+    ('Umowa zlecenie'),
+    ('Umowa o dzieło'),
+    ('Kontrakt B2B'),
+    ('Staż płatny'),
+    ('Staż niepłatny'),
+    ('Praktyki studenckie'),
+    ('Wolontariat'),
+    ('Inny')
+ON CONFLICT (type) DO NOTHING;
+
+INSERT INTO public.leading_categories (leading_category) VALUES
+    ('Architektura'),
+    ('Architektura wnętrz'),
+    ('Automatyka i robotyka'),
+    ('Bioinformatyka'),
+    ('Budownictwo'),
+    ('Budownictwo zrównoważone'),
+    ('Cyberbezpieczeństwo'),
+    ('Data Science w biznesie'),
+    ('Edukacja techniczno-informatyczna'),
+    ('Elektroenergetyka'),
+    ('Elektromobilność'),
+    ('Elektronika i telekomunikacja'),
+    ('Elektrotechnika'),
+    ('Energetyka'),
+    ('Energetyka jądrowa'),
+    ('Energetyka przemysłowa i odnawialna'),
+    ('Fizyka techniczna'),
+    ('Informatyka'),
+    ('Inżynieria bezpieczeństwa i jakości'),
+    ('Inżynieria biomedyczna'),
+    ('Inżynieria chemiczna i procesowa'),
+    ('Inżynieria farmaceutyczna'),
+    ('Inżynieria materiałowa'),
+    ('Inżynieria zarządzania'),
+    ('Inżynieria środowiska'),
+    ('Logistyka'),
+    ('Lotnictwo'),
+    ('Lotnictwo i kosmonautyka'),
+    ('Matematyka nowoczesnych technologii'),
+    ('Materiały i technologie dla przemysłu motoryzacyjnego'),
+    ('Mechanika i budowa maszyn'),
+    ('Mechanika i budowa pojazdów'),
+    ('Mechatronika'),
+    ('Mikroelektronika i komunikacja cyfrowa'),
+    ('Sztuczna Inteligencja'),
+    ('Technologia chemiczna'),
+    ('Technologie informacyjne dla inteligentnej i zrównoważonej mobilności'),
+    ('Technologie obiegu zamkniętego'),
+    ('Teleinformatyka'),
+    ('Transport'),
+    ('Zarządzanie i inżynieria produkcji'),
+    ('Zielona energia'),
+    ('Inna')
+ON CONFLICT (leading_category) DO NOTHING;
+
+INSERT INTO public.sources (name, base_url) VALUES
+    ('Pracujpl', 'https://www.pracuj.pl/praca/'),
+    ('Aplikujpl', 'https://www.aplikuj.pl/oferta/'),
+    ('Olxpraca', 'https://www.olx.pl/oferta/praca/'),
+    ('Justjoinit', 'https://justjoin.it/job-offer/')
+ON CONFLICT (name) DO NOTHING;
+
+COMMIT;

@@ -1,0 +1,31 @@
+name: databases
+services:
+    db_offers:
+        build:
+            context: ./offers_database/container
+        image: local/postgres-offers:17.6
+        container_name: postgres-offers
+        restart: unless-stopped
+        env_file: ./offers_database/container/.env
+        ports:
+            - "5432:5432"
+        volumes:
+            - pg_offers:/var/lib/postgresql/data
+            - ./offers_database/container/scripts:/docker-entrypoint-initdb.d:ro
+    
+    db_general:
+        build:
+            context: ./general_database/container
+        image: local/postgres-general:17.6
+        container_name: postgres-general
+        restart: unless-stopped
+        env_file: ./general_database/container/.env
+        ports:
+            - "5433:5432"
+        volumes:
+            - pg_general:/var/lib/postgresql/data
+            - ./general_database/container/scripts:/docker-entrypoint-initdb.d:ro
+
+volumes:
+    pg_offers:
+    pg_general:
