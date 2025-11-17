@@ -310,18 +310,10 @@ namespace OffersConnector
 
         public async Task<bool> AddSource(string name, string baseUrl, CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                throw new ArgumentException("Source name cannot be null or whitespace.", nameof(name));
-            }
-
-            if (string.IsNullOrWhiteSpace(baseUrl))
-            {
-                throw new ArgumentException("Base URL cannot be null or whitespace.", nameof(baseUrl));
-            }
+            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(baseUrl))
+                return false;
 
             const string AddSourceCommand = "CALL public.add_source(@name, @base_url);";
-
             try
             {
                 await using (var connection = await _dataSource.OpenConnectionAsync(cancellationToken).ConfigureAwait(false))
@@ -339,20 +331,16 @@ namespace OffersConnector
             }
             catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UniqueViolation)
             {
-                // Unique constraint violation on name or base_url
-                throw new PgConnectorException(
-                    "A source with the same name or base URL already exists.", ex);
+                return false;
             }
             catch (NpgsqlException ex)
             {
                 throw new PgConnectorException("A database error occurred while adding a new source.", ex);
             }
-            catch (Exception ex) when (ex is not PgConnectorException)
+            catch (Exception ex)
             {
                 throw new PgConnectorException("An unexpected error occurred while adding a new source.", ex);
             }
-
-            return false;
         }
 
         /// <summary>
