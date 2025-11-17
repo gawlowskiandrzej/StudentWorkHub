@@ -70,7 +70,6 @@ namespace Offer_collector.Models.AI
             List<string> outputs = new List<string>();
             List<string> errors = new List<string>();
 
-            List<AiProcessedOffer> aiProcessedOffers = new List<AiProcessedOffer>();
             for (int i = 0; i < offers.Count / bathSize; i++)
             {
                 IEnumerable<UnifiedOfferSchemaClass> bath = offers.Skip(i * bathSize).Take(bathSize);

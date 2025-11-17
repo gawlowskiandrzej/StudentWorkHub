@@ -8,23 +8,22 @@
         {
             BaseUrl = baseUrl;
         }
-        public string BuildUrl(Dictionary<string, string> parameters, Dictionary<string, string> tags, int pageId = 1)
+        public string BuildUrl(SearchFilters searchFilters, int pageId = 1)
         {
-            parameters ??= new Dictionary<string, string>();
-            tags ??= new Dictionary<string, string>();
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
 
             parameters = AddPaging(parameters, pageId);
 
-            var url = BuildBaseUrl(parameters, tags);
+            var url = BuildBaseUrl(searchFilters,parameters);
 
-            var query = BuildQuery(parameters, tags);
+            var query = BuildQuery(parameters);
 
             return string.IsNullOrEmpty(query) ? url : $"{url}?{query}";
         }
 
-        protected abstract string BuildBaseUrl(Dictionary<string, string> parameters, Dictionary<string, string> tags);
+        protected abstract string BuildBaseUrl(SearchFilters searchFilters,Dictionary<string, string> parameters);
 
-        protected virtual string BuildQuery(Dictionary<string, string> parameters, Dictionary<string, string> tags)
+        protected virtual string BuildQuery(Dictionary<string, string> parameters)
         {
             var allParams = new List<string>();
 
@@ -32,12 +31,6 @@
             {
                 if (!string.IsNullOrEmpty(param.Value))
                     allParams.Add($"{param.Key}={Uri.EscapeDataString(param.Value)}");
-            }
-
-            foreach (var tag in tags)
-            {
-                if (!string.IsNullOrEmpty(tag.Value))
-                    allParams.Add($"{tag.Key}={Uri.EscapeDataString(tag.Value)}");
             }
 
             return string.Join("&", allParams);

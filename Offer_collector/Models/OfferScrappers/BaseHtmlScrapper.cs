@@ -6,7 +6,7 @@ public abstract class BaseHtmlScraper
 {
     protected readonly HttpClient _client = new HttpClient();
     private readonly ClientType _clientType = 0;
-    private string htmlBody = "";
+    protected string htmlBody = "";
     protected int maxOfferCount;
     private HeadlessBrowser headlessBrowser = new HeadlessBrowser();
     

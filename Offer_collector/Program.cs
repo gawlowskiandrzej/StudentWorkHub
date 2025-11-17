@@ -54,6 +54,15 @@ namespace Offer_collector
                 return;
             }
 
+            SearchFilters searchFilters = new SearchFilters
+            {
+                Keyword = "developer",
+                EmploymentType = Models.EmploymentType.EmploymentContract,
+                Localization = "Poznań",
+                WorkType = Models.WorkTimeType.FullTimeStandardHours
+            };
+
+
             OfferSitesTypes type = (OfferSitesTypes)siteTypeId;
             ClientType clientTypeEnum = (ClientType)clientType;
 
@@ -92,7 +101,7 @@ namespace Offer_collector
             }
 
             var paginator = new PaginationModule(scrapper, urlBuilder, offerAmount);
-            (string outputJson, List<string> htmls, List<string> errors) = paginator.FetchAllOffersAsync().Result;
+            (string outputJson, List<string> htmls, List<string> errors) = paginator.FetchAllOffersAsync(searchFilters).Result;
             int i = 0;
             switch (type)
             {

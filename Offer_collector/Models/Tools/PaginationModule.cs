@@ -23,7 +23,7 @@ namespace Offer_collector.Models.Tools
         /// <summary>
         /// Pobiera wszystkie oferty z paginowanego źródła i zwraca je jako JSON.
         /// </summary>
-        public async Task<(string, List<string>, List<string>)> FetchAllOffersAsync(int maxPages = 5)
+        public async Task<(string, List<string>, List<string>)> FetchAllOffersAsync(SearchFilters searchFilters,int maxPages = 5)
         {
             var allOffers = new List<JToken>();
             int currentPage = 1;
@@ -34,7 +34,7 @@ namespace Offer_collector.Models.Tools
 
             while (hasMore && currentPage <= maxPages && allOffers.Count <= _offerMaxCount)
             {
-                string url = _urlBuilder.BuildUrl(new(), new(), pageId: currentPage);
+                string url = _urlBuilder.BuildUrl(searchFilters, pageId: currentPage);
 
                 int retryCount = 0;
                 const int maxRetries = 3;

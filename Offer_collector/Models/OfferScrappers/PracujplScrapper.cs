@@ -18,13 +18,13 @@ namespace Offer_collector.Models.OfferFetchers
         {
             List<string>errors = new List<string>();
             string baseUrl = PracujPlUrlBuilder.baseUrl;
+
             if (url != "")
                 baseUrl = url;
-            string html;
-
+            
             try
             {
-                html = await GetHtmlSource(baseUrl);
+                htmlBody = await GetHtmlSource(baseUrl);
             }
             catch (Exception ex)
             {
@@ -33,9 +33,9 @@ namespace Offer_collector.Models.OfferFetchers
             }
 
 
-            string allJs = GetAllJson(html);
+            string allJs = GetAllJson(htmlBody);
             maxOfferCount = GetOfferCount(allJs);
-            List<JToken> offerListJs = GetOffersJToken(allJs).ToList(); // always 50 offers 
+            List<JToken> offerListJs = GetOffersJToken(allJs).ToList(); 
 
 
             List<PracujplSchema> pracujplSchemas = new List<PracujplSchema>();
@@ -95,7 +95,7 @@ namespace Offer_collector.Models.OfferFetchers
                 
             }
 
-            return (JsonConvert.SerializeObject(pracujplSchemas, Formatting.Indented) ?? "", html, errors);
+            return (JsonConvert.SerializeObject(pracujplSchemas, Formatting.Indented) ?? "", htmlBody, errors);
         }
         async Task<string> GetHtmlSource(string url) => await GetHtmlAsync(url);
         string GetAllJson(string html) => GetJsonFragment(html, "<script id=\"__NEXT_DATA__\" type=\"application/json\">(.*?)</script>");

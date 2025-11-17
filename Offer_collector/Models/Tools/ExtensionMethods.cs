@@ -1,4 +1,7 @@
-﻿namespace Offer_collector.Models.Tools
+﻿using System.Globalization;
+using System.Text;
+
+namespace Offer_collector.Models.Tools
 {
     public static class ExtensionMethods
     {
@@ -6,6 +9,26 @@
         {
             return str.Remove(index, Math.Min(length, str.Length - index))
                     .Insert(index, replace);
+        }
+        public static string RemoveDiacritics(this string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return text;
+
+            var normalized = text.Normalize(NormalizationForm.FormD);
+            var sb = new StringBuilder();
+
+            foreach (var c in normalized)
+            {
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                {
+                    sb.Append(c);
+                }
+            }
+
+            return sb.ToString().Normalize(NormalizationForm.FormC);
         }
     }
 }
