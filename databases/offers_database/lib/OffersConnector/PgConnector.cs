@@ -5,6 +5,7 @@ using System.Collections.Frozen;
 using System.Data;
 using System.Text.Json;
 using UnifiedOfferSchema;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace OffersConnector
 {
@@ -64,7 +65,7 @@ namespace OffersConnector
             }
         }
 
-        public async Task<FrozenDictionary<int, BatchResult>> AddOffersBatch(List<UOS> uosOffers, bool no_throw = true, CancellationToken cancellationToken = default)
+        public async Task<FrozenDictionary<int, BatchResult>> AddExternalOffersBatch(List<UOS> uosOffers, bool no_throw = true, CancellationToken cancellationToken = default)
         {
             if (uosOffers == null || uosOffers.Count < 1)
             {
@@ -76,25 +77,25 @@ namespace OffersConnector
 
             try
             {
-                List<string> links = new(uosOffers.Count);
-                foreach (var uos in uosOffers)
-                {
-                    links.Add(uos.Url);
-                }
-                FrozenDictionary<string, ValueTuple<string, string>> parsed_links = Helpers.SplitLinks(links, no_throw);
-
                 var parallelOptions = new ParallelOptions
                 {
                     CancellationToken = cancellationToken
                 };
 
+                List<string> baseSources = await GetSourcesBaseUrls(cancellationToken).ConfigureAwait(false);
                 await Parallel.ForAsync(0, uosOffers.Count, parallelOptions, async (i, ct) =>
                 {
                     var uos = uosOffers[i];
 
-                    if (!parsed_links.TryGetValue(uos.Url, out var parsedUrl))
+                    string? matchedPrefix = baseSources
+                        .FirstOrDefault(baseUrl =>
+                            baseUrl != null &&
+                            uos.Url != null &&
+                            uos.Url.StartsWith(baseUrl, StringComparison.Ordinal));
+
+                    if (string.IsNullOrWhiteSpace(matchedPrefix))
                     {
-                        results.TryAdd(i, new BatchResult(i, null, null, "Failed to split URL."));
+                        results.TryAdd(i, new BatchResult(i, null, null, "No matching base URL found."));
                         inputData[i] = null;
                         return;
                     }
@@ -109,8 +110,8 @@ namespace OffersConnector
 
                         inputData[i] = new ExternalOfferUosInput(
                             Helpers.SanitizeInput(uos.Source),
-                            Helpers.SanitizeInput(parsedUrl.Item1),
-                            Helpers.SanitizeInput(parsedUrl.Item2),
+                            Helpers.SanitizeInput(matchedPrefix),
+                            Helpers.SanitizeInput(uos.Url.Replace(matchedPrefix, string.Empty)),
                             Helpers.SanitizeInput(uos.JobTitle),
                             Helpers.SanitizeInput(uos.Company.Name),
                             Helpers.SanitizeInput(uos.Company.LogoUrl),
@@ -262,6 +263,83 @@ namespace OffersConnector
             catch (Exception ex) when (ex is not PgConnectorException)
             {
                 throw new PgConnectorException("An unexpected error occurred while fetching dictionaries.", ex);
+            }
+        }
+
+        public async Task<List<string>> GetSourcesBaseUrls(CancellationToken cancellationToken = default)
+        {
+            const string GetSourcesCommand = "SELECT public.get_sources_base_urls();";
+
+            try
+            {
+                await using (var connection = await _dataSource.OpenConnectionAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    await using (var command = new NpgsqlCommand(GetSourcesCommand, connection))
+                    {
+                        var dbResult = await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
+
+                        if (dbResult is string[] stringArray)
+                        {
+                            return stringArray.ToList();
+                        }
+
+                        if (dbResult is Array array && array.Length == 0)
+                        {
+                            return [];
+                        }
+
+                        if (dbResult == null || dbResult == DBNull.Value)
+                        {
+                            return [];
+                        }
+
+                        throw new PgConnectorException(
+                            $"Database function returned an unexpected type: {dbResult.GetType().FullName}");
+                    }
+                }
+            }
+            catch (NpgsqlException ex)
+            {
+                throw new PgConnectorException("A database error occurred while fetching sources base urls.", ex);
+            }
+            catch (Exception ex) when (ex is not PgConnectorException)
+            {
+                throw new PgConnectorException("An unexpected error occurred while fetching sources base urls.", ex);
+            }
+        }
+
+        public async Task<bool> AddSource(string name, string baseUrl, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(baseUrl))
+                return false;
+
+            const string AddSourceCommand = "CALL public.add_source(@name, @base_url);";
+            try
+            {
+                await using (var connection = await _dataSource.OpenConnectionAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    await using (var command = new NpgsqlCommand(AddSourceCommand, connection))
+                    {
+                        // Add parameters with explicit types to avoid type mismatch
+                        command.Parameters.AddWithValue("name", NpgsqlDbType.Varchar, name);
+                        command.Parameters.AddWithValue("base_url", NpgsqlDbType.Varchar, baseUrl);
+
+                        await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+                    }
+                }
+                return true;
+            }
+            catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UniqueViolation)
+            {
+                return false;
+            }
+            catch (NpgsqlException ex)
+            {
+                throw new PgConnectorException("A database error occurred while adding a new source.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new PgConnectorException("An unexpected error occurred while adding a new source.", ex);
             }
         }
 

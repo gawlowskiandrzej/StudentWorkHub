@@ -2,10 +2,15 @@ BEGIN;
 
 INSERT INTO public.experience_levels (level) VALUES
     ('Początkujący'),
+    ('Średniozaawansowany'),
+    ('Dobry'),
     ('Młodszy specjalista'),
+    ('Zaawansowany'),
     ('Specjalista'),
     ('Starszy specjalista'),
-    ('Ekspert')
+    ('Biegły'),
+    ('Ekspert'),
+    ('Inny')
 ON CONFLICT (level) DO NOTHING;
 
 INSERT INTO public.language_levels (level) VALUES
@@ -108,31 +113,35 @@ INSERT INTO public.salary_periods (period) VALUES
     ('Kwartalnie'),
     ('Rocznie'),
     ('Jednorazowo'),
-    ('Za projekt')
+    ('Za projekt'),
+    ('Inny')
 ON CONFLICT (period) DO NOTHING;
 
 INSERT INTO public.employment_schedules (schedule) VALUES
-    ('Pełny etat - standardowe godziny'),
+    ('Pełny etat'),
     ('Pełny etat - praca zmianowa'),
     ('Pełny etat - praca nocna'),
     ('Pełny etat - praca weekendowa'),
-    ('Część etatu - standardowe godziny'),
+    ('Część etatu'),
     ('Część etatu - praca zmianowa'),
     ('Część etatu - praca nocna'),
     ('Część etatu - praca weekendowa'),
     ('Elastyczny czas pracy'),
-    ('System zadaniowy')
+    ('System zadaniowy'),
+    ('Inny')
 ON CONFLICT (schedule) DO NOTHING;
 
 INSERT INTO public.employment_types (type) VALUES
     ('Umowa o pracę'),
+    ('Umowa o pracę tymczasową'),
     ('Umowa zlecenie'),
     ('Umowa o dzieło'),
     ('Kontrakt B2B'),
     ('Staż płatny'),
     ('Staż niepłatny'),
     ('Praktyki studenckie'),
-    ('Wolontariat')
+    ('Wolontariat'),
+    ('Inny')
 ON CONFLICT (type) DO NOTHING;
 
 INSERT INTO public.leading_categories (leading_category) VALUES
@@ -177,7 +186,15 @@ INSERT INTO public.leading_categories (leading_category) VALUES
     ('Teleinformatyka'),
     ('Transport'),
     ('Zarządzanie i inżynieria produkcji'),
-    ('Zielona energia')
+    ('Zielona energia'),
+    ('Inna')
 ON CONFLICT (leading_category) DO NOTHING;
+
+INSERT INTO public.sources (name, base_url) VALUES
+    ('Pracujpl', 'https://www.pracuj.pl/praca/'),
+    ('Aplikujpl', 'https://www.aplikuj.pl/oferta/'),
+    ('Olxpraca', 'https://www.olx.pl/oferta/praca/'),
+    ('Justjoinit', 'https://justjoin.it/job-offer/')
+ON CONFLICT (name) DO NOTHING;
 
 COMMIT;

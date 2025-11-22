@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <Reference Include="UnifiedOfferSchema">
-      <HintPath>..\..\..\common_libraries\UnifiedOfferSchema\UnifiedOfferSchema.dll</HintPath>
+      <HintPath>..\..\..\..\common_libraries\UnifiedOfferSchema\UnifiedOfferSchema.dll</HintPath>
     </Reference>
   </ItemGroup>
 

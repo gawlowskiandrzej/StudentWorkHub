@@ -7,7 +7,7 @@ COPY --chown=postgres:postgres ./scripts/prepare_postgre.sql /docker-entrypoint-
 COPY --chown=postgres:postgres ./scripts/create_database.ddl.sql /docker-entrypoint-initdb.d/20_create_database.ddl.sql
 COPY --chown=postgres:postgres ./scripts/create_procedures.ddl.sql /docker-entrypoint-initdb.d/30_create_procedures.ddl.sql
 COPY --chown=postgres:postgres ./scripts/create_functions.ddl.sql /docker-entrypoint-initdb.d/40_create_functions.ddl.sql
-COPY --chown=postgres:postgres ./scripts/prefill_dictionaries.dml.sql /docker-entrypoint-initdb.d/50_prefill_dictionaries.dml.sql
+COPY --chown=postgres:postgres ./scripts/prefill_users.dml.sql /docker-entrypoint-initdb.d/50_prefill_users.dml.sql
 
 EXPOSE 5432
 

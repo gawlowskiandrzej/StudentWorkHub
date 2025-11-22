@@ -152,7 +152,7 @@ CREATE TABLE public.sub_categories (
 -- =========================================================
 CREATE TABLE public.location_details (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    building_number VARCHAR(10),
+    building_number VARCHAR(10) DEFAULT 'Undefined',
     latitude DOUBLE PRECISION,
     longitude DOUBLE PRECISION,
     city_id INTEGER,
@@ -172,20 +172,20 @@ CREATE TABLE public.location_details (
 CREATE TABLE public.offers (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 
-    job_title VARCHAR(256) NOT NULL,
-    description TEXT,
+    job_title VARCHAR(256) NOT NULL DEFAULT 'Undefined',
+    description TEXT DEFAULT 'Undefined',
 
-    salary_from NUMERIC(8,2),
-    salary_to NUMERIC(8,2),
-    is_gross BOOLEAN,
+    salary_from NUMERIC(8,2) DEFAULT 0.0,
+    salary_to NUMERIC(8,2) DEFAULT 0.0,
+    is_gross BOOLEAN DEFAULT true,
 
-    is_remote BOOLEAN,
-    is_hybrid BOOLEAN,
+    is_remote BOOLEAN DEFAULT false,
+    is_hybrid BOOLEAN DEFAULT false,
 
-    published TIMESTAMPTZ NOT NULL,
+    published TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     expires TIMESTAMPTZ,
-    is_urgent BOOLEAN NOT NULL,
-    is_for_ukrainians BOOLEAN NOT NULL,
+    is_urgent BOOLEAN NOT NULL DEFAULT false,
+    is_for_ukrainians BOOLEAN NOT NULL DEFAULT false,
 
     source_id SMALLINT NOT NULL,
     company_id INTEGER NOT NULL,
