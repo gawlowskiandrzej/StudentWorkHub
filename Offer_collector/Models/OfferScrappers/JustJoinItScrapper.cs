@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using Offer_collector.Models.ConstData;
 using Offer_collector.Models.Json;
 using Offer_collector.Models.JustJoinIt;
+using Offer_collector.Models.OfferScrappers;
 using Offer_collector.Models.UrlBuilders;
 using System.Text.Json;
 
@@ -10,41 +11,121 @@ namespace Offer_collector.Models.OfferFetchers
 {
     internal class JustJoinItScrapper : BaseHtmlScraper
     {
-        public override async Task<(string, string)> GetOfferAsync(string url = "")
+        public JustJoinItScrapper(ClientType clientType) : base(clientType)
+        {
+        }
+
+        public override async Task<(string, string, List<string>)> GetOfferAsync(string url = "")
         {
             string baseUrl = JustJoinItBuilder.baseUrl;
-            if (url != "")
+            List<string> errors = new List<string>();
+
+            if (!string.IsNullOrEmpty(url))
                 baseUrl = url;
-            string html = await GetHtmlSource(baseUrl);
-            string allJs = GetAllJson(html);
-            maxOfferCount = GetOfferCount(allJs);
-            List<JToken> offerListJs = GetOffersJson(allJs);
-            #if DEBUG
-                var listJs = JsonConvert.SerializeObject(offerListJs, Formatting.Indented);
-            #endif
 
-            List<JustJoinItSchema> justJoinItOffers = new List<JustJoinItSchema>();
-           
-            foreach (JToken offer in offerListJs)
+            string html = string.Empty;
+            try
             {
-                JustJoinItSchema schema = GetJustJoinItSchema(offer);
-               
-                
-
-                string detailsHtml = await GetHtmlSource(JustJoinItBuilder.baseUrlOfferDetail + schema.slug);
-                JToken? detailsToken = await GetCompanyDetails(detailsHtml);
-                schema.details = GetJustJoinItOfferDetails(detailsToken ?? "");
-                schema.detailsHtml = detailsHtml;
-                schema.description = JsonConvert.DeserializeObject<JustJoinItDescription>(GetDescriptionSubString(detailsHtml) ?? "")?.description ?? "";
-
-                if ((bool)schema.multilocation?.Any(m => ConstValues.PolishCities.Any(p => p.City == m.city)))
-                    justJoinItOffers.Add(schema);
-
-                await Task.Delay(Constants.delayBetweenRequests);
+                html = await GetHtmlSource(baseUrl);
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"Failed to load main HTML from '{baseUrl}': {ex.Message}");
+                return ("", html, errors);
             }
 
-            return (JsonConvert.SerializeObject(justJoinItOffers, Formatting.Indented) ?? "", html);
+            string allJs;
+            try
+            {
+                allJs = GetAllJson(html);
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"Failed to extract JSON data from the HTML: {ex.Message}");
+                return ("", html, errors);
+            }
+
+            int maxOfferCount = 0;
+            try
+            {
+                maxOfferCount = GetOfferCount(allJs);
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"Failed to read offer count: {ex.Message}");
+            }
+
+            List<JToken> offerListJs = new List<JToken>();
+            try
+            {
+                offerListJs = GetOffersJson(allJs);
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"Failed to parse offers JSON: {ex.Message}");
+            }
+
+#if DEBUG
+            var listJs = JsonConvert.SerializeObject(offerListJs, Formatting.Indented);
+#endif
+
+            List<JustJoinItSchema> justJoinItOffers = new List<JustJoinItSchema>();
+
+            foreach (JToken offer in offerListJs)
+            {
+                try
+                {
+                    JustJoinItSchema schema = GetJustJoinItSchema(offer);
+
+                    string detailsHtml = string.Empty;
+                    try
+                    {
+                        detailsHtml = await GetHtmlSource(JustJoinItBuilder.baseUrlOfferDetail + schema.slug);
+                    }
+                    catch (Exception ex)
+                    {
+                        errors.Add($"Failed to load offer details for slug '{schema.slug}': {ex.Message}");
+                        continue;
+                    }
+
+                    JToken? detailsToken = null;
+                    try
+                    {
+                        detailsToken = GetCompanyDetails(detailsHtml);
+                        schema.details = GetJustJoinItOfferDetails(detailsToken ?? "");
+                    }
+                    catch (Exception ex)
+                    {
+                        errors.Add($"Failed to parse company details for slug '{schema.slug}': {ex.Message}");
+                    }
+
+                    schema.detailsHtml = detailsHtml;
+
+                    try
+                    {
+                        schema.description = JsonConvert.DeserializeObject<JustJoinItDescription>(
+                            GetDescriptionSubString(detailsHtml) ?? ""
+                        )?.description ?? "";
+                    }
+                    catch (Exception ex)
+                    {
+                        errors.Add($"Failed to parse offer description for slug '{schema.slug}': {ex.Message}");
+                    }
+
+                    if (schema.multilocation.Any(m => ConstValues.PolishCities.Any(p => p.City == m.city)))
+                        justJoinItOffers.Add(schema);
+
+                    await Task.Delay(Constants.delayBetweenRequests);
+                }
+                catch (Exception ex)
+                {
+                    errors.Add($"Unexpected error while processing an offer: {ex.Message}");
+                }
+            }
+
+            return (JsonConvert.SerializeObject(justJoinItOffers, Formatting.Indented) ?? "", html, errors);
         }
+
         private async Task<string> GetHtmlSource(string url) => await GetHtmlAsync(url);
         private string GetAllJson(string html) => GetSubstringJson(html) ?? "";
         private string? GetSubstringJson(string htmlSource)
@@ -129,7 +210,7 @@ namespace Offer_collector.Models.OfferFetchers
                 ".count");
             return int.Parse(JsonConvert.SerializeObject(offerCount));
         }
-        async Task<JToken?> GetCompanyDetails(string html)
+        JToken? GetCompanyDetails(string html)
         {
 
             string allJs = GetSubstringJson(html) ?? "";

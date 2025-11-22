@@ -2,6 +2,6 @@
 {
     static class Constants
     {
-        public static readonly int delayBetweenRequests = 300;
+        public static readonly int delayBetweenRequests = 100;
     }
 }

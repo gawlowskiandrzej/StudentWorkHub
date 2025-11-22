@@ -1,6 +1,4 @@
-﻿using System;
-
-public enum OfferSitesTypes
+﻿public enum OfferSitesTypes
 {
 	Pracujpl = 1,
 	Justjoinit = 2,

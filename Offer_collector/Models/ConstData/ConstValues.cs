@@ -2,7 +2,7 @@
 {
     internal class ConstValues
     {
-       public static List<PlCityObject> PolishCities;
+       public static List<PlCityObject> PolishCities = new();
 
 
     }

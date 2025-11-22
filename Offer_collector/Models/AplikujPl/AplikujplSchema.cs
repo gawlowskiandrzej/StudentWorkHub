@@ -5,40 +5,40 @@ namespace Offer_collector.Models.AplikujPl
 {
     public class OfferListHeader
     {
-        public string title;
-        public string company;
-        public string location;
-        public string? salary;
-        public string? employmentType;
+        public string title = "";
+        public string company = "";
+        public string location = "";
+        public string salary = "";
+        public string employmentType = "";
         public bool? remoteOption;
-        public string? companyLogoUrl;
-        public string link;
+        public string companyLogoUrl = "";
+        public string link = "";
         public string? dateAdded;
         public bool? recomended;
     }
     public class InfoFeatures
     {
-        public string typeofWork; // phisical work
-        public bool isRemote;
+        public string typeofWork = ""; // phisical work
+        public bool isRemote = false;
         public bool isforUkrainians;
         public bool isUrgent;
-        public string typeofContract;
-        public string logoUrl;
-        public string description;
+        public string typeofContract = "";
+        public string logoUrl = "";
+        public string description = "";
     }
     public class Salary
     {
         public decimal from;
         public decimal to;
-        public string currency;
-        public string type; // Brutto/netto
-        public string period;
+        public string? currency;
+        public string? type; // Brutto/netto
+        public string? period;
     }
     public class Company
     {
-        public string company;
-        public string companyLink;
-        public string companyLogo;
+        public string? company;
+        public string? companyLink;
+        public string? companyLogo;
     }
     public class Dates
     {
@@ -47,38 +47,39 @@ namespace Offer_collector.Models.AplikujPl
     }
     public class Localization
     {
-        public string postalcode;
-        public string city;
+        public string? postalcode;
+        public string? city;
     }
     public class OfferDetails
     {
-        public Dates dates;
-        public Company company;
-        public List<string> responsibilities;
-        public List<string> requirements;
-        public List<string> benefits;
-        public Localization localization;
-        public InfoFeatures infoFeatures;
-        public string category;
-        public Salary salary;
+        public Dates? dates;
+        public Company? company;
+        public List<string>? responsibilities;
+        public List<string>? requirements;
+        public List<string>? benefits;
+        public Localization? localization;
+        public InfoFeatures infoFeatures = new();
+        public string category = "";
+        public Salary? salary;
     }
     //TODO skipować zagraniczne offerty, puste localization sprawdzić co tam się dzieje w details dodać możliwość obsługi map google
     internal class AplikujplSchema : IUnificatable
     {
-        public OfferListHeader header;
-        public OfferDetails details;
-        public UnifiedOfferSchema UnifiedSchema(string rawHtml = "")
+        public OfferListHeader header = new OfferListHeader();
+        public OfferDetails details = new OfferDetails();
+        public List<string> errorMessages = new List<string>();
+        public UnifiedOfferSchemaClass UnifiedSchema(string rawHtml = "")
         {
-            UnifiedOfferSchema s = new UnifiedOfferSchema();
+            UnifiedOfferSchemaClass s = new UnifiedOfferSchemaClass();
 
             s.jobTitle = header.title;
-            s.description = details.infoFeatures.description;
+            s.description = details.infoFeatures?.description;
             s.source = OfferSitesTypes.Aplikujpl;
             s.url = $"{AplikujPlUrlBuilder.baseUrl}{header.link}";
             s.company = new Offer_collector.Models.Company
             {
-                logoUrl = header.companyLogoUrl ?? "",
-                name = header.company
+                logoUrl = header.companyLogoUrl == "" ? details.company?.companyLogo ?? "" : header.companyLogoUrl,
+                name = header.company == "" ? details.company?.company ?? "" : header.company,
             };
             s.salary = new Models.Salary
             {
@@ -91,7 +92,7 @@ namespace Offer_collector.Models.AplikujPl
             s.location = new Location
             {
                 city = header.location,
-                isRemote = details.infoFeatures.isRemote,
+                isRemote = details.infoFeatures?.isRemote ?? false,
                 isHybrid = false,
             };
             
@@ -107,14 +108,14 @@ namespace Offer_collector.Models.AplikujPl
             };
             s.dates = new Models.Dates
             {
-                expires = details.dates.expirationDate,
-                published = details.dates.publishionDate
+                expires = details.dates?.expirationDate,
+                published = details.dates?.publishionDate
             };
             s.benefits = details.benefits;
             s.category = new Category
             {
                 leadingCategory = details.category,
-                subCategories = new List<string> { details.category }
+                subCategories = new List<string?> { details.category  }
             };
             s.isForUkrainians = details.infoFeatures?.isforUkrainians ?? false;
             // TODO check this field

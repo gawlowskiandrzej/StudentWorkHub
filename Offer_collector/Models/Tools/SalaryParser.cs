@@ -27,7 +27,6 @@ namespace Offer_collector.Models.Tools
 
         public static AplikujPl.Salary Parse(string input)
         {
-            if (input == null) return null;
             var original = input;
             // normalizacja spacji (zamień różne białe znaki na zwykłą spację)
             input = Regex.Replace(input, @"\s+", " ").Trim().ToLowerInvariant();
@@ -117,7 +116,7 @@ namespace Offer_collector.Models.Tools
 
         private static string NormalizeCurrency(string raw)
         {
-            if (string.IsNullOrWhiteSpace(raw)) return null;
+            if (string.IsNullOrWhiteSpace(raw)) return "";
             raw = raw.Trim().ToLowerInvariant();
             switch (raw)
             {

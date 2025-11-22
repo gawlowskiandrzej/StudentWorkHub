@@ -23,36 +23,69 @@ namespace Offer_collector.Models.Tools
         /// <summary>
         /// Pobiera wszystkie oferty z paginowanego źródła i zwraca je jako JSON.
         /// </summary>
-        public async Task<(string, List<string>)> FetchAllOffersAsync(int maxPages = int.MaxValue)
+        public async Task<(string, List<string>, List<string>)> FetchAllOffersAsync(SearchFilters searchFilters,int maxPages = 5)
         {
             var allOffers = new List<JToken>();
             int currentPage = 1;
             int totalPages = 1;
             bool hasMore = true;
             List<string> htmls = new List<string>();
+            List<string> errors = new List<string>();
+
             while (hasMore && currentPage <= maxPages && allOffers.Count <= _offerMaxCount)
             {
-                string url = _urlBuilder.BuildUrl(pageId: currentPage);
-                var (offersJson, htmlRaw) = await _scrapper.GetOfferAsync(url);
+                string url = _urlBuilder.BuildUrl(searchFilters, pageId: currentPage);
 
-                // wyciągamy dane ofert (możesz to zmienić na swój model)
-                var offers = ExtractOffers(offersJson);
-                
-                if (offers.Count == 0)
-                    break;
+                int retryCount = 0;
+                const int maxRetries = 3;
+                bool success = false;
 
-                allOffers.AddRange(offers);
-                htmls.Add(htmlRaw);
-
-                // przy pierwszej stronie ustal całkowitą liczbę stron
-                if (currentPage == 1)
+                while (!success && retryCount < maxRetries)
                 {
-                    int totalOffers = _scrapper.GetOfferCountFromHtml();
+                    try
+                    {
+                        
+                        var (offersJson, htmlRaw, scrappingErrors) = await _scrapper.GetOfferAsync(url);
+                        errors.AddRange(scrappingErrors);
+                        // wyciągamy dane ofert
+                        var offers = ExtractOffers(offersJson);
 
-                    int perPage = offers.Count;
+                        if (offers.Count == 0)
+                        {
+                            hasMore = false;
+                            break;
+                        }
 
-                    totalPages = (int)Math.Ceiling((double)totalOffers / perPage);
-                    _offerMaxCount = (int)totalOffers * (_offerCountPercentage / 100);
+                        allOffers.AddRange(offers);
+                        htmls.Add(htmlRaw);
+
+                        // przy pierwszej stronie ustal całkowitą liczbę stron
+                        if (currentPage == 1)
+                        {
+                            int totalOffers = _scrapper.GetOfferCountFromHtml();
+                            int perPage = offers.Count;
+                            totalPages = (int)Math.Ceiling((double)totalOffers / perPage);
+                            _offerMaxCount = (int)totalOffers * (_offerCountPercentage / 100);
+                        }
+
+                        success = true;
+                    }
+                    catch (HttpRequestException ex)
+                    {
+                        retryCount++;
+                        errors.Add($"Error while fetching page {currentPage}: {ex.Message}. Try {retryCount}/{maxRetries}");
+                        await Task.Delay(Constants.delayBetweenRequests * retryCount); // exponential backoff
+                    }
+                    catch (JsonException ex)
+                    {
+                        errors.Add($"Error parsing offer on page {currentPage}: {ex.Message}");
+                        break; // nie ma sensu retry, jeśli JSON jest niepoprawny
+                    }
+                    catch (Exception ex)
+                    {
+                        errors.Add($"Processing error on page {currentPage}: {ex.Message}");
+                        break;
+                    }
                 }
 
                 currentPage++;
@@ -60,8 +93,9 @@ namespace Offer_collector.Models.Tools
                 await Task.Delay(Constants.delayBetweenRequests);
             }
 
-            return (JsonConvert.SerializeObject(allOffers, Formatting.Indented), htmls);
+            return (JsonConvert.SerializeObject(allOffers, Formatting.Indented), htmls, errors);
         }
+
 
         private List<JToken> ExtractOffers(string offersJson)
         {

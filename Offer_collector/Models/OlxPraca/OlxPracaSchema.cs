@@ -19,27 +19,27 @@ namespace Offer_collector.Models.OlxPraca
     {
         public bool? chat { get; set; }
         public bool? courier { get; set; }
-        public string name { get; set; }
+        public string name { get; set; } = "";
         public bool? negotiation { get; set; }
         public bool? phone { get; set; }
     }
 
     public class Delivery
     {
-        public Rock rock { get; set; }
+        public Rock rock { get; set; } = new Rock();
     }
 
     public class Location
     {
-        public string cityName { get; set; }
+        public string cityName { get; set; } = "";
         public int? cityId { get; set; }
-        public string cityNormalizedName { get; set; }
-        public string regionName { get; set; }
+        public string cityNormalizedName { get; set; } = "";
+        public string regionName { get; set; } = "";
         public int? regionId { get; set; }
-        public string regionNormalizedName { get; set; }
-        public string districtName { get; set; }
+        public string regionNormalizedName { get; set; } = "";
+        public string districtName { get; set; } = "";
         public int? districtId { get; set; }
-        public string pathName { get; set; }
+        public string pathName { get; set; } = "";
     }
 
     public class Map
@@ -78,56 +78,56 @@ namespace Offer_collector.Models.OlxPraca
     public class Rock
     {
         public bool? active { get; set; }
-        public string mode { get; set; }
-        public object offer_id { get; set; }
+        public string mode { get; set; } = "";
+        public object? offer_id { get; set; }
     }
 
     public class OlxPracaSchema : IUnificatable
     {
         public int? id { get; set; }
-        public string title { get; set; }
-        public string description { get; set; }
-        public Category category { get; set; }
-        public Map? map { get; set; }
-        public bool? isBusiness { get; set; }
-        public string url { get; set; }
+        public string? title { get; set; }
+        public string? description { get; set; }
+        public Category category { get; set; } = new Category();
+        public Map map { get; set; } = new Map();
+        public bool isBusiness { get; set; } = false;
+        public string url { get; set; } = "";
         public bool? isHighlighted { get; set; }
         public bool? isPromoted { get; set; }
         public Promotion? promotion { get; set; }
-        public object externalUrl { get; set; }
+        public object? externalUrl { get; set; }
         public Delivery? delivery { get; set; }
         public DateTime? createdTime { get; set; }
         public DateTime? lastRefreshTime { get; set; }
-        public object pushupTime { get; set; }
+        public object? pushupTime { get; set; }
         public DateTime? validToTime { get; set; }
         public bool? isActive { get; set; }
-        public string status { get; set; }
-        public List<Param> @params { get; set; }
-        public string itemCondition { get; set; }
-        public object price { get; set; }
-        public Salary salary { get; set; }
-        public Partner partner { get; set; }
+        public string status { get; set; } = "";
+        public List<Param>? @params { get; set; }
+        public string? itemCondition { get; set; }
+        public object? price { get; set; }
+        public Salary salary { get; set; } = new Salary();
+        public Partner partner { get; set; } = new Partner();
         public bool? isJob { get; set; }
-        public List<object> photos { get; set; }
-        public List<object> photosSet { get; set; }
-        public Location location { get; set; }
-        public string urlPath { get; set; }
-        public Contact contact { get; set; }
-        public User user { get; set; }
-        public Shop shop { get; set; }
-        public Safedeal safedeal { get; set; }
-        public string searchReason { get; set; }
+        public List<object>? photos { get; set; }
+        public List<object>? photosSet { get; set; }
+        public Location? location { get; set; }
+        public string urlPath { get; set; } = "";
+        public Contact? contact { get; set; }
+        public User user { get; set; } = new User();
+        public Shop? shop { get; set; } = new Shop();
+        public Safedeal? safedeal { get; set; }
+        public string searchReason { get; set; } = "";
         public bool? isNewFavouriteAd { get; set; }
 
-        public string htmlOfferDetail { get; set; }
+        public string htmlOfferDetail { get; set; } = "";
 
 
-        public UnifiedOfferSchema UnifiedSchema(string rawHtml = "")
+        public UnifiedOfferSchemaClass UnifiedSchema(string rawHtml = "")
         {
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(htmlOfferDetail);
             // TODO Dodać kategorię
-            UnifiedOfferSchema un = new UnifiedOfferSchema();
+            UnifiedOfferSchemaClass un = new UnifiedOfferSchemaClass();
             un.jobTitle = title;
             un.description = description;
             un.source = OfferSitesTypes.Olxpraca;
@@ -137,22 +137,22 @@ namespace Offer_collector.Models.OlxPraca
                 name = doc.DocumentNode.SelectSingleNode("//*[@id=\"mainContent\"]/div[2]/main/aside/div[1]/div[2]/div/div/div/h4")?.InnerText ?? user.company_name,
                 logoUrl = user.logo
             };
-            un.salary = new Models.Salary
-            {
-                currency = salary?.currencySymbol ?? "zł",
-                from = salary?.from == null ? 0 : (decimal)salary.from,
-                to = salary?.from == null ? 0 : (decimal)salary.to,
-                period = salary?.period ?? "",
-                type = "Brutto"
-            };
+            //un.salary = new Models.Salary
+            //{
+            //    currency = salary.currencySymbol,
+            //    from = (decimal)salary.from,
+            //    to = (decimal)salary.to,
+            //    period = salary?.period,
+            //    type = "Brutto"
+            //};
 
-            Param? asd = @params.Where(_ => _.key.Contains("workplace")).FirstOrDefault();
+            Param? asd = @params?.Where(_ => _.key?.Contains("workplace") ?? false).FirstOrDefault();
             string workl = asd?.normalizedValue?.ToString() ?? "";
             List<string> workplaces = JsonConvert.DeserializeObject<List<string>>(workl) ?? new List<string>();
 
             un.location = new Models.Location
             {
-                city = location.cityName,
+                city = location?.cityName,
                 coordinates = new Coordinates
                 {
                     latitude = map?.lat ?? 0,
@@ -166,7 +166,7 @@ namespace Offer_collector.Models.OlxPraca
             };
             un.employment = new Employment
             {
-                schedules = @params
+                schedules = @params?
                     .Where(_ => _.key?.Contains("type") == true && _.name?.Contains("Wymiar pracy") == true)
                     .SelectMany(_ =>
                     {
@@ -187,7 +187,7 @@ namespace Offer_collector.Models.OlxPraca
                     })
                     .ToList(),
 
-                types = @params
+                types = @params?
                     .Where(_ => _.key?.Contains("agreement") == true)
                     .SelectMany(_ =>
                     {
@@ -217,7 +217,7 @@ namespace Offer_collector.Models.OlxPraca
             };
             un.category = new Models.Category
             {
-                subCategories = new List<string> { category.categoryDetails?.normalizedName ?? "None" },
+                subCategories = new List<string?> { category.categoryDetails?.normalizedName ?? "None" },
                 leadingCategory = category.categoryDetails?.normalizedName ?? "None"
             };
 
@@ -241,7 +241,7 @@ namespace Offer_collector.Models.OlxPraca
         public long? id { get; set; }
         public string? name { get; set; }
         public object? photo { get; set; }
-        public string? logo { get; set; }
+        public string logo { get; set; } = "";
         public bool? otherAdsEnabled { get; set; }
         public object? socialNetworkAccountType { get; set; }
         public bool? isOnline { get; set; }
@@ -249,7 +249,7 @@ namespace Offer_collector.Models.OlxPraca
         public string? about { get; set; }
         public string? bannerDesktopURL { get; set; }
         public string? logo_ad_page { get; set; }
-        public string? company_name { get; set; }
+        public string company_name { get; set; } = "";
         public DateTime? created { get; set; }
         public object? sellerType { get; set; }
         public string? uuid { get; set; }

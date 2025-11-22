@@ -10,43 +10,108 @@ namespace Offer_collector.Models.OfferScrappers
 {
     internal class AplikujplScrapper : BaseHtmlScraper
     {
-        string _offerListHtml;
-        public override async Task<(string, string)> GetOfferAsync(string url = "")
+        string _offerListHtml = "";
+
+        public AplikujplScrapper(ClientType clientType) : base(clientType)
         {
-            _offerListHtml = await GetHtmlSource(url);
-            List<AplikujplSchema> offers = await GetOfferList();
-            return (JsonConvert.SerializeObject(offers, Formatting.Indented) ?? "", _offerListHtml);
+        }
+
+        public override async Task<(string, string, List<string>)> GetOfferAsync(string url = "")
+        {
+            List<string> errors = new List<string>();
+            try
+            {
+                _offerListHtml = await GetHtmlSource(url);
+            }
+            catch (Exception e)
+            {
+                errors.Add($"Error while downloading HTML from url: {url}: {e.Message}");
+                return (string.Empty, string.Empty, errors);
+            }
+            (List<AplikujplSchema> offers, List<string> errors2) = await GetOfferList();
+            return (JsonConvert.SerializeObject(offers, Formatting.Indented) ?? "", _offerListHtml, offers.Select(_ => string.Join('\n', _.errorMessages)).ToList());
         }
         private async Task<string> GetHtmlSource(string url) => await GetHtmlAsync(url);
-        async Task<List<AplikujplSchema>> GetOfferList()
+        async Task<(List<AplikujplSchema>, List<string>)> GetOfferList()
         {
-            HtmlDocument doc = new HtmlDocument();
-            doc.LoadHtml(_offerListHtml);
-
-            maxOfferCount = int.Parse(doc.DocumentNode.SelectSingleNode("//div[contains(@class,'hidden sm:flex sm:flex-1 sm:items-center sm:justify-between')]/div/p/span[3]").InnerText);
-            HtmlNode node = doc.DocumentNode.SelectSingleNode("//*[@id=\"offer-list\"]");
-            List<OfferListHeader> offerListHeader = new List<OfferListHeader>();
-            List<AplikujplSchema> offerList = new List<AplikujplSchema>();
-
-            foreach (HtmlNode offerNode in node.SelectNodes(".//li[contains(concat(' ', normalize-space(@class), ' '), ' offer-card ')]"))
+            var offerList = new List<AplikujplSchema>();
+            List<string> errors = new List<string>();
+            try
             {
-                AplikujplSchema ap = new AplikujplSchema();
-                OfferListHeader header = GetHeader(offerNode);
-                if (header != null)
+                HtmlDocument doc = new HtmlDocument();
+                doc.LoadHtml(_offerListHtml);
+
+                var maxOfferNode = doc.DocumentNode
+                    .SelectSingleNode("//div[contains(@class,'hidden sm:flex sm:flex-1 sm:items-center sm:justify-between')]/div/p/span[3]");
+
+                if (maxOfferNode != null && int.TryParse(maxOfferNode.InnerText, out int maxOffers))
                 {
-                    ap.header = header;
+                    maxOfferCount = maxOffers;
+                }
+                else
+                {
+                    errors.Add($"Cant get max number of offers.");
+                }
 
-                    if (ConstValues.PolishCities.Any( _ => _.City == ap.header.location))
+                HtmlNode node = doc.DocumentNode.SelectSingleNode("//*[@id=\"offer-list\"]");
+                if (node == null)
+                {
+                    errors.Add("Cant get list of offers on site");
+                    return (offerList, errors);
+                }
+
+                foreach (HtmlNode offerNode in node.SelectNodes(".//li[contains(concat(' ', normalize-space(@class), ' '), ' offer-card ')]") ?? Enumerable.Empty<HtmlNode>())
+                {
+                    try
                     {
-                        string detailsUrl = AplikujPlUrlBuilder.baseUrl + header.link;
-                        ap.details = GetOfferDetails(await GetHtmlSource(detailsUrl));
+                        AplikujplSchema ap = new AplikujplSchema();
+                        OfferListHeader header = GetHeader(offerNode);
 
-                        offerList.Add(ap);
+                        if (header != null)
+                        {
+                            ap.header = header;
+
+                            if (ConstValues.PolishCities.Any(_ => _.City == ap.header.location))
+                            {
+                                string detailsUrl = AplikujPlUrlBuilder.baseUrl + header.link;
+                                string detailsHtml = "";
+                                if (detailsUrl == "https://www.aplikuj.pl/oferta/3020174/asystent-umowa-o-prace-instytut-biotechnologii-przemyslu-rolno-spozywczego-im-prof-waclawa-dabrowskiego-panstwowy-instytut-badawczy") ;
+                                try
+                                {
+                                    detailsHtml = await GetHtmlSource(detailsUrl);
+                                }
+                                catch (Exception ex)
+                                {
+                                    errors.Add($"Cant get details of offer {detailsUrl}: {ex.Message}");
+                                }
+
+                                if (!string.IsNullOrEmpty(detailsHtml))
+                                {
+                                    try
+                                    {
+                                        ap.details = GetOfferDetails(detailsHtml);
+                                        offerList.Add(ap);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        errors.Add($"Error while parsing details of offer {detailsUrl}: {ex.Message}");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        errors.Add($"Error while processing offer {ex.Message}");
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                errors.Add($"Error while processing list of offers {ex.Message}");
+            }
 
-            return offerList;
+            return (offerList, errors);
         }
         OfferListHeader GetHeader(HtmlNode node)
         {
@@ -64,13 +129,13 @@ namespace Offer_collector.Models.OfferScrappers
 
             header.employmentType = node.SelectSingleNode(".//li[contains(@class,'employmentType')]/span")?.InnerText.Trim() ?? "";
 
-            header.companyLogoUrl = node.SelectSingleNode(".//div[@class='offer-card-thumb']//img")?.GetAttributeValue("src", "");
+            header.companyLogoUrl = node.SelectSingleNode(".//div[@class='offer-card-thumb']//img")?.GetAttributeValue("src", "") ?? "";
 
             header.dateAdded = node.SelectSingleNode(".//time")?.InnerText.Trim() ?? "";
 
             header.recomended = node.SelectSingleNode(".//span[contains(@class,'offer-badge')]") != null;
 
-            header.salary = node.SelectSingleNode(".//span[contains(@class,'offer-salary')]")?.InnerText.Trim();
+            header.salary = node.SelectSingleNode(".//span[contains(@class,'offer-salary')]")?.InnerText.Trim() ?? "";
             header.remoteOption = node.SelectSingleNode(".//span[contains(@class,'offer-card-labels-list-item--remoteWork')]") != null;
 
             return header;
@@ -83,7 +148,7 @@ namespace Offer_collector.Models.OfferScrappers
             if (dateCollection.First() != null)
             {
                 HtmlNode publishNode = dateCollection.First();
-                string publishRaw = publishNode.GetAttributeValue("datetime", null);
+                string publishRaw = publishNode.GetAttributeValue("datetime", "");
                 if (DateTime.TryParse(publishRaw, out var publishDate))
                     date.publishionDate = publishDate;
             }
@@ -91,7 +156,7 @@ namespace Offer_collector.Models.OfferScrappers
             if (dateCollection.ElementAt(1) != null)
             {
                 HtmlNode expireDate = dateCollection.ElementAt(1);
-                string expireRaw = expireDate.GetAttributeValue("datetime", null);
+                string expireRaw = expireDate.GetAttributeValue("datetime", "");
                 if (DateTime.TryParse(expireRaw, out var expirationDate))
                     date.expirationDate = expirationDate;
             }
@@ -100,10 +165,20 @@ namespace Offer_collector.Models.OfferScrappers
         }
         AplikujPl.Company GetCompany(HtmlNode topDeatailHeader)
         {
-            HtmlNode companyNode = topDeatailHeader.SelectSingleNode(".//div[contains(@class,'text-md lg:text-base')]//a");
+            HtmlNode companyNode = topDeatailHeader.SelectSingleNode(".//div[contains(@class,'text-md lg:text-base')]");
             AplikujPl.Company company = new AplikujPl.Company();
-            company.company = companyNode.InnerText.Trim();
-            company.companyLink = companyNode.GetAttributeValue("href", "") ?? "";
+            var companyLinkNode = companyNode?.SelectSingleNode(".//a");
+
+            if (companyLinkNode != null)
+            {
+                company.company = companyLinkNode.InnerText.Trim();
+                company.companyLink = companyNode?.GetAttributeValue("href", "") ?? "";
+            }
+            else
+            {
+                company.company = companyNode?.InnerText.Trim();
+            }
+
             company.companyLogo = topDeatailHeader.SelectSingleNode(".//div[contains(@class,'mr-2 mt-2 sm:mr-8 sm:mt-0')]//img")?.GetAttributeValue("src", "") ?? "";
 
             return company;
@@ -124,18 +199,21 @@ namespace Offer_collector.Models.OfferScrappers
 
             HtmlNode? salarySection = node.SelectSingleNode(".//div[contains(@class, 'flex bg-gray-100 rounded-lg py-1 lg:py-2.5 px-2 lg:px-4 mt-4')]");
 
-            det.responsibilities = GetFeature(skillsSections.FirstOrDefault());
-            if (skillsSections.Count > 1)
-                det.requirements = GetFeature(skillsSections.ElementAt(1));
-            if (skillsSections.Count > 2)
-                det.benefits = GetFeature(skillsSections.ElementAt(2));
+            det.responsibilities = GetFeature(skillsSections?.FirstOrDefault());
+            if (skillsSections?.Count > 1)
+                det.requirements = GetFeature(skillsSections?.ElementAt(1));
+            if (skillsSections?.Count > 2)
+                det.benefits = GetFeature(skillsSections?.ElementAt(2));
             det.localization = GetLocalization(informationSection, doc.DocumentNode);
             if (salarySection != null)
                 det.salary = GetSalary(salarySection);
             det.infoFeatures = GetInfofeature(node);
-            det.category = informationSection.SelectSingleNode(".//div//div[2]//div//div[2]//p").InnerText.Trim();
+            if (skillsSections == null)
+                det.infoFeatures.description = node.SelectSingleNode(".//div[contains(@class, 'leading-8 text-lg')]")?.InnerText.ToString() ?? "";
+            det.category = informationSection.SelectSingleNode(".//div//div[2]//div//div[2]//p")?.InnerText.Trim() ?? "";
 
             return det;
+
         }
 
         private InfoFeatures GetInfofeature(HtmlNode document)
@@ -148,13 +226,13 @@ namespace Offer_collector.Models.OfferScrappers
 
             features.typeofContract = typeofContract;
             features.typeofWork = typeofWork;
-           
+
             features.isRemote = false;
             foreach (HtmlNode node in infoSection.SelectNodes(".//div[contains(@class, 'flex-1')]"))
             {
                 string? content = node.SelectSingleNode(".//p")?.InnerText.Trim();
                 if (content != null && content.Contains("Praca zdalna"))
-                    features.isRemote = true; 
+                    features.isRemote = true;
                 if (content != null && content.Contains("Запрошуємо працівників з України"))
                     features.isforUkrainians = true;
                 if (content != null && content.Contains("Praca od zaraz"))

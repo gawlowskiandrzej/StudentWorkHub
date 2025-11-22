@@ -4,65 +4,71 @@ using System.Text;
 
 namespace Offer_collector.Models.AI
 {
-    internal class AiApi
-    {
-        // Z mojego researchu dobre to Groq oraz OpenRouter gdzie Groq ma korzystniejesze rate limity
+    //internal class AiApi
+    //{
+    //    Z mojego researchu dobre to Groq oraz OpenRouter gdzie Groq ma korzystniejesze rate limity
 
-        private readonly string _authToken = @"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";
-        private readonly string _baseUrl = @"https://openrouter.ai/api/v1/chat/completions";
-        private readonly string _aiModel = "meta-llama/llama-3.3-8b-instruct:free";
-        private static HttpClient? _restClient;
-        public AiApi(string authToken = "")
-        {
-            if (authToken != "")
-                _authToken = authToken;
-            if (_restClient == null)
-            {
-                _restClient = new HttpClient()
-                {
-                    BaseAddress = new Uri(_baseUrl),
-                };
-                _restClient.DefaultRequestHeaders
-                  .Accept
-                  .Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                _restClient.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", _authToken);
-            }
+    //    private readonly string _authToken = @"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";
+    //    private readonly string _baseUrl = @"https://openrouter.ai/api/v1/chat/completions";
+    //    private readonly string _aiModel = "meta-llama/llama-3.3-8b-instruct:free";
+    //    private static HttpClient? _restClient;
+    //    public AiApi(string authToken = "")
+    //    {
+    //        if (authToken != "")
+    //            _authToken = authToken;
+    //        if (_restClient == null)
+    //        {
+    //            _restClient = new HttpClient()
+    //            {
+    //                BaseAddress = new Uri(_baseUrl),
+    //            };
+    //            _restClient.DefaultRequestHeaders
+    //              .Accept
+    //              .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+    //            _restClient.DefaultRequestHeaders.Authorization =
+    //                new AuthenticationHeaderValue("Bearer", _authToken);
+    //        }
 
-        }
-        string CreatePrompt(List<string> myOfferString, PromptType promptType)
-        {
-            SendPromptObject prompt = new SendPromptObject();
-            AiPromptParameters promptParameters = PromptFactory.GetPromptParameters(promptType);
-            string message = $@"
-            You are an AI that extracts structured data from job offers.\n\nReturn only valid JSON matching the following C# class structure:\n\n```csharp\npublic class Skill\n{{\n    public string? name {{ get; set; }}\n    public int? years {{ get; set; }}\n}}\n\npublic class Requirements\n{{\n    public List<Skill>? skills {{ get; set; }}\n    public List<string>? education {{ get; set; }}\n    public List<Language>? languages {{ get; set; }}\n    public List<string>? benefits {{ get; set; }}\n}}\n\npublic class Language\n{{\n    public string? name {{ get; set; }}\n    public string? level {{ get; set; }}\n}}\n```\n\n---\n\n
-            ### Example input:\n {promptParameters.ExampleDescriptionStructure}\n 
-            ### Example output: {promptParameters.ExampleRequirementsStructure}\n
-            ### Task: {promptParameters.ExampleTaskStructure}\n
-            ### Text: {String.Join("\n",myOfferString)}
-            ";
-            prompt.model = _aiModel;
-            prompt.messages.Add(new Message
-            {
-                content = message,
-                role = "user"
-            });
+    //    }
+    //    string CreatePrompt(List<string> myOfferString, PromptType promptType)
+    //    {
+    //        SendPromptObject prompt = new SendPromptObject();
+    //        AiPromptParameters promptParameters = PromptFactory.GetPromptParameters(promptType);
+    //        string message = $@"
+    //        You are an AI that extracts structured data from job offers.\n\nReturn only valid JSON matching the following C# class structure:\n\n```csharp\npublic class Skill\n{{\n    public string? name {{ get; set; }}\n    public int? years {{ get; set; }}\n}}\n\npublic class Requirements\n{{\n    public List<Skill>? skills {{ get; set; }}\n    public List<string>? education {{ get; set; }}\n    public List<Language>? languages {{ get; set; }}\n    public List<string>? benefits {{ get; set; }}\n}}\n\npublic class Language\n{{\n    public string? name {{ get; set; }}\n    public string? level {{ get; set; }}\n}}\n```\n\n---\n\n
+    //        ### Example input:\n {promptParameters.ExampleDescriptionStructure}\n 
+    //        ### Example output: {promptParameters.ExampleRequirementsStructure}\n
+    //        ### Task: {promptParameters.ExampleTaskStructure}\n
+    //        ### Text: {String.Join("\n", myOfferString)}
+    //        ";
+    //        prompt.model = _aiModel;
+    //        prompt.messages.Add(new Message
+    //        {
+    //            content = message,
+    //            role = "user"
+    //        });
 
-            return JsonConvert.SerializeObject(prompt);
-        }
-        public async Task<string> SendPrompt(List<string> descriptionString)
-        {
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, _restClient?.BaseAddress);
+    //        return JsonConvert.SerializeObject(prompt);
+    //    }
+    //    public async Task<string> SendPrompt(List<string> descriptionString)
+    //    {
+    //        if (_restClient == null)
+    //            throw new InvalidOperationException("RestClient is not initialized.");
 
-            string prompt = CreatePrompt(descriptionString, descriptionString.Count > 1 ? PromptType.FromListOfSkills : PromptType.FromDescription);
+    //        if (descriptionString == null || descriptionString.Count == 0)
+    //            throw new ArgumentException("Description list cannot be null or empty.", nameof(descriptionString));
 
-            request.Content = new StringContent(prompt, Encoding.UTF8, "application/json");
-            HttpResponseMessage message = await _restClient?.SendAsync(request);
-            string rawJsonResponse = await message.Content.ReadAsStringAsync();
+    //        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, _restClient.BaseAddress);
 
-            DTOApiObject? result = JsonConvert.DeserializeObject<DTOApiObject>(rawJsonResponse);
-            return JsonConvert.SerializeObject(result?.choices?.FirstOrDefault()?.message); 
-        }
-        
-    }
+    //        string prompt = CreatePrompt(descriptionString, descriptionString.Count > 1 ? PromptType.FromListOfSkills : PromptType.FromDescription);
+
+    //        request.Content = new StringContent(prompt, Encoding.UTF8, "application/json");
+    //        HttpResponseMessage message = await _restClient.SendAsync(request);
+    //        string rawJsonResponse = await message.Content.ReadAsStringAsync();
+
+    //        DTOApiObject? result = JsonConvert.DeserializeObject<DTOApiObject>(rawJsonResponse);
+    //        return JsonConvert.SerializeObject(result?.choices?.FirstOrDefault()?.message);
+    //    }
+
+    //}
 }

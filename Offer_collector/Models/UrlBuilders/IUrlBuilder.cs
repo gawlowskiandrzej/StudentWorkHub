@@ -2,6 +2,6 @@
 {
     public interface IUrlBuilder
     {
-        string BuildUrl(Dictionary<string, string> parameters = null, int pageId = 1, Dictionary<string, string> tags = null);
+        string BuildUrl(SearchFilters searchFilters, int pageId = 1);
     }
 }

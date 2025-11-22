@@ -2,11 +2,46 @@
 {
     internal class PracujPlUrlBuilder : BaseUrlBuilder
     {
-        public static string baseUrl = "https://it.pracuj.pl/praca";
+        public static string baseUrl = "https://www.pracuj.pl/praca";
         public PracujPlUrlBuilder() : base(baseUrl) { }
-        protected override string BuildBaseUrl(Dictionary<string, string> parameters, Dictionary<string, string> tags)
+        protected override string BuildBaseUrl(SearchFilters searchFilters, Dictionary<string, string> parameters)
         {
-            return $"{baseUrl}/programista%20python;kw";
+            if (searchFilters.EmploymentType != null)
+            {
+                parameters["tc"] = searchFilters.EmploymentType switch
+                {
+                    EmploymentType.EmploymentContract => "0",
+                    EmploymentType.SpecificTaskContract => "1",
+                    EmploymentType.MandateContract => "2",
+                    EmploymentType.B2BContract => "3",
+                    EmploymentType.StudentPractice => "7",
+                    _ => "",
+                };
+            }
+            if (searchFilters.WorkType != null)
+            {
+                parameters["ws"] = searchFilters.WorkType switch
+                {
+                    WorkTimeType.FullTimeStandardHours => "0",
+                    WorkTimeType.FullTimeShiftWork => "0",
+                    WorkTimeType.FullTimeNightWork => "0",
+                    WorkTimeType.FullTimeWeekendWork => "0",
+                    WorkTimeType.PartTimeStandardHours => "1",
+                    WorkTimeType.PartTimeShiftWork => "1",
+                    WorkTimeType.PartTimeNightWork => "1",
+                    WorkTimeType.PartTimeWeekendWork => "1",
+                    WorkTimeType.FlexibleWorkingHours => "2",
+                    WorkTimeType.TaskBasedSystem => "2",
+                    _ => "",
+                };
+            }
+
+            if (!string.IsNullOrEmpty(searchFilters.Keyword))
+                baseUrl += $"/{searchFilters.Keyword};kw";
+            if (!string.IsNullOrEmpty(searchFilters.Localization))
+                baseUrl += $"/{searchFilters.Localization};wp";
+
+            return $"{baseUrl}";
         }
         protected override Dictionary<string, string> AddPaging(Dictionary<string, string> parameters, int pageId)
         {
