@@ -153,11 +153,11 @@ BEGIN
                 (p_salary_to   IS NULL OR o.salary_to   IS NULL OR o.salary_to   <= p_salary_to)
               )
               OR
-              -- hourly-like range (bieda conversion: divide by 240)
+              -- hourly-like range (bieda conversion: divide by 160)
               (
-                (p_salary_from IS NULL OR o.salary_from IS NULL OR o.salary_from >= (p_salary_from / 240.0))
+                (p_salary_from IS NULL OR o.salary_from IS NULL OR o.salary_from >= (p_salary_from / 160.0))
                 AND
-                (p_salary_to   IS NULL OR o.salary_to   IS NULL OR o.salary_to   <= (p_salary_to   / 240.0))
+                (p_salary_to   IS NULL OR o.salary_to   IS NULL OR o.salary_to   <= (p_salary_to   / 160.0))
               )
             )
           )
