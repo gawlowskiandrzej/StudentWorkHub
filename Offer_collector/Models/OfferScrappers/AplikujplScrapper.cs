@@ -16,7 +16,7 @@ namespace Offer_collector.Models.OfferScrappers
         {
         }
 
-        public override async Task<(string, string, List<string>)> GetOfferAsync(string url = "")
+        public override async IAsyncEnumerable<(string, string, List<string>)> GetOfferAsync(string url = "", int batchSize = 5)
         {
             List<string> errors = new List<string>();
             try
@@ -26,18 +26,19 @@ namespace Offer_collector.Models.OfferScrappers
             catch (Exception e)
             {
                 errors.Add($"Error while downloading HTML from url: {url}: {e.Message}");
-                return (string.Empty, string.Empty, errors);
+                yield break;
             }
-            (List<AplikujplSchema> offers, List<string> errors2) = await GetOfferList();
-            return (JsonConvert.SerializeObject(offers, Formatting.Indented) ?? "", _offerListHtml, offers.Select(_ => string.Join('\n', _.errorMessages)).ToList());
+            await foreach ( var (offers, errors2) in GetOfferList(batchSize))
+            {
+                yield return (JsonConvert.SerializeObject(offers, Formatting.Indented) ?? "", _offerListHtml, offers.Where(o => o.errorMessages != null && o.errorMessages.Any()).Select(o => string.Join('\n', o.errorMessages)).ToList());
+            }
+           
         }
         private async Task<string> GetHtmlSource(string url) => await GetHtmlAsync(url);
-        async Task<(List<AplikujplSchema>, List<string>)> GetOfferList()
+        async IAsyncEnumerable<(List<AplikujplSchema>, List<string>)> GetOfferList(int bathSize)
         {
-            var offerList = new List<AplikujplSchema>();
+            List<AplikujplSchema> offerList = new List<AplikujplSchema>();
             List<string> errors = new List<string>();
-            try
-            {
                 HtmlDocument doc = new HtmlDocument();
                 doc.LoadHtml(_offerListHtml);
 
@@ -57,9 +58,9 @@ namespace Offer_collector.Models.OfferScrappers
                 if (node == null)
                 {
                     errors.Add("Cant get list of offers on site");
-                    return (offerList, errors);
+                    yield break;
                 }
-
+                int i = 1;
                 foreach (HtmlNode offerNode in node.SelectNodes(".//li[contains(concat(' ', normalize-space(@class), ' '), ' offer-card ')]") ?? Enumerable.Empty<HtmlNode>())
                 {
                     try
@@ -71,11 +72,10 @@ namespace Offer_collector.Models.OfferScrappers
                         {
                             ap.header = header;
 
-                            if (ConstValues.PolishCities.Any(_ => _.City == ap.header.location))
-                            {
-                                string detailsUrl = AplikujPlUrlBuilder.baseUrl + header.link;
+                            //if (ConstValues.PolishCities.Any(_ => _.City == ap.header.location))
+                            //{
+                                string detailsUrl = header.link;
                                 string detailsHtml = "";
-                                if (detailsUrl == "https://www.aplikuj.pl/oferta/3020174/asystent-umowa-o-prace-instytut-biotechnologii-przemyslu-rolno-spozywczego-im-prof-waclawa-dabrowskiego-panstwowy-instytut-badawczy") ;
                                 try
                                 {
                                     detailsHtml = await GetHtmlSource(detailsUrl);
@@ -83,6 +83,7 @@ namespace Offer_collector.Models.OfferScrappers
                                 catch (Exception ex)
                                 {
                                     errors.Add($"Cant get details of offer {detailsUrl}: {ex.Message}");
+                             
                                 }
 
                                 if (!string.IsNullOrEmpty(detailsHtml))
@@ -97,21 +98,24 @@ namespace Offer_collector.Models.OfferScrappers
                                         errors.Add($"Error while parsing details of offer {detailsUrl}: {ex.Message}");
                                     }
                                 }
-                            }
+                            //}
                         }
                     }
                     catch (Exception ex)
                     {
                         errors.Add($"Error while processing offer {ex.Message}");
                     }
+                if (i >= bathSize)
+                {
+                    yield return (offerList, errors);
+                    offerList = new List<AplikujplSchema>();
+                    errors = new List<string>();
                 }
-            }
-            catch (Exception ex)
-            {
-                errors.Add($"Error while processing list of offers {ex.Message}");
+                i++;
             }
 
-            return (offerList, errors);
+            if (offerList.Count > 0)
+                yield return (offerList, errors);
         }
         OfferListHeader GetHeader(HtmlNode node)
         {
@@ -200,6 +204,7 @@ namespace Offer_collector.Models.OfferScrappers
             HtmlNode? salarySection = node.SelectSingleNode(".//div[contains(@class, 'flex bg-gray-100 rounded-lg py-1 lg:py-2.5 px-2 lg:px-4 mt-4')]");
 
             det.responsibilities = GetFeature(skillsSections?.FirstOrDefault());
+            if (det.responsibilities.Count == 0) ;
             if (skillsSections?.Count > 1)
                 det.requirements = GetFeature(skillsSections?.ElementAt(1));
             if (skillsSections?.Count > 2)

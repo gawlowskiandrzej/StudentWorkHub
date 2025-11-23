@@ -15,7 +15,7 @@ namespace Offer_collector.Models.OfferFetchers
         {
         }
 
-        public override async Task<(string, string, List<string>)> GetOfferAsync(string url = "")
+        public override async IAsyncEnumerable<(string, string, List<string>)> GetOfferAsync(string url = "", int batchSize = 5)
         {
             string baseUrl = JustJoinItBuilder.baseUrl;
             List<string> errors = new List<string>();
@@ -31,7 +31,7 @@ namespace Offer_collector.Models.OfferFetchers
             catch (Exception ex)
             {
                 errors.Add($"Failed to load main HTML from '{baseUrl}': {ex.Message}");
-                return ("", html, errors);
+                yield break;
             }
 
             string allJs;
@@ -42,7 +42,7 @@ namespace Offer_collector.Models.OfferFetchers
             catch (Exception ex)
             {
                 errors.Add($"Failed to extract JSON data from the HTML: {ex.Message}");
-                return ("", html, errors);
+                yield break;
             }
 
             int maxOfferCount = 0;
@@ -70,7 +70,7 @@ namespace Offer_collector.Models.OfferFetchers
 #endif
 
             List<JustJoinItSchema> justJoinItOffers = new List<JustJoinItSchema>();
-
+            int i = 1;
             foreach (JToken offer in offerListJs)
             {
                 try
@@ -121,9 +121,15 @@ namespace Offer_collector.Models.OfferFetchers
                 {
                     errors.Add($"Unexpected error while processing an offer: {ex.Message}");
                 }
+                if (i++ >= batchSize)
+                {
+                    yield return (JsonConvert.SerializeObject(justJoinItOffers, Formatting.Indented) ?? "", html, new List<string>(errors));
+                    justJoinItOffers = new List<JustJoinItSchema>();
+                    errors = new List<string>();
+                }
             }
-
-            return (JsonConvert.SerializeObject(justJoinItOffers, Formatting.Indented) ?? "", html, errors);
+            if (justJoinItOffers.Count > 0)
+                yield return (JsonConvert.SerializeObject(justJoinItOffers, Formatting.Indented) ?? "", html, new List<string>(errors));
         }
 
         private async Task<string> GetHtmlSource(string url) => await GetHtmlAsync(url);

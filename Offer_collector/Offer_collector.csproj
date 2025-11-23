@@ -28,7 +28,7 @@
       <HintPath>Models\AI\LLMParser.dll</HintPath>
     </Reference>
     <Reference Include="OffersConnector">
-      <HintPath>..\offers_database\lib\OffersConnector.dll</HintPath>
+      <HintPath>..\databases\offers_database\lib\OffersConnector.dll</HintPath>
     </Reference>
     <Reference Include="UnifiedOfferSchema">
       <HintPath>..\common_libraries\UnifiedOfferSchema\UnifiedOfferSchema.dll</HintPath>

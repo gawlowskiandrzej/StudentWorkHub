@@ -23,7 +23,7 @@ namespace Offer_collector.Models.Tools
         /// <summary>
         /// Pobiera wszystkie oferty z paginowanego źródła i zwraca je jako JSON.
         /// </summary>
-        public async Task<(string, List<string>, List<string>)> FetchAllOffersAsync(SearchFilters searchFilters,int maxPages = 5)
+        public async IAsyncEnumerable<(string, List<string>, List<string>)> FetchAllOffersAsync(SearchFilters searchFilters,int maxPages = 5, int bathSize = 5)
         {
             var allOffers = new List<JToken>();
             int currentPage = 1;
@@ -42,49 +42,53 @@ namespace Offer_collector.Models.Tools
 
                 while (!success && retryCount < maxRetries)
                 {
-                    try
-                    {
-                        
-                        var (offersJson, htmlRaw, scrappingErrors) = await _scrapper.GetOfferAsync(url);
-                        errors.AddRange(scrappingErrors);
-                        // wyciągamy dane ofert
-                        var offers = ExtractOffers(offersJson);
 
-                        if (offers.Count == 0)
+                    await foreach (var (batchJson, htmlRaw, scrappingErrors) in _scrapper.GetOfferAsync(url, bathSize))
+                    {
+                        try
                         {
-                            hasMore = false;
+                            errors.AddRange(scrappingErrors);
+                            var offers = ExtractOffers(batchJson);
+
+                            if (offers.Count == 0)
+                            {
+                                hasMore = false;
+                                yield break;
+                            }
+                            allOffers.AddRange(offers);
+                            htmls.Add(htmlRaw);
+
+
+                            if (currentPage == 1)
+                            {
+                                int totalOffers = _scrapper.GetOfferCountFromHtml();
+                                int perPage = offers.Count;
+                                totalPages = (int)Math.Ceiling((double)totalOffers / perPage);
+                                _offerMaxCount = (int)totalOffers * (_offerCountPercentage / 100);
+                            }
+                            
+                            success = true;
+                        }
+                        catch (HttpRequestException ex)
+                        {
+                            retryCount++;
+                            errors.Add($"Error while fetching page {currentPage}: {ex.Message}. Try {retryCount}/{maxRetries}");
+                            await Task.Delay(Constants.delayBetweenRequests * retryCount);
+                        }
+                        catch (JsonException ex)
+                        {
+                            errors.Add($"Error parsing offer on page {currentPage}: {ex.Message}");
                             break;
                         }
-
-                        allOffers.AddRange(offers);
-                        htmls.Add(htmlRaw);
-
-                        // przy pierwszej stronie ustal całkowitą liczbę stron
-                        if (currentPage == 1)
+                        catch (Exception ex)
                         {
-                            int totalOffers = _scrapper.GetOfferCountFromHtml();
-                            int perPage = offers.Count;
-                            totalPages = (int)Math.Ceiling((double)totalOffers / perPage);
-                            _offerMaxCount = (int)totalOffers * (_offerCountPercentage / 100);
+                            errors.Add($"Processing error on page {currentPage}: {ex.Message}");
+                            break;
                         }
+                        yield return (batchJson, new List<string>(htmls), new List<string>(errors));
 
-                        success = true;
-                    }
-                    catch (HttpRequestException ex)
-                    {
-                        retryCount++;
-                        errors.Add($"Error while fetching page {currentPage}: {ex.Message}. Try {retryCount}/{maxRetries}");
-                        await Task.Delay(Constants.delayBetweenRequests * retryCount); // exponential backoff
-                    }
-                    catch (JsonException ex)
-                    {
-                        errors.Add($"Error parsing offer on page {currentPage}: {ex.Message}");
-                        break; // nie ma sensu retry, jeśli JSON jest niepoprawny
-                    }
-                    catch (Exception ex)
-                    {
-                        errors.Add($"Processing error on page {currentPage}: {ex.Message}");
-                        break;
+                        if (allOffers.Count >= _offerMaxCount)
+                            yield break;
                     }
                 }
 
@@ -92,8 +96,7 @@ namespace Offer_collector.Models.Tools
                 hasMore = currentPage <= totalPages;
                 await Task.Delay(Constants.delayBetweenRequests);
             }
-
-            return (JsonConvert.SerializeObject(allOffers, Formatting.Indented), htmls, errors);
+           // yield return (JsonConvert.SerializeObject(allOffers, Formatting.Indented), new List<string>(htmls), new List<string>(errors));
         }
 
 

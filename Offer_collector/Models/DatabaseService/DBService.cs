@@ -1,8 +1,10 @@
-﻿using System.Collections.Frozen;
+﻿using LLMParser;
 using Microsoft.Extensions.Configuration;
-using UnifiedOfferSchema;
+using Newtonsoft.Json;
+using Offer_collector.Models.PracujPl;
 using OffersConnector;
-using LLMParser;
+using System.Collections.Frozen;
+using UnifiedOfferSchema;
 
 namespace Offer_collector.Models.DatabaseService
 {
@@ -63,8 +65,13 @@ namespace Offer_collector.Models.DatabaseService
 
                
                 FrozenDictionary<int, BatchResult> batchResults =
-                    await connector.AddOffersBatch(offersList, false, CancellationToken.None);
+                    await connector.AddExternalOffersBatch(offersList, false, CancellationToken.None);
 
+                for (int i = 0; i < batchResults.Values.Length; i++)
+                {
+                    if (!string.IsNullOrEmpty(batchResults.Values.ElementAt(i).Error))
+                        errors.Add($"{JsonConvert.SerializeObject(new { offer = offersList.ElementAt(i), error = batchResults.Values.ElementAt(i).Error }, Formatting.Indented)}");
+                }
 
                 return (true, errors);
             }

@@ -6,7 +6,6 @@ namespace Offer_collector.Models.AI
 {
     internal class AIProcessor
     {
-        static int bathSize = 50;
         static string modelName = PredefinedElements.geminiApiModelNames[1];
         Settings.API apiSettings = new(
             "tu klucz api odczytany z env",
@@ -64,77 +63,69 @@ namespace Offer_collector.Models.AI
 
             llmParser = new([apiSettings], reqSettings);
         }
-        public async Task<(List<string>, List<string>)> ProcessUnifiedSchemas(List<UnifiedOfferSchemaClass> offers, DBService service)
+        public async Task<(List<string>, List<string>)> ProcessUnifiedSchemas(List<UnifiedOfferSchemaClass> offers, DBService service, int bathSize)
         {
-
-            List<string> outputs = new List<string>();
             List<string> errors = new List<string>();
-
-            for (int i = 0; i < offers.Count / bathSize; i++)
+            List<string> outputs = new List<string>();
+            IEnumerable<UnifiedOfferSchemaClass> bath = offers;
             {
-                IEnumerable<UnifiedOfferSchemaClass> bath = offers.Skip(i * bathSize).Take(bathSize);
+                List<string> errorMessages = new List<string>();
+                try
                 {
-                    List<string> errorMessages = new List<string>();
+                    List<string> serializedOffers = new List<string>();
+                    foreach (UnifiedOfferSchemaClass item in bath)
+                    {
+                        serializedOffers.Add(JsonConvert.SerializeObject(item, Formatting.Indented));
+                    }
+                    List<string?> aiOutput = new List<string?>();
                     try
                     {
-                        List<string> serializedOffers = new List<string>();
-                        foreach (UnifiedOfferSchemaClass item in bath)
-                        {
-                            serializedOffers.Add(JsonConvert.SerializeObject(item, Formatting.Indented));
-                        }
-                        List<string?> aiOutput = new List<string?>();
-                        try
-                        {
-                            aiOutput = await llmParser.ParseBatchAsync(serializedOffers, promptSettings, ParserHelpers.ParsingErrorAction.Retry);
-                        }
-                        catch (Exception ex)
-                        {
-
-                            errorMessages.Add(ex.ToString());
-                            foreach (var a in llmParser.GetLastBatchErrors())
-                                errorMessages.Add(a);
-                        }
-
-                        if (aiOutput.Count > 0)
-                        {
-                            try
-                            {
-
-                                outputs.AddRange(aiOutput);
-                                foreach (var item in outputs)
-                                {
-
-                                }
-
-                                try
-                                {
-                                    await service.AddOffersToDatabaseAsync(aiOutput);
-                                }
-                                catch (Exception e)
-                                {
-                                }
-                                //List<UnifiedOfferSchemaClass>? aiOffers = JsonConvert.DeserializeObject<List<UnifiedOfferSchemaClass>>(aiOutput);
-                                //foreach (UnifiedOfferSchemaClass aiOffer in aiOffers ?? new List<UnifiedOfferSchemaClass>())
-                                //{
-                                //    offer.requirements = ProcessRequirements(offer, aiOffer);
-                                //    offer.benefits = ProcessBenefits(offer, aiOffer);
-                                //}
-
-                            }
-                            catch (Exception e)
-                            {
-                                errorMessages.Add($"Error deserializing ai output for offers {bath}: {e.Message}");
-                            }
-
-                        }
+                        aiOutput = await llmParser.ParseBatchAsync(serializedOffers, promptSettings, ParserHelpers.ParsingErrorAction.Retry);
                     }
-                    catch (Exception e)
+                    catch (Exception ex)
                     {
 
-                        errors.Add($"An error while processing bath {e}");
+                        errorMessages.Add(ex.ToString());
+                        foreach (var a in llmParser.GetLastBatchErrors())
+                            errorMessages.Add(a);
                     }
-                    errors.AddRange(errorMessages);
+
+                    if (aiOutput.Count > 0)
+                    {
+                        try
+                        {
+
+                            outputs = aiOutput.Where(x => !string.IsNullOrEmpty(x)).Cast<string>().ToList();
+
+                            try
+                            {
+                                (bool isSucess, List<string> databaseErrors) = await service.AddOffersToDatabaseAsync(outputs);
+                                errorMessages.AddRange(databaseErrors);
+                            }
+                            catch (Exception)
+                            {
+                                errorMessages.Add($"Error adding offers to database {outputs}");
+                            }
+                            //List<UnifiedOfferSchemaClass>? aiOffers = JsonConvert.DeserializeObject<List<UnifiedOfferSchemaClass>>(aiOutput);
+                            //foreach (UnifiedOfferSchemaClass aiOffer in aiOffers ?? new List<UnifiedOfferSchemaClass>())
+                            //{
+                            //    offer.requirements = ProcessRequirements(offer, aiOffer);
+                            //    offer.benefits = ProcessBenefits(offer, aiOffer);
+                            //}
+
+                        }
+                        catch (Exception e)
+                        {
+                            errorMessages.Add($"Error deserializing ai output for offers {bath}: {e.Message}");
+                        }
+                    }
                 }
+                catch (Exception e)
+                {
+
+                    errors.Add($"An error while processing bath {e}");
+                }
+                errors.AddRange(errorMessages);
             }
             return (outputs, errors);
         }

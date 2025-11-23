@@ -75,7 +75,7 @@ namespace Offer_collector.Models.AplikujPl
             s.jobTitle = header.title;
             s.description = details.infoFeatures?.description;
             s.source = OfferSitesTypes.Aplikujpl;
-            s.url = $"{AplikujPlUrlBuilder.baseUrl}{header.link}";
+            s.url = $"{header.link}";
             s.company = new Offer_collector.Models.Company
             {
                 logoUrl = header.companyLogoUrl == "" ? details.company?.companyLogo ?? "" : header.companyLogoUrl,

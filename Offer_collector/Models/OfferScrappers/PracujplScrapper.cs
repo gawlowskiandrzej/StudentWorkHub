@@ -14,7 +14,7 @@ namespace Offer_collector.Models.OfferFetchers
         {
         }
 
-        public override async Task<(string, string, List<string>)> GetOfferAsync(string url = "")
+        public override async IAsyncEnumerable<(string, string, List<string>)> GetOfferAsync(string url = "", int batchSize = 5)
         {
             List<string>errors = new List<string>();
             string baseUrl = PracujPlUrlBuilder.baseUrl;
@@ -29,7 +29,7 @@ namespace Offer_collector.Models.OfferFetchers
             catch (Exception ex)
             {
                 errors.Add($"Error while downloading HTML: {ex.Message}");
-                return (string.Empty, string.Empty, errors);
+                yield break;
             }
 
 
@@ -40,6 +40,7 @@ namespace Offer_collector.Models.OfferFetchers
 
             List<PracujplSchema> pracujplSchemas = new List<PracujplSchema>();
             List<string> requirementsData = new List<string>();
+            int i = 1;
             foreach (JToken offer in offerListJs)
             {
                 try
@@ -78,24 +79,32 @@ namespace Offer_collector.Models.OfferFetchers
                         {
                             errors.Add($"Error while scrapping company/profile details {schemaOffer.companyProfileAbsoluteUri}: {p.Message}");
                         }
-                       
+
                     }
                     bool? isAbroad = schemaOffer.details?.attributes?.workplaces?
                     .Any(_ => _.isAbroad.GetValueOrDefault());
 
-                    if (!isAbroad ?? true)
+                   // if (!isAbroad ?? true)
+                    //{ 
                         pracujplSchemas.Add(schemaOffer);
-                    requirementsData.Add(String.Join(";", schemaOffer.details?.sections?.Where(_ => _.sectionType.Contains("requirements"))?.FirstOrDefault()?.subSections?.FirstOrDefault()?.model?.bullets ?? new List<string>()));
+                    //}
+
                     await Task.Delay(Constants.delayBetweenRequests);
                 }
                 catch (Exception e)
                 {
                     errors.Add($"Error while processing offer from main list: {e.Message}");
                 }
-                
+                if (i++ >= batchSize)
+                {
+                    yield return (JsonConvert.SerializeObject(pracujplSchemas, Formatting.Indented) ?? "", htmlBody, new List<string>(errors));
+                    pracujplSchemas = new List<PracujplSchema>();
+                    errors = new List<string>();
+                }
             }
 
-            return (JsonConvert.SerializeObject(pracujplSchemas, Formatting.Indented) ?? "", htmlBody, errors);
+            if (pracujplSchemas.Count > 0)
+                yield return (JsonConvert.SerializeObject(pracujplSchemas, Formatting.Indented) ?? "", htmlBody, new List<string>(errors));
         }
         async Task<string> GetHtmlSource(string url) => await GetHtmlAsync(url);
         string GetAllJson(string html) => GetJsonFragment(html, "<script id=\"__NEXT_DATA__\" type=\"application/json\">(.*?)</script>");

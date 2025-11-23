@@ -48,6 +48,9 @@ public class PracujplSchema : IUnificatable
         UnifiedOfferSchemaClass s = new UnifiedOfferSchemaClass();
         s.jobTitle = jobTitle ?? "nazwa pracy pusta";
 
+        if (!string.IsNullOrEmpty(aiSummary as string))
+            s.description = aiSummary as string;
+        else
             s.description = jobDescription;
 
         s.source = OfferSitesTypes.Pracujpl;
@@ -120,10 +123,10 @@ public class PracujplSchema : IUnificatable
     {
         return new Offer_collector.Models.Location
         {
-            city = company?.addressContract.city,
-            postalCode = company?.addressContract.postalCode,
+            city = company?.addressContract?.city,
+            postalCode = company?.addressContract?.postalCode,
             buildingNumber = String.IsNullOrEmpty(company?.addressContract.apartmentNumber) ? company?.addressContract.houseNumber : company.addressContract.apartmentNumber,
-            street = company?.addressContract.street,
+            street = company?.addressContract?.street,
             coordinates = offers?.FirstOrDefault()?.coordinates,
             isHybrid = workModes?.Contains("hybrydow") ?? false,
             isRemote = isRemoteWorkAllowed
@@ -133,14 +136,14 @@ public class PracujplSchema : IUnificatable
     {
         return new Offer_collector.Models.Location
         {
-            city = profile?.locations.headOffice.city,
-            postalCode = profile?.locations.headOffice.postalCode,
-            buildingNumber = String.IsNullOrEmpty(profile?.locations.headOffice.addressOfficialName) ? profile?.locations.headOffice.addressOfficialName : "",
-            street = profile?.locations.headOffice.address,
+            city = profile?.locations?.headOffice?.city,
+            postalCode = profile?.locations?.headOffice?.postalCode,
+            buildingNumber = String.IsNullOrEmpty(profile?.locations?.headOffice?.addressOfficialName) ? profile?.locations?.headOffice?.addressOfficialName : "",
+            street = profile?.locations?.headOffice?.address,
             coordinates = new Offer_collector.Models.Coordinates
             {
-                latitude = profile?.locations.headOffice.latitude ?? 0,
-                longitude = profile?.locations.headOffice.longitude ?? 0
+                latitude = profile?.locations?.headOffice?.latitude ?? 0,
+                longitude = profile?.locations?.headOffice?.longitude ?? 0
             },
             isHybrid = workModes?.Contains("hybrydow") ?? false,
             isRemote = isRemoteWorkAllowed

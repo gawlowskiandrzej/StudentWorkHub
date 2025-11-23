@@ -67,6 +67,12 @@ namespace Offer_collector.Models.Tools
             string json = JsonConvert.SerializeObject(existingOffers, Formatting.Indented);
             File.WriteAllText(filePath, $"{json};");
         }
+        public static void ExportToJs(List<string> errors, string filePath)
+        {
+            // Serializuj ponownie i zapisz do pliku
+            //string json = JsonConvert.SerializeObject(errors, Formatting.Indented);
+            File.WriteAllText(filePath, $"[{string.Join(',', errors)}]");
+        }
         public static List<UnifiedOfferSchemaClass> LoadFromJs(string filePath)
         {
             if (!File.Exists(filePath))
