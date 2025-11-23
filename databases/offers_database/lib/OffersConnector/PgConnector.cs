@@ -85,6 +85,11 @@ namespace OffersConnector
                 await Parallel.ForAsync(0, uosOffers.Count, parallelOptions, async (i, ct) =>
                 {
                     var uos = uosOffers[i];
+                    if (uos == null)
+                    {
+                        inputData[i] = null;
+                        return;
+                    }
 
                     string? matchedPrefix = baseSources.FirstOrDefault(baseUrl =>
                             baseUrl != null &&
