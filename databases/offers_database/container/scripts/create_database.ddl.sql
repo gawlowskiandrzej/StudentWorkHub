@@ -195,6 +195,8 @@ CREATE TABLE public.offers (
     salary_period_id SMALLINT,
     leading_category_id SMALLINT,
 
+    is_saved BOOLEAN NOT NULL DEFAULT false,
+
     CONSTRAINT fk_offers_source
         FOREIGN KEY (source_id) REFERENCES public.sources(id),
     CONSTRAINT fk_offers_company

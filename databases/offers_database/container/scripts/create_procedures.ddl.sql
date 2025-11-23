@@ -431,3 +431,42 @@ BEGIN
     -- Główna transakcja zostanie zatwierdzona (COMMIT) automatycznie na końcu.
 END;
 $$;;
+
+CREATE OR REPLACE PROCEDURE public.delete_offers_by_id(
+    IN p_offer_ids bigint[]
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Delete only offers that are in the given list and not saved
+    DELETE FROM public.offers o
+    WHERE o.id = ANY (p_offer_ids)
+        AND o.is_saved = FALSE;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE public.mark_as_saved(
+    IN p_offer_id bigint
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Mark offer as saved for the given ID
+    UPDATE public.offers
+    SET is_saved = TRUE
+    WHERE id = p_offer_id;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE public.mark_as_unsaved(
+    IN p_offer_id bigint
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Mark offer as not saved for the given ID
+    UPDATE public.offers
+    SET is_saved = FALSE
+    WHERE id = p_offer_id;
+END;
+$$;
