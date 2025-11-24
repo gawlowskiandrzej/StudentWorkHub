@@ -243,8 +243,8 @@ namespace OffersConnector
 
                     int resultEnum = 0;
                     foreach (int idx in indices)
-                    {
-                        results.TryAdd(idx, resultArray[resultEnum]);
+                    {                        
+                        results.TryAdd(idx, new BatchResult(idx, resultArray[resultEnum].OfferId, resultArray[resultEnum].Action, resultArray[resultEnum].Error));
                         resultEnum++;
                     }
                 }).ConfigureAwait(false);

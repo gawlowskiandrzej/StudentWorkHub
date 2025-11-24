@@ -51,7 +51,7 @@ You must adhere to these rules consistently and without exceptions.
             result.Add(preamble);
             foreach (var value in values) 
                 if (!string.IsNullOrWhiteSpace(value.Key) && value.Value is not null)
-                    result.Add($"\t- `{value.Key}` **MUST** use standarized values {{{string.Join(", ", value.Value)}}}.");
+                    result.Add($" - `{value.Key}` **MUST** use standarized values {{{string.Join(", ", value.Value)}}}.");
 
             return result;
         }
