@@ -1,0 +1,19 @@
+name: "log_server"
+services:
+    log_server:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                APP_DIR: /log_server
+        container_name: log-server
+        restart: unless-stopped
+        ports:
+            - "54000:54000"
+            - "54001:54001"
+        volumes:
+            - ./scripts:/log_server
+            - logs:/log_server/logs
+
+volumes:
+    logs:

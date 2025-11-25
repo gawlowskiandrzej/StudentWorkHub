@@ -132,10 +132,42 @@ BEGIN
             )
         )
       )
-      AND (p_leading_category IS NULL OR lc.leading_category = p_leading_category)
-      AND (p_salary_from IS NULL OR o.salary_from IS NULL OR o.salary_from >= p_salary_from)
-      AND (p_salary_to   IS NULL OR o.salary_to   IS NULL OR o.salary_to   <= p_salary_to)
-      AND (p_salary_currency IS NULL OR cur.currency = p_salary_currency)
+      -- Case-insensitive leading category filter
+      AND (
+        p_leading_category IS NULL
+        OR lower(lc.leading_category) = lower(p_leading_category)
+      )
+
+      -- salary filter: always check TWO ranges:
+      -- 1) [p_salary_from, p_salary_to]
+      -- 2) [p_salary_from / 240, p_salary_to / 240]
+      -- Offers with NULL salary_from / salary_to are kept (same behavior as before).
+      AND (
+            -- no salary filter when both params are NULL
+            (p_salary_from IS NULL AND p_salary_to IS NULL)
+         OR (
+              -- monthly-like range
+              (
+                (p_salary_from IS NULL OR o.salary_from IS NULL OR o.salary_from >= p_salary_from)
+                AND
+                (p_salary_to   IS NULL OR o.salary_to   IS NULL OR o.salary_to   <= p_salary_to)
+              )
+              OR
+              -- hourly-like range (bieda conversion: divide by 160)
+              (
+                (p_salary_from IS NULL OR o.salary_from IS NULL OR o.salary_from >= (p_salary_from / 160.0))
+                AND
+                (p_salary_to   IS NULL OR o.salary_to   IS NULL OR o.salary_to   <= (p_salary_to   / 160.0))
+              )
+            )
+          )
+
+      -- Case-insensitive salary currency filter
+      AND (
+        p_salary_currency IS NULL
+        OR lower(cur.currency) = lower(p_salary_currency)
+      )
+
       AND (p_location_city IS NULL OR ci.city ILIKE '%' || p_location_city || '%')
       AND (p_is_remote IS NULL OR o.is_remote = p_is_remote)
       AND (p_is_hybrid IS NULL OR o.is_hybrid = p_is_hybrid)
@@ -279,4 +311,221 @@ BEGIN
   LIMIT COALESCE(p_limit, 9223372036854775807)
   OFFSET COALESCE(p_offset, 0);
 END;
+$$;
+
+
+CREATE OR REPLACE FUNCTION public.get_sources_dict()
+RETURNS JSONB
+LANGUAGE sql
+STABLE
+AS $$
+    SELECT COALESCE(
+        jsonb_object_agg(
+            id,
+            jsonb_build_object(
+                'name', name,
+                'base_url', base_url
+            ) ORDER BY id
+        ),
+        '{}'::jsonb
+    )
+    FROM public.sources;
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_companies_dict()
+RETURNS JSONB
+LANGUAGE sql
+STABLE
+AS $$
+    SELECT COALESCE(
+        jsonb_object_agg(
+            id,
+            jsonb_build_object(
+                'name', name,
+                'logo_url', logo_url
+            ) ORDER BY id
+        ),
+        '{}'::jsonb
+    )
+    FROM public.companies;
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_currencies_dict()
+RETURNS JSONB
+LANGUAGE sql
+STABLE
+AS $$
+    SELECT COALESCE(
+        jsonb_object_agg(id, currency ORDER BY id),
+        '{}'::jsonb
+    )
+    FROM public.currencies;
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_salary_periods_dict()
+RETURNS JSONB
+LANGUAGE sql
+STABLE
+AS $$
+    SELECT COALESCE(
+        jsonb_object_agg(id, period ORDER BY id),
+        '{}'::jsonb
+    )
+    FROM public.salary_periods;
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_skills_dict()
+RETURNS JSONB
+LANGUAGE sql
+STABLE
+AS $$
+    SELECT COALESCE(
+        jsonb_object_agg(id, skill ORDER BY id),
+        '{}'::jsonb
+    )
+    FROM public.skills;
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_experience_levels_dict()
+RETURNS JSONB
+LANGUAGE sql
+STABLE
+AS $$
+    SELECT COALESCE(
+        jsonb_object_agg(id, level ORDER BY id),
+        '{}'::jsonb
+    )
+    FROM public.experience_levels;
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_education_levels_dict()
+RETURNS JSONB
+LANGUAGE sql
+STABLE
+AS $$
+    SELECT COALESCE(
+        jsonb_object_agg(id, level ORDER BY id),
+        '{}'::jsonb
+    )
+    FROM public.education_levels;
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_languages_dict()
+RETURNS JSONB
+LANGUAGE sql
+STABLE
+AS $$
+    SELECT COALESCE(
+        jsonb_object_agg(id, language ORDER BY id),
+        '{}'::jsonb
+    )
+    FROM public.languages;
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_language_levels_dict()
+RETURNS JSONB
+LANGUAGE sql
+STABLE
+AS $$
+    SELECT COALESCE(
+        jsonb_object_agg(id, level ORDER BY id),
+        '{}'::jsonb
+    )
+    FROM public.language_levels;
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_cities_dict()
+RETURNS JSONB
+LANGUAGE sql
+STABLE
+AS $$
+    SELECT COALESCE(
+        jsonb_object_agg(id, city ORDER BY id),
+        '{}'::jsonb
+    )
+    FROM public.cities;
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_streets_dict()
+RETURNS JSONB
+LANGUAGE sql
+STABLE
+AS $$
+    SELECT COALESCE(
+        jsonb_object_agg(id, street ORDER BY id),
+        '{}'::jsonb
+    )
+    FROM public.streets;
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_postal_codes_dict()
+RETURNS JSONB
+LANGUAGE sql
+STABLE
+AS $$
+    SELECT COALESCE(
+        jsonb_object_agg(id, postal_code ORDER BY id),
+        '{}'::jsonb
+    )
+    FROM public.postal_codes;
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_employment_schedules_dict()
+RETURNS JSONB
+LANGUAGE sql
+STABLE
+AS $$
+    SELECT COALESCE(
+        jsonb_object_agg(id, schedule ORDER BY id),
+        '{}'::jsonb
+    )
+    FROM public.employment_schedules;
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_employment_types_dict()
+RETURNS JSONB
+LANGUAGE sql
+STABLE
+AS $$
+    SELECT COALESCE(
+        jsonb_object_agg(id, type ORDER BY id),
+        '{}'::jsonb
+    )
+    FROM public.employment_types;
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_benefits_dict()
+RETURNS JSONB
+LANGUAGE sql
+STABLE
+AS $$
+    SELECT COALESCE(
+        jsonb_object_agg(id, benefit ORDER BY id),
+        '{}'::jsonb
+    )
+    FROM public.benefits;
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_leading_categories_dict()
+RETURNS JSONB
+LANGUAGE sql
+STABLE
+AS $$
+    SELECT COALESCE(
+        jsonb_object_agg(id, leading_category ORDER BY id),
+        '{}'::jsonb
+    )
+    FROM public.leading_categories;
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_sub_categories_dict()
+RETURNS JSONB
+LANGUAGE sql
+STABLE
+AS $$
+    SELECT COALESCE(
+        jsonb_object_agg(id, sub_category ORDER BY id),
+        '{}'::jsonb
+    )
+    FROM public.sub_categories;
 $$;

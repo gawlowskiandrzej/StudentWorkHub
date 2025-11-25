@@ -131,7 +131,7 @@ CREATE TABLE public.employment_types (
 
 CREATE TABLE public.benefits (
     id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    benefit VARCHAR(256) NOT NULL,
+    benefit VARCHAR(1024) NOT NULL,
     CONSTRAINT uq_benefits_benefit UNIQUE (benefit)
 );
 
@@ -173,7 +173,7 @@ CREATE TABLE public.offers (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 
     job_title VARCHAR(256) NOT NULL DEFAULT 'Undefined',
-    description TEXT DEFAULT 'Undefined',
+    description VARCHAR(10000) DEFAULT 'Undefined',
 
     salary_from NUMERIC(8,2) DEFAULT 0.0,
     salary_to NUMERIC(8,2) DEFAULT 0.0,
@@ -194,6 +194,8 @@ CREATE TABLE public.offers (
     currency_id SMALLINT,
     salary_period_id SMALLINT,
     leading_category_id SMALLINT,
+
+    is_saved BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT fk_offers_source
         FOREIGN KEY (source_id) REFERENCES public.sources(id),
