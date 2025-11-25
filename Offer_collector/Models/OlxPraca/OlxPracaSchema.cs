@@ -134,17 +134,17 @@ namespace Offer_collector.Models.OlxPraca
             un.url = url;
             un.company = new Company
             {
-                name = doc.DocumentNode.SelectSingleNode("//*[@id=\"mainContent\"]/div[2]/main/aside/div[1]/div[2]/div/div/div/h4")?.InnerText ?? user.company_name,
-                logoUrl = user.logo
+                name = string.IsNullOrEmpty(user.company_name) ? user?.name ?? "" : user?.company_name ?? "" ,
+                logoUrl = user?.bannerDesktopURL ?? ""
             };
-            //un.salary = new Models.Salary
-            //{
-            //    currency = salary.currencySymbol,
-            //    from = (decimal)salary.from,
-            //    to = (decimal)salary.to,
-            //    period = salary?.period,
-            //    type = "Brutto"
-            //};
+            un.salary = new Models.Salary
+            {
+                currency = salary?.currencySymbol ?? null,
+                from = (decimal?)salary?.from ?? 0,
+                to = (decimal?)salary?.to ?? 0,
+                period = salary?.period ?? null,
+                type = "Brutto"
+            };
 
             Param? asd = @params?.Where(_ => _.key?.Contains("workplace") ?? false).FirstOrDefault();
             string workl = asd?.normalizedValue?.ToString() ?? "";

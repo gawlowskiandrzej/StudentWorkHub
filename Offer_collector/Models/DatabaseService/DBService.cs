@@ -65,7 +65,7 @@ namespace Offer_collector.Models.DatabaseService
 
                
                 FrozenDictionary<int, BatchResult> batchResults =
-                    await connector.AddExternalOffersBatch(offersList, false, CancellationToken.None);
+                    await connector.AddExternalOffersBatch(offersList);
 
                 for (int i = 0; i < batchResults.Values.Length; i++)
                 {

@@ -8,6 +8,7 @@ public abstract class BaseHtmlScraper
     private readonly ClientType _clientType = 0;
     protected string htmlBody = "";
     protected int maxOfferCount;
+    protected int offersPerPage;
     private HeadlessBrowser headlessBrowser = new HeadlessBrowser();
     
     public BaseHtmlScraper(ClientType clientType)
@@ -80,6 +81,7 @@ public abstract class BaseHtmlScraper
     /// Abstract method for getting offer count
     /// </summary>
     public virtual int GetOfferCountFromHtml() => maxOfferCount;
+    public virtual int GetOffersPerPage() => offersPerPage;
     protected string DecodeUnicodeStrict(string input)
     {
         if (string.IsNullOrEmpty(input))

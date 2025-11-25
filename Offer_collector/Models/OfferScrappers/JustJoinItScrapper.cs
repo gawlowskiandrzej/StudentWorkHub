@@ -68,7 +68,7 @@ namespace Offer_collector.Models.OfferFetchers
 #if DEBUG
             var listJs = JsonConvert.SerializeObject(offerListJs, Formatting.Indented);
 #endif
-
+            offersPerPage = offerListJs.Count;
             List<JustJoinItSchema> justJoinItOffers = new List<JustJoinItSchema>();
             int i = 1;
             foreach (JToken offer in offerListJs)
@@ -126,6 +126,7 @@ namespace Offer_collector.Models.OfferFetchers
                     yield return (JsonConvert.SerializeObject(justJoinItOffers, Formatting.Indented) ?? "", html, new List<string>(errors));
                     justJoinItOffers = new List<JustJoinItSchema>();
                     errors = new List<string>();
+                    i = 1;
                 }
             }
             if (justJoinItOffers.Count > 0)

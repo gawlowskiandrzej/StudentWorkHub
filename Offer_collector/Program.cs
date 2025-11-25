@@ -28,8 +28,8 @@ namespace Offer_collector
         {
             args[2] = "1";
             args[1] = "100";
-            args[0] = "4";
-            const int bathSize = 50;
+            args[0] = "1";
+            const int bathSize = 5;
 
             if (args.Length < 2)
             {

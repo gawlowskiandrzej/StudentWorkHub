@@ -37,7 +37,7 @@ namespace Offer_collector.Models.OfferFetchers
             maxOfferCount = GetOfferCount(allJs);
             List<JToken> offerListJs = GetOffersJToken(allJs).ToList(); 
 
-
+            offersPerPage = offerListJs.Count;
             List<PracujplSchema> pracujplSchemas = new List<PracujplSchema>();
             List<string> requirementsData = new List<string>();
             int i = 1;
@@ -100,6 +100,7 @@ namespace Offer_collector.Models.OfferFetchers
                     yield return (JsonConvert.SerializeObject(pracujplSchemas, Formatting.Indented) ?? "", htmlBody, new List<string>(errors));
                     pracujplSchemas = new List<PracujplSchema>();
                     errors = new List<string>();
+                    i = 1;
                 }
             }
 

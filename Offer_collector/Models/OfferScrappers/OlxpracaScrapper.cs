@@ -69,6 +69,7 @@ namespace Offer_collector.Models.OfferFetchers
 
             List<OlxPracaSchema> olxPracaSchema = new List<OlxPracaSchema>();
             int i = 1;
+            offersPerPage = offerListJs.Count;
             foreach (JToken offer in offerListJs)
             {
                 try
@@ -111,6 +112,7 @@ namespace Offer_collector.Models.OfferFetchers
                     yield return (JsonConvert.SerializeObject(olxPracaSchema, Formatting.Indented) ?? "", html, errors);
                     olxPracaSchema = new List<OlxPracaSchema>();
                     errors = new List<string>();
+                    i = 1;
                 }
             }
             if (olxPracaSchema.Count > 0)

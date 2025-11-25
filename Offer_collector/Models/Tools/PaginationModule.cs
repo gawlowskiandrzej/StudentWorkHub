@@ -31,7 +31,7 @@ namespace Offer_collector.Models.Tools
             bool hasMore = true;
             List<string> htmls = new List<string>();
             List<string> errors = new List<string>();
-
+            int i = 0;
             while (hasMore && currentPage <= maxPages && allOffers.Count <= _offerMaxCount)
             {
                 string url = _urlBuilder.BuildUrl(searchFilters, pageId: currentPage);
@@ -59,11 +59,10 @@ namespace Offer_collector.Models.Tools
                             htmls.Add(htmlRaw);
 
 
-                            if (currentPage == 1)
+                            if (i == 0)
                             {
                                 int totalOffers = _scrapper.GetOfferCountFromHtml();
-                                int perPage = offers.Count;
-                                totalPages = (int)Math.Ceiling((double)totalOffers / perPage);
+                                totalPages = (int)Math.Ceiling((double)totalOffers / _scrapper.GetOffersPerPage());
                                 _offerMaxCount = (int)totalOffers * (_offerCountPercentage / 100);
                             }
                             
@@ -89,6 +88,7 @@ namespace Offer_collector.Models.Tools
 
                         if (allOffers.Count >= _offerMaxCount)
                             yield break;
+                        i++;
                     }
                 }
 

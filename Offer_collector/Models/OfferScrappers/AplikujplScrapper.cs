@@ -28,90 +28,91 @@ namespace Offer_collector.Models.OfferScrappers
                 errors.Add($"Error while downloading HTML from url: {url}: {e.Message}");
                 yield break;
             }
-            await foreach ( var (offers, errors2) in GetOfferList(batchSize))
+            await foreach (var (offers, errors2) in GetOfferList(batchSize))
             {
                 yield return (JsonConvert.SerializeObject(offers, Formatting.Indented) ?? "", _offerListHtml, offers.Where(o => o.errorMessages != null && o.errorMessages.Any()).Select(o => string.Join('\n', o.errorMessages)).ToList());
             }
-           
+
         }
         private async Task<string> GetHtmlSource(string url) => await GetHtmlAsync(url);
         async IAsyncEnumerable<(List<AplikujplSchema>, List<string>)> GetOfferList(int bathSize)
         {
             List<AplikujplSchema> offerList = new List<AplikujplSchema>();
             List<string> errors = new List<string>();
-                HtmlDocument doc = new HtmlDocument();
-                doc.LoadHtml(_offerListHtml);
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(_offerListHtml);
 
-                var maxOfferNode = doc.DocumentNode
-                    .SelectSingleNode("//div[contains(@class,'hidden sm:flex sm:flex-1 sm:items-center sm:justify-between')]/div/p/span[3]");
+            var maxOfferNode = doc.DocumentNode
+                .SelectSingleNode("//div[contains(@class,'hidden sm:flex sm:flex-1 sm:items-center sm:justify-between')]/div/p/span[3]");
 
-                if (maxOfferNode != null && int.TryParse(maxOfferNode.InnerText, out int maxOffers))
-                {
-                    maxOfferCount = maxOffers;
-                }
-                else
-                {
-                    errors.Add($"Cant get max number of offers.");
-                }
+            if (maxOfferNode != null && int.TryParse(maxOfferNode.InnerText, out int maxOffers))
+            {
+                maxOfferCount = maxOffers;
+            }
+            else
+            {
+                errors.Add($"Cant get max number of offers.");
+            }
 
-                HtmlNode node = doc.DocumentNode.SelectSingleNode("//*[@id=\"offer-list\"]");
-                if (node == null)
+            HtmlNode node = doc.DocumentNode.SelectSingleNode("//*[@id=\"offer-list\"]");
+            if (node == null)
+            {
+                errors.Add("Cant get list of offers on site");
+                yield break;
+            }
+            int i = 1;
+            offersPerPage = node.SelectNodes(".//li[contains(concat(' ', normalize-space(@class), ' '), ' offer-card ')]")?.Count ?? 0;
+            foreach (HtmlNode offerNode in node.SelectNodes(".//li[contains(concat(' ', normalize-space(@class), ' '), ' offer-card ')]") ?? Enumerable.Empty<HtmlNode>())
+            {
+                try
                 {
-                    errors.Add("Cant get list of offers on site");
-                    yield break;
-                }
-                int i = 1;
-                foreach (HtmlNode offerNode in node.SelectNodes(".//li[contains(concat(' ', normalize-space(@class), ' '), ' offer-card ')]") ?? Enumerable.Empty<HtmlNode>())
-                {
-                    try
+                    AplikujplSchema ap = new AplikujplSchema();
+                    OfferListHeader header = GetHeader(offerNode);
+
+                    if (header != null)
                     {
-                        AplikujplSchema ap = new AplikujplSchema();
-                        OfferListHeader header = GetHeader(offerNode);
+                        ap.header = header;
 
-                        if (header != null)
+                        //if (ConstValues.PolishCities.Any(_ => _.City == ap.header.location))
+                        //{
+                        string detailsUrl = header.link;
+                        string detailsHtml = "";
+                        try
                         {
-                            ap.header = header;
-
-                            //if (ConstValues.PolishCities.Any(_ => _.City == ap.header.location))
-                            //{
-                                string detailsUrl = header.link;
-                                string detailsHtml = "";
-                                try
-                                {
-                                    detailsHtml = await GetHtmlSource(detailsUrl);
-                                }
-                                catch (Exception ex)
-                                {
-                                    errors.Add($"Cant get details of offer {detailsUrl}: {ex.Message}");
-                             
-                                }
-
-                                if (!string.IsNullOrEmpty(detailsHtml))
-                                {
-                                    try
-                                    {
-                                        ap.details = GetOfferDetails(detailsHtml);
-                                        offerList.Add(ap);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        errors.Add($"Error while parsing details of offer {detailsUrl}: {ex.Message}");
-                                    }
-                                }
-                            //}
+                            detailsHtml = await GetHtmlSource(detailsUrl);
                         }
+                        catch (Exception ex)
+                        {
+                            errors.Add($"Cant get details of offer {detailsUrl}: {ex.Message}");
+
+                        }
+
+                        if (!string.IsNullOrEmpty(detailsHtml))
+                        {
+                            try
+                            {
+                                ap.details = GetOfferDetails(detailsHtml);
+                                offerList.Add(ap);
+                            }
+                            catch (Exception ex)
+                            {
+                                errors.Add($"Error while parsing details of offer {detailsUrl}: {ex.Message}");
+                            }
+                        }
+                        //}
                     }
-                    catch (Exception ex)
-                    {
-                        errors.Add($"Error while processing offer {ex.Message}");
-                    }
-                if (i >= bathSize)
+                }
+                catch (Exception ex)
+                {
+                    errors.Add($"Error while processing offer {ex.Message}");
+                }
+                if (i++ >= bathSize)
                 {
                     yield return (offerList, errors);
                     offerList = new List<AplikujplSchema>();
                     errors = new List<string>();
+                    i = 1;
                 }
-                i++;
             }
 
             if (offerList.Count > 0)
