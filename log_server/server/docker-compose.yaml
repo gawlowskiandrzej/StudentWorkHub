@@ -14,6 +14,7 @@ services:
         volumes:
             - ./scripts:/log_server
             - logs:/log_server/logs
+            - ./scripts/public_keys:/log_server/public_keys
 
 volumes:
     logs:
