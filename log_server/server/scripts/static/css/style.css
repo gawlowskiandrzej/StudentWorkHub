@@ -29,12 +29,113 @@ h1 {
     color: #9ca3af;
 }
 
-.table-container {
+/* Layout: filters po lewej, tabela po prawej */
+.content-layout {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+/* Panel filtrów */
+.filters {
+    width: 260px;
+    flex-shrink: 0;
     border-radius: 8px;
-    overflow: hidden;
+    padding: 12px;
+    background-color: #020617;
+    border: 1px solid #1f2937;
+    font-size: 13px;
+}
+
+.filters h2 {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #f9fafb;
+}
+
+.filter-group {
+    margin-bottom: 10px;
+}
+
+.filter-group label {
+    display: block;
+    font-size: 12px;
+    margin-bottom: 4px;
+    color: #9ca3af;
+}
+
+.filter-group input,
+.filter-group select {
+    width: 100%;
+    padding: 4px 6px;
+    border-radius: 4px;
+    border: 1px solid #374151;
+    background-color: #020617;
+    color: #e5e7eb;
+    font-size: 12px;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+    outline: none;
+    border-color: #4b5563;
+}
+
+.filter-actions {
+    margin-top: 8px;
+}
+
+.filter-actions--secondary {
+    margin-top: 16px;
+}
+
+.filter-actions button {
+    width: 100%;
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid #4b5563;
+    background-color: #111827;
+    color: #e5e7eb;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.filter-actions button:hover {
+    background-color: #1f2937;
+}
+
+.table-container {
+    flex: 1;
+    border-radius: 8px;
     border: 1px solid #1f2937;
     background-color: #020617;
+
+    max-height: calc(100vh - 150px);
+    overflow-y: auto;
+    overflow-x: auto;
+
+    scrollbar-color: #4b5563 #020617;
+    scrollbar-width: thin;
 }
+
+.table-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: #020617;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: #4b5563;
+    border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+}
+
 
 table {
     width: 100%;

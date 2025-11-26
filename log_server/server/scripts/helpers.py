@@ -102,6 +102,9 @@ def get_public_keys(public_keys_folder: str | Path) -> list[rsa.RSAPublicKey]:
         if file_path.is_dir():
             continue
         
+        if file_path.suffix != ".pem":
+            continue
+        
         # Read file content as bytes
         with open(file_path, "rb") as key_file:
             pem_data = key_file.read()
