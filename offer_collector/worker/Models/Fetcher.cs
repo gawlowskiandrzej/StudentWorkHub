@@ -1,14 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Offer_collector.Interfaces;
 using Offer_collector.Models;
-using Offer_collector.Models.AI;
 using Offer_collector.Models.AplikujPl;
-using Offer_collector.Models.DatabaseService;
 using Offer_collector.Models.JustJoinIt;
 using Offer_collector.Models.OfferFetchers;
 using Offer_collector.Models.OfferScrappers;
 using Offer_collector.Models.OlxPraca;
-using Offer_collector.Models.PracujPl;
 using Offer_collector.Models.Tools;
 using Offer_collector.Models.UrlBuilders;
 using worker.Models.Constants;
@@ -22,13 +19,11 @@ namespace worker.Models
         private readonly ClientType _clientType;
         private readonly bool _saveToLocalFile;
 
-        public DBService DatabaseService { get; set; }
         public bool IsUsingAi { get; }
 
         BaseHtmlScraper? scrapper;
         BaseUrlBuilder? urlBuilder;
         PaginationModule? paginationModule;
-        AIProcessor llm;
 
         public Fetcher(OfferSitesTypes offerSitesTypes, ClientType clientType = ClientType.httpClient, bool isUsingAi = true, bool saveToLocalFile = false)
         {
@@ -36,11 +31,6 @@ namespace worker.Models
             _clientType = clientType;
             IsUsingAi = isUsingAi;
             _saveToLocalFile = saveToLocalFile;
-            DatabaseService = new DBService();
-            if (isUsingAi)
-                llm = new AIProcessor(DatabaseService.GetSystemPromptParamsAsync().Result);
-            else
-                llm = null!;
 
             ConstValues.polishCities = JsonConvert.DeserializeObject<List<PlCityObject>>(File.ReadAllText($"{ConstValues.projectDirectory}/worker/Models/Constants/pl.json")) ?? new List<PlCityObject>();
 
@@ -53,7 +43,7 @@ namespace worker.Models
             switch (_offerSitesTypes)
             {
                 case OfferSitesTypes.Pracujpl:
-                    scrapper = (PracujplScrapper)FactoryScrapper.CreateScrapper(_offerSitesTypes, _clientType);
+                    scrapper = (PracujplScrapper)FactoryScrapper.CreateScrapper(_offerSitesTypes, ClientType.headlessBrowser);
                     urlBuilder = (PracujPlUrlBuilder)UrlBuilderFactory.Create(_offerSitesTypes);
                     break;
                 case OfferSitesTypes.Justjoinit:
@@ -118,20 +108,17 @@ namespace worker.Models
                         //List<UnifiedOfferSchemaClass> offers = ExportTo.LoadFromJs($"{Enum.GetName(typeof(OfferSitesTypes), siteTypeId)}.json");
                         // Processed by Ai
                         List<string> outgoingOffers = new List<string>();
-                        if (!IsUsingAi)
-                        {
-                            foreach (UnifiedOfferSchemaClass item in unifiedOfferSchemastemp)
-                                outgoingOffers.Add(JsonConvert.SerializeObject(item));
-                        }
-                        else
-                        {
-                            (List<string> aioffers, List<string> errormessages) processedOffers = await llm.ProcessUnifiedSchemas(unifiedOfferSchemastemp, DatabaseService, bathSize);
-                            errors.AddRange(processedOffers.errormessages);
-                            outgoingOffers = processedOffers.aioffers;
-                        }
+                        foreach (UnifiedOfferSchemaClass item in unifiedOfferSchemastemp)
+                           outgoingOffers.Add(JsonConvert.SerializeObject(item));
+                       // else
+                        //{
+                            //(List<string> aioffers, List<string> errormessages) processedOffers = await llm.ProcessUnifiedSchemas(unifiedOfferSchemastemp, DatabaseService, bathSize);
+                            //errors.AddRange(processedOffers.errormessages);
+                            //outgoingOffers = processedOffers.aioffers;
+                        //}
                         //errrosAll.AddRange(processedOffers.errormessages);
-                        if (_saveToLocalFile)
-                            ExportTo.ExportToJs(errrosAll, $"{Enum.GetName(typeof(OfferSitesTypes), _offerSitesTypes)}-errors.json");
+                        //if (_saveToLocalFile)
+                            //ExportTo.ExportToJs(errrosAll, $"{Enum.GetName(typeof(OfferSitesTypes), _offerSitesTypes)}-errors.json");
                         yield return (outgoingOffers, errors);
                     }
                 }
@@ -140,10 +127,12 @@ namespace worker.Models
         private void ProcessOffers<T>(string offersJson, List<UnifiedOfferSchemaClass> allOffers, List<UnifiedOfferSchemaClass> unifiedOfferSchemasTemp)
     where T : IUnificatable, new()
         {
+
             var schemas = OfferMapper.DeserializeJson<List<T>>(offersJson);
 
             foreach (var offer in schemas)
             {
+                if (offer is null) continue;
                 UnifiedOfferSchemaClass unified = OfferMapper.ToUnifiedSchema<T>(offer);
                 allOffers.Add(unified);
                 unifiedOfferSchemasTemp.Add(unified);

@@ -26,4 +26,16 @@
         FlexibleWorkingHours = 9,      
         TaskBasedSystem = 10       
     }
+	public enum OfferSitesTypes
+	{
+		Pracujpl = 1,
+		Justjoinit = 2,
+		Olxpraca = 3,
+		Aplikujpl = 4
+	}
+	public enum ClientType
+    {
+        httpClient,
+        headlessBrowser
+    }
 }

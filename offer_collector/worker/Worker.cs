@@ -35,8 +35,8 @@ public class Worker : BackgroundService
             }
 
             var jobTask = JsonConvert.DeserializeObject<JobTask>(taskData!);
-            //var jobTask = new JobTask() { OfferAmount = 100, BatchSize = 5, ClientType = 0, JobId = "test123", SiteTypeId = 4 };
-           // await _redisDb.StringSetAsync($"job:{jobTask.JobId}", JsonConvert.SerializeObject(jobTask));
+
+            await _redisDb.StringSetAsync($"job:{jobTask?.JobId}", JsonConvert.SerializeObject(jobTask));
             if (jobTask != null)
             {
                 await ProcessJob(jobTask, stoppingToken);
@@ -47,7 +47,6 @@ public class Worker : BackgroundService
     {
         Fetcher fetcher = new Fetcher(
             offerSitesTypes: (OfferSitesTypes)task.SiteTypeId,
-            clientType: (Offer_collector.Models.OfferScrappers.ClientType)task.ClientType,
             isUsingAi: false,
             saveToLocalFile: false
         );
@@ -60,20 +59,18 @@ public class Worker : BackgroundService
         await _redisDb.StringSetAsync(jobKey, JsonConvert.SerializeObject(job));
         job.TotalBatches = 0;
         job.BathList = new List<List<string>>();
+        job.ErrorMessage = new List<string>();
         try
         {
-            await foreach (var (offers, errors) in fetcher.FetchOffers(new SearchFilters
-            {
-                Keyword = "pracownik budowy",
-                EmploymentType = EmploymentType.EmploymentContract,
-                WorkType = WorkTimeType.FullTimeStandardHours
-            }, cancellation))
+            await foreach (var (offers, errors) in fetcher.FetchOffers(task.SearchFilters, cancellation))
             {
 
                 job.BathList.Add(offers);
                 job.ErrorMessage.AddRange(errors);
                 job.TotalBatches += 1;
                 await _redisDb.StringSetAsync(jobKey, JsonConvert.SerializeObject(job));
+                if (job.TotalBatches >= task.BatchLimit)
+                    break;
             }
 
             job.Status = "completed";

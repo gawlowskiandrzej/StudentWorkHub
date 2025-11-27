@@ -10,4 +10,20 @@
     <Folder Include="Interfaces\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\shared_models\shared_models.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="LLMParser">
+      <HintPath>..\common_libraries\AI\LLMParser.dll</HintPath>
+    </Reference>
+    <Reference Include="OffersConnector">
+      <HintPath>..\databases\offers_database\lib\OffersConnector.dll</HintPath>
+    </Reference>
+    <Reference Include="UnifiedOfferSchema">
+      <HintPath>..\common_libraries\UnifiedOfferSchema\UnifiedOfferSchema.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

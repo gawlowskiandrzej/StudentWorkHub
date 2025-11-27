@@ -1,7 +1,5 @@
 ﻿using LLMParser;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using Offer_collector.Models.PracujPl;
 using OffersConnector;
 using System.Collections.Frozen;
 using UnifiedOfferSchema;
@@ -48,7 +46,7 @@ namespace Offer_collector.Models.DatabaseService
             try
             {
                 // --- 1. Utwórz listę ofert UOS ---
-                var offersList = new List<UOS>();
+                List<UOS> offersList = new List<UOS>();
                 foreach (var offerStr in aiOffers)
                 {
                     try
@@ -62,7 +60,7 @@ namespace Offer_collector.Models.DatabaseService
                     }
                    
                 }
-
+                
                
                 FrozenDictionary<int, BatchResult> batchResults =
                     await connector.AddExternalOffersBatch(offersList);

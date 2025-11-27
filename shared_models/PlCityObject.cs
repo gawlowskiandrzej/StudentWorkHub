@@ -1,6 +1,6 @@
 ﻿namespace worker.Models.Tools
 {
-    internal class PlCityObject
+    public class PlCityObject
     {
         public string City { get; set; } = "";
         public string Lat { get; set; } = "";

@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36511.14 d17.14
+VisualStudioVersion = 17.14.36511.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "offer_manager", "offer_manager.csproj", "{5B2994BA-3635-4AA2-A8C4-4DD66B84C489}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "shared_models", "..\shared_models\shared_models.csproj", "{C7F353DF-F4F0-D4D1-F329-2FC61E1B65D2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{5B2994BA-3635-4AA2-A8C4-4DD66B84C489}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B2994BA-3635-4AA2-A8C4-4DD66B84C489}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B2994BA-3635-4AA2-A8C4-4DD66B84C489}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7F353DF-F4F0-D4D1-F329-2FC61E1B65D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7F353DF-F4F0-D4D1-F329-2FC61E1B65D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7F353DF-F4F0-D4D1-F329-2FC61E1B65D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7F353DF-F4F0-D4D1-F329-2FC61E1B65D2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

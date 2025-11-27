@@ -1,4 +1,5 @@
-﻿using Offer_collector.Models.OfferScrappers;
+﻿using Offer_collector.Models;
+using Offer_collector.Models.OfferScrappers;
 using Offer_collector.Models.Tools;
 using System.Text.RegularExpressions;
 
