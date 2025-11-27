@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-worker-9aca5530-c827-4bb8-9882-373ba2dced20</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HtmlAgilityPack" Version="1.12.2" />
+    <PackageReference Include="HtmlSanitizer" Version="9.0.886" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.11" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Npgsql" Version="9.0.3" />
+    <PackageReference Include="StackExchange.Redis" Version="2.10.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="LLMParser">
+      <HintPath>Models\AI\LLMParser.dll</HintPath>
+    </Reference>
+    <Reference Include="OffersConnector">
+      <HintPath>..\..\databases\offers_database\lib\OffersConnector.dll</HintPath>
+    </Reference>
+    <Reference Include="UnifiedOfferSchema">
+      <HintPath>..\..\common_libraries\UnifiedOfferSchema\UnifiedOfferSchema.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>
