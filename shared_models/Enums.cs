@@ -38,4 +38,12 @@
         httpClient,
         headlessBrowser
     }
+    public enum BathStatus
+    {
+        error,
+        completed,
+        queued,
+        running,
+        pending
+    }
 }

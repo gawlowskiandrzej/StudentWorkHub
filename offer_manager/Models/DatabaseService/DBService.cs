@@ -1,12 +1,14 @@
 ﻿using LLMParser;
 using Newtonsoft.Json;
+using Offer_collector.Models.UrlBuilders;
+using offer_manager.Interfaces;
 using OffersConnector;
 using System.Collections.Frozen;
 using UnifiedOfferSchema;
 
 namespace Offer_collector.Models.DatabaseService
 {
-    internal class DBService
+    internal class DBService : IDatabaseService
     {
         private readonly DatabaseSettings _settings;
         private readonly PgConnector connector;
@@ -78,6 +80,24 @@ namespace Offer_collector.Models.DatabaseService
                 errors.Add($"Unexpected error while adding offers to database: {ex.Message}");
                 return (false, errors);
             }
+        }
+
+        public async Task<FrozenSet<UOS?>> GetOffers(SearchFilters searchFilters)
+        {
+            var uosOffers = await connector.GetExternalOffers(
+                searchFilters.Keyword,
+                searchFilters.Category,
+                searchFilters.SalaryFrom,
+                searchFilters.SalaryTo,
+                null,
+                searchFilters.Localization,
+                null,
+                null,
+                null,
+                null,
+                null
+                );
+            return uosOffers;
         }
 
         /// <summary>

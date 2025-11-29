@@ -55,7 +55,7 @@ public class Worker : BackgroundService
 
         var jobData = await _redisDb.StringGetAsync(jobKey);
         JobInfo? job = JsonConvert.DeserializeObject<JobInfo>(jobData!);
-        job.Status = "running";
+        job.Status = BathStatus.running;
         await _redisDb.StringSetAsync(jobKey, JsonConvert.SerializeObject(job));
         job.TotalBatches = 0;
         job.BathList = new List<List<string>>();
@@ -73,12 +73,12 @@ public class Worker : BackgroundService
                     break;
             }
 
-            job.Status = "completed";
+            job.Status = BathStatus.completed;
             await _redisDb.StringSetAsync(jobKey, JsonConvert.SerializeObject(job));
         }
         catch (Exception ex)
         {
-            job.Status = "error";
+            job.Status = BathStatus.error;
             job.ErrorMessage.AddRange(ex.Message);
         }
     }

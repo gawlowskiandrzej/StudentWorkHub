@@ -1,3 +1,6 @@
+using Offer_collector.Models.DatabaseService;
+using offer_manager.Interfaces;
+using offer_manager.Models.WorkerService;
 using OffersConnector;
 using StackExchange.Redis;
 
@@ -43,6 +46,8 @@ namespace offer_manager
                 dbName
             ));
 
+            builder.Services.AddScoped<IWorkerService, WorkerService>();
+            builder.Services.AddScoped<IDatabaseService, DBService>();
 
             var app = builder.Build();
 

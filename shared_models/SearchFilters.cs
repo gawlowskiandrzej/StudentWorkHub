@@ -10,5 +10,21 @@
         public EmploymentType? EmploymentType { get; set; } = Models.EmploymentType.EmploymentContract;
         public decimal SalaryFrom { get; set; } = 0;
         public decimal SalaryTo { get; set; } = 0;
+
+        public SearchFilters Copy()
+        {
+            return new SearchFilters
+            {
+                Keyword = this.Keyword,
+                Category = this.Category,
+                Localization = this.Localization,
+                WorkType = this.WorkType,
+                WorkTime = this.WorkTime,
+                EmploymentType = this.EmploymentType,
+                SalaryFrom = this.SalaryFrom,
+                SalaryTo = this.SalaryTo
+            };
+        }
     }
+
 }
