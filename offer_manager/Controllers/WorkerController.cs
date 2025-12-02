@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Offer_collector.Models;
 using Offer_collector.Models.UrlBuilders;
 using offer_manager.Models.WorkerService;
 using StackExchange.Redis;
@@ -34,9 +35,9 @@ namespace offer_manager.Controllers
 
         // POST api/<WorkerController>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] SearchFilters searchFilters, int batchSize = 5, int bathLimit = 1)
+        public async Task<IActionResult> Post([FromBody] SearchFilters searchFilters, OfferSitesTypes offerSites = OfferSitesTypes.Aplikujpl ,int batchSize = 5, int bathLimit = 1)
         {
-            string jobId = await _workerService.CreateJobAsync(searchFilters, batchSize, bathLimit);
+            string jobId = await _workerService.CreateJobAsync(searchFilters,  offerSites, batchSize, bathLimit);
             if (string.IsNullOrEmpty(jobId))
                 return NotFound();
             

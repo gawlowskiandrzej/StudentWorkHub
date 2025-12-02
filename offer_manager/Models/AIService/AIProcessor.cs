@@ -1,5 +1,4 @@
 ﻿using LLMParser;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Offer_collector.Models.DatabaseService;
 using offer_manager;

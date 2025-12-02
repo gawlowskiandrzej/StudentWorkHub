@@ -6,6 +6,6 @@ namespace worker.Models.Constants
     {
         public static readonly int delayBetweenRequests = 100;
         public static List<PlCityObject> polishCities = new();
-        public static string projectDirectory = Directory.GetParent(Environment.CurrentDirectory)?.FullName ?? "";
+        public static string projectDirectory = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.Parent?.FullName ?? "";
     }
 }

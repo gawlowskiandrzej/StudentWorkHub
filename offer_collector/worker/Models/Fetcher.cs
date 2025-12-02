@@ -32,7 +32,14 @@ namespace worker.Models
             IsUsingAi = isUsingAi;
             _saveToLocalFile = saveToLocalFile;
 
-            ConstValues.polishCities = JsonConvert.DeserializeObject<List<PlCityObject>>(File.ReadAllText($"{ConstValues.projectDirectory}/worker/Models/Constants/pl.json")) ?? new List<PlCityObject>();
+            string filePath = Path.Combine(
+            AppContext.BaseDirectory,
+            "Models",
+            "Constants",
+            "pl.json"
+        );
+
+            ConstValues.polishCities = JsonConvert.DeserializeObject<List<PlCityObject>>(File.ReadAllText(filePath)) ?? new List<PlCityObject>();
 
             InitScrappers();
             InitPaginationModule();

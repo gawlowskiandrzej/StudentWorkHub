@@ -1,5 +1,7 @@
 using Offer_collector.Models.DatabaseService;
 using offer_manager.Interfaces;
+using offer_manager.Models.FilterService;
+using offer_manager.Models.PaginationService;
 using offer_manager.Models.WorkerService;
 using OffersConnector;
 using StackExchange.Redis;
@@ -19,7 +21,18 @@ namespace offer_manager
             var redisConfig = builder.Configuration.GetSection("RedisServer");
             string redisHostname = redisConfig.GetValue<string>("Host");
             int redisPort = redisConfig.GetValue<int>("Port");
-            builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect($"{redisHostname}:{redisPort}"));
+            builder.Services.AddSingleton<IConnectionMultiplexer>(sp => 
+            {
+                var options = ConfigurationOptions.Parse($"{redisHostname}:{redisPort}");
+                options.AllowAdmin = true;
+
+                var redis = ConnectionMultiplexer.Connect(options);
+
+                var server = redis.GetServer(redisHostname, redisPort);
+                server.FlushDatabase();
+
+                return redis;
+            });
 
             var dbConfig = builder.Configuration.GetSection("DatabaseSettings");
             string? dbHost = dbConfig.GetValue<string>("Host");
@@ -48,6 +61,8 @@ namespace offer_manager
 
             builder.Services.AddScoped<IWorkerService, WorkerService>();
             builder.Services.AddScoped<IDatabaseService, DBService>();
+            builder.Services.AddScoped<PaginationService>();
+            builder.Services.AddScoped<FilterService>();
 
             var app = builder.Build();
 

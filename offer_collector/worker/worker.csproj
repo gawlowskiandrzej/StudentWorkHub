@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-worker-9aca5530-c827-4bb8-9882-373ba2dced20</UserSecretsId>
@@ -20,6 +20,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\shared_models\shared_models.csproj" />
+    <None Include="Models/Constants/pl.json" CopyToOutputDirectory="Always" />
+    <None Include="Models/Tools/Nodejs/scrapper-sever.js" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,5 +31,17 @@
     <Reference Include="UnifiedOfferSchema">
       <HintPath>..\..\common_libraries\UnifiedOfferSchema\UnifiedOfferSchema.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Models\Tools\Nodejs\package.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Models\Tools\Nodejs\node.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

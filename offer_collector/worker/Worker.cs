@@ -4,6 +4,7 @@ using Offer_collector.Models.PracujPl;
 using Offer_collector.Models.UrlBuilders;
 using StackExchange.Redis;
 using System.Collections.Generic;
+using System.Diagnostics;
 using worker.Models;
 using worker.Models.DTO;
 
@@ -24,24 +25,40 @@ public class Worker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Worker started...");
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            var taskData = await _redisDb.ListRightPopAsync("jobs_queue");
-            if (taskData.IsNullOrEmpty)
+            _logger.LogInformation("Worker started...");
+            while (!stoppingToken.IsCancellationRequested)
             {
-                await Task.Delay(500, stoppingToken); // brak zadañ, czekamy
-                continue;
-            }
+                var taskData = await _redisDb.ListRightPopAsync("jobs_queue");
+                if (taskData.IsNullOrEmpty)
+                {
+                    //_logger.LogInformation($"Worker is waiting for a job");
+                    await Task.Delay(500, stoppingToken); // brak zadañ, czekamy
+                    continue;
+                }
 
-            var jobTask = JsonConvert.DeserializeObject<JobTask>(taskData!);
+                var jobTask = JsonConvert.DeserializeObject<JobTask>(taskData!);
 
-            await _redisDb.StringSetAsync($"job:{jobTask?.JobId}", JsonConvert.SerializeObject(jobTask));
-            if (jobTask != null)
-            {
-                await ProcessJob(jobTask, stoppingToken);
+                await _redisDb.StringSetAsync($"job:{jobTask?.JobId}", JsonConvert.SerializeObject(jobTask));
+
+                if (jobTask != null)
+                {
+                    _logger.LogInformation($"Worker is now processing job {jobTask.JobId}");
+
+                    var stopwatch = Stopwatch.StartNew(); // Start pomiaru czasu
+                    await ProcessJob(jobTask, stoppingToken);
+                    stopwatch.Stop(); // Zatrzymanie pomiaru czasu
+
+                    _logger.LogInformation($"Job {jobTask.JobId} finished in {stopwatch.Elapsed.TotalSeconds:F2} seconds");
+                }
             }
         }
+        catch (Exception e)
+        {
+            _logger.LogInformation($"An error occured {e.Message}");
+        }
+       
     }
     async Task ProcessJob(JobTask task, CancellationToken cancellation)
     {
@@ -79,7 +96,7 @@ public class Worker : BackgroundService
         catch (Exception ex)
         {
             job.Status = BathStatus.error;
-            job.ErrorMessage.AddRange(ex.Message);
+            job.ErrorMessage.Add(ex.Message);
         }
     }
 }

@@ -5,6 +5,7 @@ using Offer_collector.Models.UrlBuilders;
 using offer_manager.Interfaces;
 using offer_manager.Models.FilterService;
 using offer_manager.Models.PaginationService;
+using offer_manager.Models.WorkerService;
 using StackExchange.Redis;
 using System.Collections.Frozen;
 using System.ComponentModel;
@@ -32,7 +33,7 @@ namespace offer_manager.Controllers
             _filterService = filterService;
         }
 
-        [HttpGet]
+        [HttpGet("getOffersDatabase")]
         public async Task<IActionResult> GetOffersFromDatabase(SearchFilters searchFilter, int pageOffset = 0, int offerPerpage = -1)
         {
             FrozenSet<UOS?> dbOffers = await _databaseService.GetOffers(searchFilter);
@@ -59,14 +60,13 @@ namespace offer_manager.Controllers
         }
 
         // GET api/<OfferController>/5
-        [HttpGet]
-        public async Task<IActionResult> GetScrappedOffers(string jobIds, int batchId = 0)
+        [HttpGet("getOffersScrapped")]
+        public async Task<IActionResult> GetScrappedOffers([FromBody] jobIdsDto jobIds, int batchId = -1)
         {
-            List<string> ids = jobIds.Split(',').Select(x => x.Trim()).ToList();
 
             var completedJobs = new List<JobInfo>();
 
-            foreach (var id in ids)
+            foreach (var id in jobIds.JobIds)
             {
                 JobInfo? job = await _workerService.GetJobAsync(id);
 
@@ -95,6 +95,8 @@ namespace offer_manager.Controllers
                     mergedOffers.AddRange(job.BathList.SelectMany(b => b));
             }
 
+
+
             return Ok(new
             {
                batch = mergedOffers
@@ -108,7 +110,9 @@ namespace offer_manager.Controllers
             List<string>jobIds = new List<string>();
             for (int i = 0; i < 4; i++)
             {
-                jobIds.Add(await _workerService.CreateJobAsync(filters, (OfferSitesTypes)i,batchSize, batchLimit));
+                jobIds.Add(await _workerService.CreateJobAsync(filters, (OfferSitesTypes)(i+1),batchSize, batchLimit));
+
+                // zależnie od limitu batha 
             }
             
             return Ok(new 
