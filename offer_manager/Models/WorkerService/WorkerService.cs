@@ -25,7 +25,7 @@ namespace offer_manager.Models.WorkerService
             return JsonConvert.DeserializeObject<JobInfo>(jobData!);
         }
 
-        public async Task<string> CreateJobAsync(SearchFilters filters, OfferSitesTypes siteType , int batchSize, int batchLimit)
+        public async Task<string> CreateJobAsync(SearchFilters filters, OfferSitesTypes offerSitetype, int batchSize, int batchLimit, int offset)
         {
             string jobId = Guid.NewGuid().ToString();
             IDatabase db = _redis.GetDatabase();
@@ -33,10 +33,11 @@ namespace offer_manager.Models.WorkerService
             JobTask jobTask = new JobTask
             {
                 JobId = jobId,
-                SiteTypeId = (int)siteType,
+                SiteTypeId = (int)offerSitetype,
                 BatchSize = batchSize,
                 BatchLimit = batchLimit,
-                SearchFilters = filters
+                SearchFilters = filters,
+                Offset = offset
             };
 
             await db.ListLeftPushAsync("jobs_queue", JsonConvert.SerializeObject(jobTask));

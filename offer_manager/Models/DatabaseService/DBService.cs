@@ -84,20 +84,22 @@ namespace Offer_collector.Models.DatabaseService
 
         public async Task<FrozenSet<UOS?>> GetOffers(SearchFilters searchFilters)
         {
-            var uosOffers = await connector.GetExternalOffers(
-                searchFilters.Keyword,
-                searchFilters.Category,
-                searchFilters.SalaryFrom,
-                searchFilters.SalaryTo,
-                null,
-                searchFilters.Localization,
-                null,
-                null,
-                null,
-                null,
-                null
+            try
+            {
+                var uosOffers = await connector.GetExternalOffers(
+                search_text: searchFilters.Keyword,
+                leadingCategory: searchFilters.Category,
+                salaryFrom: searchFilters.SalaryFrom,
+                salaryTo: searchFilters.SalaryTo,
+                locationCity: searchFilters.Localization
                 );
-            return uosOffers;
+                return uosOffers;
+            }
+            catch (Exception e)
+            {
+                return FrozenSet<UOS?>.Empty;
+            }
+            
         }
 
         /// <summary>

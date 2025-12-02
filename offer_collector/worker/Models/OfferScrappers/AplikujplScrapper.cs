@@ -15,7 +15,7 @@ namespace Offer_collector.Models.OfferScrappers
         {
         }
 
-        public override async IAsyncEnumerable<(string, string, List<string>)> GetOfferAsync(string url = "", int batchSize = 5)
+        public override async IAsyncEnumerable<(string, string, List<string>)> GetOfferAsync(string url = "", int batchSize = 5, int offset = 0)
         {
             List<string> errors = new List<string>();
             try
@@ -27,14 +27,14 @@ namespace Offer_collector.Models.OfferScrappers
                 errors.Add($"Error while downloading HTML from url: {url}: {e.Message}");
                 yield break;
             }
-            await foreach (var (offers, errors2) in GetOfferList(batchSize))
+            await foreach (var (offers, errors2) in GetOfferList(batchSize, offset))
             {
                 yield return (JsonConvert.SerializeObject(offers, Formatting.Indented) ?? "", _offerListHtml, offers.Where(o => o.errorMessages != null && o.errorMessages.Any()).Select(o => string.Join('\n', o.errorMessages)).ToList());
             }
 
         }
         private async Task<string> GetHtmlSource(string url) => await GetHtmlAsync(url);
-        async IAsyncEnumerable<(List<AplikujplSchema>, List<string>)> GetOfferList(int bathSize)
+        async IAsyncEnumerable<(List<AplikujplSchema>, List<string>)> GetOfferList(int bathSize, int offset)
         {
             List<AplikujplSchema> offerList = new List<AplikujplSchema>();
             List<string> errors = new List<string>();
@@ -60,11 +60,18 @@ namespace Offer_collector.Models.OfferScrappers
                 yield break;
             }
             int i = 1;
+            int skipped = 0;
+            int skippedOffersCount = bathSize*offset;
             offersPerPage = node.SelectNodes(".//li[contains(concat(' ', normalize-space(@class), ' '), ' offer-card ')]")?.Count ?? 0;
             foreach (HtmlNode offerNode in node.SelectNodes(".//li[contains(concat(' ', normalize-space(@class), ' '), ' offer-card ')]") ?? Enumerable.Empty<HtmlNode>())
             {
                 try
                 {
+                    if (skipped < skippedOffersCount)
+                    {
+                        skipped++;
+                        continue;
+                    }
                     AplikujplSchema ap = new AplikujplSchema();
                     OfferListHeader header = GetHeader(offerNode);
 

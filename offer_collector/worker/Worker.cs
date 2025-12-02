@@ -64,7 +64,6 @@ public class Worker : BackgroundService
     {
         Fetcher fetcher = new Fetcher(
             offerSitesTypes: (OfferSitesTypes)task.SiteTypeId,
-            isUsingAi: false,
             saveToLocalFile: false
         );
 
@@ -73,24 +72,26 @@ public class Worker : BackgroundService
         var jobData = await _redisDb.StringGetAsync(jobKey);
         JobInfo? job = JsonConvert.DeserializeObject<JobInfo>(jobData!);
         job.Status = BathStatus.running;
+        job.StartTime = DateTime.UtcNow;
         await _redisDb.StringSetAsync(jobKey, JsonConvert.SerializeObject(job));
         job.TotalBatches = 0;
         job.BathList = new List<List<string>>();
         job.ErrorMessage = new List<string>();
         try
         {
-            await foreach (var (offers, errors) in fetcher.FetchOffers(task.SearchFilters, cancellation))
+            await foreach (var (offers, errors) in fetcher.FetchOffers(task.SearchFilters, cancellation, task.Offset, bathSize: task.BatchSize))
             {
 
                 job.BathList.Add(offers);
                 job.ErrorMessage.AddRange(errors);
                 job.TotalBatches += 1;
                 await _redisDb.StringSetAsync(jobKey, JsonConvert.SerializeObject(job));
-                if (job.TotalBatches >= task.BatchLimit)
+                if (job.TotalBatches >= 1)
                     break;
             }
 
             job.Status = BathStatus.completed;
+            job.EndTime = DateTime.UtcNow;
             await _redisDb.StringSetAsync(jobKey, JsonConvert.SerializeObject(job));
         }
         catch (Exception ex)

@@ -9,5 +9,7 @@ namespace worker.Models.DTO
         public int SiteTypeId { get; set; }
         public int BatchSize { get; set; }
         public int BatchLimit { get; set; }
-    }
+        public int Offset { get; set; }
+
+        }
 }

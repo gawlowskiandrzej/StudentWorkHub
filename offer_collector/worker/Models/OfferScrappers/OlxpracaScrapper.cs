@@ -17,7 +17,7 @@ namespace Offer_collector.Models.OfferFetchers
         {
         }
 
-        public override async IAsyncEnumerable<(string, string, List<string>)> GetOfferAsync(string url = "", int batchSize = 5)
+        public override async IAsyncEnumerable<(string, string, List<string>)> GetOfferAsync(string url = "", int batchSize = 5, int offset= 0)
         {
             string baseUrl = OlxPracaUrlBuilder.baseUrl;
             List<string> errors = new List<string>();
@@ -70,11 +70,18 @@ namespace Offer_collector.Models.OfferFetchers
 
             List<OlxPracaSchema> olxPracaSchema = new List<OlxPracaSchema>();
             int i = 1;
+            int skipped = 0;
+            int skippedOffersCount = batchSize * offset;
             offersPerPage = offerListJs.Count;
             foreach (JToken offer in offerListJs)
             {
                 try
                 {
+                    if (skipped < skippedOffersCount)
+                    {
+                        skipped++;
+                        continue;
+                    }
                     OlxPracaSchema obj = GetOlxPracaObject(offer);
 
                     try

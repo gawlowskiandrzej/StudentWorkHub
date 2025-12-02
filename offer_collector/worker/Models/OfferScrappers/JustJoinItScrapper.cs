@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using Offer_collector.Models.Json;
 using Offer_collector.Models.JustJoinIt;
 using Offer_collector.Models.OfferScrappers;
+using Offer_collector.Models.PracujPl;
 using Offer_collector.Models.UrlBuilders;
 using System.Text.Json;
 using worker.Models.Constants;
@@ -15,7 +16,7 @@ namespace Offer_collector.Models.OfferFetchers
         {
         }
 
-        public override async IAsyncEnumerable<(string, string, List<string>)> GetOfferAsync(string url = "", int batchSize = 5)
+        public override async IAsyncEnumerable<(string, string, List<string>)> GetOfferAsync(string url = "", int batchSize = 5, int offset = 0)
         {
             string baseUrl = JustJoinItBuilder.baseUrl;
             List<string> errors = new List<string>();
@@ -71,10 +72,17 @@ namespace Offer_collector.Models.OfferFetchers
             offersPerPage = offerListJs.Count;
             List<JustJoinItSchema> justJoinItOffers = new List<JustJoinItSchema>();
             int i = 1;
+            int skipped = 0;
+            int skippedOffersCount = batchSize * offset;
             foreach (JToken offer in offerListJs)
             {
                 try
                 {
+                    if (skipped < skippedOffersCount)
+                    {
+                        skipped++;
+                        continue;
+                    }
                     JustJoinItSchema schema = GetJustJoinItSchema(offer);
 
                     string detailsHtml = string.Empty;

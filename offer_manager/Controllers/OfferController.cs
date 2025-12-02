@@ -4,6 +4,7 @@ using Offer_collector.Models;
 using Offer_collector.Models.UrlBuilders;
 using offer_manager.Interfaces;
 using offer_manager.Models.FilterService;
+using offer_manager.Models.Others;
 using offer_manager.Models.PaginationService;
 using offer_manager.Models.WorkerService;
 using StackExchange.Redis;
@@ -24,13 +25,15 @@ namespace offer_manager.Controllers
         private readonly IDatabaseService _databaseService;
         private readonly PaginationService _pagination;
         private readonly FilterService _filterService;
+        private readonly StaticSettings _statSettings;
 
-        public OfferController(IWorkerService workerService, IDatabaseService databaseService, PaginationService pagination, FilterService filterService)
+        public OfferController(IWorkerService workerService, IDatabaseService databaseService, PaginationService pagination, FilterService filterService, StaticSettings statSettings)
         {
             _workerService = workerService;
             _databaseService = databaseService;
             _pagination = pagination;
             _filterService = filterService;
+            _statSettings = statSettings;
         }
 
         [HttpGet("getOffersDatabase")]
@@ -39,18 +42,6 @@ namespace offer_manager.Controllers
             FrozenSet<UOS?> dbOffers = await _databaseService.GetOffers(searchFilter);
 
             PaginationResponse paginationResponse = _pagination.CreatePagedResult(dbOffers.Where(o => o != null).Cast<UOS>(), pageOffset, offerPerpage);
-
-            //dynamiczne filtry zwracane:
-
-            // -language, language level
-            // -experienceMonths, 
-            // -experienceLevel
-            // - education
-            // - education level
-            // - skill contains
-            // - benefit
-            // - isForUkrainians
-            // - isUrgent
 
             return Ok(new
             {
@@ -65,24 +56,48 @@ namespace offer_manager.Controllers
         {
 
             var completedJobs = new List<JobInfo>();
+            var pendingJobs = new List<object>();
 
             foreach (var id in jobIds.JobIds)
             {
                 JobInfo? job = await _workerService.GetJobAsync(id);
 
                 if (job == null)
-                    return NotFound($"Job {id} not found.");
+                {
+                    pendingJobs.Add(new { id, reason = "not_found" });
+                    continue;
+                }
 
                 if (job.Status != BathStatus.completed)
-                    return Ok(new { status = "pending", waitingFor = id });
+                {
+                    pendingJobs.Add(new { id, status = job.Status.ToString() });
+                    continue;
+                }
 
                 if (batchId > 0)
                 {
                     if (job.BathList == null || job.BathList.Count <= batchId)
-                        return Ok(new { status = "pending", waitingForBatch = id, batch = batchId });
+                    {
+                        pendingJobs.Add(new
+                        {
+                            id,
+                            reason = "batch_not_ready",
+                            batch = batchId
+                        });
+                        continue;
+                    }
                 }
 
                 completedJobs.Add(job);
+            }
+
+            if (pendingJobs.Count > 0)
+            {
+                return Ok(new
+                {
+                    status = "pending",
+                    waitingFor = pendingJobs
+                });
             }
 
             List<string> mergedOffers = new List<string>();
@@ -95,24 +110,34 @@ namespace offer_manager.Controllers
                     mergedOffers.AddRange(job.BathList.SelectMany(b => b));
             }
 
+            DateTime earliestStart = completedJobs
+            .Where(j => j.StartTime != null)
+            .Min(j => j.StartTime);
+
+            DateTime latestEnd = completedJobs
+                .Where(j => j.EndTime != null)
+                .Max(j => j.EndTime);
+
+            TimeSpan totalDuration = latestEnd - earliestStart;
 
 
             return Ok(new
             {
-               batch = mergedOffers
+               batch = mergedOffers,
+               dynamicFilter = _filterService.GetDynamicFilters(FrozenSet.ToFrozenSet<UOS?>(mergedOffers.Select(o => JsonConvert.DeserializeObject<UOS>(o)))),
+                scrappingDuration = totalDuration.TotalSeconds.ToString("F2")
             });
         }
 
         // POST api/<OfferController>
         [HttpPost]
-        public async Task<IActionResult> CreateScrappers([FromBody] SearchFilters filters, int batchSize = 5, int batchLimit = 1)
+        public async Task<IActionResult> CreateScrappers([FromBody] SearchFilters filters, int batchSize = 5, int batchLimit = 1, int offset = 0)
         {
             List<string>jobIds = new List<string>();
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < _statSettings.NumberOfAvailablePortals * batchLimit; i++)
             {
-                jobIds.Add(await _workerService.CreateJobAsync(filters, (OfferSitesTypes)(i+1),batchSize, batchLimit));
+                jobIds.Add(await _workerService.CreateJobAsync(filters, (OfferSitesTypes)((i%_statSettings.NumberOfAvailablePortals) + 1), batchSize, batchLimit, offset+(i / _statSettings.NumberOfAvailablePortals)));
 
-                // zależnie od limitu batha 
             }
             
             return Ok(new 

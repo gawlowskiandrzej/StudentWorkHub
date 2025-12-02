@@ -9,5 +9,7 @@ namespace worker.Models.DTO
         public List<List<string>> BathList { get; set; }
         public int TotalBatches { get; set; }
         public List<string> ErrorMessage { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
     }
 }

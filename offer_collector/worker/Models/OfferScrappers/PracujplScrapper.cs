@@ -15,7 +15,7 @@ namespace Offer_collector.Models.OfferFetchers
         {
         }
 
-        public override async IAsyncEnumerable<(string, string, List<string>)> GetOfferAsync(string url = "", int batchSize = 5)
+        public override async IAsyncEnumerable<(string, string, List<string>)> GetOfferAsync(string url = "", int batchSize = 5, int offset = 0)
         {
             List<string>errors = new List<string>();
             string baseUrl = PracujPlUrlBuilder.baseUrl;
@@ -42,10 +42,17 @@ namespace Offer_collector.Models.OfferFetchers
             List<PracujplSchema> pracujplSchemas = new List<PracujplSchema>();
             List<string> requirementsData = new List<string>();
             int i = 1;
+            int skipped = 0;
+            int skippedOffersCount = batchSize * offset;
             foreach (JToken offer in offerListJs)
             {
                 try
                 {
+                    if (skipped < skippedOffersCount)
+                    {
+                        skipped++;
+                        continue;
+                    }
                     PracujplSchema schemaOffer = OfferMapper.DeserializeJToken<PracujplSchema>(offer);
 
                     Offer? offerObject = schemaOffer.offers?.FirstOrDefault();

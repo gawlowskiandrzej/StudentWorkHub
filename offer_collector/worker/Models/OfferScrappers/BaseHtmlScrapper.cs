@@ -73,7 +73,7 @@ public abstract class BaseHtmlScraper
     /// <summary>
     /// Abstract method for getting offer
     /// </summary>
-    public abstract IAsyncEnumerable<(string, string, List<string>)> GetOfferAsync(string url = "", int batchSize = 5);
+    public abstract IAsyncEnumerable<(string, string, List<string>)> GetOfferAsync(string url = "", int batchSize = 5, int offset = 0);
     /// <summary>
     /// Decode unnessesary unicode characters
     /// </summary>

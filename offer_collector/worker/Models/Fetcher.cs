@@ -25,11 +25,10 @@ namespace worker.Models
         BaseUrlBuilder? urlBuilder;
         PaginationModule? paginationModule;
 
-        public Fetcher(OfferSitesTypes offerSitesTypes, ClientType clientType = ClientType.httpClient, bool isUsingAi = true, bool saveToLocalFile = false)
+        public Fetcher(OfferSitesTypes offerSitesTypes, ClientType clientType = ClientType.httpClient, bool saveToLocalFile = false)
         {
             _offerSitesTypes = offerSitesTypes;
             _clientType = clientType;
-            IsUsingAi = isUsingAi;
             _saveToLocalFile = saveToLocalFile;
 
             string filePath = Path.Combine(
@@ -79,7 +78,7 @@ namespace worker.Models
             }
         }
 
-        public async IAsyncEnumerable<(List<string> offers, List<string> errors)> FetchOffers(SearchFilters searchFilter, CancellationToken cancellationToken, int bathSize = 5)
+        public async IAsyncEnumerable<(List<string> offers, List<string> errors)> FetchOffers(SearchFilters searchFilter, CancellationToken cancellationToken,int offset = 0, int bathSize = 5)
         {
             if (paginationModule != null)
             {
@@ -87,7 +86,7 @@ namespace worker.Models
                 {
                     List<string> errrosAll = new List<string>();
                     List<UnifiedOfferSchemaClass> allOffers = new List<UnifiedOfferSchemaClass>();
-                    await foreach (var (offersJson, htmls, errors) in paginationModule.FetchAllOffersAsync(searchFilter, bathSize: bathSize))
+                    await foreach (var (offersJson, htmls, errors) in paginationModule.FetchAllOffersAsync(searchFilter, offset: offset ,bathSize: bathSize))
                     {
                         List<UnifiedOfferSchemaClass> unifiedOfferSchemastemp = new List<UnifiedOfferSchemaClass>();
                         switch (_offerSitesTypes)

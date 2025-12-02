@@ -1,6 +1,8 @@
+using Microsoft.Extensions.Options;
 using Offer_collector.Models.DatabaseService;
 using offer_manager.Interfaces;
 using offer_manager.Models.FilterService;
+using offer_manager.Models.Others;
 using offer_manager.Models.PaginationService;
 using offer_manager.Models.WorkerService;
 using OffersConnector;
@@ -14,14 +16,19 @@ namespace offer_manager
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
             builder.Services.AddControllers();
+            builder.Services.AddSwaggerGen();
 
             var redisConfig = builder.Configuration.GetSection("RedisServer");
+            builder.Services.Configure<StaticSettings>(
+                builder.Configuration.GetSection("StaticSettings")
+            );
             string redisHostname = redisConfig.GetValue<string>("Host");
             int redisPort = redisConfig.GetValue<int>("Port");
-            builder.Services.AddSingleton<IConnectionMultiplexer>(sp => 
+            builder.Services.AddSingleton(sp =>
+                sp.GetRequiredService<IOptions<StaticSettings>>().Value
+            );
+            builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
             {
                 var options = ConfigurationOptions.Parse($"{redisHostname}:{redisPort}");
                 options.AllowAdmin = true;
@@ -33,6 +40,7 @@ namespace offer_manager
 
                 return redis;
             });
+
 
             var dbConfig = builder.Configuration.GetSection("DatabaseSettings");
             string? dbHost = dbConfig.GetValue<string>("Host");
@@ -66,16 +74,19 @@ namespace offer_manager
 
             var app = builder.Build();
 
+            app.UseSwagger();
+            app.UseSwaggerUI();
             // Configure the HTTP request pipeline.
 
             app.UseHttpsRedirection();
-
             //app.UseAuthorization();
 
 
             app.MapControllers();
 
             app.Run();
+
+
         }
     }
 }
