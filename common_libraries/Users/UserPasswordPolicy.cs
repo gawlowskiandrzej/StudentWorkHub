@@ -85,7 +85,9 @@ namespace Users
         {
             // Normalize configuration values to safe defaults.
             minLength = minLength > 0 ? minLength : 12;
-            maxLength = maxLength > 0 ? maxLength : 128;
+
+            // 512 characters is a hard limit set in EncryptionFunctionsV1
+            maxLength = maxLength > 0 ? Math.Min(maxLength, 512) : 128; 
             int tmpMin = Math.Min(minLength, maxLength);
             maxLength = Math.Max(maxLength, tmpMin);
             minLength = tmpMin;

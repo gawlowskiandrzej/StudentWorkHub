@@ -173,16 +173,10 @@ namespace Users
         /// </summary>
         /// <param name="userPassword">User supplied plain-text password.</param>
         /// <param name="hash">Stored hash string in this version's format.</param>
-        /// <param name="currentHashVersion">Version of the stored hash.</param>
         /// <returns><c>true</c> if the password matches; otherwise <c>false</c>.</returns>
-        /// <exception cref="ArgumentException">Thrown when the hash version does not match this implementation.</exception>
         /// <exception cref="UserCryptographicException">Thrown when the hash is invalid or verification fails.</exception>
-        public static bool VerifyPassword(string? userPassword, string? hash, int currentHashVersion)
+        public static bool VerifyPassword(string? userPassword, string? hash)
         {
-            // Fail fast when the caller uses a hash created by a different encryption function version.
-            if (currentHashVersion != encryptionFunctionVersion)
-                throw new ArgumentException($"Incorrect hash version. Expected: {encryptionFunctionVersion}, got: {currentHashVersion}");
-
             if (string.IsNullOrWhiteSpace(userPassword))
                 throw new UserCryptographicException("Password is empty");
 
@@ -204,6 +198,7 @@ namespace Users
                 expectedHash = Convert.FromBase64String(parts[3]);
                 if (expectedHash.Length != _hashSize)
                     throw new UserCryptographicException("Hash length is incorrect");
+
 
                 computedHash = ComputeHash(userPassword, salt);
                 bool isMatch = CryptographicOperations.FixedTimeEquals(
