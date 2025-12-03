@@ -54,7 +54,6 @@ namespace Offer_collector.Models.Tools
                             if (offers.Count == 0)
                             {
                                 hasMore = false;
-                                yield break;
                             }
                             allOffers.AddRange(offers);
                             htmls.Add(htmlRaw);

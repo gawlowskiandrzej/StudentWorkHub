@@ -53,6 +53,7 @@ namespace Offer_collector.Models.Tools
                 catch
                 {
                     // Serwer jeszcze się nie uruchomił
+                    return false;
                 }
                 await Task.Delay(1000);
             }

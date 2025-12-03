@@ -120,8 +120,7 @@ namespace Offer_collector.Models.OfferFetchers
                         errors.Add($"Failed to parse offer description for slug '{schema.slug}': {ex.Message}");
                     }
 
-                    if (schema.multilocation.Any(m => ConstValues.polishCities.Any(p => p.City == m.city)))
-                        justJoinItOffers.Add(schema);
+                    justJoinItOffers.Add(schema);
 
                     await Task.Delay(ConstValues.delayBetweenRequests);
                 }
