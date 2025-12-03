@@ -1,19 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>dotnet-worker-9aca5530-c827-4bb8-9882-373ba2dced20</UserSecretsId>
+    <Nullable>enable</Nullable>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="Models\Tools\Nodejs\**" />
-    <Content Remove="Models\Tools\Nodejs\**" />
-    <EmbeddedResource Remove="Models\Tools\Nodejs\**" />
-    <None Remove="Models\Tools\Nodejs\**" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.12.2" />
@@ -26,14 +18,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Models/Constants/pl.json" CopyToOutputDirectory="Always" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\shared_models\shared_models.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <Reference Include="LLMParser">
+      <HintPath>AI\LLMParser.dll</HintPath>
+    </Reference>
     <Reference Include="OffersConnector">
       <HintPath>..\..\databases\offers_database\lib\OffersConnector.dll</HintPath>
     </Reference>
@@ -41,4 +28,5 @@
       <HintPath>..\..\common_libraries\UnifiedOfferSchema\UnifiedOfferSchema.dll</HintPath>
     </Reference>
   </ItemGroup>
+
 </Project>

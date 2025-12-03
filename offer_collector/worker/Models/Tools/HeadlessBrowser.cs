@@ -21,11 +21,10 @@ namespace Offer_collector.Models.Tools
         {
             string filePath = Path.Combine(
            AppContext.BaseDirectory,
-           "Models",
-           "Tools",
-           "Nodejs",
+           "..", "..", "..", "..",
+           "headless_browser",
            "scrapper-sever.js"
-       );
+            );
             ServerIsRunning = await StartNodeJsServerAsync(filePath);
 
             if (!ServerIsRunning) return "";

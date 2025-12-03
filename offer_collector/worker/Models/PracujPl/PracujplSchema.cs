@@ -66,7 +66,7 @@ public class PracujplSchema : IUnificatable
 
         s.location = company != null ? GetCompanyLocation() : GetCompanyLocationByProfile();
 
-        s.requirements = GetRequirements();
+        s.requirements = GetRequirements() ?? new Requirements();
 
         s.employment = new Offer_collector.Models.Employment
         {
@@ -81,7 +81,7 @@ public class PracujplSchema : IUnificatable
         };
         s.category = new Offer_collector.Models.Category
         {
-            subCategories = details?.attributes?.categories?.Select(_ => _.name).ToList(),
+            subCategories = details?.attributes?.categories?.Select(_ => _.name).ToList() ?? new List<string?>(),
             leadingCategory = details?.attributes?.leadingCategory?.name
         };
 

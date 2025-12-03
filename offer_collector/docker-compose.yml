@@ -1,0 +1,79 @@
+version: "3.9"
+
+services:
+  offer_manager:
+    build:
+      context: ./offer_manager     # TWÓJ FOLDER PARENT
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+
+      # STATIC SETTINGS
+      StaticSettings__NumberOfAvailablePortals: ${STATIC_NumberOfAvailablePortals}
+      StaticSettings__JobsTimeoutMinutes: ${STATIC_JobsTimeoutMinutes}
+
+      # DATABASE SETTINGS
+      DatabaseSettings__Host: ${POSTGRES_HOST}
+      DatabaseSettings__Port: ${POSTGRES_PORT}
+      DatabaseSettings__Database: ${POSTGRES_DB}
+      DatabaseSettings__Username: ${POSTGRES_USER}
+      DatabaseSettings__Password: ${POSTGRES_PASSWORD}
+
+      # REDIS SETTINGS
+      RedisServer__Host: ${REDIS_HOST}
+      RedisServer__Port: ${REDIS_PORT}
+
+      # NODE SERVER URL
+      NodeServer__Url: ${NODE_SERVER_URL}
+
+    depends_on:
+      - node_server
+    restart: always
+    networks:
+      - backendnet
+
+  worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+
+    environment:
+      DatabaseSettings__Host: ${POSTGRES_HOST}
+      DatabaseSettings__Port: ${POSTGRES_PORT}
+      DatabaseSettings__Database: ${POSTGRES_DB}
+      DatabaseSettings__Username: ${POSTGRES_USER}
+      DatabaseSettings__Password: ${POSTGRES_PASSWORD}
+
+      RedisServer__Host: ${REDIS_HOST}
+      RedisServer__Port: ${REDIS_PORT}
+
+      NodeServer__Url: ${NODE_SERVER_URL}
+
+    depends_on:
+      - node_server
+    restart: always
+    networks:
+      - backendnet
+      
+  redis:
+    image: redis:7
+    ports:
+      - "${REDIS_PORT}:6379"
+    restart: always
+  
+  node_server:
+    build:
+      context: ./headless_browser
+      dockerfile: Dockerfile
+    container_name: node_server
+    ports:
+      - "3000:3000"
+    restart: always
+    networks:
+      - backendnet
+
+networks:
+  backendnet:
+    driver: bridge
