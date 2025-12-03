@@ -1,0 +1,24 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+COPY ./libs ./libs
+# Copy shared_models first
+COPY ./shared_models ./shared_models
+
+# Copy offer_manager
+COPY ./offer_manager ./offer_manager
+
+WORKDIR /src/offer_manager
+
+# Restore using offer_manager.sln (its correct location)
+RUN dotnet restore offer_manager.sln
+
+# Publish the project
+RUN dotnet publish offer_manager.csproj -c Release -o /app/publish
+
+# Runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /app
+COPY --from=build /app/publish .
+EXPOSE 80
+ENTRYPOINT ["dotnet", "offer_manager.dll"]

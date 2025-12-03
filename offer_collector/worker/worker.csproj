@@ -35,10 +35,10 @@
 
   <ItemGroup>
     <Reference Include="OffersConnector">
-      <HintPath>..\..\databases\offers_database\lib\OffersConnector.dll</HintPath>
+      <HintPath>..\libs\OffersConnector.dll</HintPath>
     </Reference>
     <Reference Include="UnifiedOfferSchema">
-      <HintPath>..\..\common_libraries\UnifiedOfferSchema\UnifiedOfferSchema.dll</HintPath>
+      <HintPath>..\libs\UnifiedOfferSchema.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

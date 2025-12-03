@@ -31,15 +31,6 @@ namespace worker.Models
             _clientType = clientType;
             _saveToLocalFile = saveToLocalFile;
 
-            string filePath = Path.Combine(
-            AppContext.BaseDirectory,
-            "Models",
-            "Constants",
-            "pl.json"
-        );
-
-            ConstValues.polishCities = JsonConvert.DeserializeObject<List<PlCityObject>>(File.ReadAllText(filePath)) ?? new List<PlCityObject>();
-
             InitScrappers();
             InitPaginationModule();
         }

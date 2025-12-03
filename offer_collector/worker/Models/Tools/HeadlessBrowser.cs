@@ -1,17 +1,20 @@
 ﻿using System.Diagnostics;
 using worker.Models.Constants;
+using worker.Models.Tools;
 
 namespace Offer_collector.Models.Tools
 {
     internal class HeadlessBrowser
     {
+
         public bool ServerIsRunning { get; set; }
         HttpClient Client { get; set; }
 
         public HeadlessBrowser()
         {
             ServerIsRunning = false;
-            Client = new HttpClient() { BaseAddress = new Uri("http://localhost:3000") };
+            Client = new HttpClient() { BaseAddress = new Uri($"http://{HeadlessbrowserSettings.Host}:{HeadlessbrowserSettings.Port}") };
+            
         }
         /// <summary>
         /// Getting web source from webpage driver, bypassing cloudflare
@@ -19,13 +22,8 @@ namespace Offer_collector.Models.Tools
         /// <returns></returns>
         public async Task<string> GetWebPageSource(string urlOfScrapPage)
         {
-            string filePath = Path.Combine(
-           AppContext.BaseDirectory,
-           "..", "..", "..", "..",
-           "headless_browser",
-           "scrapper-sever.js"
-            );
-            ServerIsRunning = await StartNodeJsServerAsync(filePath);
+
+            ServerIsRunning = await StartNodeJsServerAsync();
 
             if (!ServerIsRunning) return "";
             string urll = $"{Client.BaseAddress}scrape?url={urlOfScrapPage}";
@@ -39,25 +37,8 @@ namespace Offer_collector.Models.Tools
         //{
         //    return Task.Run(() => true);
         //}
-        private async Task<bool> StartNodeJsServerAsync(string scriptPath = "")
+        private async Task<bool> StartNodeJsServerAsync()
         {
-            if (string.IsNullOrEmpty(scriptPath))
-                throw new ArgumentException("Ścieżka do pliku JS nie może być pusta.");
-
-            var process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "node",
-                    Arguments = $"\"{scriptPath}\"",
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                }
-            };
-
-            process.Start();
 
             // Spróbuj połączyć się kilka razy co 1 sekundę
 
