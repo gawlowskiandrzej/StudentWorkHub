@@ -296,23 +296,12 @@ BEGIN
            'isForUkrainians', b.is_for_ukrainians
          ) AS uos
   FROM filtered b
-  ORDER BY
-    CASE
-      WHEN p_user_latitude IS NOT NULL
-       AND p_user_longitude IS NOT NULL
-       AND b.distance_km IS NULL THEN 1
-      ELSE 0
-    END,
-    CASE
-      WHEN p_user_latitude IS NOT NULL
-       AND p_user_longitude IS NOT NULL THEN b.distance_km
-    END ASC NULLS LAST,
-    b.salary_to ASC NULLS LAST
+    ORDER BY
+    b.id ASC
   LIMIT COALESCE(p_limit, 9223372036854775807)
   OFFSET COALESCE(p_offset, 0);
 END;
 $$;
-
 
 CREATE OR REPLACE FUNCTION public.get_sources_dict()
 RETURNS JSONB

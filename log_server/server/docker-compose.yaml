@@ -12,8 +12,9 @@ services:
             - "54000:54000"
             - "54001:54001"
         volumes:
-            - ./scripts:/log_server
             - logs:/log_server/logs
+            - public_keys:/log_server/public_keys
 
 volumes:
     logs:
+    public_keys:

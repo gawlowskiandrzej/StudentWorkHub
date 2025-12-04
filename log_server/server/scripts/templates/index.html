@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Logs Viewer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Application logs</h1>
+        <div class="refresh-info">
+            Auto refresh every 5 seconds
+        </div>
+    </header>
+
+    <main>
+        <section class="content-layout">
+            <aside class="filters">
+                <h2>Filters</h2>
+
+                <div class="filter-group">
+                    <label for="filterDateFrom">Date from</label>
+                    <input type="date" id="filterDateFrom" autocomplete="off">
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterDateTo">Date to</label>
+                    <input type="date" id="filterDateTo" autocomplete="off">
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterType">Type</label>
+                    <select id="filterType">
+                        <option value="">All</option>
+                        <option value="INFO">INFO</option>
+                        <option value="WARNING">WARNING</option>
+                        <option value="ERROR">ERROR</option>
+                        <option value="CRITICAL ERROR">CRITICAL ERROR</option>
+                        <option value="NOTIFICATION">NOTIFICATION</option>
+                        <option value="ATTENTION">ATTENTION</option>
+                        <option value="DEBUG">DEBUG</option>
+                        <option value="DIAGNOSTICS">DIAGNOSTICS</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterId">Server ID (comma separated)</label>
+                    <input type="text" id="filterId" autocomplete="off">
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterIdExt">Server ID Ext (comma separated)</label>
+                    <input type="text" id="filterIdExt" autocomplete="off">
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterTags">Tags (comma separated)</label>
+                    <input type="text" id="filterTags" autocomplete="off">
+                </div>
+
+                <div class="filter-actions">
+                    <button type="button" id="applyFilters">Apply filters</button>
+                    <button type="button" id="clearFilters">Clear filters</button>
+                </div>
+
+                <div class="filter-actions filter-actions--secondary">
+                    <button type="button" id="loadMore">Load older logs</button>
+                </div>
+
+            </aside>
+
+            <section class="table-container">
+                <table id="logsTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Server ID</th>
+                            <th>Server ID Ext</th>
+                            <th>Tags</th>
+                            <th>Message</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </section>
+        </section>
+    </main>
+
+    <footer>
+        <span id="lastUpdate"></span>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/logs.js') }}"></script>
+</body>
+</html>
