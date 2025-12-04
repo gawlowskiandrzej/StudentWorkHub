@@ -20,6 +20,9 @@ namespace Users
         /// </summary>
         private readonly NpgsqlDataSource _dataSource = datasource ?? throw new UserException("`datasource` is empty");
 
+        public bool IsLoggedIn { get; private set; }
+        private long? _userId = null;
+
         /// <summary>
         /// Performs standard username/password authentication.
         /// </summary>
@@ -32,12 +35,15 @@ namespace Users
         /// </returns>
         /// <exception cref="UserException"> (for internal errors, DB issues, unexpected states).</exception>
         /// <exception cref="UserCryptographicException"> (bubbled from VerifyPassword).</exception>
-        public async Task<(bool result, string error)> StandardAuthAsync(string? username, string? password)
+        public async Task<(bool result, string error)> StandardAuthAsync(string? username, string? password, CancellationToken cancellation = default)
         {
             // Start a stopwatch to ensure a minimum response time (mitigates timing attacks).
             Stopwatch stopwatch = Stopwatch.StartNew();
             try
             {
+                if (cancellation.IsCancellationRequested)
+                    return (false, "Operation was cancelled.");
+
                 if (string.IsNullOrWhiteSpace(username))
                     return (false, "Username is empty");
 
@@ -49,7 +55,11 @@ namespace Users
                 object? dbResult = null;
                 try
                 {
-                    dbResult = await command.ExecuteScalarAsync();
+                    dbResult = await command.ExecuteScalarAsync(cancellation);
+                }
+                catch (OperationCanceledException)
+                {
+                    return (false, "Operation was cancelled.");
                 }
                 catch (Exception ex)
                 {
@@ -87,6 +97,9 @@ namespace Users
                     throw new UserException($"Incorrect `VerifyPassword` signature in EncryptionFunctionsV{hashVersion}");
                 }
 
+                if (cancellation.IsCancellationRequested)
+                    return (false, "Operation was cancelled.");
+
                 try
                 {
                     // Invoke the password verification method using reflection.
@@ -122,6 +135,120 @@ namespace Users
                 long elapsed = stopwatch.ElapsedMilliseconds;
                 await Task.Delay((int)Math.Clamp(Math.Abs(1000 - elapsed), 0, 200));
             }
+        }
+
+        public async Task<(bool result, string error)> StandardRegisterAsync(UserPasswordPolicy upp, string? email, string? rawPassword, string? firstName, string? secondName, string? lastName, string? phone, CancellationToken cancellation = default)
+        {
+            if (cancellation.IsCancellationRequested)
+                return (false, "Operation was cancelled.");
+
+            if (IsLoggedIn)
+                throw new UserException("This object already have an assigned user.");
+
+            if (string.IsNullOrWhiteSpace(email)) throw new UserException("email is empty");
+            if (string.IsNullOrWhiteSpace(rawPassword)) throw new UserException("password is empty");
+            if (string.IsNullOrWhiteSpace(firstName)) throw new UserException("first name is empty");
+            if (string.IsNullOrWhiteSpace(lastName)) throw new UserException("last name is empty");
+
+            // Dodać normalizacje, html sanitizer trim to lower, capitalize, itd poza hasłem.
+
+            Type encryptionFunctionsType = SharedUserSettings.GetEncryptionFunctions(SharedUserSettings.encryptionFunctionVersion);
+            MethodInfo? getPasswordHashMethod = null;
+            try
+            {
+                // Locate static public getPasswordHash(string? password, UserPasswordPolicy passwordPolicy) method.
+                getPasswordHashMethod = encryptionFunctionsType.GetMethod(
+                    "GetPasswordHash",
+                    BindingFlags.Public | BindingFlags.Static,
+                    binder: null,
+                    types: [typeof(string), typeof(UserPasswordPolicy)],
+                    modifiers: null);
+
+                // Ensure method exists and has correct return type.
+                if (getPasswordHashMethod is null || getPasswordHashMethod.ReturnType != typeof(string))
+                    throw new UserException($"Incorrect `GetPasswordHash` signature in EncryptionFunctionsV{SharedUserSettings.encryptionFunctionVersion}");
+            }
+            catch (Exception ex) when (ex is not UserException)
+            {
+                throw new UserException($"Incorrect `GetPasswordHash` signature in EncryptionFunctionsV{SharedUserSettings.encryptionFunctionVersion}");
+            }
+
+            string? passwordHash = null;
+            try
+            {
+                if (cancellation.IsCancellationRequested)
+                    return (false, "Operation was cancelled.");
+
+                // Invoke the password verification method using reflection.
+                passwordHash = (string?)getPasswordHashMethod.Invoke(null, [rawPassword, upp]);
+            }
+            catch (TargetInvocationException ex)
+            {
+                Exception? inner = ex.InnerException ?? throw new UserException($"Unknown exception while invoking `GetPasswordHash`");
+                if (inner is UserCryptographicException)
+                    throw inner;
+
+                throw new UserException($"Unknown exception while invoking `GetPasswordHash`");
+            }
+
+            if (passwordHash is null)
+                throw new UserException($"Unknown exception while invoking `GetPasswordHash`");
+
+            if (cancellation.IsCancellationRequested)
+                return (false, "Operation was cancelled.");
+
+            await using NpgsqlCommand command = _dataSource.CreateCommand("CALL public.standard_add_user(@email, @password, @first_name, @last_name, @second_name, @phone)");
+            command.Parameters.AddWithValue("email", email);
+            command.Parameters.AddWithValue("password", passwordHash);
+            command.Parameters.AddWithValue("first_name", firstName);
+            command.Parameters.AddWithValue("last_name", lastName);
+            command.Parameters.AddWithValue("second_name", (object?)secondName ?? DBNull.Value);
+            command.Parameters.AddWithValue("phone", (object?)phone ?? DBNull.Value); object? dbResult = null;
+
+            bool? success = null;
+            string? errorMessage = null;
+            long? userId = null;
+            try
+            {
+                await using NpgsqlDataReader reader = await command.ExecuteReaderAsync(cancellation);
+                if (await reader.ReadAsync(cancellation))
+                {
+                    success = reader.GetBoolean(reader.GetOrdinal("o_success"));
+                    errorMessage = reader.GetString(reader.GetOrdinal("o_message"));
+
+                    int userIdOrdinal = reader.GetOrdinal("o_user_id");
+                    userId = reader.IsDBNull(userIdOrdinal)
+                        ? null
+                        : reader.GetInt64(userIdOrdinal);
+                }
+                else
+                    throw new UserException("No result returned from `standard_add_user`");
+            }
+            catch (OperationCanceledException)
+            {
+                return (false, "Operation was cancelled.");
+            }
+            catch (Exception ex) when (ex is not UserException)
+            {
+                throw new UserException("Database error", ex);
+            }
+
+            if (success is null || errorMessage is null)
+                throw new UserException("Incorrect result returned from `standard_add_user`");
+
+            if (success == false)
+                return (false, errorMessage);
+
+            if (userId is null)
+                throw new UserException("User ID was not returned for a successful registration.");
+
+            if (cancellation.IsCancellationRequested)
+                return (false, "Operation was cancelled.");
+
+            IsLoggedIn = true;
+            _userId = userId.Value;
+
+            return (true, "");
         }
     }
 }

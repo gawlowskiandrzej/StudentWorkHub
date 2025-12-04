@@ -37,7 +37,7 @@ namespace Users
     /// </remarks>
     public class EncryptionFunctionsV1
     {
-        public const string algotithName = "argon2id";
+        public const string algorithmName = "argon2id";
         public const int encryptionFunctionVersion = 1;
 
         // 128-bit salt (16 bytes) used by this version.
@@ -128,11 +128,11 @@ namespace Users
         /// <param name="password">Plain-text password to hash.</param>
         /// <param name="passwordPolicy">Policy used to validate the password before hashing.</param>
         /// <returns>
-        /// Tuple containing the encryption function version and a formatted hash string:
+        /// Formatted hash string:
         /// {algorithm}$v={version}${saltBase64}${hashBase64}.
         /// </returns>
         /// <exception cref="UserCryptographicException">Thrown when the password is invalid or hashing fails.</exception>
-        internal static (int version, string hash) GetPasswordHash(string? password, UserPasswordPolicy passwordPolicy)
+        internal static string GetPasswordHash(string? password, UserPasswordPolicy passwordPolicy)
         {
             if (string.IsNullOrEmpty(password))
                 throw new UserCryptographicException("Password is empty");
@@ -152,7 +152,7 @@ namespace Users
                 hashBase64 = Convert.ToBase64String(hash);
 
                 // Hash format is part of the contract; changing it requires a new EncryptionFunctionsVX implementation.
-                return (encryptionFunctionVersion, $"{algotithName}$v={encryptionFunctionVersion}${saltBase64}${hashBase64}");
+                return $"{algorithmName}$v={encryptionFunctionVersion}${saltBase64}${hashBase64}";
             }
             catch (Exception ex) when (ex is not UserCryptographicException)
             {
@@ -175,7 +175,7 @@ namespace Users
         /// <param name="hash">Stored hash string in this version's format.</param>
         /// <returns><c>true</c> if the password matches; otherwise <c>false</c>.</returns>
         /// <exception cref="UserCryptographicException">Thrown when the hash is invalid or verification fails.</exception>
-        public static bool VerifyPassword(string? userPassword, string? hash)
+        internal static bool VerifyPassword(string? userPassword, string? hash)
         {
             if (string.IsNullOrWhiteSpace(userPassword))
                 throw new UserCryptographicException("Password is empty");
@@ -185,7 +185,7 @@ namespace Users
 
             // Expected format: {algorithm}$v={version}${saltBase64}${hashBase64}.
             string[] parts = hash.Split('$', StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length != 4 || parts[0] != algotithName || parts[1] != $"v={encryptionFunctionVersion}")
+            if (parts.Length != 4 || parts[0] != algorithmName || parts[1] != $"v={encryptionFunctionVersion}")
                 throw new UserCryptographicException("Hash type is invalid");
 
             byte[]? salt = null, expectedHash = null, computedHash = null;
