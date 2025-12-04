@@ -10,7 +10,7 @@ using worker.Models.DTO;
 
 namespace offer_manager.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/worker")]
     [ApiController]
     public class WorkerController : ControllerBase
     {

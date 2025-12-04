@@ -1,4 +1,7 @@
+using AngleSharp;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Offer_collector.Models.AI;
 using Offer_collector.Models.DatabaseService;
 using offer_manager.Interfaces;
 using offer_manager.Models.FilterService;
@@ -20,14 +23,23 @@ namespace offer_manager
             builder.Services.AddSwaggerGen();
 
             var redisConfig = builder.Configuration.GetSection("RedisServer");
+            var apiKeysConfig = builder.Configuration.GetSection("ApiKeys");
+            var geminiKey = apiKeysConfig.GetValue<string>("GeminiKey");
             builder.Services.Configure<StaticSettings>(
                 builder.Configuration.GetSection("StaticSettings")
             );
-            string redisHostname = redisConfig.GetValue<string>("Host");
+            string redisHostname = redisConfig.GetValue<string>("Host") ?? "";
             int redisPort = redisConfig.GetValue<int>("Port");
+
+            DatabaseSettings dbSettings = builder.Configuration.GetSection("DatabaseSettings").Get<DatabaseSettings>() ?? new DatabaseSettings();
+
             builder.Services.AddSingleton(sp =>
                 sp.GetRequiredService<IOptions<StaticSettings>>().Value
             );
+            builder.Services.AddSingleton(new AIProcessor(geminiKey: geminiKey ?? ""));
+
+            builder.Services.AddSingleton(new DBService(dbSettings.Username, dbSettings.Password, dbSettings.Host, dbSettings.Port, dbSettings.Database));
+
             builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
             {
                 var options = ConfigurationOptions.Parse($"{redisHostname}:{redisPort}");
@@ -35,40 +47,13 @@ namespace offer_manager
 
                 var redis = ConnectionMultiplexer.Connect(options);
 
-                var server = redis.GetServer(redisHostname, redisPort);
+                var server = redis.GetServer(redisHostname ?? "", redisPort);
                 server.FlushDatabase();
 
                 return redis;
             });
 
-
-            var dbConfig = builder.Configuration.GetSection("DatabaseSettings");
-            string? dbHost = dbConfig.GetValue<string>("Host");
-            int dbPort = dbConfig.GetValue<int>("Port");
-            string? dbUsername = dbConfig.GetValue<string>("Username");
-            string? dbPassword = dbConfig.GetValue<string>("Password");
-            string? dbName = dbConfig.GetValue<string>("Database");
-
-            if (dbHost is null)
-                throw new InvalidOperationException("Database host is not configured.");
-            if (dbUsername is null)
-                throw new InvalidOperationException("Database username is not configured.");
-            if (dbPassword is null)
-                throw new InvalidOperationException("Database password is not configured.");
-            if (dbName is null)
-                throw new InvalidOperationException("Database name is not configured.");
-
-            // Register PgConnector as a singleton
-            builder.Services.AddSingleton<PgConnector>(new PgConnector(
-                dbUsername,
-                dbPassword,
-                dbHost,
-                dbPort,
-                dbName
-            ));
-
             builder.Services.AddScoped<IWorkerService, WorkerService>();
-            builder.Services.AddScoped<IDatabaseService, DBService>();
             builder.Services.AddScoped<PaginationService>();
             builder.Services.AddScoped<FilterService>();
 

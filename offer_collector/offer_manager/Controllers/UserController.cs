@@ -4,7 +4,7 @@
 
 namespace offer_manager.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/users")]
     [ApiController]
     public class UserController : ControllerBase
     {

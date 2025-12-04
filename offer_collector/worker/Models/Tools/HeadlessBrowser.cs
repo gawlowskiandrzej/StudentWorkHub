@@ -41,7 +41,7 @@ namespace Offer_collector.Models.Tools
         {
 
             // Spróbuj połączyć się kilka razy co 1 sekundę
-
+            int trys = 0;
             for (int i = 0; i < 10; i++)
             {
                 try
@@ -52,10 +52,10 @@ namespace Offer_collector.Models.Tools
                 }
                 catch
                 {
-                    // Serwer jeszcze się nie uruchomił
-                    return false;
+                    if (trys++ > 2)
+                        return false;
                 }
-                await Task.Delay(1000);
+                await Task.Delay(750);
             }
 
             return false; // nie wystartował w 10 sekund

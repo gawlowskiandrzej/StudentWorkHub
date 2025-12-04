@@ -1,10 +1,8 @@
 ﻿using LLMParser;
-using Newtonsoft.Json;
-using Offer_collector.Models.DatabaseService;
 using offer_manager;
 namespace Offer_collector.Models.AI
 {
-    internal class AIProcessor
+    public class AIProcessor
     {
         static string modelName = PredefinedElements.geminiApiModelNames[1];
         Settings.API apiSettings = new(
@@ -29,9 +27,9 @@ namespace Offer_collector.Models.AI
             null
         );
         LLMParser.Parser llmParser;
-        public AIProcessor(Dictionary<string, string> systemPromptParams, string geminiKey = "")
+        public AIProcessor(string geminiKey = "")
         {
-
+            Dictionary<string, string> systemPromptParams;
             var config = new ConfigurationBuilder()
             .AddUserSecrets<Program>()
             .Build();
@@ -39,16 +37,6 @@ namespace Offer_collector.Models.AI
             if (String.IsNullOrEmpty(geminiKey))
             {
                 geminiKey = config["ApiKeys:GeminiKey"] ?? "";
-            }
-
-            if (systemPromptParams != null && systemPromptParams?.Count > 0)
-            {
-                promptSettings = new(
-                    Prompts.defaultSystemPromptTemplate,
-                    Prompts.descriptionInformationExtratorUserPrompt,
-                    systemPromptParams,
-                    null
-                );
             }
 
             apiSettings = new(
@@ -63,71 +51,44 @@ namespace Offer_collector.Models.AI
 
             llmParser = new([apiSettings], reqSettings);
         }
-        public async Task<(List<string>, List<string>)> ProcessUnifiedSchemas(List<UnifiedOfferSchemaClass> offers, DBService service, int bathSize)
+        public async Task<(List<string?>, List<string>)> ProcessUnifiedSchemas(List<string> offers, Dictionary<string, string> systemPromptParams)
         {
             List<string> errors = new List<string>();
             List<string> outputs = new List<string>();
-            IEnumerable<UnifiedOfferSchemaClass> bath = offers;
+
+            if (systemPromptParams != null && systemPromptParams?.Count > 0)
             {
-                List<string> errorMessages = new List<string>();
+                promptSettings = new(
+                    Prompts.defaultSystemPromptTemplate,
+                    Prompts.descriptionInformationExtratorUserPrompt,
+                    systemPromptParams,
+                    null
+                );
+            }
+            List<string> errorMessages = new List<string>();
+            List<string?> aiOutput = new List<string?>();
+            try
+            {
+                
                 try
                 {
-                    List<string> serializedOffers = new List<string>();
-                    foreach (UnifiedOfferSchemaClass item in bath)
-                    {
-                        serializedOffers.Add(JsonConvert.SerializeObject(item, Formatting.Indented));
-                    }
-                    List<string?> aiOutput = new List<string?>();
-                    try
-                    {
-                        aiOutput = await llmParser.ParseBatchAsync(serializedOffers, promptSettings, ParserHelpers.ParsingErrorAction.Retry);
-                    }
-                    catch (Exception ex)
-                    {
-
-                        errorMessages.Add(ex.ToString());
-                        foreach (var a in llmParser.GetLastBatchErrors())
-                            errorMessages.Add(a);
-                    }
-
-                    if (aiOutput.Count > 0)
-                    {
-                        try
-                        {
-
-                            outputs = aiOutput.Where(x => !string.IsNullOrEmpty(x)).Cast<string>().ToList();
-
-                            try
-                            {
-                                (bool isSucess, List<string> databaseErrors) = await service.AddOffersToDatabaseAsync(outputs);
-                                errorMessages.AddRange(databaseErrors);
-                            }
-                            catch (Exception)
-                            {
-                                errorMessages.Add($"Error adding offers to database {outputs}");
-                            }
-                            //List<UnifiedOfferSchemaClass>? aiOffers = JsonConvert.DeserializeObject<List<UnifiedOfferSchemaClass>>(aiOutput);
-                            //foreach (UnifiedOfferSchemaClass aiOffer in aiOffers ?? new List<UnifiedOfferSchemaClass>())
-                            //{
-                            //    offer.requirements = ProcessRequirements(offer, aiOffer);
-                            //    offer.benefits = ProcessBenefits(offer, aiOffer);
-                            //}
-
-                        }
-                        catch (Exception e)
-                        {
-                            errorMessages.Add($"Error deserializing ai output for offers {bath}: {e.Message}");
-                        }
-                    }
+                    aiOutput = await llmParser.ParseBatchAsync(offers, promptSettings, ParserHelpers.ParsingErrorAction.Retry);
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
 
-                    errors.Add($"An error while processing bath {e}");
+                    errorMessages.Add(ex.ToString());
+                    foreach (var a in llmParser.GetLastBatchErrors())
+                        errorMessages.Add(a);
                 }
-                errors.AddRange(errorMessages);
             }
-            return (outputs, errors);
+            catch (Exception e)
+            {
+
+                errors.Add($"An error while processing bath {e}");
+            }
+            errors.AddRange(errorMessages);
+            return (aiOutput, errors);
         }
 
         private List<string>? ProcessBenefits(UnifiedOfferSchemaClass offer, UnifiedOfferSchemaClass? aiOffer)

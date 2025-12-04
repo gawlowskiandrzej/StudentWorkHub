@@ -8,27 +8,14 @@ using UnifiedOfferSchema;
 
 namespace Offer_collector.Models.DatabaseService
 {
-    internal class DBService : IDatabaseService
+    public class DBService : IDatabaseService
     {
-        private readonly DatabaseSettings _settings;
         private readonly PgConnector connector;
 
-        public DBService()
+        public DBService(string username, string password, string host, int port, string database)
         {
-            // --- Wczytaj konfigurację z appsettings.json ---
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .Build();
-
-            _settings = configuration.GetSection("DatabaseSettings").Get<DatabaseSettings>()
-                        ?? new DatabaseSettings();
             connector = new PgConnector(
-                   _settings.Username,
-                   _settings.Password,
-                   _settings.Host,
-                   _settings.Port,
-                   _settings.Database
+                   username,password, host,port, database   
                );
 
         }

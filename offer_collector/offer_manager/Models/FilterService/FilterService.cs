@@ -26,7 +26,7 @@ namespace offer_manager.Models.FilterService
                 SkillsList = skillList,
                 BenefitsList = benefitsList,
                 EducationNames = offers.Where(o => o != null && o.Requirements?.Education != null).SelectMany(o => o.Requirements?.Education!).Distinct().ToList(),
-                ExperienceLevels = offers.Where(o => o != null && o.Requirements?.Skills != null).SelectMany(_ => _.Requirements?.Skills!).SelectMany(p => p.ExperienceLevel!).Distinct().ToList(),   
+                ExperienceLevels = offers.Where(o => o != null && o.Requirements?.Skills != null).SelectMany(_ => _.Requirements?.Skills!).Where(_ => _.ExperienceLevel != null).SelectMany(p => p.ExperienceLevel!).Distinct().ToList(),   
                 ExperienceMonths = offers
                 .Where(o => o != null && o.Requirements?.Skills != null)
                 .SelectMany(_ => _.Requirements?.Skills!)
