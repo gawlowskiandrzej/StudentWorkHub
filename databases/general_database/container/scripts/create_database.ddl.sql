@@ -20,57 +20,62 @@ CREATE TABLE public.users (
     email VARCHAR(255) NULL,
     password TEXT NULL,
     remember_token TEXT NULL,
+    phone VARCHAR(16) NULL,
 
     first_name_id BIGINT NOT NULL,
     second_name_id BIGINT NULL,
     last_name_id BIGINT NOT NULL,
-    phone_id BIGINT NULL,
 
     CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
+    CHECK (phone ~ '^\+[0-9]{7,15}$'),
 
-    CONSTRAINT uq_users_email UNIQUE (email),
+    CONSTRAINT uq_users_email
+        UNIQUE (email),
+
+    CONSTRAINT uq_users_remember_token
+        UNIQUE (remember_token),
+
+    CONSTRAINT uq_phones_phone
+        UNIQUE (phone),
 
     CONSTRAINT fk_users_first_names
-        FOREIGN KEY (first_name_id) REFERENCES public.first_names (id),
+        FOREIGN KEY (first_name_id)
+        REFERENCES public.first_names (id)
+        ON DELETE RESTRICT;
 
     CONSTRAINT fk_users_second_names
-        FOREIGN KEY (second_name_id) REFERENCES public.second_names (id),
+        FOREIGN KEY (second_name_id)
+        REFERENCES public.second_names (id)
+        ON DELETE RESTRICT,
 
     CONSTRAINT fk_users_last_names
-        FOREIGN KEY (last_name_id) REFERENCES public.last_names (id),
-
-    CONSTRAINT fk_users_phones
-        FOREIGN KEY (phone_id) REFERENCES public.phones (id)
+        FOREIGN KEY (last_name_id)
+        REFERENCES public.last_names (id)
+        ON DELETE RESTRICT
 );
 
 CREATE TABLE public.first_names (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     first_name VARCHAR(100) NOT NULL,
 
-    CONSTRAINT uq_first_names_first_name UNIQUE (first_name)
+    CONSTRAINT uq_first_names_first_name
+        UNIQUE (first_name)
 );
 
 CREATE TABLE public.second_names (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     second_name VARCHAR(100) NOT NULL,
 
-    CONSTRAINT uq_second_names_second_name UNIQUE (second_name)
+    CONSTRAINT uq_second_names_second_name
+        UNIQUE (second_name)
 );
 
 CREATE TABLE public.last_names (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     last_name VARCHAR(100) NOT NULL,
 
-    CONSTRAINT uq_last_names_last_name UNIQUE (last_name)
-);
-
-CREATE TABLE public.phones (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    phone VARCHAR(16) NOT NULL,
-
-    CHECK (phone ~ '^\+[0-9]{7,15}$'),
-
-    CONSTRAINT uq_phones_phone UNIQUE (phone)
+    CONSTRAINT uq_last_names_last_name
+        UNIQUE (last_name)
 );
 
 -- =========================================================
