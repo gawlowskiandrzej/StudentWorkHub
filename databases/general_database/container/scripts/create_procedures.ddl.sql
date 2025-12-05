@@ -67,6 +67,9 @@ BEGIN
         )
         RETURNING id INTO o_user_id;
 
+        INSERT INTO public.weights(user_id)
+            VALUES (o_user_id);
+
         o_success := true;
         o_message := 'User created successfully.';
         RETURN;
@@ -405,5 +408,195 @@ BEGIN
         WHEN others THEN
             p_success := FALSE;
     END;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.set_weights_order_by_option(
+    p_user_id BIGINT,
+    p_order_by_option TEXT[]
+) RETURNS BOOLEAN
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_row_count INTEGER;
+BEGIN
+    UPDATE public.weights
+    SET order_by_option = p_order_by_option
+    WHERE user_id = p_user_id;
+
+    GET DIAGNOSTICS v_row_count = ROW_COUNT;
+
+    RETURN v_row_count = 1;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.set_weights_mean_value_ids(
+    p_user_id BIGINT,
+    p_mean_value_ids TEXT[]
+) RETURNS BOOLEAN
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_row_count INTEGER;
+BEGIN
+    UPDATE public.weights
+    SET mean_value_ids = p_mean_value_ids
+    WHERE user_id = p_user_id;
+
+    GET DIAGNOSTICS v_row_count = ROW_COUNT;
+
+    RETURN v_row_count = 1;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.set_weights_vector(
+    p_user_id BIGINT,
+    p_vector REAL[]
+) RETURNS BOOLEAN
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_row_count INTEGER;
+BEGIN
+    UPDATE public.weights
+    SET vector = p_vector
+    WHERE user_id = p_user_id;
+
+    GET DIAGNOSTICS v_row_count = ROW_COUNT;
+
+    RETURN v_row_count = 1;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.set_weights_mean_dist(
+    p_user_id BIGINT,
+    p_mean_dist REAL[]
+) RETURNS BOOLEAN
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_row_count INTEGER;
+BEGIN
+    UPDATE public.weights
+    SET mean_dist = p_mean_dist
+    WHERE user_id = p_user_id;
+
+    GET DIAGNOSTICS v_row_count = ROW_COUNT;
+
+    RETURN v_row_count = 1;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.set_weights_means_value_sum(
+    p_user_id BIGINT,
+    p_means_value_sum REAL[]
+) RETURNS BOOLEAN
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_row_count INTEGER;
+BEGIN
+    UPDATE public.weights
+    SET means_value_sum = p_means_value_sum
+    WHERE user_id = p_user_id;
+
+    GET DIAGNOSTICS v_row_count = ROW_COUNT;
+
+    RETURN v_row_count = 1;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.set_weights_means_value_ssum(
+    p_user_id BIGINT,
+    p_means_value_ssum DOUBLE PRECISION[]
+) RETURNS BOOLEAN
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_row_count INTEGER;
+BEGIN
+    UPDATE public.weights
+    SET means_value_ssum = p_means_value_ssum
+    WHERE user_id = p_user_id;
+
+    GET DIAGNOSTICS v_row_count = ROW_COUNT;
+
+    RETURN v_row_count = 1;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.set_weights_means_value_count(
+    p_user_id BIGINT,
+    p_means_value_count INTEGER[]
+) RETURNS BOOLEAN
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_row_count INTEGER;
+BEGIN
+    UPDATE public.weights
+    SET means_value_count = p_means_value_count
+    WHERE user_id = p_user_id;
+
+    GET DIAGNOSTICS v_row_count = ROW_COUNT;
+
+    RETURN v_row_count = 1;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.set_weights_means_weight_sum(
+    p_user_id BIGINT,
+    p_means_weight_sum REAL[]
+) RETURNS BOOLEAN
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_row_count INTEGER;
+BEGIN
+    UPDATE public.weights
+    SET means_weight_sum = p_means_weight_sum
+    WHERE user_id = p_user_id;
+
+    GET DIAGNOSTICS v_row_count = ROW_COUNT;
+
+    RETURN v_row_count = 1;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.set_weights_means_weight_ssum(
+    p_user_id BIGINT,
+    p_means_weight_ssum DOUBLE PRECISION[]
+) RETURNS BOOLEAN
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_row_count INTEGER;
+BEGIN
+    UPDATE public.weights
+    SET means_weight_ssum = p_means_weight_ssum
+    WHERE user_id = p_user_id;
+
+    GET DIAGNOSTICS v_row_count = ROW_COUNT;
+
+    RETURN v_row_count = 1;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.set_weights_means_weight_count(
+    p_user_id BIGINT,
+    p_means_weight_count INTEGER[]
+) RETURNS BOOLEAN
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_row_count INTEGER;
+BEGIN
+    UPDATE public.weights
+    SET means_weight_count = p_means_weight_count
+    WHERE user_id = p_user_id;
+
+    GET DIAGNOSTICS v_row_count = ROW_COUNT;
+
+    RETURN v_row_count = 1;
 END;
 $$;
