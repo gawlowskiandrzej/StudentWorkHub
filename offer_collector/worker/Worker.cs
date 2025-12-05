@@ -84,9 +84,7 @@ public class Worker : BackgroundService
 
                 job.BathList.Add(offers);
                 job.ErrorMessage.AddRange(errors);
-                job.TotalBatches += 1;
-                await _redisDb.StringSetAsync(jobKey, JsonConvert.SerializeObject(job));
-                if (job.TotalBatches >= 1)
+                if (job.BathList.Sum(_ => _.Count) >= task.BatchSize)
                     break;
             }
 
