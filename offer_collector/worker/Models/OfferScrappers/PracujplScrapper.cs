@@ -15,106 +15,125 @@ namespace Offer_collector.Models.OfferFetchers
         {
         }
 
-        public override async IAsyncEnumerable<(string, string, List<string>)> GetOfferAsync(string url = "", int batchSize = 5, int offset = 0)
+        public override async IAsyncEnumerable<(string, string, List<string>)> GetOfferAsync(
+    string url = "",
+    int batchSize = 5,
+    int offset = 0)
         {
-            List<string>errors = new List<string>();
-            string baseUrl = PracujPlUrlBuilder.baseUrl;
+            string baseUrl = string.IsNullOrEmpty(url) ? PracujPlUrlBuilder.baseUrl : url;
 
-            if (url != "")
-                baseUrl = url;
-            
+            string htmlBody;
             try
             {
                 htmlBody = await GetHtmlSource(baseUrl);
             }
             catch (Exception ex)
             {
-                errors.Add($"Error while downloading HTML: {ex.Message}");
                 yield break;
             }
 
-
             string allJs = GetAllJson(htmlBody);
             maxOfferCount = GetOfferCount(allJs);
-            List<JToken> offerListJs = GetOffersJToken(allJs).ToList(); 
+            List<JToken> offers = GetOffersJToken(allJs).ToList();
+            offersPerPage = offers.Count;
+            int skip = batchSize * offset;
 
-            offersPerPage = offerListJs.Count;
-            List<PracujplSchema> pracujplSchemas = new List<PracujplSchema>();
-            List<string> requirementsData = new List<string>();
-            int i = 1;
-            int skipped = 0;
-            int skippedOffersCount = batchSize * offset;
-            foreach (JToken offer in offerListJs)
+            var batchTasks = new List<Task<(PracujplSchema?, List<string>)>>();
+
+            foreach (var token in offers.Skip(skip))
             {
-                try
+                batchTasks.Add(ProcessOfferAsync(token));
+
+                if (batchTasks.Count >= batchSize)
                 {
-                    if (skipped < skippedOffersCount)
-                    {
-                        skipped++;
-                        continue;
-                    }
-                    PracujplSchema schemaOffer = OfferMapper.DeserializeJToken<PracujplSchema>(offer);
-
-                    Offer? offerObject = schemaOffer.offers?.FirstOrDefault();
-                    if (offerObject != null)
-                    {
-                        try
-                        {
-                            schemaOffer.details = OfferMapper.DeserializeJToken<PracujPlOfferDetails>(
-                                await GetOfferDetails(offerObject.offerAbsoluteUri)
-                            );
-                        }
-                        catch (Exception ex)
-                        {
-                            errors.Add($"Error while scrapping offer details {offerObject.offerAbsoluteUri}: {ex.Message}");
-                        }
-                    }
-                    if (schemaOffer.companyProfileAbsoluteUri != null)
-                    {
-                        try
-                        {
-                            var token = await CompanyCache.GetOrAddAsync(
-                           schemaOffer.companyProfileAbsoluteUri,
-                           () => GetCompanyDetails(schemaOffer.companyProfileAbsoluteUri)
-                             );
-
-                            if (token?.SelectToken("slug") != null)
-                                schemaOffer.profile = OfferMapper.DeserializeJToken<PracujPlProfile>(token);
-                            else
-                                schemaOffer.company = OfferMapper.DeserializeJToken<PracujPlCompany>(token);
-                        }
-                        catch (Exception p)
-                        {
-                            errors.Add($"Error while scrapping company/profile details {schemaOffer.companyProfileAbsoluteUri}: {p.Message}");
-                        }
-
-                    }
-                    bool? isAbroad = schemaOffer.details?.attributes?.workplaces?
-                    .Any(_ => _.isAbroad.GetValueOrDefault());
-
-                   // if (!isAbroad ?? true)
-                    //{ 
-                        pracujplSchemas.Add(schemaOffer);
-                    //}
-
-                    await Task.Delay(ConstValues.delayBetweenRequests);
-                }
-                catch (Exception e)
-                {
-                    errors.Add($"Error while processing offer from main list: {e.Message}");
-                }
-                if (i++ >= batchSize)
-                {
-                    yield return (JsonConvert.SerializeObject(pracujplSchemas, Formatting.Indented) ?? "", htmlBody, new List<string>(errors));
-                    pracujplSchemas = new List<PracujplSchema>();
-                    errors = new List<string>();
-                    i = 1;
+                    yield return await ProcessBatchAsync(batchTasks, htmlBody);
+                    batchTasks.Clear();
                 }
             }
 
-            if (pracujplSchemas.Count > 0)
-                yield return (JsonConvert.SerializeObject(pracujplSchemas, Formatting.Indented) ?? "", htmlBody, new List<string>(errors));
+            if (batchTasks.Count > 0)
+                yield return await ProcessBatchAsync(batchTasks, htmlBody);
         }
+        private async Task<(PracujplSchema?, List<string>)> ProcessOfferAsync(JToken token)
+        {
+            var errors = new List<string>();
+            PracujplSchema? schema = null;
+
+            try
+            {
+                schema = OfferMapper.DeserializeJToken<PracujplSchema>(token);
+
+                await FetchOfferDetailsAsync(schema, errors);
+                await FetchCompanyProfileAsync(schema, errors);
+
+                await Task.Delay(ConstValues.delayBetweenRequests);
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"General error: {ex.Message}");
+            }
+
+            return (schema, errors);
+        }
+        private async Task FetchOfferDetailsAsync(PracujplSchema schema, List<string> errors)
+        {
+            var offer = schema.offers?.FirstOrDefault();
+            if (offer == null) return;
+
+            try
+            {
+                var json = await GetOfferDetails(offer.offerAbsoluteUri);
+                schema.details = OfferMapper.DeserializeJToken<PracujPlOfferDetails>(json);
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"Error fetching offer details {offer.offerAbsoluteUri}: {ex.Message}");
+            }
+        }
+        private async Task FetchCompanyProfileAsync(PracujplSchema schema, List<string> errors)
+        {
+            if (schema.companyProfileAbsoluteUri == null)
+                return;
+
+            try
+            {
+                var token = await CompanyCache.GetOrAddAsync(
+                    schema.companyProfileAbsoluteUri,
+                    () => GetCompanyDetails(schema.companyProfileAbsoluteUri)
+                );
+
+                if (token?.SelectToken("slug") != null)
+                    schema.profile = OfferMapper.DeserializeJToken<PracujPlProfile>(token);
+                else
+                    schema.company = OfferMapper.DeserializeJToken<PracujPlCompany>(token);
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"Error fetching company/profile {schema.companyProfileAbsoluteUri}: {ex.Message}");
+            }
+        }
+        private async Task<(string, string, List<string>)> ProcessBatchAsync(
+    List<Task<(PracujplSchema?, List<string>)>> batch,
+    string htmlBody)
+        {
+            var results = await Task.WhenAll(batch);
+
+            var schemas = results
+                .Where(r => r.Item1 != null)
+                .Select(r => r.Item1!)
+                .ToList();
+
+            var errors = results
+                .SelectMany(r => r.Item2)
+                .ToList();
+
+            return (
+                JsonConvert.SerializeObject(schemas, Formatting.Indented),
+                htmlBody,
+                errors
+            );
+        }
+
         async Task<string> GetHtmlSource(string url) => await GetHtmlAsync(url);
         string GetAllJson(string html) => GetJsonFragment(html, "<script id=\"__NEXT_DATA__\" type=\"application/json\">(.*?)</script>");
         string GetCompanyJson(string html) => GetJsonFragment(html, @"<script id=""__NEXT_DATA__"" type=""application/json""(?: nonce=""[^""]*"")?\s*>\s*({.*?})\s*</script>");

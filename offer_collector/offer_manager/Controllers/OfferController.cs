@@ -121,6 +121,10 @@ namespace offer_manager.Controllers
             TimeSpan totalDuration = latestEnd - earliestStart;
             IEnumerable<string> errors = completedJobs.Where(j => j.ErrorMessage != null && j.ErrorMessage.Count > 0)
                 .SelectMany(j => j.ErrorMessage!);
+
+            List<UnifiedOfferSchemaClass> unifiedOffers = mergedOffers.Select(_ => JsonConvert.DeserializeObject<UnifiedOfferSchemaClass>(_) ?? new UnifiedOfferSchemaClass()).GroupBy(_ => _.url).Select(_ => _.First()).ToList();
+            mergedOffers = unifiedOffers.Select(_ => JsonConvert.SerializeObject(_)).ToList();
+
             if (usedAi)
             {
                 (List<string?>, List<string>) aiResponse = await _aiService.ProcessUnifiedSchemas(mergedOffers, await _databaseService.GetSystemPromptParamsAsync());

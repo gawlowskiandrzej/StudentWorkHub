@@ -68,6 +68,8 @@ namespace Offer_collector.Models.AplikujPl
         public OfferListHeader header = new OfferListHeader();
         public OfferDetails details = new OfferDetails();
         public List<string> errorMessages = new List<string>();
+        internal string htmlOfferDetail;
+
         public UnifiedOfferSchemaClass UnifiedSchema(string rawHtml = "")
         {
             UnifiedOfferSchemaClass s = new UnifiedOfferSchemaClass();

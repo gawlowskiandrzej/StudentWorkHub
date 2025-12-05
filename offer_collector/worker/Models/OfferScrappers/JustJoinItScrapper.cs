@@ -16,131 +16,185 @@ namespace Offer_collector.Models.OfferFetchers
         {
         }
 
-        public override async IAsyncEnumerable<(string, string, List<string>)> GetOfferAsync(string url = "", int batchSize = 5, int offset = 0)
+        public override async IAsyncEnumerable<(string, string, List<string>)>
+    GetOfferAsync(string url = "", int batchSize = 5, int offset = 0)
         {
-            string baseUrl = JustJoinItBuilder.baseUrl;
-            List<string> errors = new List<string>();
+            // Load main HTML + extract offers
+            var (mainHtml, offers, initErrors) = await LoadMainPageAsync(url);
 
-            if (!string.IsNullOrEmpty(url))
-                baseUrl = url;
+            if (offers.Count == 0)
+            {
+                yield return ("", mainHtml, initErrors);
+                yield break;
+            }
 
-            string html = string.Empty;
+            // Skip previous batches
+            var remainingOffers = offers.Skip(offset * batchSize).ToList();
+
+            // Process in batches
+            var batch = new List<Task<(JustJoinItSchema, List<string>)>>();
+
+            foreach (var offerToken in remainingOffers)
+            {
+                batch.Add(ProcessOfferAsync(offerToken));
+
+                if (batch.Count == batchSize)
+                {
+                    yield return await RunBatchAsync(batch, mainHtml);
+                    batch.Clear();
+                }
+            }
+
+            // last batch
+            if (batch.Count > 0)
+            {
+                yield return await RunBatchAsync(batch, mainHtml);
+            }
+        }
+
+        private async Task<(string Html, List<JToken> Offers, List<string> Errors)>
+    LoadMainPageAsync(string url)
+        {
+            var errors = new List<string>();
+            string baseUrl = string.IsNullOrEmpty(url) ? JustJoinItBuilder.baseUrl : url;
+
+            string html = "";
             try
             {
                 html = await GetHtmlSource(baseUrl);
             }
             catch (Exception ex)
             {
-                errors.Add($"Failed to load main HTML from '{baseUrl}': {ex.Message}");
-                yield break;
+                errors.Add($"Failed to load base HTML: {ex.Message}");
+                return (html, new List<JToken>(), errors);
             }
 
-            string allJs;
+            string jsonBlock;
             try
             {
-                allJs = GetAllJson(html);
+                jsonBlock = GetAllJson(html);
             }
             catch (Exception ex)
             {
-                errors.Add($"Failed to extract JSON data from the HTML: {ex.Message}");
-                yield break;
+                errors.Add($"Failed to extract JSON block: {ex.Message}");
+                return (html, new List<JToken>(), errors);
             }
 
-            int maxOfferCount = 0;
+            List<JToken> offers;
             try
             {
-                maxOfferCount = GetOfferCount(allJs);
+                maxOfferCount = GetOfferCount(jsonBlock);
             }
             catch (Exception ex)
             {
                 errors.Add($"Failed to read offer count: {ex.Message}");
             }
-
-            List<JToken> offerListJs = new List<JToken>();
             try
             {
-                offerListJs = GetOffersJson(allJs);
+                offers = GetOffersJson(jsonBlock);
+                offersPerPage = offers.Count;
             }
             catch (Exception ex)
             {
                 errors.Add($"Failed to parse offers JSON: {ex.Message}");
+                return (html, new List<JToken>(), errors);
             }
 
-#if DEBUG
-            var listJs = JsonConvert.SerializeObject(offerListJs, Formatting.Indented);
-#endif
-            offersPerPage = offerListJs.Count;
-            List<JustJoinItSchema> justJoinItOffers = new List<JustJoinItSchema>();
-            int i = 1;
-            int skipped = 0;
-            int skippedOffersCount = batchSize * offset;
-            foreach (JToken offer in offerListJs)
+            return (html, offers, errors);
+        }
+
+        private async Task<(string Json, string Html, List<string> Errors)>
+    RunBatchAsync(List<Task<(JustJoinItSchema schema, List<string> errors)>> batch, string html)
+        {
+            var results = await Task.WhenAll(batch);
+
+            var offers = results.Where(r => r.schema != null).Select(_ => _.schema).ToList();
+            var errors = results.SelectMany(r => r.errors).ToList();
+
+            string json = JsonConvert.SerializeObject(offers, Formatting.Indented) ?? "";
+
+            return (json, html, errors);
+        }
+
+        private async Task<(JustJoinItSchema, List<string>)> ProcessOfferAsync(JToken offerToken)
+        {
+            List<string> errors = new List<string>();
+            // Parse schema
+            if (!TryParseSchema(offerToken, out var schema, errors))
+                return (schema, errors);
+
+            // Load offer page
+            if (!await TryLoadDetailsHtml(schema, errors))
+                return (schema, errors);
+
+            // Parse details JSON
+            TryParseDetails(schema, errors);
+
+            // Parse description JSON
+            TryParseDescription(schema, errors);
+
+            return (schema, errors);
+        }
+
+        private bool TryParseSchema(JToken token, out JustJoinItSchema schema, List<string> errors)
+        {
+            schema = new JustJoinItSchema();
+            try
             {
-                try
-                {
-                    if (skipped < skippedOffersCount)
-                    {
-                        skipped++;
-                        continue;
-                    }
-                    JustJoinItSchema schema = GetJustJoinItSchema(offer);
-
-                    string detailsHtml = string.Empty;
-                    try
-                    {
-                        detailsHtml = await GetHtmlSource(JustJoinItBuilder.baseUrlOfferDetail + schema.slug);
-                    }
-                    catch (Exception ex)
-                    {
-                        errors.Add($"Failed to load offer details for slug '{schema.slug}': {ex.Message}");
-                        continue;
-                    }
-
-                    JToken? detailsToken = null;
-                    try
-                    {
-                        detailsToken = GetCompanyDetails(detailsHtml);
-                        schema.details = GetJustJoinItOfferDetails(detailsToken ?? "");
-                    }
-                    catch (Exception ex)
-                    {
-                        errors.Add($"Failed to parse company details for slug '{schema.slug}': {ex.Message}");
-                    }
-
-                    schema.detailsHtml = detailsHtml;
-
-                    try
-                    {
-                        schema.description = JsonConvert.DeserializeObject<JustJoinItDescription>(
-                            GetDescriptionSubString(detailsHtml) ?? ""
-                        )?.description ?? "";
-                    }
-                    catch (Exception ex)
-                    {
-                        errors.Add($"Failed to parse offer description for slug '{schema.slug}': {ex.Message}");
-                    }
-
-                    justJoinItOffers.Add(schema);
-
-                    await Task.Delay(ConstValues.delayBetweenRequests);
-                }
-                catch (Exception ex)
-                {
-                    errors.Add($"Unexpected error while processing an offer: {ex.Message}");
-                }
-                if (i++ >= batchSize)
-                {
-                    yield return (JsonConvert.SerializeObject(justJoinItOffers, Formatting.Indented) ?? "", html, new List<string>(errors));
-                    justJoinItOffers = new List<JustJoinItSchema>();
-                    errors = new List<string>();
-                    i = 1;
-                }
+                schema = GetJustJoinItSchema(token);
+                return true;
             }
-            if (justJoinItOffers.Count > 0)
-                yield return (JsonConvert.SerializeObject(justJoinItOffers, Formatting.Indented) ?? "", html, new List<string>(errors));
+            catch (Exception ex)
+            {
+                errors.Add($"Failed to parse schema: {ex.Message}");
+                return false;
+            }
+        }
+
+        private async Task<bool> TryLoadDetailsHtml(JustJoinItSchema schema, List<string> errors)
+        {
+            try
+            {
+                schema.detailsHtml =
+                    await GetHtmlSource(JustJoinItBuilder.baseUrlOfferDetail + schema.slug);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"Failed to load details HTML for '{schema.slug}': {ex.Message}");
+                return false;
+            }
+        }
+
+        private void TryParseDetails(JustJoinItSchema schema, List<string> errors)
+        {
+            try
+            {
+                var token = GetCompanyDetails(schema.detailsHtml);
+                schema.details = GetJustJoinItOfferDetails(token ?? "");
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"Failed to parse company details for '{schema.slug}': {ex.Message}");
+            }
+        }
+
+        private void TryParseDescription(JustJoinItSchema schema, List<string> errors)
+        {
+            try
+            {
+                var json = GetDescriptionSubString(schema.detailsHtml) ?? "";
+                schema.description =
+                    JsonConvert.DeserializeObject<JustJoinItDescription>(json)?.description ?? "";
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"Failed to parse description for '{schema.slug}': {ex.Message}");
+            }
         }
 
         private async Task<string> GetHtmlSource(string url) => await GetHtmlAsync(url);
+
         private string GetAllJson(string html) => GetSubstringJson(html) ?? "";
         private string? GetSubstringJson(string htmlSource)
         {

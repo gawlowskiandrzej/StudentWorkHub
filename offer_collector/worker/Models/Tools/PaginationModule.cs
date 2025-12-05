@@ -86,7 +86,7 @@ namespace Offer_collector.Models.Tools
                         }
                         yield return (batchJson, new List<string>(htmls), new List<string>(errors));
 
-                        if (allOffers.Count >= _offerMaxCount)
+                        if (allOffers.Count >= _offerMaxCount || allOffers.Count > _scrapper.GetOffersPerPage())
                             yield break;
                         i++;
                     }

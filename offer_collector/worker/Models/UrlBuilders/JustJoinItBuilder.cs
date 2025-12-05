@@ -51,7 +51,7 @@ namespace Offer_collector.Models.UrlBuilders
         {
             if (pageId > 0)
             {
-                //parameters["pn"] = pageId.ToString();
+                parameters["pn"] = pageId.ToString();
             }
 
             return parameters;

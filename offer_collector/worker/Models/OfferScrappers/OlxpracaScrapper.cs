@@ -17,114 +17,273 @@ namespace Offer_collector.Models.OfferFetchers
         {
         }
 
-        public override async IAsyncEnumerable<(string, string, List<string>)> GetOfferAsync(string url = "", int batchSize = 5, int offset= 0)
+        //public override async IAsyncEnumerable<(string, string, List<string>)> GetOfferAsync(string url = "", int batchSize = 5, int offset= 0)
+        //{
+        //    string baseUrl = OlxPracaUrlBuilder.baseUrl;
+        //    List<string> errors = new List<string>();
+
+        //    if (!string.IsNullOrEmpty(url))
+        //        baseUrl = url;
+
+        //    string html = string.Empty;
+        //    try
+        //    {
+        //        html = await GetHtmlSource(baseUrl);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        errors.Add($"Failed to load main HTML from '{baseUrl}': {ex.Message}");
+        //        yield break;
+        //    }
+
+        //    string allJs;
+        //    try
+        //    {
+        //        allJs = GetAllJson(html);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        errors.Add($"Failed to extract JSON data from the HTML: {ex.Message}");
+        //        yield break;
+        //    }
+
+        //    //int maxOfferCount = 0;
+        //    try
+        //    {
+
+        //        maxOfferCount = GetOfferCount(allJs);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        errors.Add($"Failed to read offer count: {ex.Message}");
+        //    }
+
+        //    List<JToken> offerListJs = new List<JToken>();
+        //    try
+        //    {
+        //        offerListJs = GetOffersJson(allJs);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        errors.Add($"Failed to parse offers JSON: {ex.Message}");
+        //    }
+
+        //    List<OlxPracaSchema> olxPracaSchema = new List<OlxPracaSchema>();
+        //    int i = 1;
+        //    int skipped = 0;
+        //    int skippedOffersCount = batchSize * offset;
+        //    offersPerPage = offerListJs.Count;
+        //    foreach (JToken offer in offerListJs)
+        //    {
+        //        try
+        //        {
+        //            if (skipped < skippedOffersCount)
+        //            {
+        //                skipped++;
+        //                continue;
+        //            }
+        //            OlxPracaSchema obj = GetOlxPracaObject(offer);
+
+        //            try
+        //            {
+        //                obj.htmlOfferDetail = await GetHtmlSource(obj.url);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                errors.Add($"Failed to load offer details for URL '{obj.url}': {ex.Message}");
+        //                continue; // Skip to next offer
+        //            }
+
+        //            try
+        //            {
+        //                string htmlOfferDetail = GetSubstringJson(obj.htmlOfferDetail);
+        //                List<JToken> offerDetails = GetOfferDetailsJson(htmlOfferDetail);
+        //                string categoriesListObj = JsonConvert.SerializeObject(offerDetails);
+        //                obj.category.categoryDetails = GetOlxPracaCategoryById(obj.category.id ?? defaultCategory, categoriesListObj);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                errors.Add($"Failed to parse details or categories for offer '{obj.url}': {ex.Message}");
+        //            }
+
+        //            olxPracaSchema.Add(obj);
+
+        //            await Task.Delay(ConstValues.delayBetweenRequests);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            errors.Add($"Unexpected error while processing an offer: {ex.Message}");
+        //        }
+
+        //        if (i++ >= batchSize)
+        //        {
+        //            yield return (JsonConvert.SerializeObject(olxPracaSchema, Formatting.Indented) ?? "", html, errors);
+        //            olxPracaSchema = new List<OlxPracaSchema>();
+        //            errors = new List<string>();
+        //            i = 1;
+        //        }
+        //    }
+        //    if (olxPracaSchema.Count > 0)
+        //        yield return (JsonConvert.SerializeObject(olxPracaSchema, Formatting.Indented) ?? "", html, errors);
+        //}
+        public override async IAsyncEnumerable<(string, string, List<string>)>
+    GetOfferAsync(string url = "", int batchSize = 5, int offset = 0)
         {
-            string baseUrl = OlxPracaUrlBuilder.baseUrl;
-            List<string> errors = new List<string>();
+            var (mainHtml, offers, initialErrors) = await LoadMainPageAsync(url);
 
-            if (!string.IsNullOrEmpty(url))
-                baseUrl = url;
+            if (offers.Count == 0)
+            {
+                yield return ("", mainHtml, initialErrors);
+                yield break;
+            }
 
-            string html = string.Empty;
+            offersPerPage = offers.Count;
+
+            var remaining = offers.Skip(batchSize * offset).ToList();
+
+            var batch = new List<Task<(OlxPracaSchema, List<string>)>>();
+
+            foreach (var offerToken in remaining)
+            {
+                batch.Add(ProcessOfferAsync(offerToken));
+
+                if (batch.Count == batchSize)
+                {
+                    yield return await RunBatchAsync(batch, mainHtml);
+                    batch.Clear();
+                }
+            }
+
+            if (batch.Count > 0)
+                yield return await RunBatchAsync(batch, mainHtml);
+        }
+
+        private async Task<(string Html, List<JToken> Offers, List<string> Errors)>
+    LoadMainPageAsync(string url)
+        {
+            var errors = new List<string>();
+            string baseUrl = string.IsNullOrEmpty(url) ? OlxPracaUrlBuilder.baseUrl : url;
+
+            string html = "";
             try
             {
                 html = await GetHtmlSource(baseUrl);
             }
             catch (Exception ex)
             {
-                errors.Add($"Failed to load main HTML from '{baseUrl}': {ex.Message}");
-                yield break;
+                errors.Add($"Failed to load main HTML '{baseUrl}': {ex.Message}");
+                return (html, new(), errors);
             }
 
-            string allJs;
+            string jsonBlock;
             try
             {
-                allJs = GetAllJson(html);
+                jsonBlock = GetAllJson(html);
             }
             catch (Exception ex)
             {
-                errors.Add($"Failed to extract JSON data from the HTML: {ex.Message}");
-                yield break;
+                errors.Add($"Failed to extract JSON: {ex.Message}");
+                return (html, new(), errors);
             }
 
-            //int maxOfferCount = 0;
             try
             {
-
-                maxOfferCount = GetOfferCount(allJs);
+                maxOfferCount = GetOfferCount(jsonBlock);
             }
             catch (Exception ex)
             {
                 errors.Add($"Failed to read offer count: {ex.Message}");
             }
 
-            List<JToken> offerListJs = new List<JToken>();
+            List<JToken> offers;
             try
             {
-                offerListJs = GetOffersJson(allJs);
+                offers = GetOffersJson(jsonBlock);
             }
             catch (Exception ex)
             {
                 errors.Add($"Failed to parse offers JSON: {ex.Message}");
+                return (html, new(), errors);
             }
 
-            List<OlxPracaSchema> olxPracaSchema = new List<OlxPracaSchema>();
-            int i = 1;
-            int skipped = 0;
-            int skippedOffersCount = batchSize * offset;
-            offersPerPage = offerListJs.Count;
-            foreach (JToken offer in offerListJs)
+            return (html, offers, errors);
+        }
+
+        private async Task<(string Json, string Html, List<string> Errors)>
+    RunBatchAsync(List<Task<(OlxPracaSchema schema, List<string> errors)>> tasks, string html)
+        {
+            var results = await Task.WhenAll(tasks);
+
+            var items = results.Where(r => r.schema != null).Select(_ => _.schema).ToList();
+            var errors = results.SelectMany(r => r.errors).ToList();
+
+            string json = JsonConvert.SerializeObject(items, Formatting.Indented) ?? "";
+
+            return (json, html, errors);
+        }
+
+        private async Task<(OlxPracaSchema schema, List<string> errors)> ProcessOfferAsync(JToken offerToken)
+        {
+            List<string> errors = new List<string>();
+            // Parse base schema
+            if (!TryParseSchema(offerToken, out var schema, errors))
+                return (schema, errors);
+
+            // Load details HTML
+            if (!await TryLoadOfferHtml(schema, errors))
+                return (schema, errors);
+
+            // Parse details and categories
+            TryParseDetails(schema, errors);
+
+            return (schema, errors);
+        }
+
+        private bool TryParseSchema(JToken token, out OlxPracaSchema schema, List<string> errors)
+        {
+            schema = new OlxPracaSchema();
+            try
             {
-                try
-                {
-                    if (skipped < skippedOffersCount)
-                    {
-                        skipped++;
-                        continue;
-                    }
-                    OlxPracaSchema obj = GetOlxPracaObject(offer);
-
-                    try
-                    {
-                        obj.htmlOfferDetail = await GetHtmlSource(obj.url);
-                    }
-                    catch (Exception ex)
-                    {
-                        errors.Add($"Failed to load offer details for URL '{obj.url}': {ex.Message}");
-                        continue; // Skip to next offer
-                    }
-
-                    try
-                    {
-                        string htmlOfferDetail = GetSubstringJson(obj.htmlOfferDetail);
-                        List<JToken> offerDetails = GetOfferDetailsJson(htmlOfferDetail);
-                        string categoriesListObj = JsonConvert.SerializeObject(offerDetails);
-                        obj.category.categoryDetails = GetOlxPracaCategoryById(obj.category.id ?? defaultCategory, categoriesListObj);
-                    }
-                    catch (Exception ex)
-                    {
-                        errors.Add($"Failed to parse details or categories for offer '{obj.url}': {ex.Message}");
-                    }
-
-                    olxPracaSchema.Add(obj);
-
-                    await Task.Delay(ConstValues.delayBetweenRequests);
-                }
-                catch (Exception ex)
-                {
-                    errors.Add($"Unexpected error while processing an offer: {ex.Message}");
-                }
-
-                if (i++ >= batchSize)
-                {
-                    yield return (JsonConvert.SerializeObject(olxPracaSchema, Formatting.Indented) ?? "", html, errors);
-                    olxPracaSchema = new List<OlxPracaSchema>();
-                    errors = new List<string>();
-                    i = 1;
-                }
+                schema = GetOlxPracaObject(token);
+                return true;
             }
-            if (olxPracaSchema.Count > 0)
-                yield return (JsonConvert.SerializeObject(olxPracaSchema, Formatting.Indented) ?? "", html, errors);
+            catch (Exception ex)
+            {
+                errors.Add($"Failed to parse schema: {ex.Message}");
+                return false;
+            }
+        }
+
+        private async Task<bool> TryLoadOfferHtml(OlxPracaSchema schema, List<string> errors)
+        {
+            try
+            {
+                schema.htmlOfferDetail = await GetHtmlSource(schema.url);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"Failed to load offer HTML '{schema.url}': {ex.Message}");
+                return false;
+            }
+        }
+
+        private void TryParseDetails(OlxPracaSchema schema, List<string> errors)
+        {
+            try
+            {
+                string jsonPart = GetSubstringJson(schema.htmlOfferDetail);
+                var details = GetOfferDetailsJson(jsonPart);
+
+                string serialized = JsonConvert.SerializeObject(details);
+
+                schema.category.categoryDetails =
+                    GetOlxPracaCategoryById(schema.category.id ?? defaultCategory, serialized);
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"Failed to parse offer details '{schema.url}': {ex.Message}");
+            }
         }
 
         private async Task<string> GetHtmlSource(string url) => await GetHtmlAsync(url);
