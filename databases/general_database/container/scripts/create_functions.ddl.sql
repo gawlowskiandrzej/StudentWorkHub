@@ -22,3 +22,19 @@ BEGIN
 
     RETURN v_user_id;
 $$;
+
+CREATE OR REPLACE FUNCTION public.get_weights_json(p_user_id BIGINT)
+RETURNS JSONB
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    result JSONB;
+BEGIN
+    SELECT to_jsonb(w) - 'user_id'
+    INTO result
+    FROM public.weights w
+    WHERE w.user_id = p_user_id;
+
+    RETURN result;
+END;
+$$;
