@@ -177,20 +177,19 @@ CREATE TABLE public.search_histories_employment_types_junction (
 -- =========================================================
 
 CREATE TABLE public.weights (
-    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    order_by_option TEXT[],
-    mean_value_ids TEXT[],
-    vector REAL[],
-    mean_dist REAL[],
-    means_value_sum REAL[],
-    means_value_ssum DOUBLE PRECISION[],
-    means_value_count INTEGER[],
-    means_weight_sum REAL[],
-    means_weight_ssum DOUBLE PRECISION[],
-    means_weight_count INTEGER[],
+    user_id BIGINT PRIMARY KEY,
+    order_by_option TEXT[] DEFAULT ARRAY[''],
+    mean_value_ids TEXT[] DEFAULT ARRAY[''],
+    vector REAL[] DEFAULT ARRAY[0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+    mean_dist REAL[] DEFAULT ARRAY[0.5],
+    means_value_sum REAL[] DEFAULT ARRAY[0.0],
+    means_value_ssum DOUBLE PRECISION[] DEFAULT ARRAY[0.0],
+    means_value_count INTEGER[] DEFAULT ARRAY[0],
+    means_weight_sum REAL[] DEFAULT ARRAY[0.0],
+    means_weight_ssum DOUBLE PRECISION[] DEFAULT ARRAY[0.0],
+    means_weight_count INTEGER[] DEFAULT ARRAY[0],
 
-    user_id BIGINT NOT NULL,
-    CONSTRAINT fk_users_weights
+    CONSTRAINT fk_weights_users
         FOREIGN KEY (user_id)
             REFERENCES public.users(id)
             ON DELETE CASCADE
