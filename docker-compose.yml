@@ -38,7 +38,7 @@ services:
     ports:
       - "6379:6379"
 
-  # -----------------------------
+    # -----------------------------
   # FRONTEND (DEV)
   # -----------------------------
   frontend-dev:
@@ -47,29 +47,33 @@ services:
       dockerfile: Dockerfile.dev
     container_name: frontend_dev
     ports:
-      - "5173:5173"
+      - "4000:4000"
     volumes:
       - ./frontend:/app
       - /app/node_modules
     environment:
-      - MODE=development
+      - PORT=4000	
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - NEXT_WEBPACK_USEPOLLING=1
+      - NEXT_WATCH_MODE=1
     depends_on:
       - offer_manager
 
   # -----------------------------
   # FRONTEND (PROD)
   # -----------------------------
-  frontend-prod:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: frontend_prod
-    ports:
-      - "8080:80"
-    environment:
-      - MODE=production
-    depends_on:
-      - offer_manager
+  #frontend-prod:
+   # build:
+    #  context: ./frontend
+     # dockerfile: Dockerfile
+   # container_name: frontend_prod
+    #ports:
+     # - "8080:80"
+   # environment:
+    #  - MODE=production
+    #depends_on:
+     # - offer_manager
 
   # -----------------------------
   # OFFER MANAGER (.NET API)
