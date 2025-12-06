@@ -15,6 +15,7 @@ services:
       context: .
       dockerfile: Dockerfile.offer_manager
     container_name: offer_manager
+    env_file: ./.env
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
       - DatabaseSettings__Host=${POSTGRES_HOST}
@@ -24,6 +25,7 @@ services:
       - DatabaseSettings__Password=${POSTGRES_PASSWORD}
       - RedisServer__Host=${REDIS_HOST}
       - RedisServer__Port=${REDIS_PORT}
+      - ApiKeys__GeminiKey=${ApiKeys_GeminiKey}
       - StaticSettings__NumberOfAvailablePortals=${STATIC_NumberOfAvailablePortals}
       - StaticSettings__JobsTimeoutMinutes=${STATIC_JobsTimeoutMinutes}
       - ASPNETCORE_URLS=http://+:80
@@ -39,6 +41,7 @@ services:
       context: .
       dockerfile: Dockerfile.worker
     container_name: worker
+    env_file: ./.env
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
       - DatabaseSettings__Host=${POSTGRES_HOST}
