@@ -35,7 +35,7 @@ namespace Users
     /// Treat this type as immutable; introduce EncryptionFunctionsV{N} for any changes instead of modifying this class.
     /// Future versions should be implemented as separate, non-inheriting classes.
     /// </remarks>
-    public class EncryptionFunctionsV1
+    internal class EncryptionFunctionsV1
     {
         public const string algorithmName = "argon2id";
         public const int encryptionFunctionVersion = 1;
@@ -69,6 +69,24 @@ namespace Users
             byte[] salt = new byte[_saltSize];
             RandomNumberGenerator.Fill(salt);
             return salt;
+        }
+
+        /// <summary>
+        /// Generates a dummy password hash to be used when there is no real password hash,
+        /// in order to match the timing of a costly Argon-based hashing operation.
+        /// </summary>
+        /// <param name="passwordLength">
+        /// Desired length of the randomly generated dummy password used for hashing.
+        /// </param>
+        /// <returns>
+        /// A formatted hash string containing the algorithm name, encryption function version,
+        /// base64-encoded salt and base64-encoded dummy hash value.
+        /// </returns>
+        internal static string GenerateDummyHash(int passwordLength = 12)
+        {
+            passwordLength = passwordLength <= 512 && passwordLength > 0 ? passwordLength : 512;
+            byte[] salt = GenerateSalt();
+            return $"{algorithmName}$v={encryptionFunctionVersion}${Convert.ToBase64String(salt)}${Convert.ToBase64String(ComputeHash(RememberMeUtils.Generate(passwordLength).token, salt))}";
         }
 
         /// <summary>
