@@ -41,6 +41,26 @@ namespace Users
     internal static class DatabaseQueries
     {
         /// <summary>
+        /// Converts a database query result to a boolean value, treating null or DBNull as false.
+        /// </summary>
+        /// <param name="result">The value returned from the database query.</param>
+        /// <returns>
+        /// A boolean representation of the provided value; returns false if the input is null or DBNull.
+        /// </returns>
+        private static bool ConvertDbResultToBoolean(object? result)
+        {
+            // Treat NULL as a failure (false), since the function is expected to return a boolean.
+            if (result is null || result is DBNull)
+                return false;
+
+            if (result is bool b)
+                return b;
+
+            // Fallback, should not normally happen.
+            return Convert.ToBoolean(result, System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
         /// Adds a new user using the standard registration stored procedure.
         /// </summary>
         /// <param name="email">User email to register.</param>
@@ -565,5 +585,280 @@ namespace Users
                 throw new UserDbQueryException("Database error", ex);
             }
         }
+
+        internal static async Task<string?> GetWeightsJsonAsync(
+            long userId,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
+        {
+            // Respect cancellation before initiating the scalar query.
+            cancellation.ThrowIfCancellationRequested();
+
+            await using var command = dataSource.CreateCommand(
+                "SELECT public.get_weights_json(@p_user_id);");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+
+            try
+            {
+                var result = await command.ExecuteScalarAsync(cancellation);
+
+                // Null or DBNull indicates that there is no weights row for this user.
+                if (result is null || result is DBNull)
+                    return null;
+
+                // Npgsql maps jsonb to string by default.
+                return (string)result;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error", ex);
+            }
+        }
+
+
+        internal static async Task<bool> SetWeightsOrderByOptionAsync(
+    long userId,
+    string[]? orderByOption,
+    NpgsqlDataSource dataSource,
+    CancellationToken cancellation = default)
+        {
+            // Allow caller to cancel before any query is sent to the database.
+            cancellation.ThrowIfCancellationRequested();
+
+            await using var command = dataSource.CreateCommand(
+                "SELECT public.set_weights_order_by_option(@p_user_id, @p_order_by_option);");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+            command.Parameters.AddWithValue("p_order_by_option", (object?)orderByOption ?? DBNull.Value);
+
+            try
+            {
+                var result = await command.ExecuteScalarAsync(cancellation);
+                return ConvertDbResultToBoolean(result);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error", ex);
+            }
+        }
+
+        internal static async Task<bool> SetWeightsMeanValueIdsAsync(
+    long userId,
+    string[]? meanValueIds,
+    NpgsqlDataSource dataSource,
+    CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            await using var command = dataSource.CreateCommand(
+                "SELECT public.set_weights_mean_value_ids(@p_user_id, @p_mean_value_ids);");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+            command.Parameters.AddWithValue("p_mean_value_ids", (object?)meanValueIds ?? DBNull.Value);
+
+            try
+            {
+                var result = await command.ExecuteScalarAsync(cancellation);
+                return ConvertDbResultToBoolean(result);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error", ex);
+            }
+        }
+        internal static async Task<bool> SetWeightsVectorAsync(
+    long userId,
+    float[]? vector,
+    NpgsqlDataSource dataSource,
+    CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            await using var command = dataSource.CreateCommand(
+                "SELECT public.set_weights_vector(@p_user_id, @p_vector);");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+            command.Parameters.AddWithValue("p_vector", (object?)vector ?? DBNull.Value);
+
+            try
+            {
+                var result = await command.ExecuteScalarAsync(cancellation);
+                return ConvertDbResultToBoolean(result);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error", ex);
+            }
+        }
+        internal static async Task<bool> SetWeightsMeanDistAsync(
+    long userId,
+    float[]? meanDist,
+    NpgsqlDataSource dataSource,
+    CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            await using var command = dataSource.CreateCommand(
+                "SELECT public.set_weights_mean_dist(@p_user_id, @p_mean_dist);");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+            command.Parameters.AddWithValue("p_mean_dist", (object?)meanDist ?? DBNull.Value);
+
+            try
+            {
+                var result = await command.ExecuteScalarAsync(cancellation);
+                return ConvertDbResultToBoolean(result);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error", ex);
+            }
+        }
+        internal static async Task<bool> SetWeightsMeansValueSumAsync(
+    long userId,
+    float[]? meansValueSum,
+    NpgsqlDataSource dataSource,
+    CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            await using var command = dataSource.CreateCommand(
+                "SELECT public.set_weights_means_value_sum(@p_user_id, @p_means_value_sum);");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+            command.Parameters.AddWithValue("p_means_value_sum", (object?)meansValueSum ?? DBNull.Value);
+
+            try
+            {
+                var result = await command.ExecuteScalarAsync(cancellation);
+                return ConvertDbResultToBoolean(result);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error", ex);
+            }
+        }
+        internal static async Task<bool> SetWeightsMeansValueSsumAsync(
+    long userId,
+    double[]? meansValueSsum,
+    NpgsqlDataSource dataSource,
+    CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            await using var command = dataSource.CreateCommand(
+                "SELECT public.set_weights_means_value_ssum(@p_user_id, @p_means_value_ssum);");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+            command.Parameters.AddWithValue("p_means_value_ssum", (object?)meansValueSsum ?? DBNull.Value);
+
+            try
+            {
+                var result = await command.ExecuteScalarAsync(cancellation);
+                return ConvertDbResultToBoolean(result);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error", ex);
+            }
+        }
+        internal static async Task<bool> SetWeightsMeansValueCountAsync(
+    long userId,
+    int[]? meansValueCount,
+    NpgsqlDataSource dataSource,
+    CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            await using var command = dataSource.CreateCommand(
+                "SELECT public.set_weights_means_value_count(@p_user_id, @p_means_value_count);");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+            command.Parameters.AddWithValue("p_means_value_count", (object?)meansValueCount ?? DBNull.Value);
+
+            try
+            {
+                var result = await command.ExecuteScalarAsync(cancellation);
+                return ConvertDbResultToBoolean(result);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error", ex);
+            }
+        }
+        internal static async Task<bool> SetWeightsMeansWeightSumAsync(
+    long userId,
+    float[]? meansWeightSum,
+    NpgsqlDataSource dataSource,
+    CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            await using var command = dataSource.CreateCommand(
+                "SELECT public.set_weights_means_weight_sum(@p_user_id, @p_means_weight_sum);");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+            command.Parameters.AddWithValue("p_means_weight_sum", (object?)meansWeightSum ?? DBNull.Value);
+
+            try
+            {
+                var result = await command.ExecuteScalarAsync(cancellation);
+                return ConvertDbResultToBoolean(result);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error", ex);
+            }
+        }
+        internal static async Task<bool> SetWeightsMeansWeightSsumAsync(
+    long userId,
+    double[]? meansWeightSsum,
+    NpgsqlDataSource dataSource,
+    CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            await using var command = dataSource.CreateCommand(
+                "SELECT public.set_weights_means_weight_ssum(@p_user_id, @p_means_weight_ssum);");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+            command.Parameters.AddWithValue("p_means_weight_ssum", (object?)meansWeightSsum ?? DBNull.Value);
+
+            try
+            {
+                var result = await command.ExecuteScalarAsync(cancellation);
+                return ConvertDbResultToBoolean(result);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error", ex);
+            }
+        }
+        internal static async Task<bool> SetWeightsMeansWeightCountAsync(
+    long userId,
+    int[]? meansWeightCount,
+    NpgsqlDataSource dataSource,
+    CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            await using var command = dataSource.CreateCommand(
+                "SELECT public.set_weights_means_weight_count(@p_user_id, @p_means_weight_count);");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+            command.Parameters.AddWithValue("p_means_weight_count", (object?)meansWeightCount ?? DBNull.Value);
+
+            try
+            {
+                var result = await command.ExecuteScalarAsync(cancellation);
+                return ConvertDbResultToBoolean(result);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error", ex);
+            }
+        }
+
     }
 }
