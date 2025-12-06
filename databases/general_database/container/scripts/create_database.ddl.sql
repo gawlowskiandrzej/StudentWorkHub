@@ -15,6 +15,30 @@ DROP TABLE IF EXISTS public.phones;
 -- Users
 -- =========================================================
 
+CREATE TABLE public.first_names (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    first_name VARCHAR(100) NOT NULL,
+
+    CONSTRAINT uq_first_names_first_name
+        UNIQUE (first_name)
+);
+
+CREATE TABLE public.second_names (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    second_name VARCHAR(100) NOT NULL,
+
+    CONSTRAINT uq_second_names_second_name
+        UNIQUE (second_name)
+);
+
+CREATE TABLE public.last_names (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    last_name VARCHAR(100) NOT NULL,
+
+    CONSTRAINT uq_last_names_last_name
+        UNIQUE (last_name)
+);
+
 CREATE TABLE public.users (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     email VARCHAR(255) NULL,
@@ -41,7 +65,7 @@ CREATE TABLE public.users (
     CONSTRAINT fk_users_first_names
         FOREIGN KEY (first_name_id)
         REFERENCES public.first_names (id)
-        ON DELETE RESTRICT;
+        ON DELETE RESTRICT,
 
     CONSTRAINT fk_users_second_names
         FOREIGN KEY (second_name_id)
@@ -52,30 +76,6 @@ CREATE TABLE public.users (
         FOREIGN KEY (last_name_id)
         REFERENCES public.last_names (id)
         ON DELETE RESTRICT
-);
-
-CREATE TABLE public.first_names (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    first_name VARCHAR(100) NOT NULL,
-
-    CONSTRAINT uq_first_names_first_name
-        UNIQUE (first_name)
-);
-
-CREATE TABLE public.second_names (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    second_name VARCHAR(100) NOT NULL,
-
-    CONSTRAINT uq_second_names_second_name
-        UNIQUE (second_name)
-);
-
-CREATE TABLE public.last_names (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    last_name VARCHAR(100) NOT NULL,
-
-    CONSTRAINT uq_last_names_last_name
-        UNIQUE (last_name)
 );
 
 -- =========================================================
