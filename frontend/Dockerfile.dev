@@ -1,12 +1,13 @@
-FROM node:20-alpine
-
+# Dockerfile.dev
+FROM node:20-slim
 WORKDIR /app
 
+# Instalujemy dependencies
 COPY package*.json ./
 RUN npm install
 
+# Kopiujemy resztę projektu (opcjonalnie, w compose i tak nadpisze wolumen)
 COPY . .
 
-EXPOSE 5173
-
-CMD ["npm", "run", "dev", "--", "--host"]
+EXPOSE 4000
+CMD ["npm", "run", "dev"]
