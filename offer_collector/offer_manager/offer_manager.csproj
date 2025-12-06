@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Platforms>AnyCPU;x64</Platforms>
+    <UserSecretsId>a53c40de-fcac-4448-a089-0e6bbd8eaf71</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\shared_models\shared_models.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="LLMParser">
+      <HintPath>..\libs\LLMParser.dll</HintPath>
+    </Reference>
+    <Reference Include="OffersConnector">
+      <HintPath>..\libs\OffersConnector.dll</HintPath>
+    </Reference>
+    <Reference Include="UnifiedOfferSchema">
+      <HintPath>..\libs\UnifiedOfferSchema.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

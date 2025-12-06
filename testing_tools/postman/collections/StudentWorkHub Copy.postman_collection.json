@@ -1,0 +1,191 @@
+{
+  "info": {
+    "_postman_id": "83ed3200-ca17-4081-b464-e7e99a85d00c",
+    "name": "StudentWorkHub",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "get_scrapped_offers",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "68e5638f-6faf-406e-838f-e95afc605bb0",
+            "exec": [
+              "// Visualization Script",
+              "// Visualization Script",
+              "const template = `",
+              "<table border=\"1\" cellpadding=\"5\" cellspacing=\"0\" style=\"border-collapse:collapse;width:100%;background:white;\">",
+              "  <thead>",
+              "    <tr>",
+              "      <th>#</th>",
+              "      <th>Source</th>",
+              "      <th>ID</th>",
+              "      <th>JobName</th>",
+              "    </tr>",
+              "  </thead>",
+              "  <tbody>",
+              "    {{#each offers}}",
+              "      <tr>",
+              "        <td>{{@index}}</td>",
+              "        <td>{{source}}</td>",
+              "        <td>{{id}}</td>",
+              "        <td>{{jobTitle}}</td>",
+              "        <td>{{url}}</td>",
+              "      </tr>",
+              "    {{/each}}",
+              "  </tbody>",
+              "</table>",
+              "`;",
+              "",
+              "function createPayload() {",
+              "    let raw = pm.response.json();",
+              "    let batch = raw.batch || [];",
+              "    let offers = batch.map(item => {",
+              "        try {",
+              "            return JSON.parse(item);",
+              "        } catch (e) {",
+              "            return null;",
+              "        }",
+              "    }).filter(Boolean);",
+              "    return { offers };",
+              "}",
+              "",
+              "pm.visualizer.set(template, createPayload());"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "id": "ea90ef33-55d3-4d3b-9070-c5e76a48c11d",
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "id": "37109013-5819-404d-9f35-1cd6e9aac306",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseURL}}/api/offers/getOffersScrapped?usedAi=false&addToDatabase=false",
+          "host": [
+            "{{baseURL}}"
+          ],
+          "path": [
+            "api",
+            "offers",
+            "getOffersScrapped"
+          ],
+          "query": [
+            {
+              "key": "usedAi",
+              "value": "false"
+            },
+            {
+              "key": "addToDatabase",
+              "value": "false"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "create_scrapped_offers_request",
+      "id": "218ea751-c7d4-4cef-b7f5-e6f30fa8e512",
+      "request": {
+        "method": "POST",
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseURL}}/api/offers?batchSize=30",
+          "host": [
+            "{{baseURL}}"
+          ],
+          "path": [
+            "api",
+            "offers"
+          ],
+          "query": [
+            {
+              "key": "batchSize",
+              "value": "30"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "get_offers_fromdatabase",
+      "id": "f024ca40-3125-4383-a602-eda230727740",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Bearer",
+            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXAiOiJBdXRoZW50aWNhdGlvblRva2VuIiwiYXJuIjoiMjAyNTExMjgtQVUtMzlGNEU0ODAwMC0yNEU0RjJDQUQ0LTBCIiwiZXhwIjoxNzY0MzUxNDcxLCJpYXQiOjE3NjQzNDg3NzEsImlzcyI6ImtzZWYtYXBpLXRlIiwiYXVkIjoia3NlZi1hcGktdGUifQ.J0BPh-MH0uWBuDsXyJffUIp6U4WUpUJRFxxJvhr1bMQ",
+            "type": "text",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseURL}}/api/offers/getOffersDatabase",
+          "host": [
+            "{{baseURL}}"
+          ],
+          "path": [
+            "api",
+            "offers",
+            "getOffersDatabase"
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "id": "1a798878-e76a-4ba3-8e4b-ef8f306b8c69",
+      "key": "baseURL",
+      "value": "",
+      "type": "default"
+    }
+  ]
+}

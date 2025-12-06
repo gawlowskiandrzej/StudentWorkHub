@@ -1,4 +1,4 @@
-name: databases
+x-name: databases
 services:
     db_offers:
         build:

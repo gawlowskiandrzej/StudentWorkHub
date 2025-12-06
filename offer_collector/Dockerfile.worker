@@ -1,0 +1,24 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+COPY ./libs ./libs
+# Copy shared_models first
+COPY ./shared_models ./shared_models
+
+# Copy offer_manager
+COPY ./worker ./worker
+
+WORKDIR /src/worker
+
+# Restore using offer_manager.sln (its correct location)
+RUN dotnet restore worker.sln
+
+# Publish the project
+RUN dotnet publish worker.csproj -c Release -o /app/publish
+
+# Runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /app
+COPY --from=build /app/publish .
+EXPOSE 80
+ENTRYPOINT ["dotnet", "worker.dll"]

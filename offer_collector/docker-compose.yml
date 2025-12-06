@@ -1,0 +1,68 @@
+version: "3.9"
+
+services:
+
+  # Redis
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  # Offer Manager
+  offer_manager:
+    build:
+      context: .
+      dockerfile: Dockerfile.offer_manager
+    container_name: offer_manager
+    env_file: ./.env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - DatabaseSettings__Host=${POSTGRES_HOST}
+      - DatabaseSettings__Port=${POSTGRES_PORT}
+      - DatabaseSettings__Database=${POSTGRES_DB}
+      - DatabaseSettings__Username=${POSTGRES_USER}
+      - DatabaseSettings__Password=${POSTGRES_PASSWORD}
+      - RedisServer__Host=${REDIS_HOST}
+      - RedisServer__Port=${REDIS_PORT}
+      - ApiKeys__GeminiKey=${ApiKeys_GeminiKey}
+      - StaticSettings__NumberOfAvailablePortals=${STATIC_NumberOfAvailablePortals}
+      - StaticSettings__JobsTimeoutMinutes=${STATIC_JobsTimeoutMinutes}
+      - ASPNETCORE_URLS=http://+:80
+    ports:
+      - "5059:80"
+    depends_on:
+      - redis
+      - headless_browser
+
+  # Worker
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: worker
+    env_file: ./.env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - DatabaseSettings__Host=${POSTGRES_HOST}
+      - DatabaseSettings__Port=${POSTGRES_PORT}
+      - DatabaseSettings__Database=${POSTGRES_DB}
+      - DatabaseSettings__Username=${POSTGRES_USER}
+      - DatabaseSettings__Password=${POSTGRES_PASSWORD}
+      - RedisServer__Host=${REDIS_HOST}
+      - RedisServer__Port=${REDIS_PORT}
+      - NodeServer__Host=${NODE_HOST}
+      - NodeServer__Port=${NODE_PORT}
+      - DelayBetweenRequestsMs=${DELAY_BETWEEN_REQUESTS_MS}
+      - ASPNETCORE_URLS=http://+:80
+    depends_on:
+      - redis
+      - headless_browser
+
+  # Headless browser (Node)
+  headless_browser:
+    build:
+      context: ./headless_browser
+    container_name: headless_browser
+    ports:
+      - "3000:3000"
