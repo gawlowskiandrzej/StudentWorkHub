@@ -1,0 +1,1055 @@
+﻿using Npgsql;
+using System.Collections.Concurrent;
+using System.Diagnostics;
+
+namespace Users
+{
+    /// <summary>
+    /// Handles user-related operations using a provided Npgsql data source.
+    /// </summary>
+    /// <remarks>
+    /// IMPORTANT: Do NOT expose any error messages, exception messages or returned error values
+    /// from this class directly to end users. These values are intended only for logging,
+    /// diagnostics and internal debugging. A higher layer MUST translate them into generic,
+    /// user-friendly messages without leaking internal details.
+    /// </remarks>
+    public class User(NpgsqlDataSource datasource) : IDisposable
+    {
+        /// <summary>
+        /// PostgreSQL data source used for all database operations related to this user.
+        /// </summary>
+        private readonly NpgsqlDataSource _dataSource = datasource ?? throw new UserException("`datasource` is empty");
+
+        /// <summary>
+        /// Identifier of the currently logged-in user for this instance, or <c>null</c> if no user is assigned.
+        /// </summary>
+        private long? _userId = null;
+
+        /// <summary>
+        /// Synchronization primitive protecting user selection and login operations for this instance.
+        /// </summary>
+        private readonly SemaphoreSlim _selectUserSemaphore = new(1, 1);
+
+        /// <summary>
+        /// Flag used to ensure Dispose is safe to call multiple times.
+        /// </summary>
+        private bool _disposed;
+
+        /// <summary>
+        /// Indicates whether this user instance is currently associated with a logged-in user.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> if a user identifier is assigned; otherwise <c>false</c>.
+        /// </returns>
+        public bool IsLoggedIn()
+        {
+            return _userId is not null;
+        }
+
+        /// <summary>
+        /// Performs a standard email/password authentication for this user instance,
+        /// optionally issuing a persistent remember-me token on successful login.
+        /// </summary>
+        /// <param name="username">
+        /// User identifier used for lookup (an email address).
+        /// Must not be null or whitespace.
+        /// </param>
+        /// <param name="password">
+        /// Plain-text password supplied by the client. Must not be null or whitespace.
+        /// </param>
+        /// <param name="rememberMe">
+        /// Optional flag indicating whether a persistent remember-me token should be created.
+        /// If <c>null</c>, the default is <c>true</c>. When <c>false</c>, the user is logged in
+        /// without issuing a remember-me token.
+        /// </param>
+        /// <param name="cancellation">
+        /// Cancellation token used to cancel the database operations and overall login process.
+        /// </param>
+        /// <returns>
+        /// A tuple where:
+        /// <list type="bullet">
+        /// <item><description><c>result</c> is <c>true</c> when authentication succeeds; otherwise <c>false</c>.</description></item>
+        /// <item><description><c>error</c> contains a descriptive error message when <c>result</c> is <c>false</c>;
+        /// on success it is an empty string.</description></item>
+        /// <item><description><c>rememberToken</c> contains a newly generated remember-me token when
+        /// <c>result</c> is <c>true</c> and <paramref name="rememberMe"/> is enabled and successfully stored;
+        /// otherwise it is <c>null</c>.</description></item>
+        /// </list>
+        /// </returns>
+        /// <exception cref="OperationCanceledException">
+        /// Thrown when the operation is cancelled via the provided <paramref name="cancellation"/> token.
+        /// </exception>
+        /// <exception cref="UserException">
+        /// Thrown when this user instance is already associated with a logged-in user
+        /// or when the stored password hash has an invalid format.
+        /// </exception>
+        /// <exception cref="UserDbQueryException">
+        /// Thrown when an unexpected database error occurs while retrieving the user's credentials
+        /// or updating the remember-me token.
+        /// </exception>
+        /// <exception cref="UserCryptographicException">
+        /// Thrown when password or remember-me token hashing or verification fails.
+        /// </exception>
+        public async Task<(bool result, string error, string? rememberToken)> StandardAuthAsync(
+            string? username,
+            string? password,
+            bool? rememberMe,
+            CancellationToken cancellation = default)
+        {
+            // Allow fast cancellation before any expensive work is done.
+            cancellation.ThrowIfCancellationRequested();
+
+            // Serialize login attempts on this user instance to avoid race conditions on _userId.
+            await _selectUserSemaphore.WaitAsync(cancellation);
+
+            // Start a stopwatch to ensure a minimum response time (mitigates timing attacks).
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            try
+            {
+                // Prevent reusing the same User instance for multiple logins.
+                if (IsLoggedIn())
+                    throw new UserException("This object already have an assigned user");
+
+                // Re-check cancellation after the logical preconditions.
+                cancellation.ThrowIfCancellationRequested();
+
+                // Reject obviously invalid input early with a clear error message.
+                if (string.IsNullOrWhiteSpace(username))
+                    return (false, "Username is empty", null);
+
+                if (string.IsNullOrWhiteSpace(password))
+                    return (false, "Password is empty", null);
+
+                // Fetch user identifier and password hash from the database for the given username.
+                (bool result, long? userId, string? passwordHash) = await DatabaseQueries.GetUserPasswordAsync(username, _dataSource, cancellation);
+                if (!result)
+                {
+                    // When no user is found, perform a full dummy password verification to match
+                    // the cost of a real login and reduce timing differences between "user exists"
+                    // and "user does not exist" cases.
+                    Func<string?, string?, bool> verifyPasswordFunctionDummy = 
+                        SharedUserSettings.ResolveVerifyPassword(SharedUserSettings.encryptionFunctionVersion);
+
+                    Func<int, string> generateDummyHash = 
+                        SharedUserSettings.ResolveGenerateDummyHash(SharedUserSettings.encryptionFunctionVersion);
+
+                    // Use a random dummy password and a matching dummy hash with comparable cost.
+                    verifyPasswordFunctionDummy(
+                        RememberMeUtils.Generate(password?.Length ?? 12).token,
+                        generateDummyHash(password?.Length ?? 12));
+
+                    return (false, "Incorrect username", null);
+                }
+
+                // Extract hash version from the stored hash format to resolve the correct verification function.
+                string[] parts = passwordHash?.Split('$', StringSplitOptions.RemoveEmptyEntries) ?? [];
+                if (parts.Length <= 1 || !int.TryParse(parts[1].Replace("v=", ""), out var hashVersion))
+                    throw new UserException("Database returned incorrect hash");
+
+                // Resolve versioned password verification function (e.g. different Argon2 parameters per version).
+                Func<string?, string?, bool> verifyPasswordFunction =
+                    SharedUserSettings.ResolveVerifyPassword(hashVersion);
+
+                // Verify supplied password against the stored hash using constant-time comparison.
+                bool verifyResult = verifyPasswordFunction(password, passwordHash);
+                if (!verifyResult)
+                    return (false, "Incorrect username", null);
+
+                // If remember-me is disabled, only bind the user id to this instance and finish.
+                if (!(rememberMe ?? true))
+                {
+                    _userId = userId;
+                    return (true, "", null);
+                }
+
+                // Try to generate and persist a unique remember-me token with a bounded number of attempts.
+                int tries = 0;
+                while(tries < SharedUserSettings.generateRememberTokenMaxTries)
+                {
+                    // Generate a cryptographically strong random token and its hash for storage.
+                    (string token, string tokenHash) = 
+                        RememberMeUtils.Generate(SharedUserSettings.rememberMeTokenLength);
+
+                    // Store the hashed token in the database; only the plain token is returned to the caller.
+                    if (await DatabaseQueries.SetUserRememberTokenAsync((long)userId, tokenHash, _dataSource, cancellation))
+                    {
+                        // On success, bind the user id to this instance and return the token to the caller.
+                        _userId = userId;
+                        return (true, "", token);
+                    }
+
+                    // Retry with a new token if the database reports failure (e.g. collision or transient error).
+                    tries++;
+                }
+
+                // If token persistence repeatedly fails, clear any existing token for safety,
+                // log the user in without remember-me and signal success without exposing internal errors.
+                await DatabaseQueries.SetUserRememberTokenAsync((long)userId, null, _dataSource, cancellation);
+                _userId = userId;
+                return (true, "", null);
+            }
+            finally
+            {
+                // Always release the semaphore, regardless of success or failure.
+                _selectUserSemaphore.Release();
+
+                // Add a small delay to normalize total response time and make timing-based
+                // user enumeration or password-guessing attacks harder.
+                stopwatch.Stop();
+                long elapsed = stopwatch.ElapsedMilliseconds;
+                await Task.Delay((int)Math.Clamp(Math.Abs(1000 - elapsed), 0, 200), CancellationToken.None);
+            }
+        }
+
+        /// <summary>
+        /// Performs authentication for this user instance using a persistent remember-me token.
+        /// </summary>
+        /// <param name="rememberToken">
+        /// Plain-text remember-me token supplied by the client (Base64-encoded string).
+        /// Must not be null or whitespace and must match the expected token length
+        /// defined by <see cref="SharedUserSettings.rememberMeTokenLength"/>.
+        /// </param>
+        /// <param name="cancellation">
+        /// Cancellation token used to cancel the database operations and overall login process.
+        /// </param>
+        /// <returns>
+        /// A tuple where:
+        /// <list type="bullet">
+        /// <item><description><c>result</c> is <c>true</c> when authentication succeeds; otherwise <c>false</c>.</description></item>
+        /// <item><description><c>error</c> contains a descriptive error message when <c>result</c> is <c>false</c>;
+        /// on success it is an empty string.</description></item>
+        /// <item><description><c>rememberToken</c> contains a newly generated remember-me token when
+        /// <c>result</c> is <c>true</c> and the token refresh operation succeeds; otherwise it is <c>null</c>.</description></item>
+        /// </list>
+        /// </returns>
+        /// <exception cref="OperationCanceledException">
+        /// Thrown when the operation is cancelled via the provided <paramref name="cancellation"/> token.
+        /// </exception>
+        /// <exception cref="UserException">
+        /// Thrown when this user instance is already associated with a logged-in user.
+        /// </exception>
+        /// <exception cref="UserDbQueryException">
+        /// Thrown when an unexpected database error occurs while checking or updating the remember-me token.
+        /// </exception>
+        /// <exception cref="UserCryptographicException">
+        /// Thrown when hashing of the remember-me token fails or when the provided token has an invalid format.
+        /// </exception>
+        public async Task<(bool result, string error, string? rememberToken)> AuthWithTokenAsync(
+            string? rememberToken,
+            CancellationToken cancellation = default)
+        {
+            // Allow early cancellation before any lock or heavy work is performed.
+            cancellation.ThrowIfCancellationRequested();
+
+            // Serialize token-based login with other user selection operations.
+            await _selectUserSemaphore.WaitAsync(cancellation);
+            try
+            {
+                if (IsLoggedIn())
+                    throw new UserException("This object already have an assigned user");
+
+                if (string.IsNullOrWhiteSpace(rememberToken))
+                    return (false, "Token is empty", null);
+                
+                if (rememberToken?.Length != SharedUserSettings.rememberMeTokenLength)
+                    return (false, "Token has incorrect length", null);
+
+                // Hash the supplied token and validate it against the database.
+                long? userId = await DatabaseQueries.CheckUserTokenAsync(RememberMeUtils.GetHash(rememberToken), _dataSource, cancellation);
+
+                // Null indicates invalid or unknown token.
+                if (userId is null)
+                    return (false, "Incorrect token", null);
+
+                cancellation.ThrowIfCancellationRequested();
+
+                _userId = userId;
+                int tries = 0;
+                // Try to rotate the remember-me token to a fresh value with bounded attempts.
+                while (tries < SharedUserSettings.generateRememberTokenMaxTries)
+                {
+                    cancellation.ThrowIfCancellationRequested();
+
+                    (string token, string hash) = RememberMeUtils.Generate(SharedUserSettings.rememberMeTokenLength);
+                    try
+                    {
+                        // Persist the new hashed token in the database.
+                        bool result = await DatabaseQueries.SetUserRememberTokenAsync((long)_userId, hash, _dataSource, cancellation);
+                        if (result)
+                            return (true, "", token);
+                    }
+                    catch (Exception ex) when (ex is not OperationCanceledException) { }
+
+                    tries++;
+                }
+
+                // If rotation fails repeatedly, keep the login successful but without returning a new token.
+                return (true, "", null);
+            }
+            finally
+            {
+                _selectUserSemaphore.Release();
+            }
+        }
+
+        /// <summary>
+        /// Registers a new user using the standard email/password flow and binds the newly
+        /// created user identifier to this <see cref="User"/> instance on success.
+        /// </summary>
+        /// <param name="upp">
+        /// Password policy that the provided plain-text password must satisfy and that is used
+        /// when generating the password hash.
+        /// </param>
+        /// <param name="email">
+        /// User email address to register. Must not be null or whitespace. The value is sanitized
+        /// before being passed to the database.
+        /// </param>
+        /// <param name="rawPassword">
+        /// Plain-text password provided by the client. Must not be null or whitespace.
+        /// The password is validated and hashed according to <paramref name="upp"/>.
+        /// </param>
+        /// <param name="firstName">
+        /// User first name. Must not be null or whitespace. The value is sanitized and truncated
+        /// to a safe length before being stored.
+        /// </param>
+        /// <param name="lastName">
+        /// User last name. Must not be null or whitespace. The value is sanitized and truncated
+        /// to a safe length before being stored.
+        /// </param>
+        /// <param name="cancellation">
+        /// Cancellation token used to cancel the registration operation before or during
+        /// the database call.
+        /// </param>
+        /// <returns>
+        /// A tuple where:
+        /// <list type="bullet">
+        /// <item><description><c>result</c> is <c>true</c> when the user is successfully created and assigned
+        /// to this instance; otherwise <c>false</c>.</description></item>
+        /// <item><description><c>error</c> contains a diagnostic error message when <c>result</c> is <c>false</c>;
+        /// on success it is an empty string.</description></item>
+        /// </list>
+        /// </returns>
+        /// <exception cref="OperationCanceledException">
+        /// Thrown when the operation is cancelled via the provided <paramref name="cancellation"/> token.
+        /// </exception>
+        /// <exception cref="UserException">
+        /// Thrown when this user instance is already associated with a logged-in user or when
+        /// the input arguments are invalid beyond simple validation failures returned as <c>error</c>.
+        /// </exception>
+        /// <exception cref="UserDbQueryException">
+        /// Thrown when an unexpected database error occurs while inserting the new user.
+        /// </exception>
+        /// <exception cref="UserCryptographicException">
+        /// Thrown when password hashing fails or when the hashing configuration is invalid.
+        /// </exception>
+        public async Task<(bool result, string error)> StandardRegisterAsync(
+            UserPasswordPolicy upp,
+            string? email,
+            string? rawPassword,
+            string? firstName,
+            string? lastName = null,
+            CancellationToken cancellation = default)
+        {
+            // Allow fast cancellation before acquiring the semaphore or touching the database.
+            cancellation.ThrowIfCancellationRequested();
+
+            // Serialize registration with other operations that manipulate _userId.
+            await _selectUserSemaphore.WaitAsync(cancellation);
+            try
+            {
+                if (IsLoggedIn())
+                    throw new UserException("This object already have an assigned user");
+
+                if (string.IsNullOrWhiteSpace(email))
+                    return (false, "email is empty");
+                
+                if (string.IsNullOrWhiteSpace(rawPassword))
+                    return (false, "password is empty");
+
+                if (string.IsNullOrWhiteSpace(firstName))
+                    return (false, "first name is empty");
+
+                if (string.IsNullOrWhiteSpace(lastName))
+                    return (false, "last name is empty");
+
+                // Sanitize user data to remove unsafe HTML and trim/truncate values.
+                email = SharedUserSettings.SanitizeString(email, null, false);
+                firstName = SharedUserSettings.SanitizeString(firstName, 100, false);
+                lastName = SharedUserSettings.SanitizeString(lastName, 100, false);
+
+                // Resolve the password hashing function for the configured encryption version.
+                Func<string?, UserPasswordPolicy, string> getHashFunction =
+                    SharedUserSettings.ResolveGetPasswordHash(SharedUserSettings.encryptionFunctionVersion);
+
+                // Compute a secure password hash according to the provided policy.
+                string hashedPassword = getHashFunction(rawPassword, upp);
+
+                // Delegate the actual insertion of the new user to the database layer.
+                (bool result, string message, long? userId) = await DatabaseQueries.StandardAddNewUserAsync(email, hashedPassword, firstName, lastName, _dataSource, cancellation);
+
+                if (!result)
+                {
+                    // Defensive check for missing message from the database.
+                    if (message is null)
+                        return (false, "Database error, no error message returned");
+
+                    return (false, message);
+                }
+
+                // A successful registration must return a valid user identifier.
+                if (userId is null)
+                    return (false, "Database error, no user id returned");
+
+                _userId = userId;
+                return (true, "");
+            }
+            finally
+            {
+                _selectUserSemaphore.Release();
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the JSON representation of the weights row for the current user
+        /// from the <c>public.weights</c> table.
+        /// </summary>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// A JSON string representing the weights configuration for the current user if it exists;
+        /// otherwise a default empty JSON object <c>"{}"</c>.
+        /// </returns>
+        /// <exception cref="UserException">
+        /// Thrown when this <c>User</c> instance is not associated with any user identifier
+        /// or when the underlying database query fails.
+        /// </exception>
+        /// <exception cref="OperationCanceledException">
+        /// Thrown when the provided cancellation token requests cancellation before or during the operation.
+        /// </exception>
+        public async Task<string> GetWeightsAsync(CancellationToken cancellation = default)
+        {
+            // Ensure the caller can cancel the operation before any database interaction begins.
+            cancellation.ThrowIfCancellationRequested();
+
+            await _selectUserSemaphore.WaitAsync(cancellation);
+            try
+            {
+                if (_userId is null)
+                    throw new UserException("This object has no user");
+
+                // Ensure the caller can cancel the operation before any database interaction begins.
+                cancellation.ThrowIfCancellationRequested();
+
+                string? result;
+                try
+                {
+                    // Delegate the actual retrieval of the weights row (as JSON) to the database layer.
+                    result = await DatabaseQueries.GetWeightsJsonAsync((long)_userId, _dataSource, cancellation);
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    throw new UserException("Failed to fetch user weights", ex);
+                }
+
+                // Normalize the absence of data to a default empty JSON object for the caller.
+                return result ?? "{}";
+            }
+            finally
+            {
+                _selectUserSemaphore.Release();
+            }
+        }
+
+        /// <summary>
+        /// Gets the current user's public data as a JSON string.
+        /// </summary>
+        /// <param name="cancellation">Cancellation token.</param>
+        /// <returns>
+        /// JSON string with the current user's data, or <c>"{}"</c> if no data exists.
+        /// </returns>
+        /// <exception cref="UserException">
+        /// Thrown when this instance is not associated with a user or when the database query fails.
+        /// </exception>
+        /// <exception cref="OperationCanceledException">
+        /// Thrown when the operation is cancelled.
+        /// </exception>
+        public async Task<string> GetDataAsync(CancellationToken cancellation = default)
+        {
+            // Ensure the caller can cancel the operation before any database interaction begins.
+            cancellation.ThrowIfCancellationRequested();
+
+            await _selectUserSemaphore.WaitAsync(cancellation);
+            try
+            {
+                if (_userId is null)
+                    throw new UserException("This object has no user");
+
+                // Ensure the caller can cancel the operation before any database interaction begins.
+                cancellation.ThrowIfCancellationRequested();
+
+                string? result;
+                try
+                {
+                    // Delegate the actual retrieval of the user data row (as JSON) to the database layer.
+                    result = await DatabaseQueries.GetUserJsonAsync((long)_userId, _dataSource, cancellation);
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    throw new UserException("Failed to fetch user weights", ex);
+                }
+
+                // Normalize the absence of data to a default empty JSON object for the caller.
+                return result ?? "{}";
+            }
+            finally
+            {
+                _selectUserSemaphore.Release();
+            }
+        }
+
+        /// <summary>
+        /// Applies partial updates to the weights row of the current user in the <c>public.weights</c> table
+        /// based on a dictionary of column names mapped to new values.
+        /// </summary>
+        /// <param name="fieldNames">
+        /// Dictionary mapping column names from the <c>public.weights</c> table to values that should be written
+        /// for the current user (for example <c>"vector"</c>, <c>"mean_dist"</c>, <c>"means_weight_sum"</c>, etc.).
+        /// Keys must be non-empty and values must be non-null; invalid entries are ignored.
+        /// </param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// A dictionary that maps each processed column name to a boolean indicating whether the update
+        /// for that specific column was reported as successful by the database.
+        /// Columns that are unknown, have mismatched value types, or encounter an error are reported as <c>false</c>.
+        /// </returns>
+        /// <exception cref="UserException">
+        /// Thrown when the <paramref name="fieldNames"/> dictionary is null or when this <c>User</c> instance
+        /// has no associated user identifier.
+        /// </exception>
+        /// <exception cref="OperationCanceledException">
+        /// Thrown when the provided cancellation token requests cancellation before or during the operation.
+        /// </exception>
+        public async Task<Dictionary<string, bool>> UpdateWeightsAsync(Dictionary<string, object?>? fieldNames, CancellationToken cancellation = default)
+        {
+            // Allow the caller to interrupt the whole update sequence before any processing starts.
+            cancellation.ThrowIfCancellationRequested();
+
+            if (fieldNames is null)
+                throw new UserException("`fieldNames` is empty");
+
+            await _selectUserSemaphore.WaitAsync(cancellation);
+            try
+            {
+                if (_userId is null)
+                    throw new UserException("This object has no user");
+
+                // Allow the caller to interrupt the whole update sequence before any processing starts.
+                cancellation.ThrowIfCancellationRequested();
+
+                // Clean up the input:
+                // - drop entries with empty keys or null values,
+                // - keep only the first occurrence for duplicate keys to avoid conflicting updates.
+                Dictionary<string, object> cleanedFieldNames = fieldNames
+                    .Where(entry => entry.Value is not null)
+                    .GroupBy(entry => entry.Key)
+                    .Select(group => group.Last())
+                    .ToDictionary(entry => entry.Key, entry => entry.Value);
+
+                // Track per-column success so the caller knows which individual updates actually went through.
+                ConcurrentDictionary<string, bool> fieldSuccesses = [];
+                foreach (KeyValuePair<string, object> field in cleanedFieldNames)
+                {
+                    // Re-check cancellation between individual column updates to keep long batches responsive.
+                    cancellation.ThrowIfCancellationRequested();
+                    (string fieldName, object fieldValues) = field;
+
+                    bool? result = null;
+                    try
+                    {
+                        switch (fieldName)
+                        {
+                            case "order_by_option":
+                                // order_by_option TEXT[]
+                                if (fieldValues is not string[] orderByOptionValues)
+                                {
+                                    fieldSuccesses.TryAdd(fieldName, false);
+                                    break;
+                                }
+
+                                result = await DatabaseQueries.SetWeightsOrderByOptionAsync(
+                                    (long)_userId,
+                                    orderByOptionValues,
+                                    _dataSource,
+                                    cancellation);
+
+                                fieldSuccesses.TryAdd(fieldName, result ?? false);
+                                break;
+
+                            case "mean_value_ids":
+                                // mean_value_ids TEXT[]
+                                if (fieldValues is not string[] meanValueIds)
+                                {
+                                    fieldSuccesses.TryAdd(fieldName, false);
+                                    break;
+                                }
+
+                                result = await DatabaseQueries.SetWeightsMeanValueIdsAsync(
+                                    (long)_userId,
+                                    meanValueIds,
+                                    _dataSource,
+                                    cancellation);
+
+                                fieldSuccesses.TryAdd(fieldName, result ?? false);
+                                break;
+
+                            case "vector":
+                                // vector REAL[]
+                                if (fieldValues is not float[] vectorValues)
+                                {
+                                    fieldSuccesses.TryAdd(fieldName, false);
+                                    break;
+                                }
+
+                                result = await DatabaseQueries.SetWeightsVectorAsync(
+                                    (long)_userId,
+                                    vectorValues,
+                                    _dataSource,
+                                    cancellation);
+
+                                fieldSuccesses.TryAdd(fieldName, result ?? false);
+                                break;
+
+                            case "mean_dist":
+                                // mean_dist REAL[]
+                                if (fieldValues is not float[] meanDistValues)
+                                {
+                                    fieldSuccesses.TryAdd(fieldName, false);
+                                    break;
+                                }
+
+                                result = await DatabaseQueries.SetWeightsMeanDistAsync(
+                                    (long)_userId,
+                                    meanDistValues,
+                                    _dataSource,
+                                    cancellation);
+
+                                fieldSuccesses.TryAdd(fieldName, result ?? false);
+                                break;
+
+                            case "means_value_sum":
+                                // means_value_sum REAL[]
+                                if (fieldValues is not float[] meansValueSumValues)
+                                {
+                                    fieldSuccesses.TryAdd(fieldName, false);
+                                    break;
+                                }
+
+                                result = await DatabaseQueries.SetWeightsMeansValueSumAsync(
+                                    (long)_userId,
+                                    meansValueSumValues,
+                                    _dataSource,
+                                    cancellation);
+
+                                fieldSuccesses.TryAdd(fieldName, result ?? false);
+                                break;
+
+                            case "means_value_ssum":
+                                // means_value_ssum DOUBLE PRECISION[]
+                                if (fieldValues is not double[] meansValueSsumValues)
+                                {
+                                    fieldSuccesses.TryAdd(fieldName, false);
+                                    break;
+                                }
+
+                                result = await DatabaseQueries.SetWeightsMeansValueSsumAsync(
+                                    (long)_userId,
+                                    meansValueSsumValues,
+                                    _dataSource,
+                                    cancellation);
+
+                                fieldSuccesses.TryAdd(fieldName, result ?? false);
+                                break;
+
+                            case "means_value_count":
+                                // means_value_count INTEGER[]
+                                if (fieldValues is not int[] meansValueCountValues)
+                                {
+                                    fieldSuccesses.TryAdd(fieldName, false);
+                                    break;
+                                }
+
+                                result = await DatabaseQueries.SetWeightsMeansValueCountAsync(
+                                    (long)_userId,
+                                    meansValueCountValues,
+                                    _dataSource,
+                                    cancellation);
+
+                                fieldSuccesses.TryAdd(fieldName, result ?? false);
+                                break;
+
+                            case "means_weight_sum":
+                                // means_weight_sum REAL[]
+                                if (fieldValues is not float[] meansWeightSumValues)
+                                {
+                                    fieldSuccesses.TryAdd(fieldName, false);
+                                    break;
+                                }
+
+                                result = await DatabaseQueries.SetWeightsMeansWeightSumAsync(
+                                    (long)_userId,
+                                    meansWeightSumValues,
+                                    _dataSource,
+                                    cancellation);
+
+                                fieldSuccesses.TryAdd(fieldName, result ?? false);
+                                break;
+
+                            case "means_weight_ssum":
+                                // means_weight_ssum DOUBLE PRECISION[]
+                                if (fieldValues is not double[] meansWeightSsumValues)
+                                {
+                                    fieldSuccesses.TryAdd(fieldName, false);
+                                    break;
+                                }
+
+                                result = await DatabaseQueries.SetWeightsMeansWeightSsumAsync(
+                                    (long)_userId,
+                                    meansWeightSsumValues,
+                                    _dataSource,
+                                    cancellation);
+
+                                fieldSuccesses.TryAdd(fieldName, result ?? false);
+                                break;
+
+                            case "means_weight_count":
+                                // means_weight_count INTEGER[]
+                                if (fieldValues is not int[] meansWeightCountValues)
+                                {
+                                    fieldSuccesses.TryAdd(fieldName, false);
+                                    break;
+                                }
+
+                                result = await DatabaseQueries.SetWeightsMeansWeightCountAsync(
+                                    (long)_userId,
+                                    meansWeightCountValues,
+                                    _dataSource,
+                                    cancellation);
+
+                                fieldSuccesses.TryAdd(fieldName, result ?? false);
+                                break;
+
+                            default:
+                                // Unknown column name is treated as a failed update to keep the contract explicit.
+                                fieldSuccesses.TryAdd(fieldName, false);
+                                break;
+                        }
+                    }
+                    catch (Exception ex) when (ex is not OperationCanceledException)
+                    {
+                        // Any exception tied to a specific field update is isolated to that field
+                        // so that other independent column updates can still proceed.
+                        fieldSuccesses.TryAdd(fieldName, false);
+                    }
+                }
+
+                return fieldSuccesses.ToDictionary();
+            }
+            finally
+            {
+                _selectUserSemaphore.Release();
+            }
+        }
+
+        /// <summary>
+        /// Updates selected fields for the current user in the database and returns per-field success flags.
+        /// </summary>
+        /// <param name="fieldNames">
+        /// Mapping of field/column names to new string values to be applied for the current user; null is not allowed.
+        /// </param>
+        /// <param name="cancellation">
+        /// Token used to cancel the operation before it starts or between individual field updates.
+        /// </param>
+        /// <returns>
+        /// A dictionary mapping each processed field name to a boolean indicating whether its update succeeded.
+        /// </returns>
+        /// <exception cref="UserException">
+        /// Thrown when the input field dictionary is null or when this object has no user assigned.
+        /// </exception>
+        /// <exception cref="OperationCanceledException">
+        /// Thrown when the update operation is cancelled before processing or between individual field updates.
+        /// </exception>
+        public async Task<Dictionary<string, bool>> UpdateDataAsync(Dictionary<string, string?>? fieldNames, CancellationToken cancellation = default)
+        {
+            // Allow the caller to interrupt the whole update sequence before any processing starts.
+            cancellation.ThrowIfCancellationRequested();
+
+            if (fieldNames is null)
+                throw new UserException("`fieldNames` is empty");
+
+            await _selectUserSemaphore.WaitAsync(cancellation);
+            try
+            {
+                if (_userId is null)
+                    throw new UserException("This object has no user");
+
+                // Allow the caller to interrupt the whole update sequence before any processing starts.
+                cancellation.ThrowIfCancellationRequested();
+
+                // Clean up the input:
+                // - drop entries with empty keys or null values,
+                // - keep only the first occurrence for duplicate keys to avoid conflicting updates.
+                Dictionary<string, string> cleanedFieldNames = fieldNames
+                    .Where(entry => string.IsNullOrWhiteSpace(entry.Value))
+                    .GroupBy(entry => entry.Key)
+                    .Select(group => group.First())
+                    .ToDictionary(entry => entry.Key, entry => entry.Value);
+
+                // Track per-column success so the caller knows which individual updates actually went through.
+                ConcurrentDictionary<string, bool> fieldSuccesses = [];
+                foreach (KeyValuePair<string, string> field in cleanedFieldNames)
+                {
+                    // Re-check cancellation between individual column updates to keep long batches responsive.
+                    cancellation.ThrowIfCancellationRequested();
+                    (string fieldName, string fieldValue) = field;
+
+                    bool? result = null;
+                    try
+                    {
+                        switch (fieldName)
+                        {
+                            case "user_first_name":
+                                result = await DatabaseQueries.SetUserFirstNameAsync(
+                                    (long)_userId,
+                                    fieldValue,
+                                    _dataSource,
+                                    cancellation);
+
+                                fieldSuccesses.TryAdd(fieldName, result ?? false);
+                                break;
+
+                            case "user_second_name":
+                                result = await DatabaseQueries.SetUserSecondNameAsync(
+                                    (long)_userId,
+                                    fieldValue,
+                                    _dataSource,
+                                    cancellation);
+
+                                fieldSuccesses.TryAdd(fieldName, result ?? false);
+                                break;
+
+                            case "user_last_name":
+                                result = await DatabaseQueries.SetUserLastNameAsync(
+                                    (long)_userId,
+                                    fieldValue,
+                                    _dataSource,
+                                    cancellation);
+
+                                fieldSuccesses.TryAdd(fieldName, result ?? false);
+                                break;
+
+                            case "user_phone":
+                                result = await DatabaseQueries.SetUserPhoneAsync(
+                                    (long)_userId,
+                                    fieldValue,
+                                    _dataSource,
+                                    cancellation);
+
+                                fieldSuccesses.TryAdd(fieldName, result ?? false);
+                                break;
+
+                            default:
+                                // Unknown column name is treated as a failed update to keep the contract explicit.
+                                fieldSuccesses.TryAdd(fieldName, false);
+                                break;
+                        }
+                    }
+                    catch (Exception ex) when (ex is not OperationCanceledException)
+                    {
+                        // Any exception tied to a specific field update is isolated to that field
+                        // so that other independent column updates can still proceed.
+                        fieldSuccesses.TryAdd(fieldName, false);
+                    }
+                }
+
+                return fieldSuccesses.ToDictionary();
+            }
+            finally
+            {
+                _selectUserSemaphore.Release();
+            }
+        }
+
+        /// <summary>
+        /// Changes the current user's password according to the provided password policy and updates the remember token.
+        /// </summary>
+        /// <param name="upp">
+        /// Password policy used to validate the new password before hashing.
+        /// </param>
+        /// <param name="newPassword">
+        /// New plain-text password to set for the current user; must not be null.
+        /// </param>
+        /// <param name="cancellation">
+        /// Token used to cancel the operation before it starts or while updating the password.
+        /// </param>
+        /// <returns>
+        /// True if the password was successfully updated and the remember token was cleared; otherwise false.
+        /// </returns>
+        /// <exception cref="UserException">
+        /// Thrown when the new password is null or when this object has no user assigned.
+        /// </exception>
+        /// <exception cref="UserCryptographicException">
+        /// Thrown when the password does not satisfy the policy or when password hashing fails.
+        /// </exception>
+        /// <exception cref="UserDbQueryException">
+        /// Thrown when an unexpected database error occurs while updating the password or remember token.
+        /// </exception>
+        /// <exception cref="OperationCanceledException">
+        /// Thrown when the operation is cancelled before hashing the password or during any database update.
+        /// </exception>
+        public async Task<bool> ChangePasswordAsync(UserPasswordPolicy upp, string? newPassword, CancellationToken cancellation = default)
+        {
+            // Allow the caller to interrupt the whole update sequence before any processing starts.
+            cancellation.ThrowIfCancellationRequested();
+
+            if (newPassword is null)
+                throw new UserException("`newPassword` is empty");
+
+            await _selectUserSemaphore.WaitAsync(cancellation);
+            try
+            {
+                if (_userId is null)
+                    throw new UserException("This object has no user");
+
+                // Allow the caller to interrupt the whole update sequence before any processing starts.
+                cancellation.ThrowIfCancellationRequested();
+
+                // Resolve the password hashing function for the configured encryption version.
+                Func<string?, UserPasswordPolicy, string> getHashFunction =
+                    SharedUserSettings.ResolveGetPasswordHash(SharedUserSettings.encryptionFunctionVersion);
+
+                // Compute a secure password hash according to the provided policy.
+                string hashedPassword = getHashFunction(newPassword, upp);
+
+                cancellation.ThrowIfCancellationRequested();
+
+                bool result = await DatabaseQueries.SetUserPasswordAsync((long)_userId, hashedPassword, _dataSource, cancellation);
+                if (!result)
+                    return false;
+
+                await DatabaseQueries.SetUserRememberTokenAsync((long)_userId, null, _dataSource, cancellation);
+
+                return true;
+            }
+            finally
+            {
+                _selectUserSemaphore.Release();
+            }
+        }
+
+        /// <summary>
+        /// Logs out the current user from this instance by clearing their persistent
+        /// remember-me token in the database and detaching the user from this object.
+        /// After logout completes, the instance is disposed and should not be used again.
+        /// </summary>
+        /// <param name="cancellation">
+        /// Cancellation token used to cancel the logout operation before or during
+        /// the database call.
+        /// </param>
+        /// <returns>
+        /// A task that represents the asynchronous logout operation.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">
+        /// Thrown when the operation is cancelled via the provided <paramref name="cancellation"/> token
+        /// while waiting for the semaphore or during the database call.
+        /// </exception>
+        public async Task LogoutAsync(CancellationToken cancellation = default)
+        {
+            // If there is no associated user, there is nothing to log out.
+            if (_userId is null)
+                return;
+
+            // Respect cancellation before acquiring the semaphore or touching the database.
+            cancellation.ThrowIfCancellationRequested();
+
+            // Serialize logout with other operations that manipulate _userId and user-related state.
+            await _selectUserSemaphore.WaitAsync(cancellation);
+            try
+            {
+                // Best-effort attempt to clear the remember-me token for the current user in the database.
+                await DatabaseQueries.SetUserRememberTokenAsync((long)_userId, null, _dataSource, cancellation);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException) { }
+            finally
+            {
+                // Regardless of database outcome, detach the user from this instance
+                // and release the semaphore to avoid deadlocks.
+                _userId = null;
+                _selectUserSemaphore.Release();
+
+                // After logout the instance is no longer meant to be reused; dispose it.
+                Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Deletes the current user from the database.
+        /// </summary>
+        /// <param name="cancellation">
+        /// Token used to cancel the delete operation before it starts or while executing the database command.
+        /// </param>
+        /// <returns>
+        /// True if the user was successfully deleted; otherwise false.
+        /// </returns>
+        /// <exception cref="UserException">
+        /// Thrown when this object has no user assigned to delete.
+        /// </exception>
+        /// <exception cref="UserDbQueryException">
+        /// Thrown when an unexpected database error occurs while deleting the user.
+        /// </exception>
+        /// <exception cref="OperationCanceledException">
+        /// Thrown when the delete operation is cancelled before or during the database call.
+        /// </exception>
+        public async Task<bool> DeleteUserAsync(CancellationToken cancellation = default)
+        {
+            // Allow the caller to interrupt the whole update sequence before any processing starts.
+            cancellation.ThrowIfCancellationRequested();
+
+            await _selectUserSemaphore.WaitAsync(cancellation);
+            try
+            {
+                if (_userId is null)
+                    throw new UserException("This object has no user");
+
+                return await DatabaseQueries.DeleteUserAsync((long)_userId, _dataSource, cancellation);
+            }
+            finally 
+            {
+                _selectUserSemaphore.Release();
+                Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Releases resources held by this user instance.
+        /// </summary>
+        /// <remarks>
+        /// This method is safe to call multiple times; subsequent calls have no effect.
+        /// It does not perform logout logic; use <see cref="LogoutAsync"/> to log out the user
+        /// and clear the remember-me token before disposing the instance.
+        /// </remarks>
+        public void Dispose()
+        {
+            // Ensure disposal logic is executed only once.
+            if (_disposed)
+                return;
+
+            _disposed = true;
+
+            // Dispose managed resources owned by this class.
+            _selectUserSemaphore.Dispose();
+            _userId = null;
+
+            // No finalizer, but follow the standard pattern for completeness.
+            GC.SuppressFinalize(this);
+        }
+    }
+}

@@ -112,44 +112,30 @@ namespace Users
         }
 
         /// <summary>
-        /// Verifies that a provided token matches a stored hash value.
+        /// Computes a SHA-256 hash for a Base64-encoded remember-me token string.
         /// </summary>
-        /// <param name="token">Base64-encoded token provided by the client.</param>
-        /// <param name="hash">Previously stored Base64-encoded token hash.</param>
+        /// <param name="token">
+        /// Base64-encoded token string to be hashed. Must not be null, empty or whitespace.
+        /// </param>
         /// <returns>
-        /// <c>true</c> if the token matches the stored hash; otherwise <c>false</c>.
+        /// Base64-encoded SHA-256 hash of the decoded token bytes.
         /// </returns>
         /// <exception cref="UserCryptographicException">
-        /// Thrown when inputs are invalid, have incorrect format, or when hash comparison fails.
+        /// Thrown when the token is empty, has an invalid Base64 format, or when the hash computation fails.
         /// </exception>
-        internal static bool Verify(string? token, string? hash)
+        internal static string GetHash(string? token)
         {
             if (string.IsNullOrWhiteSpace(token))
-            {
                 throw new UserCryptographicException("Token is empty");
-            }
 
-            if (string.IsNullOrWhiteSpace(hash))
-            {
-                throw new UserCryptographicException("Token hash is empty");
-            }
-
-            byte[]? tokenBytes = null, storedHashBytes = null, computedHashBytes = null;
+            byte[]? tokenBytes = null;
             try
             {
+                // Decode the Base64 token string into raw bytes.
                 tokenBytes = Convert.FromBase64String(token);
 
-                string computedHash = ComputeTokenHash(tokenBytes);
-
-                storedHashBytes = Encoding.UTF8.GetBytes(hash);
-                computedHashBytes = Encoding.UTF8.GetBytes(computedHash);
-
-                bool isMatch = CryptographicOperations.FixedTimeEquals(
-                    storedHashBytes,
-                    computedHashBytes
-                );
-
-                return isMatch;
+                // Compute and return the Base64-encoded SHA-256 hash of the token bytes.
+                return ComputeTokenHash(tokenBytes);                
             }
             catch (FormatException ex)
             {
@@ -161,14 +147,9 @@ namespace Users
             }
             finally
             {
+                // Ensure raw token bytes are wiped from memory as soon as possible.
                 if (tokenBytes is not null)
                     CryptographicOperations.ZeroMemory(tokenBytes);
-
-                if (storedHashBytes is not null)
-                    CryptographicOperations.ZeroMemory(storedHashBytes);
-
-                if (computedHashBytes is not null)
-                    CryptographicOperations.ZeroMemory(computedHashBytes);
             }
         }
     }
