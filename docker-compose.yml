@@ -14,8 +14,7 @@ services:
       - "5432:5432"
     volumes:
       - pg_offers:/var/lib/postgresql/data
-      - ./databases/offers_database/container/scripts:/docker-entrypoint-initdb.d:ro
-
+      
   db_general:
     build:
       context: ./databases/general_database/container
@@ -27,7 +26,6 @@ services:
       - "5433:5432"
     volumes:
       - pg_general:/var/lib/postgresql/data
-      - ./databases/general_database/container/scripts:/docker-entrypoint-initdb.d:ro
 
   # -----------------------------
   # REDIS
