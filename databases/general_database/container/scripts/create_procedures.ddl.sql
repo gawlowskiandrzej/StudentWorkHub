@@ -3,9 +3,9 @@ CREATE OR REPLACE PROCEDURE public.standard_add_user(
     IN  p_password   text,
     IN  p_first_name text,
     IN  p_last_name  text,
-    OUT o_success    boolean DEFAULT NULL,
-    OUT o_message    text    DEFAULT NULL,
-    OUT o_user_id    bigint  DEFAULT NULL
+    OUT o_success    boolean,
+    OUT o_message    text,
+    OUT o_user_id    bigint
 )
 LANGUAGE plpgsql
 AS $$

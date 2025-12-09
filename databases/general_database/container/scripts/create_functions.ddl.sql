@@ -21,6 +21,7 @@ BEGIN
     WHERE u.remember_token = p_token;
 
     RETURN v_user_id;
+END;
 $$;
 
 CREATE OR REPLACE FUNCTION public.get_weights_json(p_user_id BIGINT)
@@ -38,3 +39,37 @@ BEGIN
     RETURN result;
 END;
 $$;
+
+CREATE OR REPLACE FUNCTION public.get_user_json(p_user_id BIGINT)
+RETURNS JSONB
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    result JSONB;
+BEGIN
+    SELECT
+        (
+            to_jsonb(u)
+              - 'password'
+              - 'remember_token'
+              - 'first_name_id'
+              - 'second_name_id'
+              - 'last_name_id'
+        )
+        ||
+        jsonb_build_object(
+            'first_name',  fn.first_name,
+            'second_name', sn.second_name,
+            'last_name',   ln.last_name
+        )
+    INTO result
+    FROM public.users u
+    JOIN public.first_names  fn ON fn.id = u.first_name_id
+    LEFT JOIN public.second_names sn ON sn.id = u.second_name_id
+    JOIN public.last_names  ln ON ln.id = u.last_name_id
+    WHERE u.id = p_user_id;
+
+    RETURN result;
+END;
+$$;
+
