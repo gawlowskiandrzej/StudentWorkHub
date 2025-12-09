@@ -8,24 +8,24 @@ export default function Home() {
     alert("Hello my friend!");
   }
   return (
-    <div className="hero-page">
-  <div className="home-hero-section">
-    <div className="main-content">
+   <div className="hero-page">
+  <div className="section-1">
+    <div className="main-content-section-1">
       <div className="main-content-frame">
         <div className="main-text-frame">
-          <div className="bold-and-porefull-heading">
+          <div className="header-sec-1">
             Find job offers that match your
             <br />
             preferences.
           </div>
-          <div className="bold-and-porefull-heading2">
+          <div className="sub-header-sec-1">
             Finding the best suited job has never been easier!
             <br />
             Want to give it a try?
           </div>
         </div>
         <div className="main-button">
-          <div className="find-mathing-job"><button onClick={handleClick}>Find matching job</button></div>
+          <div className="find-mathing-job">Find matching job</div>
         </div>
       </div>
       <img
@@ -34,11 +34,11 @@ export default function Home() {
       />
     </div>
   </div>
-  <div className="home-trust-section">
-    <div className="features-and-benefits">Features and Benefits</div>
-    <div className="frame-155">
-      <img className="vector" src="/icons/vector0.svg" />
-      <div className="cards">
+  <div className="section-2">
+    <div className="home-trust-section">
+      <div className="main-header-sec-2">Features and Benefits</div>
+      <div className="main-content-sec-2">
+        <img className="wave" src="/icons/wave0.svg" />
         <div className="feature-section-list">
           <div className="feature-element-item">
             <img
@@ -75,7 +75,7 @@ export default function Home() {
             <div className="feature-element-text">
               <div className="feature-1">Be successful</div>
               <div className="the-feature-or-any-details">
-                We search for offers from the largest classifieds portals, which
+                We search for offers from the largest classNameifieds portals, which
                 significantly increases your chances of finding a job.
               </div>
             </div>
@@ -84,19 +84,19 @@ export default function Home() {
       </div>
     </div>
   </div>
-  <div className="how-works-section">
-    <div className="how-student-work-hub-works">
+  <div className="section-3">
+    <div className="main-header-sec-3">
       <span>
-        <span className="how-student-work-hub-works-span">How </span>
-        <span className="how-student-work-hub-works-span2"> StudentWorkHub</span>
-        <span className="how-student-work-hub-works-span"> works?</span>
+        <span className="main-header-sec-3-span">How </span>
+        <span className="main-header-sec-3-span2">StudentWorkHub</span>
+        <span className="main-header-sec-3-span"> works?</span>
       </span>
     </div>
     <div className="how-works-section-items">
       <div className="works-feature">
         <div className="works-feature-icon">
           <div className="search-icon">
-            <img className="vector2" src="/icons/vector1.svg" />
+            <img className="vector" src="/icons/search0.svg" />
           </div>
         </div>
         <div className="work-feature-text">
@@ -110,7 +110,7 @@ export default function Home() {
       <div className="works-feature">
         <div className="works-feature-icon">
           <div className="user-icon">
-            <img className="vector3" src="/icons/vector2.svg" />
+            <img className="vector2" src="/icons/user0.svg" />
           </div>
         </div>
         <div className="work-feature-text">
@@ -125,7 +125,7 @@ export default function Home() {
         <div className="works-feature-icon">
           <img className="robot-icon" src="/icons/robot-icon0.svg" />
         </div>
-        <div className="work-feature-text">
+        <div className="work-feature-text2">
           <div className="feature-12">Using AI and algorithms</div>
           <div className="description-of-feature-1">
             Artificial intelligence and ranking algorithms will allow you to
