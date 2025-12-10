@@ -1,8 +1,3 @@
-DROP TABLE IF EXISTS public.search_histories_employment_types_junction;
-DROP TABLE IF EXISTS public.search_histories_employment_schedules_junction;
-DROP TABLE IF EXISTS public.history_salaries;
-DROP TABLE IF EXISTS public.employment_types;
-DROP TABLE IF EXISTS public.employment_schedules;
 DROP TABLE IF EXISTS public.weights;
 DROP TABLE IF EXISTS public.search_histories;
 DROP TABLE IF EXISTS public.users;
@@ -10,6 +5,9 @@ DROP TABLE IF EXISTS public.first_names;
 DROP TABLE IF EXISTS public.second_names;
 DROP TABLE IF EXISTS public.last_names;
 DROP TABLE IF EXISTS public.phones;
+DROP TABLE IF EXISTS public.roles;
+DROP TABLE IF EXISTS public.role_permissions;
+DROP TABLE IF EXISTS public.role_permissions_roles_junction;
 
 -- =========================================================
 -- Users
@@ -54,7 +52,6 @@ CREATE TABLE public.role_permissions (
     CONSTRAINT uq_role_permissions_permission_name
         UNIQUE (permission_name)
 );
-
 
 CREATE TABLE public.role_permissions_roles_junction (
     role_id SMALLINT NOT NULL,
@@ -139,74 +136,16 @@ CREATE TABLE public.search_histories (
     CONSTRAINT fk_users_search_histories
         FOREIGN KEY (user_id)
             REFERENCES public.users(id)
-            ON DELETE CASCADE
-);
+            ON DELETE CASCADE,
 
-CREATE TABLE public.history_salaries (
-    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    salary_from NUMERIC(8,2) NULL DEFAULT 0.0,
-    salary_to NUMERIC(8,2) NULL DEFAULT 0.0,
+    salary_from NUMERIC(8,2) NOT NULL DEFAULT 0.0,
+    salary_to NUMERIC(8,2) NOT NULL DEFAULT 0.0,
     salary_period_id SMALLINT NULL,
     salary_currency_id SMALLINT NULL,
     salary_type_id SMALLINT NULL,
 
-    search_history_id INTEGER NOT NULL,
-    CONSTRAINT fk_search_histories_history_salaries
-        FOREIGN KEY (search_history_id) 
-            REFERENCES public.search_histories(id) 
-            ON DELETE CASCADE
-);
-
-CREATE TABLE public.employment_schedules (
-    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    employment_schedule_id SMALLINT NOT NULL,
-    
-    CONSTRAINT uq_employment_schedules_employment_schedule_id 
-        UNIQUE (employment_schedule_id)
-);
-
-CREATE TABLE public.search_histories_employment_schedules_junction (
-    search_history_id INTEGER NOT NULL,
-    employment_schedule_id INTEGER NOT NULL,
-
-    CONSTRAINT pk_search_histories_employment_schedules_junction
-        PRIMARY KEY (search_history_id, employment_schedule_id),
-
-    CONSTRAINT fk_search_histories_search_histories_employment_schedules_junction_search_history_id
-        FOREIGN KEY (search_history_id)
-            REFERENCES public.search_histories(id)
-            ON DELETE CASCADE,
-
-    CONSTRAINT fk_employment_schedules_search_histories_employment_schedules_junction_employment_schedule_id
-        FOREIGN KEY (employment_schedule_id)
-            REFERENCES public.employment_schedules(id)
-            ON DELETE CASCADE
-);
-
-CREATE TABLE public.employment_types (
-    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    employment_type_id SMALLINT NOT NULL,
-    
-    CONSTRAINT uq_employment_types_employment_type_id
-        UNIQUE (employment_type_id)
-);
-
-CREATE TABLE public.search_histories_employment_types_junction (
-    search_history_id INTEGER NOT NULL,
-    employment_type_id INTEGER NOT NULL,
-
-    CONSTRAINT pk_search_histories_employment_types_junction
-        PRIMARY KEY (search_history_id, employment_type_id),
-
-    CONSTRAINT fk_search_histories_search_histories_employment_types_junction_search_history_id
-        FOREIGN KEY (search_history_id)
-            REFERENCES public.search_histories(id)
-            ON DELETE CASCADE,
-
-    CONSTRAINT fk_employment_types_search_histories_employment_types_junction_employment_type_id
-        FOREIGN KEY (employment_type_id)
-            REFERENCES public.employment_types(id)
-            ON DELETE CASCADE
+    employment_schedule_ids SMALLINT[] NOT NULL DEFAULT '{}',
+    employment_type_ids SMALLINT[] NOT NULL DEFAULT '{}'
 );
 
 -- =========================================================

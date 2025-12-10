@@ -600,3 +600,68 @@ BEGIN
     RETURN v_row_count = 1;
 END;
 $$;
+
+CREATE OR REPLACE FUNCTION public.insert_search_history(
+    IN p_user_id                 BIGINT,
+    IN p_keywords                VARCHAR(1024) DEFAULT NULL,
+    IN p_distance                INTEGER       DEFAULT 0,
+    IN p_is_remote               BOOLEAN       DEFAULT NULL,
+    IN p_is_hybrid               BOOLEAN       DEFAULT NULL,
+    IN p_leading_category_id     SMALLINT      DEFAULT NULL,
+    IN p_city_id                 INTEGER       DEFAULT NULL,
+    IN p_salary_from             NUMERIC(8,2)  DEFAULT 0.0,
+    IN p_salary_to               NUMERIC(8,2)  DEFAULT 0.0,
+    IN p_salary_period_id        SMALLINT      DEFAULT NULL,
+    IN p_salary_currency_id      SMALLINT      DEFAULT NULL,
+    IN p_salary_type_id          SMALLINT      DEFAULT NULL,
+    IN p_employment_schedule_ids SMALLINT[]    DEFAULT '{}',
+    IN p_employment_type_ids     SMALLINT[]    DEFAULT '{}',
+    OUT o_result                  BOOLEAN
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF p_user_id IS NULL THEN
+        RAISE EXCEPTION 'user_id cannot be null';
+    END IF;
+
+    INSERT INTO public.search_histories (
+        keywords,
+        distance,
+        is_remote,
+        is_hybrid,
+        leading_category_id,
+        city_id,
+        user_id,
+        salary_from,
+        salary_to,
+        salary_period_id,
+        salary_currency_id,
+        salary_type_id,
+        employment_schedule_ids,
+        employment_type_ids
+    )
+    VALUES (
+        p_keywords,
+        COALESCE(p_distance, 0),
+        p_is_remote,
+        p_is_hybrid,
+        p_leading_category_id,
+        p_city_id,
+        p_user_id,
+        COALESCE(p_salary_from, 0.0),
+        COALESCE(p_salary_to, 0.0),
+        p_salary_period_id,
+        p_salary_currency_id,
+        p_salary_type_id,
+        COALESCE(p_employment_schedule_ids, '{}'),
+        COALESCE(p_employment_type_ids, '{}')
+    );
+
+    RETURN TRUE;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        RETURN FALSE;
+END;
+$$;

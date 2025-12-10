@@ -104,3 +104,24 @@ EXCEPTION
         RETURN FALSE;
 END;
 $$;
+
+CREATE OR REPLACE FUNCTION public.get_search_history_json(
+    p_user_id BIGINT,
+    p_limit   INTEGER
+)
+RETURNS jsonb
+LANGUAGE sql
+STABLE
+AS $$
+    SELECT COALESCE(
+        jsonb_agg(to_jsonb(sub) - 'search_date' - 'id'),
+        '[]'::jsonb
+    )
+    FROM (
+        SELECT *
+        FROM public.search_histories
+        WHERE user_id = p_user_id
+        ORDER BY search_date DESC, id DESC
+        LIMIT GREATEST(COALESCE(p_limit, 0), 0)
+    ) AS sub;
+$$;
