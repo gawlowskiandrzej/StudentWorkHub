@@ -1006,6 +1006,9 @@ namespace Users
         /// that the user has the specified permission; otherwise <c>false</c>. In case of
         /// any database error during the check, the method returns <c>false</c>.
         /// </returns>
+        /// <exception cref="UserException">
+        /// Thrown when this object has no user assigned and a permission check is requested.
+        /// </exception>
         /// <exception cref="OperationCanceledException">
         /// Thrown when the permission check is cancelled before or during the operation.
         /// </exception>
