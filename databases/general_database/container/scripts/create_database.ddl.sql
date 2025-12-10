@@ -39,6 +39,41 @@ CREATE TABLE public.last_names (
         UNIQUE (last_name)
 );
 
+CREATE TABLE public.roles (
+    id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    role_name VARCHAR(100) NOT NULL,
+
+    CONSTRAINT uq_roles_role_name
+        UNIQUE (role_name)
+);
+
+CREATE TABLE public.role_permissions (
+    id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY, 
+    permission_name VARCHAR(100) NOT NULL
+
+    CONSTRAINT uq_role_permissions_permission_name
+        UNIQUE (permission_name)
+);
+
+
+CREATE TABLE public.role_permissions_roles_junction (
+    role_id SMALLINT NOT NULL,
+    role_permission_id SMALLINT NOT NULL,
+
+    CONSTRAINT pk_role_permissions_roles_junction
+        PRIMARY KEY (role_id, role_permission_id),
+
+    CONSTRAINT fk_rprj_roles
+        FOREIGN KEY (role_id)
+        REFERENCES public.roles (id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_rprj_role_permissions
+        FOREIGN KEY (role_permission_id)
+        REFERENCES public.role_permissions (id)
+        ON DELETE CASCADE
+);
+
 CREATE TABLE public.users (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     email VARCHAR(255) NULL,
@@ -49,6 +84,7 @@ CREATE TABLE public.users (
     first_name_id BIGINT NOT NULL,
     second_name_id BIGINT NULL,
     last_name_id BIGINT NOT NULL,
+    role_id SMALLINT NOT NULL DEFAULT 1
 
     CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
     CHECK (phone ~ '^\+[0-9]{7,15}$'),
@@ -75,6 +111,11 @@ CREATE TABLE public.users (
     CONSTRAINT fk_users_last_names
         FOREIGN KEY (last_name_id)
         REFERENCES public.last_names (id)
+        ON DELETE RESTRICT
+
+    CONSTRAINT fk_users_roles
+        FOREIGN KEY (role_id)
+        REFERENCES public.roles (id)
         ON DELETE RESTRICT
 );
 

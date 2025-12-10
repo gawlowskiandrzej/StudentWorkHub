@@ -73,3 +73,34 @@ BEGIN
 END;
 $$;
 
+CREATE OR REPLACE FUNCTION public.user_has_permission(
+    p_user_id BIGINT,
+    p_permission_name VARCHAR
+)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+AS
+$$
+DECLARE
+    v_has_permission BOOLEAN;
+BEGIN
+    SELECT EXISTS (
+        SELECT 1
+        FROM public.users u
+        JOIN public.roles r
+            ON r.id = u.role_id
+        JOIN public.role_permissions_roles_junction rprj
+            ON rprj.role_id = r.id
+        JOIN public.role_permissions rp
+            ON rp.id = rprj.role_permission_id
+        WHERE u.id = p_user_id
+          AND rp.permission_name = p_permission_name
+    )
+    INTO v_has_permission;
+
+    RETURN COALESCE(v_has_permission, FALSE);
+EXCEPTION
+    WHEN OTHERS THEN
+        RETURN FALSE;
+END;
+$$;
