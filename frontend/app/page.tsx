@@ -2,11 +2,14 @@
 
 import Image from "next/image";
 import "../styles/Hero.css";
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
-  const handleClick = () => {
-    alert("Hello my friend!");
-  }
+  const router = useRouter();
+
+  const goToSearchPage = () => {
+    router.push('/search'); // ścieżka do strony /search
+  };
   return (
    <div className="hero-page">
   <div className="section-1">
@@ -25,7 +28,7 @@ export default function Home() {
           </div>
         </div>
         <div className="main-button">
-          <div className="find-mathing-job">Find matching job</div>
+          <button className="find-mathing-job" onClick={goToSearchPage}>Find matching job</button>
         </div>
       </div>
       <img

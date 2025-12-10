@@ -1,0 +1,230 @@
+.search-view,
+.search-view * {
+  box-sizing: border-box;
+}
+.search-view {
+  background: var(--backgroundcolor, #0a0a0a);
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  align-items: center;
+  justify-content: center;
+  height: 1080px;
+  position: relative;
+}
+.search-view-content {
+  padding: 0px 291px 0px 291px;
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  align-items: flex-start;
+  justify-content: center;
+  align-self: stretch;
+  flex: 1;
+  position: relative;
+}
+.search-view-header {
+  text-align: center;
+  font-family: "Roboto-Bold", sans-serif;
+  font-size: 35px;
+  font-weight: 700;
+  position: relative;
+  align-self: stretch;
+  height: 106px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.search-view-header-span {
+  color: #ffffff;
+}
+.search-view-header-span2 {
+  color: var(--blue, #3c83f6);
+}
+.search-section {
+  border-radius: 15px;
+  padding: 71px 0px 71px 0px;
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  flex-shrink: 0;
+  position: relative;
+}
+.frame-158 {
+  border-radius: 16px;
+  border-style: solid;
+  border-color: #ffffff;
+  border-width: 1px;
+  padding: 0px 10px 0px 10px;
+  align-self: stretch;
+  flex-shrink: 0;
+  display: grid;
+  gap: 10px;
+  position: relative;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.2fr) minmax(0, 1fr);
+  grid-template-rows: repeat(1, fit-content(100%));
+}
+.frame-13 {
+  border-style: solid;
+  border-color: #fbfbfb;
+  border-width: 0px 0.92px 0px 0px;
+  display: flex;
+  flex-direction: row;
+  gap: 0px;
+  align-items: center;
+  justify-content: flex-start;
+  height: 87.47px;
+  position: relative;
+  grid-column: 1 / span 1;
+  grid-row: 1 / span 1;
+}
+.search-company-keyword {
+  color: #fbfbfb;
+  text-align: left;
+  font-family: "Roboto-SemiBold", sans-serif;
+  font-size: 27.68707275390625px;
+  font-weight: 600;
+  position: relative;
+  width: 359.93px;
+  height: 59.99px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.frame-9 {
+  border-style: solid;
+  border-color: #fbfbfb;
+  border-width: 0px 0.92px 0px 0px;
+  display: flex;
+  flex-direction: row;
+  gap: 0px;
+  align-items: center;
+  justify-content: flex-start;
+  height: 88px;
+  position: relative;
+  grid-column: 2 / span 1;
+  grid-row: 1 / span 1;
+}
+.major-of-study {
+  color: #fbfbfb;
+  text-align: center;
+  font-family: "Roboto-SemiBold", sans-serif;
+  font-size: 27.68707275390625px;
+  font-weight: 600;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.frame-12 {
+  display: flex;
+  flex-direction: row;
+  gap: 0px;
+  align-items: center;
+  justify-content: flex-start;
+  height: 87px;
+  position: relative;
+  grid-column: 3 / span 1;
+  grid-row: 1 / span 1;
+}
+.city {
+  color: #fbfbfb;
+  text-align: left;
+  font-size: 27.68707275390625px;
+  font-weight: 600;
+  position: relative;
+  width: 129px;
+  height: 59px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.search-sub-section {
+  padding: 0px 10px 0px 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  align-self: stretch;
+  flex-shrink: 0;
+  height: 83px;
+  position: relative;
+}
+.sub-filters {
+  display: flex;
+  flex-direction: row;
+  gap: 51px;
+  align-items: center;
+  justify-content: flex-start;
+  flex: 1;
+  height: 84px;
+  position: relative;
+}
+.basic-filter-item {
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  align-items: center;
+  justify-content: flex-start;
+  flex-shrink: 0;
+  position: relative;
+}
+.work-type {
+  color: #3c83f6;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 600;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.vector {
+  flex-shrink: 0;
+  width: 13.5px;
+  height: 6.75px;
+  position: relative;
+  overflow: visible;
+}
+.vector2 {
+  flex-shrink: 0;
+  width: 13.5px;
+  height: 6.75px;
+  position: relative;
+  overflow: visible;
+}
+.vector3 {
+  flex-shrink: 0;
+  width: 13.5px;
+  height: 6.75px;
+  position: relative;
+  overflow: visible;
+}
+.vector4 {
+  flex-shrink: 0;
+  width: 13.5px;
+  height: 6.75px;
+  position: relative;
+  overflow: visible;
+}
+.search {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  position: relative;
+  overflow: visible;
+}
+.find-matching-job {
+  color: var(--white, #f8faff);
+  text-align: center;
+  font-family: "Roboto-SemiBold", sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

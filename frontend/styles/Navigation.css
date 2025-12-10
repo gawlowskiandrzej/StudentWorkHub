@@ -84,4 +84,5 @@
   position: relative;
   overflow: visible;
   aspect-ratio: 1;
+  transform: rotate(-4deg);
 }
