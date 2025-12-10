@@ -991,6 +991,60 @@ namespace Users
         }
 
         /// <summary>
+        /// Checks whether the currently selected user has the specified permission.
+        /// </summary>
+        /// <param name="permission">
+        /// Name of the permission to verify for the current user. If the value is
+        /// <c>null</c>, empty, or consists only of whitespace, the method returns <c>false</c>.
+        /// </param>
+        /// <param name="cancellation">
+        /// Token used to cancel the permission check before it starts, while waiting
+        /// for synchronization, or during the database call.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if a user is assigned to this object and the database reports
+        /// that the user has the specified permission; otherwise <c>false</c>. In case of
+        /// any database error during the check, the method returns <c>false</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">
+        /// Thrown when the permission check is cancelled before or during the operation.
+        /// </exception>
+        public async Task<bool> CheckPermissionAsync(string? permission, CancellationToken cancellation)
+        {
+            // Allow the caller to interrupt the whole update sequence before any processing starts.
+            cancellation.ThrowIfCancellationRequested();
+
+            if (string.IsNullOrWhiteSpace(permission))
+                return false;
+
+            await _selectUserSemaphore.WaitAsync(cancellation);
+            try
+            {
+                if (_userId is null)
+                    throw new UserException("This object has no user");
+
+
+                cancellation.ThrowIfCancellationRequested();
+
+                bool result;
+                try
+                {
+                    result = await DatabaseQueries.CheckPermission((long)_userId, permission, _dataSource, cancellation);
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    result = false;
+                }
+
+                return result;
+            }
+            finally
+            {
+                _selectUserSemaphore.Release(); 
+            }
+        }
+
+        /// <summary>
         /// Deletes the current user from the database.
         /// </summary>
         /// <param name="cancellation">

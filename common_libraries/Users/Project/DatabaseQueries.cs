@@ -1106,5 +1106,57 @@ namespace Users
                 throw new UserDbQueryException("Database error", ex);
             }
         }
+
+        /// <summary>
+        /// Checks whether the specified user has the given permission by invoking
+        /// the <c>public.user_has_permission</c> function in the database.
+        /// </summary>
+        /// <param name="userId">
+        /// Identifier of the user whose permissions should be checked.
+        /// </param>
+        /// <param name="permissionName">
+        /// Name of the permission to be verified for the specified user.
+        /// </param>
+        /// <param name="dataSource">
+        /// PostgreSQL data source used to create and execute the command.
+        /// </param>
+        /// <param name="cancellation">
+        /// Cancellation token to observe during the operation.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the database operation completed successfully and the user
+        /// has the specified permission; otherwise <c>false</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">
+        /// Thrown when the operation is cancelled.
+        /// </exception>
+        /// <exception cref="UserDbQueryException">
+        /// Thrown when an unexpected database error occurs.
+        /// </exception>
+        internal static async Task<bool> CheckPermission(
+            long userId,
+            string permissionName,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            await using NpgsqlCommand command = dataSource.CreateCommand(
+                "SELECT public.user_has_permission(@p_user_id, @p_permission_name);");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+            command.Parameters.AddWithValue("p_permission_name", permissionName);
+
+            try
+            {
+                object? result = await command.ExecuteScalarAsync(cancellation);
+                return ConvertDbResultToBoolean(result);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error", ex);
+            }
+        }
+
     }
 }

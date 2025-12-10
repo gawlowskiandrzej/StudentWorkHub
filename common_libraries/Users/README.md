@@ -219,6 +219,17 @@ await user.LogoutAsync();
 bool result = await user.DeleteUserAsync();
 ```
 
+### Checking permissions ###
+> ℹ **info** `CheckPermissionAsync` returns false when an error occurs, when the permission
+is null/whitespace, or when the given permission does not exist in the database or
+is not assigned to the user.
+
+```c#
+/* User object creation and successful log in*/
+
+bool canEditArticles = await user.CheckPermissionAsync("CAN_EDIT_ARTICLES");
+```
+
 ### Exception handling ###
 This class throws exceptions:
 - UserException
