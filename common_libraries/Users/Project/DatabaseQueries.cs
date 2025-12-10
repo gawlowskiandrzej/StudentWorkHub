@@ -1158,5 +1158,183 @@ namespace Users
             }
         }
 
+        /// <summary>
+        /// Retrieves the search history for the specified user as a JSON string
+        /// using the <c>public.get_search_history_json</c> PostgreSQL function.
+        /// The JSON result contains an array of search history entries ordered
+        /// from the most recent to the oldest one.
+        /// </summary>
+        /// <param name="userId">
+        /// Identifier of the user whose search history should be retrieved.
+        /// </param>
+        /// <param name="limit">
+        /// Maximum number of search history entries to return. If the value is less than
+        /// or equal to zero, an empty JSON array is returned.
+        /// </param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// A JSON string representing the search history for the specified user. When no
+        /// matching entries exist, an empty JSON array (<c>[]</c>) is returned.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">
+        /// Thrown when an unexpected database error occurs while retrieving the search history.
+        /// </exception>
+        internal static async Task<string> GetSearchHistoryJsonAsync(
+            long userId,
+            int limit,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
+        {
+            // Respect cancellation before initiating the scalar query.
+            cancellation.ThrowIfCancellationRequested();
+
+            await using NpgsqlCommand command = dataSource.CreateCommand(
+                "SELECT public.get_search_history_json(@p_user_id, @p_limit);");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+            command.Parameters.AddWithValue("p_limit", limit);
+
+            try
+            {
+                object? result = await command.ExecuteScalarAsync(cancellation);
+
+                // If the function would ever return NULL (it currently returns []), fallback to empty array.
+                if (result is null || result is DBNull)
+                    return "[]";
+
+                // Npgsql maps jsonb to string by default.
+                return (string)result;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error while retrieving search history.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Inserts a new search history entry for the specified user using the
+        /// <c>public.insert_search_history</c> stored procedure.
+        /// </summary>
+        /// <param name="userId">Identifier of the user for whom the search history entry is created.</param>
+        /// <param name="keywords">Optional search keywords used by the user.</param>
+        /// <param name="distance">Maximum distance used in the query.</param>
+        /// <param name="isRemote">Indicates whether the search was limited to remote offers.</param>
+        /// <param name="isHybrid">Indicates whether the search was limited to hybrid offers.</param>
+        /// <param name="leadingCategoryId">Optional identifier of the leading category used in the search.</param>
+        /// <param name="cityId">Optional identifier of the city used in the search.</param>
+        /// <param name="salaryFrom">Lower bound of the salary range used in the search.</param>
+        /// <param name="salaryTo">Upper bound of the salary range used in the search.</param>
+        /// <param name="salaryPeriodId">Optional salary period identifier.</param>
+        /// <param name="salaryCurrencyId">Optional salary currency identifier.</param>
+        /// <param name="salaryTypeId">Optional salary type identifier.</param>
+        /// <param name="employmentScheduleIds">
+        /// Optional collection of employment schedule identifiers used in the search.
+        /// </param>
+        /// <param name="employmentTypeIds">
+        /// Optional collection of employment type identifiers used in the search.
+        /// </param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// <c>true</c> when the stored procedure reports success via the <c>o_result</c> output parameter;
+        /// otherwise <c>false</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">
+        /// Thrown when the procedure does not return a valid result row or an unexpected database error occurs.
+        /// </exception>
+        internal static async Task<bool> InsertSearchHistoryAsync(
+            long userId,
+            string? keywords,
+            int? distance,
+            bool? isRemote,
+            bool? isHybrid,
+            short? leadingCategoryId,
+            int? cityId,
+            decimal salaryFrom,
+            decimal salaryTo,
+            short? salaryPeriodId,
+            short? salaryCurrencyId,
+            short? salaryTypeId,
+            short[]? employmentScheduleIds,
+            short[]? employmentTypeIds,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
+        {
+            // Fail fast if a cancellation was already requested before starting any I/O.
+            cancellation.ThrowIfCancellationRequested();
+
+            await using var command = dataSource.CreateCommand(
+                "CALL public.insert_search_history(" +
+                "@p_user_id, " +
+                "@p_keywords, " +
+                "@p_distance, " +
+                "@p_is_remote, " +
+                "@p_is_hybrid, " +
+                "@p_leading_category_id, " +
+                "@p_city_id, " +
+                "@p_salary_from, " +
+                "@p_salary_to, " +
+                "@p_salary_period_id, " +
+                "@p_salary_currency_id, " +
+                "@p_salary_type_id, " +
+                "@p_employment_schedule_ids, " +
+                "@p_employment_type_ids, " +
+                "NULL)");
+
+            // Required parameter
+            command.Parameters.AddWithValue("p_user_id", userId);
+
+            // Optional parameters: map nulls to DBNull.Value so that procedure defaults can be used when appropriate.
+            command.Parameters.AddWithValue("p_keywords", (object?)keywords ?? DBNull.Value);
+            command.Parameters.AddWithValue("p_distance", (object?)distance ?? DBNull.Value);
+
+            command.Parameters.AddWithValue("p_is_remote", (object?)isRemote ?? DBNull.Value);
+            command.Parameters.AddWithValue("p_is_hybrid", (object?)isHybrid ?? DBNull.Value);
+
+            command.Parameters.AddWithValue("p_leading_category_id", (object?)leadingCategoryId ?? DBNull.Value);
+            command.Parameters.AddWithValue("p_city_id", (object?)cityId ?? DBNull.Value);
+
+            command.Parameters.AddWithValue("p_salary_from", salaryFrom);
+            command.Parameters.AddWithValue("p_salary_to", salaryTo);
+
+            command.Parameters.AddWithValue("p_salary_period_id", (object?)salaryPeriodId ?? DBNull.Value);
+            command.Parameters.AddWithValue("p_salary_currency_id", (object?)salaryCurrencyId ?? DBNull.Value);
+            command.Parameters.AddWithValue("p_salary_type_id", (object?)salaryTypeId ?? DBNull.Value);
+
+            command.Parameters.AddWithValue(
+                "p_employment_schedule_ids",
+                (object?)employmentScheduleIds ?? DBNull.Value);
+
+            command.Parameters.AddWithValue(
+                "p_employment_type_ids",
+                (object?)employmentTypeIds ?? DBNull.Value);
+
+            try
+            {
+                // SingleRow hints to the provider that at most one row is expected, allowing optimizations.
+                await using var reader = await command
+                    .ExecuteReaderAsync(CommandBehavior.SingleRow, cancellation);
+
+                // Enforce contract that the stored procedure must always return a row with the OUT parameter(s).
+                if (!await reader.ReadAsync(cancellation))
+                    throw new UserDbQueryException("No result returned from `insert_search_history`.");
+
+                int resultOrdinal = reader.GetOrdinal("o_result");
+
+                // Missing or NULL result is treated as failure.
+                bool success = !reader.IsDBNull(resultOrdinal) &&
+                               reader.GetBoolean(resultOrdinal);
+
+                return success;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error while inserting search history.", ex);
+            }
+        }
+
     }
 }
