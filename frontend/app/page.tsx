@@ -38,55 +38,55 @@ export default function Home() {
     </div>
   </div>
   <div className="section-2">
-    <div className="home-trust-section">
-      <div className="main-header-sec-2">Features and Benefits</div>
-      <div className="main-content-sec-2">
-        <img className="wave" src="/icons/wave0.svg" />
-        <div className="feature-section-list">
-          <div className="feature-element-item">
-            <img
-              className="unsplash-376-kn-i-spl-e"
-              src="/images/hero/unsplash-376-kn-i-spl-e0.png"
-            />
-            <div className="feature-element-text">
-              <div className="feature-1">Find your job faster</div>
-              <div className="the-feature-or-any-details">
-                Precise search based on your interests, skills and abilities
-                allows us to select only the most suitable offers for you
-              </div>
+  <div className="home-trust-section">
+    <div className="main-header-sec-2">Features and Benefits</div>
+    <div className="main-content-sec-2">
+      <img className="wave" src="/icons/wave0.svg" />
+      <div className="feature-section-list">
+        <div className="feature-element-item">
+          <img
+            className="unsplash-376-kn-i-spl-e"
+            src="/images/hero/unsplash-376-kn-i-spl-e0.png"
+          />
+          <div className="feature-element-text">
+            <div className="feature-1">Find your job faster</div>
+            <div className="feature-desc">
+              Precise search based on your interests, skills and abilities
+              allows us to select only the most suitable offers for you
             </div>
           </div>
-          <div className="feature-element-item">
-            <img
-              className="unsplash-376-kn-i-spl-e"
-              src="/images/hero/unsplash-376-kn-i-spl-e1.png"
-            />
-            <div className="feature-element-text">
-              <div className="feature-1">Make it simple</div>
-              <div className="the-feature-or-any-details2">
-                We have tried to simplify the search process so that it is
-                straightforward, intuitive, and leads you directly to the
-                specific location.
-              </div>
+        </div>
+        <div className="feature-element-item">
+          <img
+            className="unsplash-376-kn-i-spl-e"
+            src="/images/hero/unsplash-376-kn-i-spl-e1.png"
+          />
+          <div className="feature-element-text">
+            <div className="feature-1">Make it simple</div>
+            <div className="the-feature-or-any-details">
+              We have tried to simplify the search process so that it is
+              straightforward, intuitive, and leads you directly to the specific
+              location.
             </div>
           </div>
-          <div className="feature-element-item">
-            <img
-              className="unsplash-376-kn-i-spl-e"
-              src="/images/hero/unsplash-376-kn-i-spl-e2.png"
-            />
-            <div className="feature-element-text">
-              <div className="feature-1">Be successful</div>
-              <div className="the-feature-or-any-details">
-                We search for offers from the largest classNameifieds portals, which
-                significantly increases your chances of finding a job.
-              </div>
+        </div>
+        <div className="feature-element-item">
+          <img
+            className="unsplash-376-kn-i-spl-e"
+            src="/images/hero/unsplash-376-kn-i-spl-e2.png"
+          />
+          <div className="feature-element-text">
+            <div className="feature-1">Be successful</div>
+            <div className="the-feature-or-any-details">
+              We search for offers from the largest classNameifieds portals, which
+              significantly increases your chances of finding a job.
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>
   <div className="section-3">
     <div className="main-header-sec-3">
       <span>
@@ -128,7 +128,7 @@ export default function Home() {
         <div className="works-feature-icon">
           <img className="robot-icon" src="/icons/robot-icon0.svg" />
         </div>
-        <div className="work-feature-text2">
+        <div className="work-feature-text">
           <div className="feature-12">Using AI and algorithms</div>
           <div className="description-of-feature-1">
             Artificial intelligence and ranking algorithms will allow you to

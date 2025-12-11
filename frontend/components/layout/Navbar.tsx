@@ -18,8 +18,8 @@ const Navbar = () => {
             </div>
           </div>
           <div className="signin-frame">
-            <div className="main-button h-0.5">
-              <div className="text-xs font-bold">Create an account</div>
+            <div id="register-button" className="main-button">
+              <div className="text-xs">Register</div>
             </div>
             <img className="user" src="/icons/user0.svg" />
           </div>

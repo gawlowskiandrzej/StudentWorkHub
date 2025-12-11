@@ -26,6 +26,10 @@
   width: auto;
   position: relative;
 }
+#register-button{
+  padding: 7px 15px;
+  border-radius: 8px;
+}
 .student-work-hub-logo-1 {
   flex-shrink: 0;
   height: 50.38px;
@@ -44,7 +48,7 @@
 .student-work-hub {
   color: var(--white, #f8faff);
   text-align: center;
-  font-size: var(--headerSize);
+  font-size: var(--subHeaderSize);
   font-weight: 700;
   position: relative;
   align-self: stretch;
@@ -57,7 +61,7 @@
   margin: -18px 0 0 0;
   color: var(--white, #f8faff);
   text-align: center;
-  font-size: var(--subHeaderSize);
+  font-size: var(--mediumSize);
   font-weight: 400;
   position: relative;
   align-self: stretch;

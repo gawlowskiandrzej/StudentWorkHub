@@ -12,7 +12,9 @@
   --normalSize: 10px;
   --mediumSize: 13px;
   --subHeader: 16px;
-  --headerSize: 19px;
+  --semiHeader: 21px;
+  --headerSize: 25px;
+  --sectionHeaderSize: 35px;
 }
 
 @theme inline {
