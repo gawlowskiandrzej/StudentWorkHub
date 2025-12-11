@@ -9,14 +9,14 @@
   gap: 0px;
   align-items: center;
   justify-content: center;
-  height: 1080px;
+  height: calc(100vh - 96px);
   position: relative;
 }
 .search-view-content {
-  padding: 0px 291px 0px 291px;
+  padding: 0px 291px;
   display: flex;
   flex-direction: column;
-  gap: 0px;
+  gap: 20px;
   align-items: flex-start;
   justify-content: center;
   align-self: stretch;
@@ -41,9 +41,20 @@
 .search-view-header-span2 {
   color: var(--blue, #3c83f6);
 }
+.frame-157 {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  align-self: stretch;
+  flex-shrink: 0;
+  position: relative;
+}
 .search-section {
+  margin-top: 150px;
   border-radius: 15px;
-  padding: 71px 0px 71px 0px;
+  padding: 0px 0px;
   display: flex;
   flex-direction: column;
   gap: 0px;
@@ -53,21 +64,22 @@
   flex-shrink: 0;
   position: relative;
 }
-.frame-158 {
+.searchbar {
   border-radius: 16px;
   border-style: solid;
   border-color: #ffffff;
   border-width: 1px;
-  padding: 0px 10px 0px 10px;
+  padding: 0px 32px 0px 32px;
   align-self: stretch;
   flex-shrink: 0;
   display: grid;
-  gap: 10px;
+  gap: 30px;
+  row-gap: 0px;
   position: relative;
   grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.2fr) minmax(0, 1fr);
-  grid-template-rows: repeat(1, fit-content(100%));
+  grid-template-rows: repeat(1, minmax(0, 1fr));
 }
-.frame-13 {
+.phrase-search {
   border-style: solid;
   border-color: #fbfbfb;
   border-width: 0px 0.92px 0px 0px;
@@ -76,25 +88,25 @@
   gap: 0px;
   align-items: center;
   justify-content: flex-start;
-  height: 87.47px;
+  height: 60px;
   position: relative;
   grid-column: 1 / span 1;
   grid-row: 1 / span 1;
 }
-.search-company-keyword {
+.phrase {
   color: #fbfbfb;
   text-align: left;
   font-family: "Roboto-SemiBold", sans-serif;
-  font-size: 27.68707275390625px;
+  font-size: var(--mediumSize, 12px);
   font-weight: 600;
   position: relative;
-  width: 359.93px;
-  height: 59.99px;
+  align-self: stretch;
+  width: 360px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
 }
-.frame-9 {
+.major-study-search {
   border-style: solid;
   border-color: #fbfbfb;
   border-width: 0px 0.92px 0px 0px;
@@ -103,29 +115,30 @@
   gap: 0px;
   align-items: center;
   justify-content: flex-start;
-  height: 88px;
+  height: 60px;
   position: relative;
   grid-column: 2 / span 1;
   grid-row: 1 / span 1;
 }
-.major-of-study {
+.major {
   color: #fbfbfb;
   text-align: center;
   font-family: "Roboto-SemiBold", sans-serif;
-  font-size: 27.68707275390625px;
+  font-size: var(--mediumSize, 10px);
   font-weight: 600;
   position: relative;
+  align-self: stretch;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.frame-12 {
+.city-search {
   display: flex;
   flex-direction: row;
   gap: 0px;
   align-items: center;
   justify-content: flex-start;
-  height: 87px;
+  height: 60px;
   position: relative;
   grid-column: 3 / span 1;
   grid-row: 1 / span 1;
@@ -133,11 +146,12 @@
 .city {
   color: #fbfbfb;
   text-align: left;
-  font-size: 27.68707275390625px;
+  font-family: "Roboto-SemiBold", sans-serif;
+  font-size: var(--mediumSize, 10px);
   font-weight: 600;
   position: relative;
+  align-self: stretch;
   width: 129px;
-  height: 59px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -175,7 +189,8 @@
 .work-type {
   color: #3c83f6;
   text-align: center;
-  font-size: 24px;
+  font-family: "Roboto-SemiBold", sans-serif;
+  font-size: var(--medium, 13px);
   font-weight: 600;
   position: relative;
   display: flex;
@@ -210,18 +225,19 @@
   position: relative;
   overflow: visible;
 }
-.search {
+#searchVec {
   flex-shrink: 0;
-  width: 24px;
-  height: 24px;
+  width: 18px;
+  height: 18px;
   position: relative;
   overflow: visible;
+  aspect-ratio: 1;
 }
 .find-matching-job {
   color: var(--white, #f8faff);
   text-align: center;
   font-family: "Roboto-SemiBold", sans-serif;
-  font-size: 24px;
+  font-size: var(--medium, 13px);
   font-weight: 600;
   position: relative;
   display: flex;

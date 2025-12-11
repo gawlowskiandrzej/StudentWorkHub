@@ -1,4 +1,5 @@
 import "../../../styles/SearchView.css";
+import "../../../styles/Hero.css";
 
 const Search = () => {
     return ( 
@@ -13,14 +14,14 @@ const Search = () => {
                 </span>
                 </div>
                 <div className="search-section">
-                <div className="frame-158">
-                    <div className="frame-13">
-                    <div className="search-company-keyword">Search, company, keyword ...</div>
+                <div className="searchbar">
+                    <div className="phrase-search">
+                    <div className="phrase">Search, company, keyword ...</div>
                     </div>
-                    <div className="frame-9">
-                    <div className="major-of-study">Major of study</div>
+                    <div className="major-study-search">
+                    <div className="major">Major of study</div>
                     </div>
-                    <div className="frame-12">
+                    <div className="city-search">
                     <div className="city">City</div>
                     </div>
                 </div>
@@ -29,28 +30,24 @@ const Search = () => {
                 <div className="sub-filters">
                     <div className="basic-filter-item">
                     <div className="work-type">Work type</div>
-                    <img className="vector" src="vector0.svg" />
                     </div>
                     <div className="basic-filter-item">
                     <div className="work-type">Work time</div>
-                    <img className="vector2" src="vector1.svg" />
                     </div>
                     <div className="basic-filter-item">
                     <div className="work-type">Employment type</div>
-                    <img className="vector3" src="vector2.svg" />
                     </div>
                     <div className="basic-filter-item">
                     <div className="work-type">Salary</div>
-                    <img className="vector4" src="vector3.svg" />
                     </div>
                 </div>
                 <div className="main-button">
-                    <img className="search" src="search0.svg" />
+                    <img id="searchVec" className="search" src="/icons/search0.svg" />
                     <div className="find-matching-job">Find matching job</div>
                 </div>
                 </div>
             </div>
-        </div>
+            </div>
     );
 }
  

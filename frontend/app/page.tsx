@@ -18,7 +18,6 @@ export default function Home() {
         <div className="main-text-frame">
           <div className="header-sec-1">
             Find job offers that match your
-            <br />
             preferences.
           </div>
           <div className="sub-header-sec-1">
@@ -27,9 +26,7 @@ export default function Home() {
             Want to give it a try?
           </div>
         </div>
-        <div className="main-button">
-          <button className="find-mathing-job" onClick={goToSearchPage}>Find matching job</button>
-        </div>
+          <button className="main-button find-mathing-job" onClick={goToSearchPage}>Find matching job</button>
       </div>
       <img
         className="unsplash-bb-s-bf-5-uv-50-a"

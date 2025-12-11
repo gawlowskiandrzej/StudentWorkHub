@@ -30,7 +30,7 @@ const Footer = () => {
                 </div>
                 <div className="frame-3">
                     <div className="offers">Offers</div>
-                    <div className="search">Search</div>
+                    <div className="matched">Search</div>
                     <div className="matched">Matched</div>
                     <div className="all-offers">All offers</div>
                 </div>
