@@ -9,6 +9,10 @@
     rgba(30, 59, 138, 1) 100%
   );
   --navigationshadow-box-shadow: 0px 2px 8px 0px rgba(60, 131, 246, 1);
+  --normalSize: 10px;
+  --mediumSize: 13px;
+  --subHeader: 16px;
+  --headerSize: 19px;
 }
 
 @theme inline {

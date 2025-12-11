@@ -41,7 +41,7 @@
   color: #000000;
   text-align: left;
   font-family: "Inter-Bold", sans-serif;
-  font-size: 20px;
+  font-size: var(--normalSize);
   font-weight: 700;
   position: relative;
   align-self: stretch;
@@ -85,7 +85,7 @@
   color: #0a0a0a;
   text-align: center;
   font-family: "Inter-Bold", sans-serif;
-  font-size: 20px;
+  font-size: var(--subHeader);
   line-height: 140%;
   font-weight: 700;
   position: relative;
@@ -98,7 +98,7 @@
   color: #000000;
   text-align: center;
   font-family: "Inter-Regular", sans-serif;
-  font-size: 16px;
+  font-size: var(--normalSize);
   line-height: 140%;
   font-weight: 400;
   position: relative;
@@ -112,7 +112,7 @@
   color: #000000;
   text-align: center;
   font-family: "Inter-Regular", sans-serif;
-  font-size: 16px;
+  font-size: var(--normalSize);
   line-height: 140%;
   font-weight: 400;
   position: relative;
@@ -125,7 +125,7 @@
   color: #000000;
   text-align: center;
   font-family: "Inter-Regular", sans-serif;
-  font-size: 16px;
+  font-size: var(--normalSize);
   line-height: 140%;
   font-weight: 400;
   position: relative;
@@ -147,7 +147,7 @@
   color: #0a0a0a;
   text-align: center;
   font-family: "Inter-Bold", sans-serif;
-  font-size: 20px;
+  font-size: var(--headerSize);
   line-height: 140%;
   font-weight: 700;
   position: relative;
@@ -160,7 +160,7 @@
   color: #000000;
   text-align: center;
   font-family: "Inter-Regular", sans-serif;
-  font-size: 16px;
+  font-size: var(--normalSize);
   line-height: 140%;
   font-weight: 400;
   position: relative;
@@ -174,7 +174,7 @@
   color: #000000;
   text-align: center;
   font-family: "Inter-Regular", sans-serif;
-  font-size: 16px;
+  font-size: var(--normalSize);
   line-height: 140%;
   font-weight: 400;
   position: relative;
@@ -187,7 +187,7 @@
   color: #000000;
   text-align: center;
   font-family: "Inter-Regular", sans-serif;
-  font-size: 16px;
+  font-size: var(--normalSize);
   line-height: 140%;
   font-weight: 400;
   position: relative;
@@ -209,7 +209,7 @@
   color: #0a0a0a;
   text-align: center;
   font-family: "Inter-Bold", sans-serif;
-  font-size: 20px;
+  font-size: var(--headerSize);
   line-height: 140%;
   font-weight: 700;
   position: relative;
@@ -222,7 +222,7 @@
   color: #000000;
   text-align: center;
   font-family: "Inter-Regular", sans-serif;
-  font-size: 16px;
+  font-size: var(--normalSize);
   line-height: 140%;
   font-weight: 400;
   position: relative;
@@ -236,7 +236,7 @@
   color: #000000;
   text-align: center;
   font-family: "Inter-Regular", sans-serif;
-  font-size: 16px;
+  font-size: var(--headerSize);
   line-height: 140%;
   font-weight: 400;
   position: relative;
@@ -249,7 +249,7 @@
   color: #000000;
   text-align: center;
   font-family: "Inter-Regular", sans-serif;
-  font-size: 16px;
+  font-size: var(--headerSize);
   line-height: 140%;
   font-weight: 400;
   position: relative;
@@ -273,7 +273,7 @@
   color: #000000;
   text-align: center;
   font-family: "Inter-Bold", sans-serif;
-  font-size: 20px;
+  font-size: var(--headerSize);
   font-weight: 700;
   position: relative;
   align-self: stretch;
@@ -327,7 +327,7 @@
   color: var(--white, #f8faff);
   text-align: left;
   font-family: "Inter-Regular", sans-serif;
-  font-size: 14px;
+  font-size: var(--normalSize);
   font-weight: 400;
   position: relative;
   display: flex;

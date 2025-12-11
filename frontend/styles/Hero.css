@@ -20,7 +20,7 @@
   justify-content: center;
   align-self: stretch;
   flex-shrink: 0;
-  height: 1080px;
+  height: calc(100vh - 96px);
   position: relative;
 }
 .main-content-section-1 {
@@ -57,7 +57,7 @@
   color: var(--blue, #3c83f6);
   text-align: left;
   font-family: "Roboto-Bold", sans-serif;
-  font-size: 48px;
+  font-size: var(--headerSize);
   font-weight: 700;
   position: relative;
   align-self: stretch;
@@ -70,7 +70,7 @@
   color: var(--white, #f8faff);
   text-align: justified;
   font-family: "Inter-Regular", sans-serif;
-  font-size: 27px;
+  font-size: var(--subHeaderSize);
   font-weight: 400;
   position: relative;
   align-self: stretch;
@@ -101,7 +101,7 @@
   color: var(--white, #f8faff);
   text-align: center;
   font-family: "Roboto-SemiBold", sans-serif;
-  font-size: 24px;
+  font-size: var(--subHeaderSize);
   font-weight: 600;
   position: relative;
   display: flex;
@@ -111,8 +111,7 @@
 .unsplash-bb-s-bf-5-uv-50-a {
   border-radius: 14px;
   flex-shrink: 0;
-  width: 581px;
-  height: 400px;
+  height: 250px;
   position: relative;
   box-shadow: -2px -2px 18px 0px rgba(255, 255, 255, 0.4);
   object-fit: cover;
@@ -125,7 +124,7 @@
   justify-content: center;
   align-self: stretch;
   flex-shrink: 0;
-  height: 1080px;
+  height: 100vh;
   position: relative;
 }
 .home-trust-section {
@@ -143,7 +142,7 @@
   color: var(--white, #f8faff);
   text-align: center;
   font-family: "Roboto-Bold", sans-serif;
-  font-size: 48px;
+  font-size: var(--headerSize);
   font-weight: 700;
   position: relative;
   align-self: stretch;
@@ -217,7 +216,7 @@
   color: var(--white, #f8faff);
   text-align: left;
   font-family: "Roboto-Bold", sans-serif;
-  font-size: 27.920021057128906px;
+  font-size: var(--medium);
   font-weight: 700;
   position: relative;
   width: 303px;
@@ -229,7 +228,7 @@
   color: var(--white, #f8faff);
   text-align: left;
   font-family: "Roboto-Regular", sans-serif;
-  font-size: 19px;
+  font-size: var(--normalSize);
   line-height: 140%;
   font-weight: 400;
   position: relative;
@@ -243,7 +242,7 @@
   color: var(--white, #f8faff);
   text-align: left;
   font-family: "Roboto-Regular", sans-serif;
-  font-size: 19px;
+  font-size: var(--subHeaderSize);
   line-height: 140%;
   font-weight: 400;
   position: relative;
@@ -259,13 +258,13 @@
   justify-content: center;
   align-self: stretch;
   flex-shrink: 0;
-  height: 1080px;
+  height: 100vh;
   position: relative;
 }
 .main-header-sec-3 {
   text-align: center;
   font-family: "Roboto-Bold", sans-serif;
-  font-size: 48px;
+  font-size: var(--headerSize);
   font-weight: 700;
   position: relative;
   align-self: stretch;
@@ -312,8 +311,8 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 128px;
-  height: 128px;
+  width: 100px;
+  height: 100px;
   position: relative;
   box-shadow: 1.2px 2.4px 12.1px 0px rgba(60, 131, 246, 0.55),
     4px 4px 8px 0px rgba(60, 131, 246, 0.35);
@@ -351,7 +350,7 @@
   color: var(--white, #f8faff);
   text-align: center;
   font-family: "Roboto-Bold", sans-serif;
-  font-size: 27.920000076293945px;
+  font-size: var(--normalSize);
   line-height: 140%;
   font-weight: 700;
   position: relative;
@@ -365,7 +364,7 @@
   color: var(--white, #f8faff);
   text-align: center;
   font-family: "Roboto-Regular", sans-serif;
-  font-size: 19px;
+  font-size: var(--normalSize);
   line-height: 140%;
   font-weight: 400;
   position: relative;

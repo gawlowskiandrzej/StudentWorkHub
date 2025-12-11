@@ -8,7 +8,7 @@ export default function Home() {
   const router = useRouter();
 
   const goToSearchPage = () => {
-    router.push('/search'); // ścieżka do strony /search
+    router.push('/search');
   };
   return (
    <div className="hero-page">
