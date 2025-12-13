@@ -4,8 +4,9 @@
 }
 .navigation-with-short-logo {
   background: rgba(0, 0, 0, 0.01);
-  padding: 20px 96px 20px 96px;
+  padding: 0px 96px;
   display: flex;
+  height: 96px;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
@@ -22,16 +23,18 @@
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
-  width: 378.75px;
+  width: auto;
   position: relative;
+}
+#register-button{
+  padding: 7px 15px;
+  border-radius: 8px;
 }
 .student-work-hub-logo-1 {
   flex-shrink: 0;
-  width: 69.75px;
-  height: 71.38px;
+  height: 50.38px;
   position: relative;
   object-fit: cover;
-  aspect-ratio: 69.75/71.38;
 }
 .logo-text {
   display: flex;
@@ -39,14 +42,13 @@
   align-items: center;
   justify-content: flex-start;
   flex-shrink: 0;
-  width: 309px;
-  height: 67.5px;
+  padding: 0 10px;
   position: relative;
 }
 .student-work-hub {
   color: var(--white, #f8faff);
   text-align: center;
-  font-size: 30px;
+  font-size: var(--subHeaderSize);
   font-weight: 700;
   position: relative;
   align-self: stretch;
@@ -59,7 +61,7 @@
   margin: -18px 0 0 0;
   color: var(--white, #f8faff);
   text-align: center;
-  font-size: 21px;
+  font-size: var(--mediumSize);
   font-weight: 400;
   position: relative;
   align-self: stretch;
@@ -79,9 +81,10 @@
 }
 .user {
   flex-shrink: 0;
-  width: 31px;
-  height: 31px;
+  width: 25px;
+  height: 25px;
   position: relative;
   overflow: visible;
   aspect-ratio: 1;
+  transform: rotate(-4deg);
 }

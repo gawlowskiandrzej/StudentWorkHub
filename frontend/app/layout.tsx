@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Student Work Hub",
+  title: "StudentWorkHub",
   description: "Find your perfect job as a student",
 };
 

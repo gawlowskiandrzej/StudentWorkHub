@@ -10,13 +10,12 @@
   justify-content: flex-start;
   align-self: stretch;
   flex-shrink: 0;
-  height: 231px;
   position: relative;
   overflow: hidden;
 }
 .footer-content {
   background: #ffffff;
-  padding: 23px 96px 23px 96px;
+  padding: 23px 96px;
   align-self: stretch;
   flex-shrink: 0;
   display: grid;
@@ -41,7 +40,7 @@
   color: #000000;
   text-align: left;
   font-family: "Inter-Bold", sans-serif;
-  font-size: 20px;
+  font-size: var(--mediumSize);
   font-weight: 700;
   position: relative;
   align-self: stretch;
@@ -53,7 +52,7 @@
   color: #000000;
   text-align: left;
   font-family: "Inter-Regular", sans-serif;
-  font-size: 15px;
+  font-size: var(--normalSize);
   font-weight: 400;
   position: relative;
   align-self: stretch;
@@ -85,7 +84,7 @@
   color: #0a0a0a;
   text-align: center;
   font-family: "Inter-Bold", sans-serif;
-  font-size: 20px;
+  font-size: var(--mediumSize);
   line-height: 140%;
   font-weight: 700;
   position: relative;
@@ -98,12 +97,11 @@
   color: #000000;
   text-align: center;
   font-family: "Inter-Regular", sans-serif;
-  font-size: 16px;
+  font-size: var(--normalSize);
   line-height: 140%;
   font-weight: 400;
   position: relative;
   align-self: stretch;
-  height: 17px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -112,7 +110,7 @@
   color: #000000;
   text-align: center;
   font-family: "Inter-Regular", sans-serif;
-  font-size: 16px;
+  font-size: var(--normalSize);
   line-height: 140%;
   font-weight: 400;
   position: relative;
@@ -125,7 +123,7 @@
   color: #000000;
   text-align: center;
   font-family: "Inter-Regular", sans-serif;
-  font-size: 16px;
+  font-size: var(--normalSize);
   line-height: 140%;
   font-weight: 400;
   position: relative;
@@ -147,7 +145,7 @@
   color: #0a0a0a;
   text-align: center;
   font-family: "Inter-Bold", sans-serif;
-  font-size: 20px;
+  font-size: var(--mediumSize);
   line-height: 140%;
   font-weight: 700;
   position: relative;
@@ -160,7 +158,7 @@
   color: #000000;
   text-align: center;
   font-family: "Inter-Regular", sans-serif;
-  font-size: 16px;
+  font-size: var(--normalSize);
   line-height: 140%;
   font-weight: 400;
   position: relative;
@@ -174,7 +172,7 @@
   color: #000000;
   text-align: center;
   font-family: "Inter-Regular", sans-serif;
-  font-size: 16px;
+  font-size: var(--normalSize);
   line-height: 140%;
   font-weight: 400;
   position: relative;
@@ -187,7 +185,7 @@
   color: #000000;
   text-align: center;
   font-family: "Inter-Regular", sans-serif;
-  font-size: 16px;
+  font-size: var(--normalSize);
   line-height: 140%;
   font-weight: 400;
   position: relative;
@@ -209,7 +207,7 @@
   color: #0a0a0a;
   text-align: center;
   font-family: "Inter-Bold", sans-serif;
-  font-size: 20px;
+  font-size: var(--mediumSize);
   line-height: 140%;
   font-weight: 700;
   position: relative;
@@ -222,7 +220,7 @@
   color: #000000;
   text-align: center;
   font-family: "Inter-Regular", sans-serif;
-  font-size: 16px;
+  font-size: var(--normalSize);
   line-height: 140%;
   font-weight: 400;
   position: relative;
@@ -236,7 +234,7 @@
   color: #000000;
   text-align: center;
   font-family: "Inter-Regular", sans-serif;
-  font-size: 16px;
+  font-size: var(--normalSize);
   line-height: 140%;
   font-weight: 400;
   position: relative;
@@ -249,7 +247,7 @@
   color: #000000;
   text-align: center;
   font-family: "Inter-Regular", sans-serif;
-  font-size: 16px;
+  font-size: var(--normalSize);
   line-height: 140%;
   font-weight: 400;
   position: relative;
@@ -273,7 +271,7 @@
   color: #000000;
   text-align: center;
   font-family: "Inter-Bold", sans-serif;
-  font-size: 20px;
+  font-size: var(--mediumSize);
   font-weight: 700;
   position: relative;
   align-self: stretch;
@@ -292,28 +290,28 @@
 }
 .github {
   flex-shrink: 0;
-  width: 27px;
-  height: 27px;
+  width: 20px;
+  height: 20px;
   position: relative;
   overflow: visible;
 }
 .facebook {
   flex-shrink: 0;
-  width: 27px;
-  height: 27px;
+  width: 20px;
+  height: 20px;
   position: relative;
   overflow: visible;
 }
 .at-sign {
   flex-shrink: 0;
-  width: 27px;
-  height: 27px;
+  width: 20px;
+  height: 20px;
   position: relative;
   overflow: visible;
 }
 .copyright {
   background: #0a0a0a;
-  padding: 22px 95px 22px 95px;
+  padding: 0px 95px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -327,7 +325,7 @@
   color: var(--white, #f8faff);
   text-align: left;
   font-family: "Inter-Regular", sans-serif;
-  font-size: 14px;
+  font-size: var(--normalSize);
   font-weight: 400;
   position: relative;
   display: flex;
