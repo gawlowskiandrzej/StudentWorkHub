@@ -1,5 +1,12 @@
 import "../../../styles/SearchView.css";
 import "../../../styles/Hero.css";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 const Search = () => {
     return ( 
