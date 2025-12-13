@@ -96,7 +96,7 @@ export default function Home() {
       <div className="works-feature">
         <div className="works-feature-icon">
           <div className="search-icon">
-            <img className="vector" src="/icons/search0.svg" />
+            <img className="vector2" src="/icons/search0.svg" />
           </div>
         </div>
         <div className="work-feature-text">

@@ -1,3 +1,5 @@
+"use client";
+import { useRouter } from "next/navigation";
 import "../../styles/Navigation.css";
 import { Jura } from "next/font/google";
 
@@ -8,9 +10,10 @@ const jura = Jura({
 });
 
 const Navbar = () => {
+    const router = useRouter();
     return (
        <nav className="navigation-with-short-logo">
-          <div className="logo">
+          <div className="logo cursor-pointer" onClick={() => router.push('/')}>
             <img className="student-work-hub-logo-1" src="/images/all/student-work-hub-logo-10.png" />
             <div className={`logo-text ${jura.className}`}>
               <div className="student-work-hub">StudentWorkHub</div>

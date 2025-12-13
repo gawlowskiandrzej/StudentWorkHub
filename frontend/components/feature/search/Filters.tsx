@@ -17,15 +17,17 @@ type FilterItem = {
 
 interface FilterProps {
   label?: string;
+  className?: string;
+  variant?: "primary" | "secondary";
   items: FilterItem[];
   value: string | undefined;
   onChange: (value: string) => void;
 }
 
-export function Filter({ label = "Options", items, value, onChange }: FilterProps) {
+export function Filter({ label = "Options",className,variant, items,value, onChange }: FilterProps) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="w-[180px]">
+      <SelectTrigger color={variant} className={`w-auto border-0 m-0 ${className}`}>
         <SelectValue placeholder={`Select ${label.toLowerCase()}`} />
       </SelectTrigger>
 

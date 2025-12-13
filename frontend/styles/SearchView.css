@@ -6,7 +6,6 @@
   background: var(--backgroundcolor, #0a0a0a);
   display: flex;
   flex-direction: column;
-  gap: 0px;
   align-items: center;
   justify-content: center;
   height: calc(100vh - 96px);
@@ -16,7 +15,6 @@
   padding: 0px 291px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
   align-items: flex-start;
   justify-content: center;
   align-self: stretch;
@@ -29,8 +27,8 @@
   font-size: 35px;
   font-weight: 700;
   position: relative;
+  top:-15vh;
   align-self: stretch;
-  height: 106px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -52,7 +50,6 @@
   position: relative;
 }
 .search-section {
-  margin-top: 150px;
   border-radius: 15px;
   padding: 0px 0px;
   display: flex;
@@ -101,7 +98,6 @@
   font-weight: 600;
   position: relative;
   align-self: stretch;
-  width: 360px;
   display: flex;
   align-items: center;
   justify-content: flex-start;

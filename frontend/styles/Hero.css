@@ -84,6 +84,7 @@
     --button-gradient,
     linear-gradient(90deg, rgba(60, 131, 246, 1) 0%, rgba(30, 59, 138, 1) 100%)
   );
+  color: var(--secondary-foreground);
   border-radius: 13px;
   padding: 12px 20px;
   display: flex;
