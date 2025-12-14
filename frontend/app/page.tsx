@@ -75,7 +75,7 @@ export default function Home() {
           <div className="feature-element-text">
             <div className="feature-1">Be successful</div>
             <div className="the-feature-or-any-details">
-              We search for offers from the largest classNameifieds portals, which
+              We search for offers from the largest portals, which
               significantly increases your chances of finding a job.
             </div>
           </div>

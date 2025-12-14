@@ -15,7 +15,7 @@ type FilterItem = {
   value: string;
 };
 
-interface FilterProps {
+export interface FilterProps {
   label?: string;
   className?: string;
   variant?: "primary" | "secondary";
@@ -25,17 +25,24 @@ interface FilterProps {
 }
 
 export function Filter({ label = "Options",className,variant, items,value, onChange }: FilterProps) {
+  const itemsWithEmpty: FilterItem[] = [
+    ...items,
+    { label: "Wyczyść", value: "__clear__" },
+  ];
+
   return (
-    <Select value={value} onValueChange={onChange}>
+    <Select value={value} onValueChange={(val) =>
+        onChange(val === "__clear__" ? "" : val)
+      }>
       <SelectTrigger color={variant} className={`w-auto border-0 m-0 ${className}`}>
-        <SelectValue placeholder={`Select ${label.toLowerCase()}`} />
+        <SelectValue placeholder={`${label}`} />
       </SelectTrigger>
 
       <SelectContent>
         <SelectGroup>
           <SelectLabel>{label}</SelectLabel>
 
-          {items.map((item) => (
+          {itemsWithEmpty.map((item) => (
             <SelectItem key={item.value} value={item.value}>
               {item.label}
             </SelectItem>

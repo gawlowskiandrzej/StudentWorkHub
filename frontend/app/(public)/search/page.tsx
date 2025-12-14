@@ -1,16 +1,10 @@
 "use client";
 import "../../../styles/SearchView.css";
 import "../../../styles/Hero.css";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
 import { Filter } from "@/components/feature/search/Filters";
 import { useState } from "react";
 import { SearchBar } from "@/components/feature/search/SearchBar";
+import { FilterWithDialog } from "@/components/feature/search/FilterWithDialog";
 
 type FiltersState = {
     workType?: string;
@@ -74,12 +68,12 @@ const Search = () => {
                                 </Filter>
                             </div>
                             <div className="basic-filter-item">
-                                <Filter
+                                <FilterWithDialog
                                     label="Salary"
                                     items={items}
                                     onChange={(v) => updateFilter("salary", v)}
                                     value={filters.salary}>
-                                </Filter>
+                                </FilterWithDialog>
                             </div>
                         </div>
                         <div className="main-button">
