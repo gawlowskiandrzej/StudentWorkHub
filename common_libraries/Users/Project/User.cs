@@ -5,9 +5,13 @@ using System.Diagnostics;
 namespace Users
 {
     /// <summary>
-    /// Handles user-related operations using a provided Npgsql data source.
+    /// Provides user-related operations backed by a provided pooled <c>NpgsqlDataSource</c>.
     /// </summary>
     /// <remarks>
+    /// This type is shared/stateless with respect to application users (it does not hold or bind any user id).
+    /// Methods that operate on an existing account require an explicit <c>userId</c>.
+    /// Authentication methods return the resolved <c>userId</c> to be used by the caller for subsequent operations.
+    ///
     /// IMPORTANT: Do NOT expose any error messages, exception messages or returned error values
     /// from this class directly to end users. These values are intended only for logging,
     /// diagnostics and internal debugging. A higher layer MUST translate them into generic,
@@ -26,14 +30,13 @@ namespace Users
         private bool _disposed;
 
         /// <summary>
-        /// Creates a pooled NpgsqlDataSource based on provided connection parameters.
+        /// Creates a pooled <c>NpgsqlDataSource</c> based on provided connection parameters.
         /// </summary>
         /// <param name="username">Database username (must not be empty).</param>
         /// <param name="password">Database password (must not be empty).</param>
-        /// <param name="host">Database host address.</param>
+        /// <param name="host">Database host address (must not be empty).</param>
         /// <param name="port">Database port (allowed range: 1024–65535).</param>
         /// <param name="dbName">Database name (must not be empty).</param>
-        /// <returns>Configured and ready-to-use NpgsqlDataSource instance.</returns>
         /// <exception cref="UserException">
         /// Thrown when configuration is invalid or data source creation fails.
         /// These messages are for logs only and should not be exposed to end users.
@@ -86,12 +89,16 @@ namespace Users
         }
 
         /// <summary>
-        /// Performs a standard email/password authentication for this user instance,
-        /// optionally issuing a persistent remember-me token on successful login.
+        /// Performs email/password authentication and returns the authenticated <c>userId</c>.
+        /// Optionally issues a persistent remember-me token on successful login.
         /// </summary>
+        /// <remarks>
+        /// This method does not bind the user to this object. The caller must persist the returned
+        /// <c>userId</c> (and optionally <c>rememberToken</c>) and pass <c>userId</c> explicitly to other methods.
+        /// Returned <c>error</c> values are diagnostic and must not be shown to end users.
+        /// </remarks>
         /// <param name="username">
-        /// User identifier used for lookup (an email address).
-        /// Must not be null or whitespace.
+        /// User identifier used for lookup (typically an email address). Must not be null or whitespace.
         /// </param>
         /// <param name="password">
         /// Plain-text password supplied by the client. Must not be null or whitespace.
@@ -108,26 +115,22 @@ namespace Users
         /// A tuple where:
         /// <list type="bullet">
         /// <item><description><c>result</c> is <c>true</c> when authentication succeeds; otherwise <c>false</c>.</description></item>
-        /// <item><description><c>error</c> contains a descriptive error message when <c>result</c> is <c>false</c>;
-        /// on success it is an empty string.</description></item>
-        /// <item><description><c>rememberToken</c> contains a newly generated remember-me token when
-        /// <c>result</c> is <c>true</c> and <paramref name="rememberMe"/> is enabled and successfully stored;
-        /// otherwise it is <c>null</c>.</description></item>
+        /// <item><description><c>error</c> contains a diagnostic message when <c>result</c> is <c>false</c>; on success it is an empty string.</description></item>
+        /// <item><description><c>rememberToken</c> contains a newly generated remember-me token when enabled and successfully stored; otherwise <c>null</c>.</description></item>
+        /// <item><description><c>userId</c> is the authenticated user id on success; otherwise <c>null</c>.</description></item>
         /// </list>
         /// </returns>
         /// <exception cref="OperationCanceledException">
         /// Thrown when the operation is cancelled via the provided <paramref name="cancellation"/> token.
         /// </exception>
         /// <exception cref="UserException">
-        /// Thrown when this user instance is already associated with a logged-in user
-        /// or when the stored password hash has an invalid format.
+        /// Thrown when the stored password hash has an invalid format or other non-database invariant is violated.
         /// </exception>
         /// <exception cref="UserDbQueryException">
-        /// Thrown when an unexpected database error occurs while retrieving the user's credentials
-        /// or updating the remember-me token.
+        /// Thrown when an unexpected database error occurs while retrieving credentials or updating the remember-me token.
         /// </exception>
         /// <exception cref="UserCryptographicException">
-        /// Thrown when password or remember-me token hashing or verification fails.
+        /// Thrown when password or remember-me token hashing/verification fails.
         /// </exception>
         public async Task<(bool result, string error, string? rememberToken, long? userId)> StandardAuthAsync(
             string? username,
@@ -224,8 +227,12 @@ namespace Users
         }
 
         /// <summary>
-        /// Performs authentication for this user instance using a persistent remember-me token.
+        /// Performs authentication using a persistent remember-me token and returns the authenticated <c>userId</c>.
         /// </summary>
+        /// <remarks>
+        /// This method does not bind the user to this object. The caller must persist the returned <c>userId</c>.
+        /// Returned <c>error</c> values are diagnostic and must not be shown to end users.
+        /// </remarks>
         /// <param name="rememberToken">
         /// Plain-text remember-me token supplied by the client (Base64-encoded string).
         /// Must not be null or whitespace and must match the expected token length
@@ -238,23 +245,19 @@ namespace Users
         /// A tuple where:
         /// <list type="bullet">
         /// <item><description><c>result</c> is <c>true</c> when authentication succeeds; otherwise <c>false</c>.</description></item>
-        /// <item><description><c>error</c> contains a descriptive error message when <c>result</c> is <c>false</c>;
-        /// on success it is an empty string.</description></item>
-        /// <item><description><c>rememberToken</c> contains a newly generated remember-me token when
-        /// <c>result</c> is <c>true</c> and the token refresh operation succeeds; otherwise it is <c>null</c>.</description></item>
+        /// <item><description><c>error</c> contains a diagnostic message when <c>result</c> is <c>false</c>; on success it is an empty string.</description></item>
+        /// <item><description><c>rememberToken</c> contains a newly generated remember-me token when rotation succeeds; otherwise <c>null</c>.</description></item>
+        /// <item><description><c>userId</c> is the authenticated user id on success; otherwise <c>null</c>.</description></item>
         /// </list>
         /// </returns>
         /// <exception cref="OperationCanceledException">
         /// Thrown when the operation is cancelled via the provided <paramref name="cancellation"/> token.
         /// </exception>
-        /// <exception cref="UserException">
-        /// Thrown when this user instance is already associated with a logged-in user.
-        /// </exception>
         /// <exception cref="UserDbQueryException">
         /// Thrown when an unexpected database error occurs while checking or updating the remember-me token.
         /// </exception>
         /// <exception cref="UserCryptographicException">
-        /// Thrown when hashing of the remember-me token fails or when the provided token has an invalid format.
+        /// Thrown when hashing/verification of the remember-me token fails or when the provided token has an invalid format.
         /// </exception>
         public async Task<(bool result, string error, string? rememberToken, long? userId)> AuthWithTokenAsync(
             string? rememberToken,
@@ -302,9 +305,13 @@ namespace Users
         }
 
         /// <summary>
-        /// Registers a new user using the standard email/password flow and binds the newly
-        /// created user identifier to this <see cref="User"/> instance on success.
+        /// Registers a new user using the standard email/password flow.
         /// </summary>
+        /// <remarks>
+        /// This method does not authenticate the user and does not bind any user id to this object.
+        /// If the caller needs the <c>userId</c>, obtain it via a subsequent authentication call.
+        /// Returned <c>error</c> values are diagnostic and must not be shown to end users.
+        /// </remarks>
         /// <param name="upp">
         /// Password policy that the provided plain-text password must satisfy and that is used
         /// when generating the password hash.
@@ -332,18 +339,15 @@ namespace Users
         /// <returns>
         /// A tuple where:
         /// <list type="bullet">
-        /// <item><description><c>result</c> is <c>true</c> when the user is successfully created and assigned
-        /// to this instance; otherwise <c>false</c>.</description></item>
-        /// <item><description><c>error</c> contains a diagnostic error message when <c>result</c> is <c>false</c>;
-        /// on success it is an empty string.</description></item>
+        /// <item><description><c>result</c> is <c>true</c> when the user is successfully created; otherwise <c>false</c>.</description></item>
+        /// <item><description><c>error</c> contains a diagnostic error message when <c>result</c> is <c>false</c>; on success it is an empty string.</description></item>
         /// </list>
         /// </returns>
         /// <exception cref="OperationCanceledException">
         /// Thrown when the operation is cancelled via the provided <paramref name="cancellation"/> token.
         /// </exception>
         /// <exception cref="UserException">
-        /// Thrown when this user instance is already associated with a logged-in user or when
-        /// the input arguments are invalid beyond simple validation failures returned as <c>error</c>.
+        /// Thrown when the input arguments are invalid beyond simple validation failures returned as <c>error</c>.
         /// </exception>
         /// <exception cref="UserDbQueryException">
         /// Thrown when an unexpected database error occurs while inserting the new user.
@@ -406,17 +410,16 @@ namespace Users
         }
 
         /// <summary>
-        /// Retrieves the JSON representation of the weights row for the current user
+        /// Retrieves the JSON representation of the weights row for the specified <paramref name="userId"/>
         /// from the <c>public.weights</c> table.
         /// </summary>
+        /// <param name="userId">User identifier whose weights should be fetched.</param>
         /// <param name="cancellation">Cancellation token to observe during the operation.</param>
         /// <returns>
-        /// A JSON string representing the weights configuration for the current user if it exists;
-        /// otherwise a default empty JSON object <c>"{}"</c>.
+        /// A JSON string representing the weights configuration if it exists; otherwise <c>"{}"</c>.
         /// </returns>
         /// <exception cref="UserException">
-        /// Thrown when this <c>User</c> instance is not associated with any user identifier
-        /// or when the underlying database query fails.
+        /// Thrown when the underlying database query fails.
         /// </exception>
         /// <exception cref="OperationCanceledException">
         /// Thrown when the provided cancellation token requests cancellation before or during the operation.
@@ -446,14 +449,15 @@ namespace Users
         }
 
         /// <summary>
-        /// Gets the current user's public data as a JSON string.
+        /// Gets the specified user's public data as a JSON string.
         /// </summary>
+        /// <param name="userId">User identifier whose data should be fetched.</param>
         /// <param name="cancellation">Cancellation token.</param>
         /// <returns>
-        /// JSON string with the current user's data, or <c>"{}"</c> if no data exists.
+        /// JSON string with the user's data, or <c>"{}"</c> if no data exists.
         /// </returns>
         /// <exception cref="UserException">
-        /// Thrown when this instance is not associated with a user or when the database query fails.
+        /// Thrown when the database query fails.
         /// </exception>
         /// <exception cref="OperationCanceledException">
         /// Thrown when the operation is cancelled.
@@ -483,23 +487,21 @@ namespace Users
         }
 
         /// <summary>
-        /// Applies partial updates to the weights row of the current user in the <c>public.weights</c> table
-        /// based on a dictionary of column names mapped to new values.
+        /// Applies partial updates to the weights row of the specified <paramref name="userId"/> in the
+        /// <c>public.weights</c> table based on a dictionary of column names mapped to new values.
         /// </summary>
+        /// <param name="userId">User identifier whose weights should be updated.</param>
         /// <param name="fieldNames">
-        /// Dictionary mapping column names from the <c>public.weights</c> table to values that should be written
-        /// for the current user (for example <c>"vector"</c>, <c>"mean_dist"</c>, <c>"means_weight_sum"</c>, etc.).
+        /// Dictionary mapping column names from the <c>public.weights</c> table to values that should be written.
         /// Keys must be non-empty and values must be non-null; invalid entries are ignored.
         /// </param>
         /// <param name="cancellation">Cancellation token to observe during the operation.</param>
         /// <returns>
-        /// A dictionary that maps each processed column name to a boolean indicating whether the update
-        /// for that specific column was reported as successful by the database.
-        /// Columns that are unknown, have mismatched value types, or encounter an error are reported as <c>false</c>.
+        /// A dictionary mapping each processed column name to a boolean indicating whether that column update succeeded.
+        /// Unknown columns, mismatched value types, or errors are reported as <c>false</c>.
         /// </returns>
         /// <exception cref="UserException">
-        /// Thrown when the <paramref name="fieldNames"/> dictionary is null or when this <c>User</c> instance
-        /// has no associated user identifier.
+        /// Thrown when <paramref name="fieldNames"/> is null.
         /// </exception>
         /// <exception cref="OperationCanceledException">
         /// Thrown when the provided cancellation token requests cancellation before or during the operation.
@@ -725,10 +727,11 @@ namespace Users
         }
 
         /// <summary>
-        /// Updates selected fields for the current user in the database and returns per-field success flags.
+        /// Updates selected user profile fields for the specified <paramref name="userId"/> and returns per-field success flags.
         /// </summary>
+        /// <param name="userId">User identifier whose profile fields should be updated.</param>
         /// <param name="fieldNames">
-        /// Mapping of field/column names to new string values to be applied for the current user; null is not allowed.
+        /// Mapping of field/column names to new string values to be applied; null is not allowed.
         /// </param>
         /// <param name="cancellation">
         /// Token used to cancel the operation before it starts or between individual field updates.
@@ -737,7 +740,7 @@ namespace Users
         /// A dictionary mapping each processed field name to a boolean indicating whether its update succeeded.
         /// </returns>
         /// <exception cref="UserException">
-        /// Thrown when the input field dictionary is null or when this object has no user assigned.
+        /// Thrown when the input field dictionary is null.
         /// </exception>
         /// <exception cref="OperationCanceledException">
         /// Thrown when the update operation is cancelled before processing or between individual field updates.
@@ -833,28 +836,30 @@ namespace Users
         }
 
         /// <summary>
-        /// Changes the current user's password according to the provided password policy and updates the remember token.
+        /// Changes the password for the specified <paramref name="userId"/> according to the provided password policy
+        /// and clears the remember-me token (logout from persistent sessions).
         /// </summary>
+        /// <param name="userId">User identifier whose password should be changed.</param>
         /// <param name="upp">
         /// Password policy used to validate the new password before hashing.
         /// </param>
         /// <param name="newPassword">
-        /// New plain-text password to set for the current user; must not be null.
+        /// New plain-text password to set; must not be null.
         /// </param>
         /// <param name="cancellation">
         /// Token used to cancel the operation before it starts or while updating the password.
         /// </param>
         /// <returns>
-        /// True if the password was successfully updated and the remember token was cleared; otherwise false.
+        /// <c>true</c> if the password was successfully updated and the remember-me token was cleared; otherwise <c>false</c>.
         /// </returns>
         /// <exception cref="UserException">
-        /// Thrown when the new password is null or when this object has no user assigned.
+        /// Thrown when the new password is null.
         /// </exception>
         /// <exception cref="UserCryptographicException">
         /// Thrown when the password does not satisfy the policy or when password hashing fails.
         /// </exception>
         /// <exception cref="UserDbQueryException">
-        /// Thrown when an unexpected database error occurs while updating the password or remember token.
+        /// Thrown when an unexpected database error occurs while updating the password or remember-me token.
         /// </exception>
         /// <exception cref="OperationCanceledException">
         /// Thrown when the operation is cancelled before hashing the password or during any database update.
@@ -890,20 +895,17 @@ namespace Users
         }
 
         /// <summary>
-        /// Logs out the current user from this instance by clearing their persistent
-        /// remember-me token in the database and detaching the user from this object.
-        /// After logout completes, the instance is disposed and should not be used again.
+        /// Logs out persistent sessions for the specified <paramref name="userId"/> by clearing the remember-me token.
         /// </summary>
+        /// <param name="userId">User identifier to log out.</param>
         /// <param name="cancellation">
-        /// Cancellation token used to cancel the logout operation before or during
-        /// the database call.
+        /// Cancellation token used to cancel the logout operation before or during the database call.
         /// </param>
         /// <returns>
         /// A task that represents the asynchronous logout operation.
         /// </returns>
         /// <exception cref="OperationCanceledException">
-        /// Thrown when the operation is cancelled via the provided <paramref name="cancellation"/> token
-        /// while waiting for the semaphore or during the database call.
+        /// Thrown when the operation is cancelled via the provided <paramref name="cancellation"/> token.
         /// </exception>
         public async Task LogoutAsync(long userId, CancellationToken cancellation = default)
         {
@@ -915,24 +917,19 @@ namespace Users
         }
 
         /// <summary>
-        /// Checks whether the currently selected user has the specified permission.
+        /// Checks whether the specified <paramref name="userId"/> has the given permission.
         /// </summary>
+        /// <param name="userId">User identifier whose permission should be checked.</param>
         /// <param name="permission">
-        /// Name of the permission to verify for the current user. If the value is
-        /// <c>null</c>, empty, or consists only of whitespace, the method returns <c>false</c>.
+        /// Name of the permission to verify. If null/empty/whitespace, the method returns <c>false</c>.
         /// </param>
         /// <param name="cancellation">
-        /// Token used to cancel the permission check before it starts, while waiting
-        /// for synchronization, or during the database call.
+        /// Token used to cancel the permission check before or during the operation.
         /// </param>
         /// <returns>
-        /// <c>true</c> if a user is assigned to this object and the database reports
-        /// that the user has the specified permission; otherwise <c>false</c>. In case of
-        /// any database error during the check, the method returns <c>false</c>.
+        /// <c>true</c> if the database reports that the user has the specified permission; otherwise <c>false</c>.
+        /// In case of any database error during the check, the method returns <c>false</c>.
         /// </returns>
-        /// <exception cref="UserException">
-        /// Thrown when this object has no user assigned and a permission check is requested.
-        /// </exception>
         /// <exception cref="OperationCanceledException">
         /// Thrown when the permission check is cancelled before or during the operation.
         /// </exception>
@@ -960,17 +957,144 @@ namespace Users
         }
 
         /// <summary>
-        /// Deletes the current user from the database.
+        /// Retrieves the search history for the specified user as a JSON string.
         /// </summary>
+        /// <remarks>
+        /// This object does not store any user context. The caller must provide <paramref name="userId"/> explicitly.
+        /// Returned JSON is produced by the database and defaults to an empty array (<c>[]</c>) when no entries exist.
+        /// </remarks>
+        /// <param name="userId">Identifier of the user whose search history should be retrieved.</param>
+        /// <param name="limit">
+        /// Maximum number of search history entries to return. If the value is less than or equal to zero,
+        /// an empty JSON array (<c>[]</c>) is returned.
+        /// </param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// A JSON string representing the search history for the specified user, or <c>[]</c> when empty.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">
+        /// Thrown when an unexpected database error occurs while retrieving the search history.
+        /// </exception>
+        /// <exception cref="UserException">Thrown when input validation fails or an unexpected error occurs.</exception>
+        public async Task<string> GetSearchHistoryAsync(
+            long userId,
+            int limit,
+            CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            if (userId < 1)
+                throw new UserException("`userId` is invalid");
+
+            if (limit < 1)
+                return "[]";
+
+            try
+            {
+                string json = await DatabaseQueries.GetSearchHistoryJsonAsync(
+                    userId,
+                    limit,
+                    _dataSource,
+                    cancellation);
+
+                // Defensive fallback in case the DB ever returns empty/whitespace.
+                return string.IsNullOrWhiteSpace(json) ? "[]" : json;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException && ex is not UserDbQueryException)
+            {
+                throw new UserException("Failed to retrieve search history.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Inserts a new search history entry for the specified user.
+        /// </summary>
+        /// <remarks>
+        /// This object does not store any user context. The caller must provide <paramref name="userId"/> explicitly.
+        /// The underlying operation is performed by the <c>public.insert_search_history</c> stored procedure.
+        /// </remarks>
+        /// <param name="userId">Identifier of the user for whom the search history entry is created.</param>
+        /// <param name="keywords">Optional search keywords used by the user.</param>
+        /// <param name="distance">Maximum distance used in the query.</param>
+        /// <param name="isRemote">Indicates whether the search was limited to remote offers.</param>
+        /// <param name="isHybrid">Indicates whether the search was limited to hybrid offers.</param>
+        /// <param name="leadingCategoryId">Optional identifier of the leading category used in the search.</param>
+        /// <param name="cityId">Optional identifier of the city used in the search.</param>
+        /// <param name="salaryFrom">Lower bound of the salary range used in the search.</param>
+        /// <param name="salaryTo">Upper bound of the salary range used in the search.</param>
+        /// <param name="salaryPeriodId">Optional salary period identifier.</param>
+        /// <param name="salaryCurrencyId">Optional salary currency identifier.</param>
+        /// <param name="salaryTypeId">Optional salary type identifier.</param>
+        /// <param name="employmentScheduleIds">Optional collection of employment schedule identifiers used in the search.</param>
+        /// <param name="employmentTypeIds">Optional collection of employment type identifiers used in the search.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// <c>true</c> when the stored procedure reports success; otherwise <c>false</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">
+        /// Thrown when the procedure does not return a valid result row or an unexpected database error occurs.
+        /// </exception>
+        /// <exception cref="UserException">Thrown when input validation fails or an unexpected error occurs.</exception>
+        public async Task<bool> InsertSearchHistoryAsync(
+            long userId,
+            string? keywords,
+            int? distance,
+            bool? isRemote,
+            bool? isHybrid,
+            short? leadingCategoryId,
+            int? cityId,
+            decimal salaryFrom,
+            decimal salaryTo,
+            short? salaryPeriodId,
+            short? salaryCurrencyId,
+            short? salaryTypeId,
+            short[]? employmentScheduleIds,
+            short[]? employmentTypeIds,
+            CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            if (userId < 1)
+                throw new UserException("`userId` is invalid");
+
+            try
+            {
+                return await DatabaseQueries.InsertSearchHistoryAsync(
+                    userId,
+                    keywords,
+                    distance,
+                    isRemote,
+                    isHybrid,
+                    leadingCategoryId,
+                    cityId,
+                    salaryFrom,
+                    salaryTo,
+                    salaryPeriodId,
+                    salaryCurrencyId,
+                    salaryTypeId,
+                    employmentScheduleIds,
+                    employmentTypeIds,
+                    _dataSource,
+                    cancellation);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException && ex is not UserDbQueryException)
+            {
+                throw new UserException("Failed to insert search history.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Deletes the specified <paramref name="userId"/> from the database.
+        /// </summary>
+        /// <param name="userId">User identifier to delete.</param>
         /// <param name="cancellation">
         /// Token used to cancel the delete operation before it starts or while executing the database command.
         /// </param>
         /// <returns>
-        /// True if the user was successfully deleted; otherwise false.
+        /// <c>true</c> if the user was successfully deleted; otherwise <c>false</c>.
         /// </returns>
-        /// <exception cref="UserException">
-        /// Thrown when this object has no user assigned to delete.
-        /// </exception>
         /// <exception cref="UserDbQueryException">
         /// Thrown when an unexpected database error occurs while deleting the user.
         /// </exception>
@@ -986,12 +1110,12 @@ namespace Users
         }
 
         /// <summary>
-        /// Releases resources held by this user instance.
+        /// Releases resources held by this instance.
         /// </summary>
         /// <remarks>
         /// This method is safe to call multiple times; subsequent calls have no effect.
-        /// It does not perform logout logic; use <see cref="LogoutAsync"/> to log out the user
-        /// and clear the remember-me token before disposing the instance.
+        /// It does not perform any per-user logout logic; use <see cref="LogoutAsync(long, CancellationToken)"/>
+        /// to clear remember-me tokens for a specific <c>userId</c>.
         /// </remarks>
         public void Dispose()
         {

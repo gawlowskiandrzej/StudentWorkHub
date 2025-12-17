@@ -5,23 +5,6 @@ using System.Security.Claims;
 namespace Users
 {
     /// <summary>
-    /// Thrown when a JWT is malformed, fails validation, or does not contain the expected claims/algorithm.
-    /// </summary>
-    public class IncorrectTokenException : Exception
-    {
-        /// <summary>
-        /// Creates an exception indicating that the token is invalid.
-        /// </summary>
-        public IncorrectTokenException() { }
-
-        /// <summary>
-        /// Creates an exception indicating that the token is invalid, with details and an inner exception.
-        /// </summary>
-        public IncorrectTokenException(string message, Exception innerException)
-        : base(message, innerException) { }
-    }
-
-    /// <summary>
     /// Internal helper for issuing and validating JWT access tokens for users.
     /// Uses HMAC-SHA256 and stores the user id in the "sub" claim.
     /// </summary>
