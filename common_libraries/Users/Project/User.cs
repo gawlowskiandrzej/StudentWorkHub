@@ -13,22 +13,12 @@ namespace Users
     /// diagnostics and internal debugging. A higher layer MUST translate them into generic,
     /// user-friendly messages without leaking internal details.
     /// </remarks>
-    public class User(NpgsqlDataSource datasource) : IDisposable
+    public class User : IDisposable
     {
         /// <summary>
         /// PostgreSQL data source used for all database operations related to this user.
         /// </summary>
-        private readonly NpgsqlDataSource _dataSource = datasource ?? throw new UserException("`datasource` is empty");
-
-        /// <summary>
-        /// Identifier of the currently logged-in user for this instance, or <c>null</c> if no user is assigned.
-        /// </summary>
-        private long? _userId = null;
-
-        /// <summary>
-        /// Synchronization primitive protecting user selection and login operations for this instance.
-        /// </summary>
-        private readonly SemaphoreSlim _selectUserSemaphore = new(1, 1);
+        private readonly NpgsqlDataSource _dataSource;
 
         /// <summary>
         /// Flag used to ensure Dispose is safe to call multiple times.
@@ -36,14 +26,63 @@ namespace Users
         private bool _disposed;
 
         /// <summary>
-        /// Indicates whether this user instance is currently associated with a logged-in user.
+        /// Creates a pooled NpgsqlDataSource based on provided connection parameters.
         /// </summary>
-        /// <returns>
-        /// <c>true</c> if a user identifier is assigned; otherwise <c>false</c>.
-        /// </returns>
-        public bool IsLoggedIn()
+        /// <param name="username">Database username (must not be empty).</param>
+        /// <param name="password">Database password (must not be empty).</param>
+        /// <param name="host">Database host address.</param>
+        /// <param name="port">Database port (allowed range: 1024–65535).</param>
+        /// <param name="dbName">Database name (must not be empty).</param>
+        /// <returns>Configured and ready-to-use NpgsqlDataSource instance.</returns>
+        /// <exception cref="UserException">
+        /// Thrown when configuration is invalid or data source creation fails.
+        /// These messages are for logs only and should not be exposed to end users.
+        /// </exception>
+        public User(string username, string password, string host = "127.0.0.1", int port = 5433, string dbName = "general")
         {
-            return _userId is not null;
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(username, nameof(username));
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(password, nameof(password));
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(host, nameof(host));
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(dbName, nameof(dbName));
+
+            if (port < 1024 || port > 65535) throw new ArgumentOutOfRangeException(nameof(port), "port must be in range <1024; 65535>");
+            // Build the PostgreSQL connection string with pooling enabled
+            NpgsqlConnectionStringBuilder builder = new()
+            {
+                Host = host,
+                Port = port,
+                Username = username,
+                Password = password,
+                Database = dbName,
+                Pooling = true,
+                MinPoolSize = 20,
+                MaxPoolSize = 100,
+                Timeout = 15,
+                CommandTimeout = 60
+            };
+
+            try
+            {
+                // Attempt to create the data source using the validated builder
+                NpgsqlDataSourceBuilder dataSourceBuilder = new(builder.ConnectionString);
+                _dataSource = dataSourceBuilder.Build();
+            }
+            catch (ArgumentException ex)
+            {
+                throw new UserException("Invalid connection string", ex);
+            }
+            catch (InvalidOperationException ex)
+            {
+                throw new UserException("Configuration error", ex);
+            }
+            catch (NpgsqlException ex)
+            {
+                throw new UserException("PostgreSQL error", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new UserException("Unexpected error", ex);
+            }
         }
 
         /// <summary>
@@ -90,7 +129,7 @@ namespace Users
         /// <exception cref="UserCryptographicException">
         /// Thrown when password or remember-me token hashing or verification fails.
         /// </exception>
-        public async Task<(bool result, string error, string? rememberToken)> StandardAuthAsync(
+        public async Task<(bool result, string error, string? rememberToken, long? userId)> StandardAuthAsync(
             string? username,
             string? password,
             bool? rememberMe,
@@ -99,26 +138,19 @@ namespace Users
             // Allow fast cancellation before any expensive work is done.
             cancellation.ThrowIfCancellationRequested();
 
-            // Serialize login attempts on this user instance to avoid race conditions on _userId.
-            await _selectUserSemaphore.WaitAsync(cancellation);
-
             // Start a stopwatch to ensure a minimum response time (mitigates timing attacks).
             Stopwatch stopwatch = Stopwatch.StartNew();
             try
             {
-                // Prevent reusing the same User instance for multiple logins.
-                if (IsLoggedIn())
-                    throw new UserException("This object already have an assigned user");
-
                 // Re-check cancellation after the logical preconditions.
                 cancellation.ThrowIfCancellationRequested();
 
                 // Reject obviously invalid input early with a clear error message.
                 if (string.IsNullOrWhiteSpace(username))
-                    return (false, "Username is empty", null);
+                    return (false, "Username is empty", null, null);
 
                 if (string.IsNullOrWhiteSpace(password))
-                    return (false, "Password is empty", null);
+                    return (false, "Password is empty", null, null);
 
                 // Fetch user identifier and password hash from the database for the given username.
                 (bool result, long? userId, string? passwordHash) = await DatabaseQueries.GetUserPasswordAsync(username, _dataSource, cancellation);
@@ -138,7 +170,7 @@ namespace Users
                         RememberMeUtils.Generate(password?.Length ?? 12).token,
                         generateDummyHash(password?.Length ?? 12));
 
-                    return (false, "Incorrect username", null);
+                    return (false, "Username is incorrect", null, null);
                 }
 
                 // Extract hash version from the stored hash format to resolve the correct verification function.
@@ -153,14 +185,11 @@ namespace Users
                 // Verify supplied password against the stored hash using constant-time comparison.
                 bool verifyResult = verifyPasswordFunction(password, passwordHash);
                 if (!verifyResult)
-                    return (false, "Incorrect username", null);
+                    return (false, "Username is incorrect", null, null);
 
                 // If remember-me is disabled, only bind the user id to this instance and finish.
                 if (!(rememberMe ?? true))
-                {
-                    _userId = userId;
-                    return (true, "", null);
-                }
+                    return (true, "", null, userId);
 
                 // Try to generate and persist a unique remember-me token with a bounded number of attempts.
                 int tries = 0;
@@ -172,11 +201,7 @@ namespace Users
 
                     // Store the hashed token in the database; only the plain token is returned to the caller.
                     if (await DatabaseQueries.SetUserRememberTokenAsync((long)userId, tokenHash, _dataSource, cancellation))
-                    {
-                        // On success, bind the user id to this instance and return the token to the caller.
-                        _userId = userId;
-                        return (true, "", token);
-                    }
+                        return (true, "", token, userId);
 
                     // Retry with a new token if the database reports failure (e.g. collision or transient error).
                     tries++;
@@ -185,13 +210,10 @@ namespace Users
                 // If token persistence repeatedly fails, clear any existing token for safety,
                 // log the user in without remember-me and signal success without exposing internal errors.
                 await DatabaseQueries.SetUserRememberTokenAsync((long)userId, null, _dataSource, cancellation);
-                _userId = userId;
-                return (true, "", null);
+                return (true, "", null, userId);
             }
             finally
             {
-                // Always release the semaphore, regardless of success or failure.
-                _selectUserSemaphore.Release();
 
                 // Add a small delay to normalize total response time and make timing-based
                 // user enumeration or password-guessing attacks harder.
@@ -234,62 +256,49 @@ namespace Users
         /// <exception cref="UserCryptographicException">
         /// Thrown when hashing of the remember-me token fails or when the provided token has an invalid format.
         /// </exception>
-        public async Task<(bool result, string error, string? rememberToken)> AuthWithTokenAsync(
+        public async Task<(bool result, string error, string? rememberToken, long? userId)> AuthWithTokenAsync(
             string? rememberToken,
             CancellationToken cancellation = default)
         {
             // Allow early cancellation before any lock or heavy work is performed.
             cancellation.ThrowIfCancellationRequested();
 
-            // Serialize token-based login with other user selection operations.
-            await _selectUserSemaphore.WaitAsync(cancellation);
-            try
-            {
-                if (IsLoggedIn())
-                    throw new UserException("This object already have an assigned user");
-
-                if (string.IsNullOrWhiteSpace(rememberToken))
-                    return (false, "Token is empty", null);
+            if (string.IsNullOrWhiteSpace(rememberToken))
+                return (false, "Token is empty", null, null);
                 
-                if (rememberToken?.Length != SharedUserSettings.rememberMeTokenLength)
-                    return (false, "Token has incorrect length", null);
+            if (rememberToken?.Length != SharedUserSettings.rememberMeTokenLength)
+                return (false, "Token has incorrect length", null, null);
 
-                // Hash the supplied token and validate it against the database.
-                long? userId = await DatabaseQueries.CheckUserTokenAsync(RememberMeUtils.GetHash(rememberToken), _dataSource, cancellation);
+            // Hash the supplied token and validate it against the database.
+            long? userId = await DatabaseQueries.CheckUserTokenAsync(RememberMeUtils.GetHash(rememberToken), _dataSource, cancellation);
 
-                // Null indicates invalid or unknown token.
-                if (userId is null)
-                    return (false, "Incorrect token", null);
+            // Null indicates invalid or unknown token.
+            if (userId is null)
+                return (false, "Incorrect token", null, null);
 
+            cancellation.ThrowIfCancellationRequested();
+
+            int tries = 0;
+            // Try to rotate the remember-me token to a fresh value with bounded attempts.
+            while (tries < SharedUserSettings.generateRememberTokenMaxTries)
+            {
                 cancellation.ThrowIfCancellationRequested();
 
-                _userId = userId;
-                int tries = 0;
-                // Try to rotate the remember-me token to a fresh value with bounded attempts.
-                while (tries < SharedUserSettings.generateRememberTokenMaxTries)
+                (string token, string hash) = RememberMeUtils.Generate(SharedUserSettings.rememberMeTokenLength);
+                try
                 {
-                    cancellation.ThrowIfCancellationRequested();
-
-                    (string token, string hash) = RememberMeUtils.Generate(SharedUserSettings.rememberMeTokenLength);
-                    try
-                    {
-                        // Persist the new hashed token in the database.
-                        bool result = await DatabaseQueries.SetUserRememberTokenAsync((long)_userId, hash, _dataSource, cancellation);
-                        if (result)
-                            return (true, "", token);
-                    }
-                    catch (Exception ex) when (ex is not OperationCanceledException) { }
-
-                    tries++;
+                    // Persist the new hashed token in the database.
+                    bool result = await DatabaseQueries.SetUserRememberTokenAsync((long)userId, hash, _dataSource, cancellation);
+                    if (result)
+                        return (true, "", token, userId);
                 }
+                catch (Exception ex) when (ex is not OperationCanceledException) { }
 
-                // If rotation fails repeatedly, keep the login successful but without returning a new token.
-                return (true, "", null);
+                tries++;
             }
-            finally
-            {
-                _selectUserSemaphore.Release();
-            }
+
+            // If rotation fails repeatedly, keep the login successful but without returning a new token.
+            return (true, "", null, userId);
         }
 
         /// <summary>
@@ -353,60 +362,47 @@ namespace Users
             // Allow fast cancellation before acquiring the semaphore or touching the database.
             cancellation.ThrowIfCancellationRequested();
 
-            // Serialize registration with other operations that manipulate _userId.
-            await _selectUserSemaphore.WaitAsync(cancellation);
-            try
-            {
-                if (IsLoggedIn())
-                    throw new UserException("This object already have an assigned user");
-
-                if (string.IsNullOrWhiteSpace(email))
-                    return (false, "email is empty");
+            if (string.IsNullOrWhiteSpace(email))
+                return (false, "email is empty");
                 
-                if (string.IsNullOrWhiteSpace(rawPassword))
-                    return (false, "password is empty");
+            if (string.IsNullOrWhiteSpace(rawPassword))
+                return (false, "password is empty");
 
-                if (string.IsNullOrWhiteSpace(firstName))
-                    return (false, "first name is empty");
+            if (string.IsNullOrWhiteSpace(firstName))
+                return (false, "first name is empty");
 
-                if (string.IsNullOrWhiteSpace(lastName))
-                    return (false, "last name is empty");
+            if (string.IsNullOrWhiteSpace(lastName))
+                return (false, "last name is empty");
 
-                // Sanitize user data to remove unsafe HTML and trim/truncate values.
-                email = SharedUserSettings.SanitizeString(email, null, false);
-                firstName = SharedUserSettings.SanitizeString(firstName, 100, false);
-                lastName = SharedUserSettings.SanitizeString(lastName, 100, false);
+            // Sanitize user data to remove unsafe HTML and trim/truncate values.
+            email = SharedUserSettings.SanitizeString(email, null, false);
+            firstName = SharedUserSettings.SanitizeString(firstName, 100, false);
+            lastName = SharedUserSettings.SanitizeString(lastName, 100, false);
 
-                // Resolve the password hashing function for the configured encryption version.
-                Func<string?, UserPasswordPolicy, string> getHashFunction =
-                    SharedUserSettings.ResolveGetPasswordHash(SharedUserSettings.encryptionFunctionVersion);
+            // Resolve the password hashing function for the configured encryption version.
+            Func<string?, UserPasswordPolicy, string> getHashFunction =
+                SharedUserSettings.ResolveGetPasswordHash(SharedUserSettings.encryptionFunctionVersion);
 
-                // Compute a secure password hash according to the provided policy.
-                string hashedPassword = getHashFunction(rawPassword, upp);
+            // Compute a secure password hash according to the provided policy.
+            string hashedPassword = getHashFunction(rawPassword, upp);
 
-                // Delegate the actual insertion of the new user to the database layer.
-                (bool result, string message, long? userId) = await DatabaseQueries.StandardAddNewUserAsync(email, hashedPassword, firstName, lastName, _dataSource, cancellation);
+            // Delegate the actual insertion of the new user to the database layer.
+            (bool result, string message, long? userId) = await DatabaseQueries.StandardAddNewUserAsync(email, hashedPassword, firstName, lastName, _dataSource, cancellation);
 
-                if (!result)
-                {
-                    // Defensive check for missing message from the database.
-                    if (message is null)
-                        return (false, "Database error, no error message returned");
-
-                    return (false, message);
-                }
-
-                // A successful registration must return a valid user identifier.
-                if (userId is null)
-                    return (false, "Database error, no user id returned");
-
-                _userId = userId;
-                return (true, "");
-            }
-            finally
+            if (!result)
             {
-                _selectUserSemaphore.Release();
+                // Defensive check for missing message from the database.
+                if (message is null)
+                    return (false, "Database error, no error message returned");
+
+                return (false, message);
             }
+
+            // A successful registration must return a valid user identifier.
+            if (userId is null)
+                return (false, "Database error, no user id returned");
+
+            return (true, "");
         }
 
         /// <summary>
@@ -425,38 +421,28 @@ namespace Users
         /// <exception cref="OperationCanceledException">
         /// Thrown when the provided cancellation token requests cancellation before or during the operation.
         /// </exception>
-        public async Task<string> GetWeightsAsync(CancellationToken cancellation = default)
+        public async Task<string> GetWeightsAsync(long userId, CancellationToken cancellation = default)
         {
             // Ensure the caller can cancel the operation before any database interaction begins.
             cancellation.ThrowIfCancellationRequested();
 
-            await _selectUserSemaphore.WaitAsync(cancellation);
+
+            // Ensure the caller can cancel the operation before any database interaction begins.
+            cancellation.ThrowIfCancellationRequested();
+
+            string? result;
             try
             {
-                if (_userId is null)
-                    throw new UserException("This object has no user");
-
-                // Ensure the caller can cancel the operation before any database interaction begins.
-                cancellation.ThrowIfCancellationRequested();
-
-                string? result;
-                try
-                {
-                    // Delegate the actual retrieval of the weights row (as JSON) to the database layer.
-                    result = await DatabaseQueries.GetWeightsJsonAsync((long)_userId, _dataSource, cancellation);
-                }
-                catch (Exception ex) when (ex is not OperationCanceledException)
-                {
-                    throw new UserException("Failed to fetch user weights", ex);
-                }
-
-                // Normalize the absence of data to a default empty JSON object for the caller.
-                return result ?? "{}";
+                // Delegate the actual retrieval of the weights row (as JSON) to the database layer.
+                result = await DatabaseQueries.GetWeightsJsonAsync(userId, _dataSource, cancellation);
             }
-            finally
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                _selectUserSemaphore.Release();
+                throw new UserException("Failed to fetch user weights", ex);
             }
+
+            // Normalize the absence of data to a default empty JSON object for the caller.
+            return result ?? "{}";
         }
 
         /// <summary>
@@ -472,38 +458,28 @@ namespace Users
         /// <exception cref="OperationCanceledException">
         /// Thrown when the operation is cancelled.
         /// </exception>
-        public async Task<string> GetDataAsync(CancellationToken cancellation = default)
+        public async Task<string> GetDataAsync(long userId, CancellationToken cancellation = default)
         {
             // Ensure the caller can cancel the operation before any database interaction begins.
             cancellation.ThrowIfCancellationRequested();
 
-            await _selectUserSemaphore.WaitAsync(cancellation);
+            // Ensure the caller can cancel the operation before any database interaction begins.
+            cancellation.ThrowIfCancellationRequested();
+
+            string? result;
             try
             {
-                if (_userId is null)
-                    throw new UserException("This object has no user");
-
-                // Ensure the caller can cancel the operation before any database interaction begins.
-                cancellation.ThrowIfCancellationRequested();
-
-                string? result;
-                try
-                {
-                    // Delegate the actual retrieval of the user data row (as JSON) to the database layer.
-                    result = await DatabaseQueries.GetUserJsonAsync((long)_userId, _dataSource, cancellation);
-                }
-                catch (Exception ex) when (ex is not OperationCanceledException)
-                {
-                    throw new UserException("Failed to fetch user weights", ex);
-                }
-
-                // Normalize the absence of data to a default empty JSON object for the caller.
-                return result ?? "{}";
+                // Delegate the actual retrieval of the user data row (as JSON) to the database layer.
+                result = await DatabaseQueries.GetUserJsonAsync(userId, _dataSource, cancellation);
             }
-            finally
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                _selectUserSemaphore.Release();
+                throw new UserException("Failed to fetch user weights", ex);
             }
+
+            // Normalize the absence of data to a default empty JSON object for the caller.
+            return result ?? "{}";
+
         }
 
         /// <summary>
@@ -528,7 +504,7 @@ namespace Users
         /// <exception cref="OperationCanceledException">
         /// Thrown when the provided cancellation token requests cancellation before or during the operation.
         /// </exception>
-        public async Task<Dictionary<string, bool>> UpdateWeightsAsync(Dictionary<string, object?>? fieldNames, CancellationToken cancellation = default)
+        public async Task<Dictionary<string, bool>> UpdateWeightsAsync(long userId, Dictionary<string, object?>? fieldNames, CancellationToken cancellation = default)
         {
             // Allow the caller to interrupt the whole update sequence before any processing starts.
             cancellation.ThrowIfCancellationRequested();
@@ -536,227 +512,216 @@ namespace Users
             if (fieldNames is null)
                 throw new UserException("`fieldNames` is empty");
 
-            await _selectUserSemaphore.WaitAsync(cancellation);
-            try
+            // Allow the caller to interrupt the whole update sequence before any processing starts.
+            cancellation.ThrowIfCancellationRequested();
+
+            // Clean up the input:
+            // - drop entries with empty keys or null values,
+            // - keep only the first occurrence for duplicate keys to avoid conflicting updates.
+            Dictionary<string, object> cleanedFieldNames = fieldNames
+                .Where(entry => entry.Value is not null)
+                .GroupBy(entry => entry.Key)
+                .Select(group => group.Last())
+                .ToDictionary(entry => entry.Key, entry => entry.Value);
+
+            // Track per-column success so the caller knows which individual updates actually went through.
+            ConcurrentDictionary<string, bool> fieldSuccesses = [];
+            foreach (KeyValuePair<string, object> field in cleanedFieldNames)
             {
-                if (_userId is null)
-                    throw new UserException("This object has no user");
-
-                // Allow the caller to interrupt the whole update sequence before any processing starts.
+                // Re-check cancellation between individual column updates to keep long batches responsive.
                 cancellation.ThrowIfCancellationRequested();
+                (string fieldName, object fieldValues) = field;
 
-                // Clean up the input:
-                // - drop entries with empty keys or null values,
-                // - keep only the first occurrence for duplicate keys to avoid conflicting updates.
-                Dictionary<string, object> cleanedFieldNames = fieldNames
-                    .Where(entry => entry.Value is not null)
-                    .GroupBy(entry => entry.Key)
-                    .Select(group => group.Last())
-                    .ToDictionary(entry => entry.Key, entry => entry.Value);
-
-                // Track per-column success so the caller knows which individual updates actually went through.
-                ConcurrentDictionary<string, bool> fieldSuccesses = [];
-                foreach (KeyValuePair<string, object> field in cleanedFieldNames)
+                bool? result = null;
+                try
                 {
-                    // Re-check cancellation between individual column updates to keep long batches responsive.
-                    cancellation.ThrowIfCancellationRequested();
-                    (string fieldName, object fieldValues) = field;
-
-                    bool? result = null;
-                    try
+                    switch (fieldName)
                     {
-                        switch (fieldName)
-                        {
-                            case "order_by_option":
-                                // order_by_option TEXT[]
-                                if (fieldValues is not string[] orderByOptionValues)
-                                {
-                                    fieldSuccesses.TryAdd(fieldName, false);
-                                    break;
-                                }
-
-                                result = await DatabaseQueries.SetWeightsOrderByOptionAsync(
-                                    (long)_userId,
-                                    orderByOptionValues,
-                                    _dataSource,
-                                    cancellation);
-
-                                fieldSuccesses.TryAdd(fieldName, result ?? false);
-                                break;
-
-                            case "mean_value_ids":
-                                // mean_value_ids TEXT[]
-                                if (fieldValues is not string[] meanValueIds)
-                                {
-                                    fieldSuccesses.TryAdd(fieldName, false);
-                                    break;
-                                }
-
-                                result = await DatabaseQueries.SetWeightsMeanValueIdsAsync(
-                                    (long)_userId,
-                                    meanValueIds,
-                                    _dataSource,
-                                    cancellation);
-
-                                fieldSuccesses.TryAdd(fieldName, result ?? false);
-                                break;
-
-                            case "vector":
-                                // vector REAL[]
-                                if (fieldValues is not float[] vectorValues)
-                                {
-                                    fieldSuccesses.TryAdd(fieldName, false);
-                                    break;
-                                }
-
-                                result = await DatabaseQueries.SetWeightsVectorAsync(
-                                    (long)_userId,
-                                    vectorValues,
-                                    _dataSource,
-                                    cancellation);
-
-                                fieldSuccesses.TryAdd(fieldName, result ?? false);
-                                break;
-
-                            case "mean_dist":
-                                // mean_dist REAL[]
-                                if (fieldValues is not float[] meanDistValues)
-                                {
-                                    fieldSuccesses.TryAdd(fieldName, false);
-                                    break;
-                                }
-
-                                result = await DatabaseQueries.SetWeightsMeanDistAsync(
-                                    (long)_userId,
-                                    meanDistValues,
-                                    _dataSource,
-                                    cancellation);
-
-                                fieldSuccesses.TryAdd(fieldName, result ?? false);
-                                break;
-
-                            case "means_value_sum":
-                                // means_value_sum REAL[]
-                                if (fieldValues is not float[] meansValueSumValues)
-                                {
-                                    fieldSuccesses.TryAdd(fieldName, false);
-                                    break;
-                                }
-
-                                result = await DatabaseQueries.SetWeightsMeansValueSumAsync(
-                                    (long)_userId,
-                                    meansValueSumValues,
-                                    _dataSource,
-                                    cancellation);
-
-                                fieldSuccesses.TryAdd(fieldName, result ?? false);
-                                break;
-
-                            case "means_value_ssum":
-                                // means_value_ssum DOUBLE PRECISION[]
-                                if (fieldValues is not double[] meansValueSsumValues)
-                                {
-                                    fieldSuccesses.TryAdd(fieldName, false);
-                                    break;
-                                }
-
-                                result = await DatabaseQueries.SetWeightsMeansValueSsumAsync(
-                                    (long)_userId,
-                                    meansValueSsumValues,
-                                    _dataSource,
-                                    cancellation);
-
-                                fieldSuccesses.TryAdd(fieldName, result ?? false);
-                                break;
-
-                            case "means_value_count":
-                                // means_value_count INTEGER[]
-                                if (fieldValues is not int[] meansValueCountValues)
-                                {
-                                    fieldSuccesses.TryAdd(fieldName, false);
-                                    break;
-                                }
-
-                                result = await DatabaseQueries.SetWeightsMeansValueCountAsync(
-                                    (long)_userId,
-                                    meansValueCountValues,
-                                    _dataSource,
-                                    cancellation);
-
-                                fieldSuccesses.TryAdd(fieldName, result ?? false);
-                                break;
-
-                            case "means_weight_sum":
-                                // means_weight_sum REAL[]
-                                if (fieldValues is not float[] meansWeightSumValues)
-                                {
-                                    fieldSuccesses.TryAdd(fieldName, false);
-                                    break;
-                                }
-
-                                result = await DatabaseQueries.SetWeightsMeansWeightSumAsync(
-                                    (long)_userId,
-                                    meansWeightSumValues,
-                                    _dataSource,
-                                    cancellation);
-
-                                fieldSuccesses.TryAdd(fieldName, result ?? false);
-                                break;
-
-                            case "means_weight_ssum":
-                                // means_weight_ssum DOUBLE PRECISION[]
-                                if (fieldValues is not double[] meansWeightSsumValues)
-                                {
-                                    fieldSuccesses.TryAdd(fieldName, false);
-                                    break;
-                                }
-
-                                result = await DatabaseQueries.SetWeightsMeansWeightSsumAsync(
-                                    (long)_userId,
-                                    meansWeightSsumValues,
-                                    _dataSource,
-                                    cancellation);
-
-                                fieldSuccesses.TryAdd(fieldName, result ?? false);
-                                break;
-
-                            case "means_weight_count":
-                                // means_weight_count INTEGER[]
-                                if (fieldValues is not int[] meansWeightCountValues)
-                                {
-                                    fieldSuccesses.TryAdd(fieldName, false);
-                                    break;
-                                }
-
-                                result = await DatabaseQueries.SetWeightsMeansWeightCountAsync(
-                                    (long)_userId,
-                                    meansWeightCountValues,
-                                    _dataSource,
-                                    cancellation);
-
-                                fieldSuccesses.TryAdd(fieldName, result ?? false);
-                                break;
-
-                            default:
-                                // Unknown column name is treated as a failed update to keep the contract explicit.
+                        case "order_by_option":
+                            // order_by_option TEXT[]
+                            if (fieldValues is not string[] orderByOptionValues)
+                            {
                                 fieldSuccesses.TryAdd(fieldName, false);
                                 break;
-                        }
-                    }
-                    catch (Exception ex) when (ex is not OperationCanceledException)
-                    {
-                        // Any exception tied to a specific field update is isolated to that field
-                        // so that other independent column updates can still proceed.
-                        fieldSuccesses.TryAdd(fieldName, false);
+                            }
+
+                            result = await DatabaseQueries.SetWeightsOrderByOptionAsync(
+                                userId,
+                                orderByOptionValues,
+                                _dataSource,
+                                cancellation);
+
+                            fieldSuccesses.TryAdd(fieldName, result ?? false);
+                            break;
+
+                        case "mean_value_ids":
+                            // mean_value_ids TEXT[]
+                            if (fieldValues is not string[] meanValueIds)
+                            {
+                                fieldSuccesses.TryAdd(fieldName, false);
+                                break;
+                            }
+
+                            result = await DatabaseQueries.SetWeightsMeanValueIdsAsync(
+                                userId,
+                                meanValueIds,
+                                _dataSource,
+                                cancellation);
+
+                            fieldSuccesses.TryAdd(fieldName, result ?? false);
+                            break;
+
+                        case "vector":
+                            // vector REAL[]
+                            if (fieldValues is not float[] vectorValues)
+                            {
+                                fieldSuccesses.TryAdd(fieldName, false);
+                                break;
+                            }
+
+                            result = await DatabaseQueries.SetWeightsVectorAsync(
+                                userId,
+                                vectorValues,
+                                _dataSource,
+                                cancellation);
+
+                            fieldSuccesses.TryAdd(fieldName, result ?? false);
+                            break;
+
+                        case "mean_dist":
+                            // mean_dist REAL[]
+                            if (fieldValues is not float[] meanDistValues)
+                            {
+                                fieldSuccesses.TryAdd(fieldName, false);
+                                break;
+                            }
+
+                            result = await DatabaseQueries.SetWeightsMeanDistAsync(
+                                userId,
+                                meanDistValues,
+                                _dataSource,
+                                cancellation);
+
+                            fieldSuccesses.TryAdd(fieldName, result ?? false);
+                            break;
+
+                        case "means_value_sum":
+                            // means_value_sum REAL[]
+                            if (fieldValues is not float[] meansValueSumValues)
+                            {
+                                fieldSuccesses.TryAdd(fieldName, false);
+                                break;
+                            }
+
+                            result = await DatabaseQueries.SetWeightsMeansValueSumAsync(
+                                userId,
+                                meansValueSumValues,
+                                _dataSource,
+                                cancellation);
+
+                            fieldSuccesses.TryAdd(fieldName, result ?? false);
+                            break;
+
+                        case "means_value_ssum":
+                            // means_value_ssum DOUBLE PRECISION[]
+                            if (fieldValues is not double[] meansValueSsumValues)
+                            {
+                                fieldSuccesses.TryAdd(fieldName, false);
+                                break;
+                            }
+
+                            result = await DatabaseQueries.SetWeightsMeansValueSsumAsync(
+                                userId,
+                                meansValueSsumValues,
+                                _dataSource,
+                                cancellation);
+
+                            fieldSuccesses.TryAdd(fieldName, result ?? false);
+                            break;
+
+                        case "means_value_count":
+                            // means_value_count INTEGER[]
+                            if (fieldValues is not int[] meansValueCountValues)
+                            {
+                                fieldSuccesses.TryAdd(fieldName, false);
+                                break;
+                            }
+
+                            result = await DatabaseQueries.SetWeightsMeansValueCountAsync(
+                                userId,
+                                meansValueCountValues,
+                                _dataSource,
+                                cancellation);
+
+                            fieldSuccesses.TryAdd(fieldName, result ?? false);
+                            break;
+
+                        case "means_weight_sum":
+                            // means_weight_sum REAL[]
+                            if (fieldValues is not float[] meansWeightSumValues)
+                            {
+                                fieldSuccesses.TryAdd(fieldName, false);
+                                break;
+                            }
+
+                            result = await DatabaseQueries.SetWeightsMeansWeightSumAsync(
+                                userId,
+                                meansWeightSumValues,
+                                _dataSource,
+                                cancellation);
+
+                            fieldSuccesses.TryAdd(fieldName, result ?? false);
+                            break;
+
+                        case "means_weight_ssum":
+                            // means_weight_ssum DOUBLE PRECISION[]
+                            if (fieldValues is not double[] meansWeightSsumValues)
+                            {
+                                fieldSuccesses.TryAdd(fieldName, false);
+                                break;
+                            }
+
+                            result = await DatabaseQueries.SetWeightsMeansWeightSsumAsync(
+                                userId,
+                                meansWeightSsumValues,
+                                _dataSource,
+                                cancellation);
+
+                            fieldSuccesses.TryAdd(fieldName, result ?? false);
+                            break;
+
+                        case "means_weight_count":
+                            // means_weight_count INTEGER[]
+                            if (fieldValues is not int[] meansWeightCountValues)
+                            {
+                                fieldSuccesses.TryAdd(fieldName, false);
+                                break;
+                            }
+
+                            result = await DatabaseQueries.SetWeightsMeansWeightCountAsync(
+                                userId,
+                                meansWeightCountValues,
+                                _dataSource,
+                                cancellation);
+
+                            fieldSuccesses.TryAdd(fieldName, result ?? false);
+                            break;
+
+                        default:
+                            // Unknown column name is treated as a failed update to keep the contract explicit.
+                            fieldSuccesses.TryAdd(fieldName, false);
+                            break;
                     }
                 }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    // Any exception tied to a specific field update is isolated to that field
+                    // so that other independent column updates can still proceed.
+                    fieldSuccesses.TryAdd(fieldName, false);
+                }
+            }
 
-                return fieldSuccesses.ToDictionary();
-            }
-            finally
-            {
-                _selectUserSemaphore.Release();
-            }
+            return fieldSuccesses.ToDictionary();
         }
 
         /// <summary>
@@ -777,7 +742,7 @@ namespace Users
         /// <exception cref="OperationCanceledException">
         /// Thrown when the update operation is cancelled before processing or between individual field updates.
         /// </exception>
-        public async Task<Dictionary<string, bool>> UpdateDataAsync(Dictionary<string, string?>? fieldNames, CancellationToken cancellation = default)
+        public async Task<Dictionary<string, bool>> UpdateDataAsync(long userId, Dictionary<string, string?>? fieldNames, CancellationToken cancellation = default)
         {
             // Allow the caller to interrupt the whole update sequence before any processing starts.
             cancellation.ThrowIfCancellationRequested();
@@ -785,97 +750,86 @@ namespace Users
             if (fieldNames is null)
                 throw new UserException("`fieldNames` is empty");
 
-            await _selectUserSemaphore.WaitAsync(cancellation);
-            try
+            // Allow the caller to interrupt the whole update sequence before any processing starts.
+            cancellation.ThrowIfCancellationRequested();
+
+            // Clean up the input:
+            // - drop entries with empty keys or null values,
+            // - keep only the first occurrence for duplicate keys to avoid conflicting updates.
+            Dictionary<string, string> cleanedFieldNames = fieldNames
+                .Where(entry => string.IsNullOrWhiteSpace(entry.Value))
+                .GroupBy(entry => entry.Key)
+                .Select(group => group.First())
+                .ToDictionary(entry => entry.Key, entry => entry.Value);
+
+            // Track per-column success so the caller knows which individual updates actually went through.
+            ConcurrentDictionary<string, bool> fieldSuccesses = [];
+            foreach (KeyValuePair<string, string> field in cleanedFieldNames)
             {
-                if (_userId is null)
-                    throw new UserException("This object has no user");
-
-                // Allow the caller to interrupt the whole update sequence before any processing starts.
+                // Re-check cancellation between individual column updates to keep long batches responsive.
                 cancellation.ThrowIfCancellationRequested();
+                (string fieldName, string fieldValue) = field;
 
-                // Clean up the input:
-                // - drop entries with empty keys or null values,
-                // - keep only the first occurrence for duplicate keys to avoid conflicting updates.
-                Dictionary<string, string> cleanedFieldNames = fieldNames
-                    .Where(entry => string.IsNullOrWhiteSpace(entry.Value))
-                    .GroupBy(entry => entry.Key)
-                    .Select(group => group.First())
-                    .ToDictionary(entry => entry.Key, entry => entry.Value);
-
-                // Track per-column success so the caller knows which individual updates actually went through.
-                ConcurrentDictionary<string, bool> fieldSuccesses = [];
-                foreach (KeyValuePair<string, string> field in cleanedFieldNames)
+                bool? result = null;
+                try
                 {
-                    // Re-check cancellation between individual column updates to keep long batches responsive.
-                    cancellation.ThrowIfCancellationRequested();
-                    (string fieldName, string fieldValue) = field;
-
-                    bool? result = null;
-                    try
+                    switch (fieldName)
                     {
-                        switch (fieldName)
-                        {
-                            case "user_first_name":
-                                result = await DatabaseQueries.SetUserFirstNameAsync(
-                                    (long)_userId,
-                                    fieldValue,
-                                    _dataSource,
-                                    cancellation);
+                        case "user_first_name":
+                            result = await DatabaseQueries.SetUserFirstNameAsync(
+                                userId,
+                                fieldValue,
+                                _dataSource,
+                                cancellation);
 
-                                fieldSuccesses.TryAdd(fieldName, result ?? false);
-                                break;
+                            fieldSuccesses.TryAdd(fieldName, result ?? false);
+                            break;
 
-                            case "user_second_name":
-                                result = await DatabaseQueries.SetUserSecondNameAsync(
-                                    (long)_userId,
-                                    fieldValue,
-                                    _dataSource,
-                                    cancellation);
+                        case "user_second_name":
+                            result = await DatabaseQueries.SetUserSecondNameAsync(
+                                userId,
+                                fieldValue,
+                                _dataSource,
+                                cancellation);
 
-                                fieldSuccesses.TryAdd(fieldName, result ?? false);
-                                break;
+                            fieldSuccesses.TryAdd(fieldName, result ?? false);
+                            break;
 
-                            case "user_last_name":
-                                result = await DatabaseQueries.SetUserLastNameAsync(
-                                    (long)_userId,
-                                    fieldValue,
-                                    _dataSource,
-                                    cancellation);
+                        case "user_last_name":
+                            result = await DatabaseQueries.SetUserLastNameAsync(
+                                userId,
+                                fieldValue,
+                                _dataSource,
+                                cancellation);
 
-                                fieldSuccesses.TryAdd(fieldName, result ?? false);
-                                break;
+                            fieldSuccesses.TryAdd(fieldName, result ?? false);
+                            break;
 
-                            case "user_phone":
-                                result = await DatabaseQueries.SetUserPhoneAsync(
-                                    (long)_userId,
-                                    fieldValue,
-                                    _dataSource,
-                                    cancellation);
+                        case "user_phone":
+                            result = await DatabaseQueries.SetUserPhoneAsync(
+                                userId,
+                                fieldValue,
+                                _dataSource,
+                                cancellation);
 
-                                fieldSuccesses.TryAdd(fieldName, result ?? false);
-                                break;
+                            fieldSuccesses.TryAdd(fieldName, result ?? false);
+                            break;
 
-                            default:
-                                // Unknown column name is treated as a failed update to keep the contract explicit.
-                                fieldSuccesses.TryAdd(fieldName, false);
-                                break;
-                        }
-                    }
-                    catch (Exception ex) when (ex is not OperationCanceledException)
-                    {
-                        // Any exception tied to a specific field update is isolated to that field
-                        // so that other independent column updates can still proceed.
-                        fieldSuccesses.TryAdd(fieldName, false);
+                        default:
+                            // Unknown column name is treated as a failed update to keep the contract explicit.
+                            fieldSuccesses.TryAdd(fieldName, false);
+                            break;
                     }
                 }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    // Any exception tied to a specific field update is isolated to that field
+                    // so that other independent column updates can still proceed.
+                    fieldSuccesses.TryAdd(fieldName, false);
+                }
+            }
 
-                return fieldSuccesses.ToDictionary();
-            }
-            finally
-            {
-                _selectUserSemaphore.Release();
-            }
+            return fieldSuccesses.ToDictionary();
         }
 
         /// <summary>
@@ -905,7 +859,7 @@ namespace Users
         /// <exception cref="OperationCanceledException">
         /// Thrown when the operation is cancelled before hashing the password or during any database update.
         /// </exception>
-        public async Task<bool> ChangePasswordAsync(UserPasswordPolicy upp, string? newPassword, CancellationToken cancellation = default)
+        public async Task<bool> ChangePasswordAsync(long userId, UserPasswordPolicy upp, string? newPassword, CancellationToken cancellation = default)
         {
             // Allow the caller to interrupt the whole update sequence before any processing starts.
             cancellation.ThrowIfCancellationRequested();
@@ -913,36 +867,26 @@ namespace Users
             if (newPassword is null)
                 throw new UserException("`newPassword` is empty");
 
-            await _selectUserSemaphore.WaitAsync(cancellation);
-            try
-            {
-                if (_userId is null)
-                    throw new UserException("This object has no user");
 
-                // Allow the caller to interrupt the whole update sequence before any processing starts.
-                cancellation.ThrowIfCancellationRequested();
+            // Allow the caller to interrupt the whole update sequence before any processing starts.
+            cancellation.ThrowIfCancellationRequested();
 
-                // Resolve the password hashing function for the configured encryption version.
-                Func<string?, UserPasswordPolicy, string> getHashFunction =
-                    SharedUserSettings.ResolveGetPasswordHash(SharedUserSettings.encryptionFunctionVersion);
+            // Resolve the password hashing function for the configured encryption version.
+            Func<string?, UserPasswordPolicy, string> getHashFunction =
+                SharedUserSettings.ResolveGetPasswordHash(SharedUserSettings.encryptionFunctionVersion);
 
-                // Compute a secure password hash according to the provided policy.
-                string hashedPassword = getHashFunction(newPassword, upp);
+            // Compute a secure password hash according to the provided policy.
+            string hashedPassword = getHashFunction(newPassword, upp);
 
-                cancellation.ThrowIfCancellationRequested();
+            cancellation.ThrowIfCancellationRequested();
 
-                bool result = await DatabaseQueries.SetUserPasswordAsync((long)_userId, hashedPassword, _dataSource, cancellation);
-                if (!result)
-                    return false;
+            bool result = await DatabaseQueries.SetUserPasswordAsync(userId, hashedPassword, _dataSource, cancellation);
+            if (!result)
+                return false;
 
-                await DatabaseQueries.SetUserRememberTokenAsync((long)_userId, null, _dataSource, cancellation);
+            await DatabaseQueries.SetUserRememberTokenAsync(userId, null, _dataSource, cancellation);
 
-                return true;
-            }
-            finally
-            {
-                _selectUserSemaphore.Release();
-            }
+            return true;
         }
 
         /// <summary>
@@ -961,33 +905,13 @@ namespace Users
         /// Thrown when the operation is cancelled via the provided <paramref name="cancellation"/> token
         /// while waiting for the semaphore or during the database call.
         /// </exception>
-        public async Task LogoutAsync(CancellationToken cancellation = default)
+        public async Task LogoutAsync(long userId, CancellationToken cancellation = default)
         {
-            // If there is no associated user, there is nothing to log out.
-            if (_userId is null)
-                return;
-
             // Respect cancellation before acquiring the semaphore or touching the database.
             cancellation.ThrowIfCancellationRequested();
 
-            // Serialize logout with other operations that manipulate _userId and user-related state.
-            await _selectUserSemaphore.WaitAsync(cancellation);
-            try
-            {
-                // Best-effort attempt to clear the remember-me token for the current user in the database.
-                await DatabaseQueries.SetUserRememberTokenAsync((long)_userId, null, _dataSource, cancellation);
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException) { }
-            finally
-            {
-                // Regardless of database outcome, detach the user from this instance
-                // and release the semaphore to avoid deadlocks.
-                _userId = null;
-                _selectUserSemaphore.Release();
-
-                // After logout the instance is no longer meant to be reused; dispose it.
-                Dispose();
-            }
+            // Best-effort attempt to clear the remember-me token for the current user in the database.
+            await DatabaseQueries.SetUserRememberTokenAsync(userId, null, _dataSource, cancellation);
         }
 
         /// <summary>
@@ -1012,7 +936,7 @@ namespace Users
         /// <exception cref="OperationCanceledException">
         /// Thrown when the permission check is cancelled before or during the operation.
         /// </exception>
-        public async Task<bool> CheckPermissionAsync(string? permission, CancellationToken cancellation)
+        public async Task<bool> CheckPermissionAsync(long userId, string? permission, CancellationToken cancellation)
         {
             // Allow the caller to interrupt the whole update sequence before any processing starts.
             cancellation.ThrowIfCancellationRequested();
@@ -1020,31 +944,19 @@ namespace Users
             if (string.IsNullOrWhiteSpace(permission))
                 return false;
 
-            await _selectUserSemaphore.WaitAsync(cancellation);
+            cancellation.ThrowIfCancellationRequested();
+
+            bool result;
             try
             {
-                if (_userId is null)
-                    throw new UserException("This object has no user");
-
-
-                cancellation.ThrowIfCancellationRequested();
-
-                bool result;
-                try
-                {
-                    result = await DatabaseQueries.CheckPermission((long)_userId, permission, _dataSource, cancellation);
-                }
-                catch (Exception ex) when (ex is not OperationCanceledException)
-                {
-                    result = false;
-                }
-
-                return result;
+                result = await DatabaseQueries.CheckPermission(userId, permission, _dataSource, cancellation);
             }
-            finally
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                _selectUserSemaphore.Release(); 
+                result = false;
             }
+
+            return result;
         }
 
         /// <summary>
@@ -1065,24 +977,12 @@ namespace Users
         /// <exception cref="OperationCanceledException">
         /// Thrown when the delete operation is cancelled before or during the database call.
         /// </exception>
-        public async Task<bool> DeleteUserAsync(CancellationToken cancellation = default)
+        public async Task<bool> DeleteUserAsync(long userId, CancellationToken cancellation = default)
         {
             // Allow the caller to interrupt the whole update sequence before any processing starts.
             cancellation.ThrowIfCancellationRequested();
 
-            await _selectUserSemaphore.WaitAsync(cancellation);
-            try
-            {
-                if (_userId is null)
-                    throw new UserException("This object has no user");
-
-                return await DatabaseQueries.DeleteUserAsync((long)_userId, _dataSource, cancellation);
-            }
-            finally 
-            {
-                _selectUserSemaphore.Release();
-                Dispose();
-            }
+            return await DatabaseQueries.DeleteUserAsync(userId, _dataSource, cancellation);
         }
 
         /// <summary>
@@ -1100,10 +1000,6 @@ namespace Users
                 return;
 
             _disposed = true;
-
-            // Dispose managed resources owned by this class.
-            _selectUserSemaphore.Dispose();
-            _userId = null;
 
             // No finalizer, but follow the standard pattern for completeness.
             GC.SuppressFinalize(this);
