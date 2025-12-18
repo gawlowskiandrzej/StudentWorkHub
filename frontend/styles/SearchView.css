@@ -166,7 +166,7 @@
 .sub-filters {
   display: flex;
   flex-direction: row;
-  gap: 51px;
+  gap: 1%;
   align-items: center;
   justify-content: flex-start;
   flex: 1;

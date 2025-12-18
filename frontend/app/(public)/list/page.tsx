@@ -1,22 +1,21 @@
+"use client";
+import React from "react";
+import { ListElement } from "@/components/feature/list/ListElement";
 import "../../../styles/OfferList.css";
+import "../../../styles/SearchView.css";
+import "../../../styles/Hero.css";
+import { SearchBar } from "@/components/feature/search/SearchBar";
 
 export default function OfferList() {
+  const offers = Array.from({ length: 3 }, (_, i) => (
+  <ListElement key={i} />
+));  
   return (
     <div className="offer-list-view">
       <div className="search-bar-component">
         <div className="search-bar-list">
-          <div className="frame-159">
-            <div className="frame-13">
-              <div className="current-search-keyword">Current search keyword</div>
-            </div>
-            <div className="frame-9">
-              <div className="categories">Categories</div>
-              <img className="arrow-down" src="arrow-down0.svg" />
-            </div>
-            <div className="frame-12">
-              <div className="localization">Localization</div>
-            </div>
-          </div>
+          {/* Tutaj wstawić search bar */}
+          <SearchBar/>
           <div className="main-button">
             <img className="search" src="search0.svg" />
             <div className="find-matching-job">Find matching job</div>
@@ -90,7 +89,8 @@ export default function OfferList() {
               <div className="_100">100</div>
             </div>
           </div>
-          <div className="offer-list-header">
+          {offers}
+          {/* <div className="offer-list-header">
             <img className="company" src="company0.svg" />
             <div className="offer-header">
               <div className="offer-header-content">
@@ -176,7 +176,7 @@ export default function OfferList() {
                 <div className="job-salary">Job salary</div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
