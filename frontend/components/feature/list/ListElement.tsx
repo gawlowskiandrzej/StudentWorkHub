@@ -1,11 +1,9 @@
 "use client";
-import React from "react";
-import "../../../styles/OfferList.css";
 
 export function ListElement() {
     return (
         <div className="offer-list-header">
-            <img className="company" src="company0.svg" />
+            <img className="company" src="/icons/company0.svg" />
             <div className="offer-header">
                 <div className="offer-header-content">
                     <div className="offer-header2">
@@ -14,15 +12,15 @@ export function ListElement() {
                     </div>
                     <div className="offer-header-desc">
                         <div className="job-header-sub-item">
-                            <img className="vector" src="vector0.svg" />
+                            <img className="vector" src="/icons/location.svg" />
                             <div className="address">Address</div>
                         </div>
                         <div className="job-header-sub-item">
-                            <img className="vector2" src="vector1.svg" />
+                            <img className="vector" src="/icons/house.svg" />
                             <div className="employment-type">Employment type</div>
                         </div>
                         <div className="job-header-sub-item">
-                            <img className="vector3" src="vector2.svg" />
+                            <img className="vector" src="/icons/document.svg" />
                             <div className="employment-schedules">Employment schedules</div>
                         </div>
                     </div>

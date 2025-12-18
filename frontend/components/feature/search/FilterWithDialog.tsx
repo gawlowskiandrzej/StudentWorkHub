@@ -1,14 +1,6 @@
 import { useState } from "react";
 import { FilterProps } from '@/components/feature/search/Filters'
 import {
-    Select,
-    SelectTrigger,
-    SelectValue,
-    SelectContent,
-    SelectItem,
-} from "@/components/ui/select";
-
-import {
     Dialog,
     DialogContent,
     DialogHeader,
