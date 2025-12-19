@@ -12,7 +12,7 @@
   position: relative;
 }
 .search-view-content {
-  padding: 0px 291px;
+  padding: 0px 96px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -221,14 +221,7 @@
   position: relative;
   overflow: visible;
 }
-#searchVec {
-  flex-shrink: 0;
-  width: 18px;
-  height: 18px;
-  position: relative;
-  overflow: visible;
-  aspect-ratio: 1;
-}
+
 .find-matching-job {
   color: var(--white, #f8faff);
   text-align: center;

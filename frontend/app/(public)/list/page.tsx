@@ -7,6 +7,7 @@ import "../../../styles/Hero.css";
 import "../../../styles/OfferList.css";
 import { SearchBar } from "@/components/feature/search/SearchBar";
 import { DynamicFilter } from "@/components/feature/list/Filters";
+import { RecentSearches } from "@/components/feature/list/RecentSearches";
 
 export default function OfferList() {
   const offers = Array.from({ length: 3 }, (_, i) => (
@@ -16,24 +17,13 @@ export default function OfferList() {
     <div className="offer-list-view">
       <div className="search-bar-component">
         <div className="search-bar-list">
-          {/* Tutaj wstawić search bar */}
           <SearchBar/>
           <div className="main-button">
             <img className="search" src="/icons/search0.svg" />
             <div className="find-matching-job">Find matching job</div>
           </div>
         </div>
-        <div className="recent-searches-navigation">
-          <div className="frame-38">
-            <img className="history" src="/icons/history0.svg" />
-            <div className="recent-searches">Recent searches:</div>
-          </div>
-          <div className="keyword">keyword</div>
-          <div className="keyword">keyword</div>
-          <div className="keyword">keyword</div>
-          <div className="keyword">keyword</div>
-          <div className="keyword">keyword</div>
-        </div>
+        <RecentSearches/>
       </div>
       <div className="offers-list">
         <div className="dynamic-filter">

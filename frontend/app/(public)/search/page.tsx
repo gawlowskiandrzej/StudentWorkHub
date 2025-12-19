@@ -80,9 +80,9 @@ const Search = () => {
                                 </FilterWithDialog>
                             </div>
                         </div>
-                        <div className="main-button">
+                        <div onClick={gotoListPage} className="main-button">
                             <img id="searchVec" className="search" src="/icons/search0.svg" />
-                            <button onClick={gotoListPage} className="find-matching-job">Find matching jobs</button>
+                            <button className="find-matching-job">Find matching jobs</button>
                         </div>
                     </div>
                 </div>
