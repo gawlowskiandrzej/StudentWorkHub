@@ -172,6 +172,9 @@
   flex: 1;
   position: relative;
 }
+.button-left{
+  align-self: flex-start;
+}
 .wave {
   flex-shrink: 0;
   width: 3821px;

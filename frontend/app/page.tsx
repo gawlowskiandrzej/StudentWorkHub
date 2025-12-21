@@ -25,7 +25,7 @@ export default function Home() {
             Want to give it a try?
           </div>
         </div>
-          <button className="main-button find-mathing-job" onClick={goToSearchPage}>Find matching job</button>
+          <button className="main-button find-mathing-job button-left" onClick={goToSearchPage}>Find matching job</button>
       </div>
       <img
         className="unsplash-bb-s-bf-5-uv-50-a"

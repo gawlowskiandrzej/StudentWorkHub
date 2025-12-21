@@ -42,7 +42,6 @@ const Search = () => {
                         <span className="search-view-header-span2"> Let them find you.</span>
                     </span>
                 </div>
-                <div>
                     <SearchBar>
                     </SearchBar>
                     <div className="search-sub-section">
@@ -84,7 +83,6 @@ const Search = () => {
                             <img id="searchVec" className="search" src="/icons/search0.svg" />
                             <button className="find-matching-job">Find matching jobs</button>
                         </div>
-                    </div>
                 </div>
             </div>
         </div>

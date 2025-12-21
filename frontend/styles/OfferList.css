@@ -6,7 +6,7 @@
   padding: 70px 96px 70px 96px;
   display: flex;
   flex-direction: column;
-  gap: 70px;
+  gap: 30px;
   align-items: center;
   justify-content: center;
   height: 1500px;
@@ -171,8 +171,8 @@
 }
 .history {
   flex-shrink: 0;
-  width: 30.72px;
-  height: 30.72px;
+  width: 24px;
+  height: 24px;
   position: relative;
   overflow: visible;
 }
@@ -180,7 +180,7 @@
   color: #ffffff;
   text-align: center;
   font-family: "Roboto-SemiBold", sans-serif;
-  font-size: var(--headersize, 25px);
+  font-size: var(--subHeader, 25px);
   font-weight: 600;
   position: relative;
   display: flex;
@@ -188,10 +188,10 @@
   justify-content: center;
 }
 .keyword {
-  color: var(--blue, #3c83f6);
+  color: var(--primary);
   text-align: center;
   font-family: "Roboto-SemiBold", sans-serif;
-  font-size: var(--subheader, 16px);
+  font-size: var(--mediumSize);
   font-weight: 600;
   position: relative;
   display: flex;
@@ -207,150 +207,16 @@
   flex: 1;
   position: relative;
 }
-.dynamic-filter {
-  display: flex;
-  flex-direction: column;
-  gap: 35px;
-  align-items: flex-start;
-  justify-content: flex-start;
-  flex-shrink: 0;
-  width: 285px;
-  position: relative;
-}
-.offer-list-filter-section {
-  background: rgba(0, 0, 0, 0.01);
-  border-radius: 16px;
-  border-style: solid;
-  border-color: #ffffff;
-  border-width: 1px;
-  padding: 20px 25px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  align-self: stretch;
-  flex-shrink: 0;
-  height: 174px;
-  position: relative;
-  box-shadow: 2px 2px 16px 0px rgba(255, 255, 255, 0.25);
-}
-.filter-header {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  align-self: stretch;
-  flex-shrink: 0;
-  position: relative;
-}
-.filter-icon {
-  flex-shrink: 0;
-  width: 33.6px;
-  height: 33.6px;
-  position: relative;
-  overflow: visible;
-}
-.filter-title {
-  color: #ffffff;
-  text-align: center;
-  font-family: "Roboto-Bold", sans-serif;
-  font-size: var(--headersize, 25px);
-  font-weight: 700;
-  position: relative;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.chevron-up {
-  flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-  position: relative;
-  overflow: visible;
-  aspect-ratio: 1;
-}
-.checkboxes {
-  padding: 0px 6px 0px 6px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  align-self: stretch;
-  flex-shrink: 0;
-  height: 51px;
-  position: relative;
-}
-.offer-list-filter-item {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  align-self: stretch;
-  flex-shrink: 0;
-  position: relative;
-}
-.frame-20 {
-  background: var(--blue, #3c83f6);
-  border-radius: 3.74px;
-  padding: 0px 1px 0px 1px;
-  flex-shrink: 0;
-  width: 17.88px;
-  height: 15.88px;
-  position: relative;
-  overflow: hidden;
-}
-.check {
-  width: 15.88px;
-  height: 15.88px;
-  position: absolute;
-  left: 1px;
-  top: 0px;
-  overflow: visible;
-}
 .option-long-name-name {
-  color: var(--textcolorold, #e1f3fe);
+  color: var(--secondary);
   text-align: center;
   font-family: "Roboto-Regular", sans-serif;
-  font-size: var(--subheader, 16px);
-  font-weight: 400;
+  font-size: var(--mediumSize);
   position: relative;
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-.offer-list-filter-section2 {
-  background: rgba(0, 0, 0, 0.01);
-  border-radius: 16px;
-  border-style: solid;
-  border-color: #ffffff;
-  border-width: 1px;
-  padding: 30px 25px 30px 25px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  align-self: stretch;
-  flex-shrink: 0;
-  height: 174.6px;
-  position: relative;
-  box-shadow: 2px 2px 16px 0px rgba(255, 255, 255, 0.25);
-}
-.filter-icon2 {
-  flex-shrink: 0;
-  width: 33.6px;
-  height: 33.6px;
-  position: relative;
-  overflow: visible;
-}
-.chevron-up2 {
-  flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-  position: relative;
-  overflow: visible;
-  aspect-ratio: 1;
 }
 .check2 {
   width: 15.88px;
@@ -361,10 +227,10 @@
   overflow: visible;
 }
 .list-with-filter {
-  padding: 0px 0px 0px 65px;
+  padding: 0px 0px 0px 45px;
   display: flex;
   flex-direction: column;
-  gap: 55px;
+  gap: 25px;
   align-items: flex-end;
   justify-content: flex-start;
   align-self: stretch;
@@ -377,14 +243,13 @@
   border-style: solid;
   border-color: #f8faff;
   border-width: 1px;
-  padding: 15px 25px 15px 25px;
+  padding: 7px 15px;
   align-self: stretch;
   flex-shrink: 0;
   display: grid;
   gap: 77px;
   row-gap: 0px;
   position: relative;
-  box-shadow: 2px 2px 16px 0px rgba(255, 255, 255, 0.25);
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-template-rows: repeat(1, fit-content(100%));
 }
@@ -467,7 +332,7 @@
   border-style: solid;
   border-color: var(--white, #f8faff);
   border-width: 1px;
-  padding: 30px;
+  padding: 15px;
   display: flex;
   flex-direction: row;
   gap: 35px;
@@ -475,14 +340,13 @@
   justify-content: center;
   align-self: stretch;
   flex-shrink: 0;
-  height: 234px;
+  height: auto;
   position: relative;
-  box-shadow: 2px 2px 16px 0px rgba(255, 255, 255, 0.25);
 }
 .company {
   flex-shrink: 0;
-  width: 100px;
-  height: 100px;
+  width: 70px;
+  height: 70px;
   position: relative;
   overflow: visible;
   aspect-ratio: 1;
@@ -502,9 +366,9 @@
   gap: 0px;
   align-items: flex-start;
   justify-content: flex-start;
-  align-self: stretch;
-  flex: 1;
   position: relative;
+  grid-column: 1 / span 1;
+  grid-row: 1 / span 1;
 }
 .offer-header2 {
   display: flex;
@@ -516,10 +380,10 @@
   position: relative;
 }
 .job-title {
-  color: var(--blue, #3c83f6);
+  color: var(--primary);
   text-align: left;
   font-family: "Roboto-Bold", sans-serif;
-  font-size: var(--headersize, 25px);
+  font-size: var(--semiHeader);
   font-weight: 700;
   position: relative;
   align-self: stretch;
@@ -541,10 +405,11 @@
 }
 .offer-header-desc {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 15px;
+  margin-top: 15px;
   align-items: flex-start;
-  justify-content: center;
+  justify-content: left;
   align-self: stretch;
   flex: 1;
   position: relative;
@@ -552,7 +417,7 @@
 .job-header-sub-item {
   display: flex;
   flex-direction: row;
-  gap: 20px;
+  gap: 10px;
   align-items: center;
   justify-content: flex-start;
   align-self: stretch;
