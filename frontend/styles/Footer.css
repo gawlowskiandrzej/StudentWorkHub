@@ -119,6 +119,9 @@
   align-items: center;
   justify-content: center;
 }
+.copyright > .student-work-hub {
+  height: auto;
+}
 .profile {
   color: #000000;
   text-align: center;

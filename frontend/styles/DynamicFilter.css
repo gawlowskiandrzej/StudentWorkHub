@@ -1,0 +1,92 @@
+.dynamic-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-shrink: 0;
+  width: 20%;
+  max-width: 230px;
+  min-width: 200px;
+  position: relative;
+}
+.offer-header-info {
+  align-self: stretch;
+  flex: 1;
+  display: grid;
+  gap: 0px;
+  position: relative;
+  grid-template-columns: minmax(0, 2.5fr) minmax(0, 1fr);
+  grid-template-rows: repeat(1, minmax(0, 1fr));
+}
+.offer-list-filter-section {
+  background: rgba(0, 0, 0, 0.01);
+  border-radius: 16px;
+  border-style: solid;
+  border-color: #ffffff;
+  border-width: 1px;
+  padding: 15px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  align-self: stretch;
+  flex-shrink: 0;
+  position: relative;
+}
+.filter-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  align-self: stretch;
+  flex-shrink: 0;
+  position: relative;
+}
+.filter-icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  position: relative;
+  overflow: visible;
+}
+.filter-title {
+  color: #ffffff;
+  text-align: center;
+  font-family: "Roboto-Bold", sans-serif;
+  font-size: var(--subHeader, 25px);
+  font-weight: 700;
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.chevron-up {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  position: relative;
+  overflow: visible;
+  aspect-ratio: 1;
+}
+.checkboxes {
+  padding: 15px 3px 0px 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  align-self: stretch;
+  gap: 5px;
+  flex-shrink: 0;
+  position: relative;
+}
+.offer-list-filter-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  align-self: stretch;
+  flex-shrink: 0;
+  position: relative;
+}

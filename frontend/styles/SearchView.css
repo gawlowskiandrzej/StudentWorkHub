@@ -12,7 +12,7 @@
   position: relative;
 }
 .search-view-content {
-  padding: 0px 291px;
+  padding: 0px 96px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -66,11 +66,10 @@
   border-style: solid;
   border-color: #ffffff;
   border-width: 1px;
-  padding: 0px 32px 0px 32px;
+  padding: 0px 0px;
   align-self: stretch;
   flex-shrink: 0;
   display: grid;
-  gap: 30px;
   row-gap: 0px;
   position: relative;
   grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.2fr) minmax(0, 1fr);
@@ -85,10 +84,13 @@
   gap: 0px;
   align-items: center;
   justify-content: flex-start;
-  height: 60px;
+  height: 50px;
   position: relative;
   grid-column: 1 / span 1;
   grid-row: 1 / span 1;
+}
+.search-view .phrase-search{
+  height: 60px;
 }
 .phrase {
   color: #fbfbfb;
@@ -100,6 +102,7 @@
   align-self: stretch;
   display: flex;
   align-items: center;
+  width: 100%;
   justify-content: flex-start;
 }
 .major-study-search {
@@ -111,7 +114,7 @@
   gap: 0px;
   align-items: center;
   justify-content: flex-start;
-  height: 60px;
+  height: auto;
   position: relative;
   grid-column: 2 / span 1;
   grid-row: 1 / span 1;
@@ -134,7 +137,7 @@
   gap: 0px;
   align-items: center;
   justify-content: flex-start;
-  height: 60px;
+  height: auto;
   position: relative;
   grid-column: 3 / span 1;
   grid-row: 1 / span 1;
@@ -147,7 +150,7 @@
   font-weight: 600;
   position: relative;
   align-self: stretch;
-  width: 129px;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -166,7 +169,7 @@
 .sub-filters {
   display: flex;
   flex-direction: row;
-  gap: 51px;
+  gap: 1%;
   align-items: center;
   justify-content: flex-start;
   flex: 1;
@@ -221,14 +224,7 @@
   position: relative;
   overflow: visible;
 }
-#searchVec {
-  flex-shrink: 0;
-  width: 18px;
-  height: 18px;
-  position: relative;
-  overflow: visible;
-  aspect-ratio: 1;
-}
+
 .find-matching-job {
   color: var(--white, #f8faff);
   text-align: center;

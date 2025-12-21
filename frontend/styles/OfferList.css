@@ -1,0 +1,500 @@
+.offer-list-view,
+.offer-list-view * {
+  box-sizing: border-box;
+}
+.offer-list-view {
+  padding: 70px 96px 70px 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  align-items: center;
+  justify-content: center;
+  height: 1500px;
+  position: relative;
+}
+.search-bar-component {
+  display: flex;
+  flex-direction: column;
+  gap: 35px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  align-self: stretch;
+  flex-shrink: 0;
+  position: relative;
+}
+.search-bar-list,
+.search-bar-list * {
+  box-sizing: border-box;
+}
+.search-bar-list {
+  align-self: stretch;
+  flex-shrink: 0;
+  display: grid;
+  gap: 0px;
+  position: relative;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  grid-template-rows: repeat(1, fit-content(100%));
+}
+.frame-159 {
+  border-radius: 15px;
+  border-style: solid;
+  border-color: #ffffff;
+  border-width: 1px;
+  padding: 0px 20px 0px 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 1024.45px;
+  position: relative;
+  grid-column: 1 / span 1;
+  grid-row: 1 / span 1;
+}
+.frame-13 {
+  border-style: solid;
+  border-color: #fbfbfb;
+  border-width: 0px 0.92px 0px 0px;
+  display: flex;
+  flex-direction: row;
+  gap: 0px;
+  align-items: center;
+  justify-content: flex-start;
+  align-self: stretch;
+  flex-shrink: 0;
+  width: 462.6px;
+  position: relative;
+}
+.current-search-keyword {
+  color: #fbfbfb;
+  text-align: left;
+  font-family: "Roboto-SemiBold", sans-serif;
+  font-size: var(--subheader, 16px);
+  font-weight: 600;
+  position: relative;
+  width: 360px;
+  height: 59px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.frame-9 {
+  border-style: solid;
+  border-color: #fbfbfb;
+  border-width: 0px 0.92px 0px 0px;
+  display: flex;
+  flex-direction: row;
+  gap: 100px;
+  align-items: center;
+  justify-content: flex-start;
+  align-self: stretch;
+  flex-shrink: 0;
+  position: relative;
+}
+.categories {
+  color: #fbfbfb;
+  text-align: center;
+  font-family: "Roboto-SemiBold", sans-serif;
+  font-size: var(--subheader, 16px);
+  font-weight: 600;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.arrow-down {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  position: relative;
+  overflow: visible;
+  aspect-ratio: 1;
+}
+.frame-12 {
+  display: flex;
+  flex-direction: row;
+  gap: 0px;
+  align-items: center;
+  justify-content: flex-start;
+  align-self: stretch;
+  flex: 1;
+  position: relative;
+}
+.localization {
+  color: #fbfbfb;
+  text-align: center;
+  font-family: "Roboto-SemiBold", sans-serif;
+  font-size: var(--subheader, 16px);
+  font-weight: 600;
+  position: relative;
+  width: 151.13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.search {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  position: relative;
+  overflow: visible;
+  aspect-ratio: 1;
+}
+.find-matching-job {
+  color: var(--white, #f8faff);
+  text-align: center;
+  font-family: "Roboto-SemiBold", sans-serif;
+  font-size: var(--subheader, 16px);
+  font-weight: 600;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.recent-searches-navigation {
+  display: flex;
+  flex-direction: row;
+  gap: 47px;
+  align-items: center;
+  justify-content: flex-start;
+  align-self: stretch;
+  flex-shrink: 0;
+  position: relative;
+}
+.frame-38 {
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  align-items: center;
+  justify-content: flex-start;
+  flex-shrink: 0;
+  position: relative;
+}
+.history {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  position: relative;
+  overflow: visible;
+}
+.recent-searches {
+  color: #ffffff;
+  text-align: center;
+  font-family: "Roboto-SemiBold", sans-serif;
+  font-size: var(--subHeader, 25px);
+  font-weight: 600;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.keyword {
+  color: var(--primary);
+  text-align: center;
+  font-family: "Roboto-SemiBold", sans-serif;
+  font-size: var(--mediumSize);
+  font-weight: 600;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.offers-list {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  align-self: stretch;
+  flex: 1;
+  position: relative;
+}
+.option-long-name-name {
+  color: var(--secondary);
+  text-align: center;
+  font-family: "Roboto-Regular", sans-serif;
+  font-size: var(--mediumSize);
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.check2 {
+  width: 15.88px;
+  height: 15.88px;
+  position: absolute;
+  left: 1px;
+  top: 0px;
+  overflow: visible;
+}
+.list-with-filter {
+  padding: 0px 0px 0px 45px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  align-items: flex-end;
+  justify-content: flex-start;
+  align-self: stretch;
+  flex: 1;
+  position: relative;
+}
+.filternav {
+  background: rgba(0, 0, 0, 0.01);
+  border-radius: 17.3px;
+  border-style: solid;
+  border-color: #f8faff;
+  border-width: 1px;
+  padding: 7px 15px;
+  align-self: stretch;
+  flex-shrink: 0;
+  display: grid;
+  gap: 77px;
+  row-gap: 0px;
+  position: relative;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(1, fit-content(100%));
+}
+.offer-list-sort-select {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-start;
+  width: 323.2px;
+  position: relative;
+  grid-column: 1 / span 1;
+  grid-row: 1 / span 1;
+}
+.sort-by {
+  color: #ffffff;
+  text-align: left;
+  font-family: "Inter-Regular", sans-serif;
+  font-size: var(--subHeader, 16px);
+  font-weight: 400;
+  position: relative;
+}
+.creation-date {
+  color: var(--primary);
+  text-align: left;
+  font-family: "Inter-Regular", sans-serif;
+  font-size: var(--subHeader, 16px);
+  font-weight: 400;
+  position: relative;
+}
+.chevron-down {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  position: relative;
+  overflow: visible;
+  aspect-ratio: 1;
+}
+.offer-list-pagination {
+  display: flex;
+  flex-direction: row;
+  gap: 14px;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+  grid-column: 2 / span 1;
+  grid-row: 1 / span 1;
+}
+.offer-count {
+  background: var(--blue, #3c83f6);
+  border-radius: 8px;
+  padding: 5px 10px 5px 10px;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+}
+._100 {
+  color: #ffffff;
+  text-align: left;
+  font-family: "Inter-Regular", sans-serif;
+  font-size: var(--medium, 13px);
+  font-weight: 400;
+  position: relative;
+}
+.from {
+  color: #ffffff;
+  text-align: left;
+  font-family: "Inter-Regular", sans-serif;
+  font-size: var(--medium, 13px);
+  font-weight: 400;
+  position: relative;
+}
+.offer-list-header {
+  border-radius: 16px;
+  border-style: solid;
+  border-color: var(--white, #f8faff);
+  border-width: 1px;
+  padding: 15px;
+  display: flex;
+  flex-direction: row;
+  gap: 35px;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  flex-shrink: 0;
+  height: auto;
+  position: relative;
+}
+.company {
+  flex-shrink: 0;
+  width: 70px;
+  height: 70px;
+  position: relative;
+  overflow: visible;
+  aspect-ratio: 1;
+}
+.offer-header {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  align-self: stretch;
+  flex: 1;
+  position: relative;
+}
+.offer-header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  position: relative;
+  grid-column: 1 / span 1;
+  grid-row: 1 / span 1;
+}
+.offer-header2 {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  align-self: stretch;
+  flex: 1;
+  position: relative;
+}
+.job-title {
+  color: var(--primary);
+  text-align: left;
+  font-family: "Roboto-Bold", sans-serif;
+  font-size: var(--semiHeader);
+  font-weight: 700;
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.company-name {
+  color: #ffffff;
+  text-align: left;
+  font-family: "Roboto-Regular", sans-serif;
+  font-size: var(--subheader, 16px);
+  font-weight: 400;
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.offer-header-desc {
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  margin-top: 15px;
+  align-items: flex-start;
+  justify-content: left;
+  align-self: stretch;
+  flex: 1;
+  position: relative;
+}
+.job-header-sub-item {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-start;
+  align-self: stretch;
+  flex-shrink: 0;
+  position: relative;
+}
+.vector5 {
+  flex-shrink: 0;
+  width: 15px;
+  height: 15px;
+  position: relative;
+  overflow: visible;
+  aspect-ratio: 1;
+}
+.address {
+  color: #ffffff;
+  text-align: center;
+  font-family: "Roboto-Regular", sans-serif;
+  font-size: var(--medium, 13px);
+  font-weight: 400;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.employment-type {
+  color: #ffffff;
+  text-align: center;
+  font-family: "Roboto-Regular", sans-serif;
+  font-size: var(--medium, 13px);
+  font-weight: 400;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.employment-schedules {
+  color: #ffffff;
+  text-align: left;
+  font-family: "Roboto-Regular", sans-serif;
+  font-size: var(--medium, 13px);
+  font-weight: 400;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.offer-header-salary-date {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  align-self: stretch;
+  flex: 1;
+  position: relative;
+}
+.added-10-12-2025 {
+  color: #ffffff;
+  text-align: right;
+  font-family: "Roboto-Regular", sans-serif;
+  font-size: var(--medium, 13px);
+  font-weight: 400;
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.job-salary {
+  color: var(--blue, #3c83f6);
+  text-align: right;
+  font-family: "Roboto-Bold", sans-serif;
+  font-size: var(--subheader, 16px);
+  font-weight: 700;
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}

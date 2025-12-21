@@ -1,93 +1,74 @@
 "use client";
+import React, { useState } from "react";
+import { ListElement } from "@/components/feature/list/ListElement";
+
 import "../../../styles/SearchView.css";
 import "../../../styles/Hero.css";
-import "../../../styles/NowyStyl.css";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Filter } from "@/components/feature/search/Filters";
-import { useState } from "react";
+import "../../../styles/OfferList.css";
 import { SearchBar } from "@/components/feature/search/SearchBar";
+import { DynamicFilter } from "@/components/feature/list/Filters";
+import { RecentSearches } from "@/components/feature/list/RecentSearches";
+import { Filter } from "@/components/feature/search/Filters";
 
-type FiltersState = {
-  workType?: string;
-  workTime?: string;
-  employmentType?: string;
-  salary?: string;
-};
-
-const Search = () => {
-    const [filters, setFilters] = useState<FiltersState>({});
-    const updateFilter = (key: keyof FiltersState, value: string) => {
+export default function OfferList() {
+  const offers = Array.from({ length: 3 }, (_, i) => (
+    <ListElement key={i} />
+  ));
+  const [filters, setFilters] = useState<{ sort?: string }>({ sort: "CreationDate" });
+  const updateFilter = (key: "sort", value: string) => {
     setFilters((prev) => ({
-        ...prev,
-        [key]: value,
+      ...prev,
+      [key]: value,
     }));
-    };
-    const items = [
-        {label: "Worktype1", value: "Worktype1"},
-        {label: "Worktype2", value: "Worktype2"},
-        {label: "Worktype3", value: "Worktype3"},
-    ];
+  };
+  const items = [
+    { label: "Creation Date", value: "CreationDate" },
+    { label: "Salary desc", value: "Salarydesc" },
+    { label: "Salary asc", value: "Salaryasc" },
+    { label: "Name asc", value: "Nameasc" },
+  ];
 
-    return ( 
-        <div className="search-view">
-  <div className="search-view-content">
-    <div className="search-view-header">
-      <span>
-        <span className="search-view-header-span">
-          We have many offers for you.
-        </span>
-        <span className="search-view-header-span2">Let them find you.</span>
-      </span>
-    </div>
-    <div className="frame-157">
-      <div className="search-section">
-        <div className="searchbar">
-          <div className="phrase-search">
-            <div className="div">Search, company, keyword ...</div>
-          </div>
-          <div className="major-study-search">
-            <div className="major">Major of study</div>
-          </div>
-          <div className="city-search">
-            <div className="city">City</div>
+  return (
+    <div className="offer-list-view">
+      <div className="search-bar-component">
+        <div className="search-bar-list">
+          <SearchBar />
+          <div className="main-button">
+            <img className="search" src="/icons/search0.svg" />
+            <div className="find-matching-job">Find matching job</div>
           </div>
         </div>
+        <RecentSearches />
       </div>
-      <div className="search-sub-section">
-        <div className="sub-filters">
-          <div className="basic-filter-item">
-            <div className="work-type">Work type</div>
-            <img className="vector" src="vector0.svg" />
-          </div>
-          <div className="basic-filter-item">
-            <div className="work-type">Work time</div>
-            <img className="vector2" src="vector1.svg" />
-          </div>
-          <div className="basic-filter-item">
-            <div className="work-type">Employment type</div>
-            <img className="vector3" src="vector2.svg" />
-          </div>
-          <div className="basic-filter-item">
-            <div className="work-type">Salary</div>
-            <img className="vector4" src="vector3.svg" />
-          </div>
+      <div className="offers-list">
+        <div className="dynamic-filter">
+          <DynamicFilter />
+          <DynamicFilter />
         </div>
-        <div className="main-button">
-          <img className="search" src="search0.svg" />
-          <div className="find-matching-job">Find matching job</div>
+        <div className="list-with-filter">
+          <div className="filternav">
+            <div className="offer-list-sort-select">
+              <div className="sort-by">Sort by:</div>
+              <Filter className="creation-date cursor-pointer"
+                label="Sort"
+                clearable={false}
+                items={items}
+                onChange={(v) => updateFilter("sort", v)}
+                value={filters.sort}>
+              </Filter>
+            </div>
+            <div className="offer-list-pagination">
+              <div className="offer-count">
+                <div className="_100">1</div>
+              </div>
+              <div className="from">from</div>
+              <div className="_100">100</div>
+            </div>
+          </div>
+          {offers}
         </div>
       </div>
     </div>
-  </div>
-</div>
 
-    );
+  );
 }
- 
-export default Search;

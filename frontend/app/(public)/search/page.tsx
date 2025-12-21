@@ -1,16 +1,11 @@
 "use client";
 import "../../../styles/SearchView.css";
 import "../../../styles/Hero.css";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
 import { Filter } from "@/components/feature/search/Filters";
 import { useState } from "react";
 import { SearchBar } from "@/components/feature/search/SearchBar";
+import { FilterWithDialog } from "@/components/feature/search/FilterWithDialog";
+import { useRouter } from 'next/navigation';
 
 type FiltersState = {
     workType?: string;
@@ -27,12 +22,15 @@ const Search = () => {
             [key]: value,
         }));
     };
+    const router = useRouter();
     const items = [
         { label: "Worktype1", value: "Worktype1" },
         { label: "Worktype2", value: "Worktype2" },
         { label: "Worktype3", value: "Worktype3" },
-    ];
-
+    ]; 
+    const gotoListPage = () => {
+    router.push('/list');
+    };
     return (
         <div className="search-view">
             <div className="search-view-content">
@@ -44,7 +42,6 @@ const Search = () => {
                         <span className="search-view-header-span2"> Let them find you.</span>
                     </span>
                 </div>
-                <div>
                     <SearchBar>
                     </SearchBar>
                     <div className="search-sub-section">
@@ -74,19 +71,18 @@ const Search = () => {
                                 </Filter>
                             </div>
                             <div className="basic-filter-item">
-                                <Filter
+                                <FilterWithDialog
                                     label="Salary"
                                     items={items}
                                     onChange={(v) => updateFilter("salary", v)}
                                     value={filters.salary}>
-                                </Filter>
+                                </FilterWithDialog>
                             </div>
                         </div>
-                        <div className="main-button">
+                        <div onClick={gotoListPage} className="main-button">
                             <img id="searchVec" className="search" src="/icons/search0.svg" />
-                            <div className="find-matching-job">Find matching job</div>
+                            <button className="find-matching-job">Find matching jobs</button>
                         </div>
-                    </div>
                 </div>
             </div>
         </div>

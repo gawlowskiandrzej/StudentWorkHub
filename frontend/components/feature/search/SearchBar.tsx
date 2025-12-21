@@ -13,7 +13,7 @@ export function SearchBar() {
         <div className="search-section">
             <div className="searchbar">
                 <div className="phrase-search">
-                    <input className="phrase w-100" placeholder="Search, company, keyword ..."></input>
+                    <input className="phrase px-3" placeholder="Search, company, keyword ..."></input>
                 </div>
                 <div className="major-study-search">
                     <Filter className="w-100" label="Major of study" variant="secondary" items={items} onChange={setCategory} value={category}>
@@ -21,7 +21,7 @@ export function SearchBar() {
                     </Filter>
                 </div>
                 <div className="city-search">
-                    <input placeholder="City" className="city"></input>
+                    <input placeholder="City" className="city px-3"></input>
                 </div>
             </div>
         </div>
