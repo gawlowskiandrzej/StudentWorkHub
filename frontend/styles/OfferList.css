@@ -260,7 +260,6 @@
   align-items: center;
   justify-content: flex-start;
   width: 323.2px;
-  height: 39px;
   position: relative;
   grid-column: 1 / span 1;
   grid-row: 1 / span 1;
@@ -269,15 +268,15 @@
   color: #ffffff;
   text-align: left;
   font-family: "Inter-Regular", sans-serif;
-  font-size: var(--subheader, 16px);
+  font-size: var(--subHeader, 16px);
   font-weight: 400;
   position: relative;
 }
 .creation-date {
-  color: var(--blue, #3c83f6);
+  color: var(--primary);
   text-align: left;
   font-family: "Inter-Regular", sans-serif;
-  font-size: var(--subheader, 16px);
+  font-size: var(--subHeader, 16px);
   font-weight: 400;
   position: relative;
 }
@@ -424,7 +423,7 @@
   flex-shrink: 0;
   position: relative;
 }
-.vector {
+.vector5 {
   flex-shrink: 0;
   width: 15px;
   height: 15px;

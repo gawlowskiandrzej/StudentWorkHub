@@ -19,15 +19,16 @@ export interface FilterProps {
   label?: string;
   className?: string;
   variant?: "primary" | "secondary";
+  clearable?: boolean;
   items: FilterItem[];
   value: string | undefined;
   onChange: (value: string) => void;
 }
 
-export function Filter({ label = "Options",className,variant, items,value, onChange }: FilterProps) {
+export function Filter({ label = "Options",className,variant,clearable = true, items,value, onChange }: FilterProps) {
   const itemsWithEmpty: FilterItem[] = [
     ...items,
-    { label: "Wyczyść", value: "__clear__" },
+    ...(clearable ? [{ label: "Wyczyść", value: "__clear__" }] : []),
   ];
 
   return (

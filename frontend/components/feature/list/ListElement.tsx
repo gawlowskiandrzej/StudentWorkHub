@@ -13,15 +13,15 @@ export function ListElement() {
                         </div>
                         <div className="offer-header-desc">
                             <div className="job-header-sub-item">
-                                <img className="vector" src="/icons/location.svg" />
+                                <img className="vector5" src="/icons/location.svg" />
                                 <div className="address">Address</div>
                             </div>
                             <div className="job-header-sub-item">
-                                <img className="vector" src="/icons/house.svg" />
+                                <img className="vector5" src="/icons/house.svg" />
                                 <div className="employment-type">Employment type</div>
                             </div>
                             <div className="job-header-sub-item">
-                                <img className="vector" src="/icons/document.svg" />
+                                <img className="vector5" src="/icons/document.svg" />
                                 <div className="employment-schedules">Employment schedules</div>
                             </div>
                         </div>
