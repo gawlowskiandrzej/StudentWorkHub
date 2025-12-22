@@ -106,9 +106,6 @@
 .main-button > button{
   cursor: pointer;
 }
-.main-button:hover{
-  transform: scale(1.035);
-}
 .find-mathing-job {
   color: var(--white, #f8faff);
   text-align: center;
@@ -123,7 +120,7 @@
 .unsplash-bb-s-bf-5-uv-50-a {
   border-radius: 14px;
   flex-shrink: 0;
-  height: 250px;
+  height:19vw;
   position: relative;
   box-shadow: -2px -2px 18px 0px rgba(255, 255, 255, 0.4);
   object-fit: cover;

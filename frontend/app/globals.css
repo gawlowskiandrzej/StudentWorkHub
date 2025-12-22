@@ -172,3 +172,13 @@
     }
   }
 }
+.scale-hover{
+  transition: transform 0.5s ease;
+  cursor: pointer;
+}
+.main-button:hover {
+  transform: scale(1.035);
+}
+.scale-hover:hover {
+  transform: scale(1.005);
+}

@@ -6,6 +6,7 @@ import { useState } from "react";
 import { SearchBar } from "@/components/feature/search/SearchBar";
 import { FilterWithDialog } from "@/components/feature/search/FilterWithDialog";
 import { useRouter } from 'next/navigation';
+import { useSearch } from "@/context/SearchContext";
 
 type FiltersState = {
     workType?: string;
@@ -15,7 +16,13 @@ type FiltersState = {
 };
 
 const Search = () => {
+    const [localSearch, setLocalSearch] = useState({
+        keyword: "",
+        category: "",
+        city: "",
+    });
     const [filters, setFilters] = useState<FiltersState>({});
+    const { setSearch} = useSearch();
     const updateFilter = (key: keyof FiltersState, value: string) => {
         setFilters((prev) => ({
             ...prev,
@@ -29,6 +36,7 @@ const Search = () => {
         { label: "Worktype3", value: "Worktype3" },
     ]; 
     const gotoListPage = () => {
+    setSearch(localSearch);
     router.push('/list');
     };
     return (
@@ -42,7 +50,7 @@ const Search = () => {
                         <span className="search-view-header-span2"> Let them find you.</span>
                     </span>
                 </div>
-                    <SearchBar>
+                    <SearchBar localSearch={localSearch} setLocalSearch={setLocalSearch}>
                     </SearchBar>
                     <div className="search-sub-section">
                         <div className="sub-filters">

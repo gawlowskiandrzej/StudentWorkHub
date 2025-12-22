@@ -3,13 +3,13 @@
   box-sizing: border-box;
 }
 .offer-list-view {
-  padding: 70px 96px 70px 96px;
+  padding: 70px 96px;
   display: flex;
   flex-direction: column;
   gap: 30px;
   align-items: center;
   justify-content: center;
-  height: 1500px;
+  /* height: 1500px; */
   position: relative;
 }
 .search-bar-component {
@@ -316,7 +316,20 @@
   font-family: "Inter-Regular", sans-serif;
   font-size: var(--medium, 13px);
   font-weight: 400;
+  max-width: 15px;
+  text-align: center;
   position: relative;
+}
+.offer-list-pagination > .scale-hover:hover {
+  transform: scale(1.2);
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"] {
+    -moz-appearance: textfield;
 }
 .from {
   color: #ffffff;
@@ -358,6 +371,10 @@
   align-self: stretch;
   flex: 1;
   position: relative;
+}
+.second-pagination{
+  align-self: flex-end;
+
 }
 .offer-header-content {
   display: flex;
@@ -487,7 +504,7 @@
   justify-content: flex-end;
 }
 .job-salary {
-  color: var(--blue, #3c83f6);
+  color: var(--primary);
   text-align: right;
   font-family: "Roboto-Bold", sans-serif;
   font-size: var(--subheader, 16px);
