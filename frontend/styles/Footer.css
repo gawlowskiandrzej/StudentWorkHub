@@ -15,7 +15,7 @@
 }
 .footer-content {
   background: #ffffff;
-  padding: 23px 96px;
+  padding: 13px 96px;
   align-self: stretch;
   flex-shrink: 0;
   display: grid;
@@ -314,14 +314,14 @@
 }
 .copyright {
   background: #0a0a0a;
-  padding: 0px 95px;
+  padding: 11px 96px;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
   align-self: stretch;
   flex-shrink: 0;
-  height: 71px;
+  height: auto;
   position: relative;
 }
 .copy-right-text {

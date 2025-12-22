@@ -2,7 +2,7 @@
 
 export function ListElement() {
     return (
-            <div className="offer-list-header">
+            <div className="offer-list-header cursor-pointer scale-hover">
                 <img className="company" src="/icons/company0.svg" />
                 <div className="offer-header">
                     <div className="offer-header-info">

@@ -11,17 +11,21 @@ import { RecentSearches } from "@/components/feature/list/RecentSearches";
 import { Filter } from "@/components/feature/search/Filters";
 import { Search } from "@/types/search/search";
 import { useSearch } from "@/context/SearchContext";
+import { Pagination } from "@/components/feature/list/Pagination";
 
 export default function OfferList() {
   const {search} = useSearch();
+  const [offset, setOffset] = useState(0);
   const [localSearch, setLocalSearch]  = useState<Search>({
     keyword: search?.keyword || "",
     category: search?.category || "",
     city: search?.city || "",
   });
-  const offers = Array.from({ length: 3 }, (_, i) => (
-    <ListElement key={i} />
-  ));
+  const offers = [
+    <ListElement key={1} />,
+    <ListElement key={2} />,  
+    <ListElement key={3} />
+  ];
   const [filters, setFilters] = useState<{ sort?: string }>({ sort: "CreationDate" });
   const updateFilter = (key: "sort", value: string) => {
     setFilters((prev) => ({
@@ -65,16 +69,13 @@ export default function OfferList() {
                   value={filters.sort}>
                 </Filter>
               </div>
-              <div className="offer-list-pagination">
-                <div className="offer-count">
-                  <div className="_100">1</div>
-                </div>
-                <div className="from">from</div>
-                <div className="_100">100</div>
-              </div>
+              <Pagination offset={offset} limit={10} count={offers.length} onChange={setOffset} />
             </div>
             {offers}
           </div>
+        </div>
+        <div className="second-pagination">
+          <Pagination offset={offset} limit={10} count={offers.length} onChange={setOffset} />
         </div>
       </div>
   );
