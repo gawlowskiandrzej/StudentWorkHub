@@ -6,8 +6,7 @@ const lastSearches: Search[] = [
     { category: "Category2", keyword: "UI", city: "Kraków" },
 ];
 
-export function RecentSearches() {
-    const {setSearch} = useSearch();
+export function RecentSearches({ setSearch }: { setSearch: (search: Search) => void }) {
     return (
         <div className="recent-searches-navigation">
             <div className="frame-38">

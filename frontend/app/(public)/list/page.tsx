@@ -9,9 +9,16 @@ import { SearchBar } from "@/components/feature/search/SearchBar";
 import { DynamicFilter } from "@/components/feature/list/Filters";
 import { RecentSearches } from "@/components/feature/list/RecentSearches";
 import { Filter } from "@/components/feature/search/Filters";
-import { SearchProvider, useSearch } from "@/context/SearchContext";
+import { Search } from "@/types/search/search";
+import { useSearch } from "@/context/SearchContext";
 
 export default function OfferList() {
+  const {search} = useSearch();
+  const [localSearch, setLocalSearch]  = useState<Search>({
+    keyword: search?.keyword || "",
+    category: search?.category || "",
+    city: search?.city || "",
+  });
   const offers = Array.from({ length: 3 }, (_, i) => (
     <ListElement key={i} />
   ));
@@ -33,13 +40,13 @@ export default function OfferList() {
       <div className="offer-list-view">
         <div className="search-bar-component">
           <div className="search-bar-list">
-            <SearchBar />
+            <SearchBar localSearch={localSearch} setLocalSearch={setLocalSearch} />
             <div className="main-button cursor-pointer">
               <img className="search" src="/icons/search0.svg" />
               <div className="find-matching-job">Find matching job</div>
             </div>
           </div>
-          <RecentSearches />
+          <RecentSearches setSearch={setLocalSearch} />
         </div>
         <div className="offers-list">
           <div className="dynamic-filter">
