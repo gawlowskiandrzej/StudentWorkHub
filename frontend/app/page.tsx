@@ -1,6 +1,8 @@
 "use client";
 
+import "../styles/ButtonStyle.css"
 import "../styles/Hero.css";
+
 import { useRouter } from 'next/navigation';
 
 export default function Home() {

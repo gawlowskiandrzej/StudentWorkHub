@@ -5,6 +5,7 @@ import { ListElement } from "@/components/feature/list/ListElement";
 import "../../../styles/SearchView.css";
 import "../../../styles/Hero.css";
 import "../../../styles/OfferList.css";
+import "../../../styles/ButtonStyle.css";
 import { SearchBar } from "@/components/feature/search/SearchBar";
 import { DynamicFilter } from "@/components/feature/list/Filters";
 import { RecentSearches } from "@/components/feature/list/RecentSearches";
