@@ -79,44 +79,6 @@
   display: flex;
   align-items: center;
 }
-.main-button {
-  height: auto;
-  max-height: 45px;
-  background: var(
-    --button-gradient,
-    linear-gradient(90deg, rgba(60, 131, 246, 1) 0%, rgba(30, 59, 138, 1) 100%)
-  );
-  color: var(--secondary-foreground);
-  border-radius: 13px;
-  padding: 12px 20px;
-  display: flex;
-  flex-direction: row;
-  gap: 20px;
-  align-items: center;
-  justify-content: center;
-  justify-self: right;
-  align-self: center;
-  flex-shrink: 0;
-  position: relative;
-  box-shadow: 1px 2px 6px 0px rgba(127, 195, 255, 0.3),
-    -1px -2px 6px 0px rgba(0, 140, 255, 0.2);
-    transition: transform 0.5s ease;
-    cursor: pointer;
-}
-.main-button > button{
-  cursor: pointer;
-}
-.find-mathing-job {
-  color: var(--white, #f8faff);
-  text-align: center;
-  font-family: "Roboto-SemiBold", sans-serif;
-  font-size: var(--subHeaderSize);
-  font-weight: 600;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 .unsplash-bb-s-bf-5-uv-50-a {
   border-radius: 14px;
   flex-shrink: 0;
