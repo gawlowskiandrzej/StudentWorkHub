@@ -355,13 +355,20 @@ input[type="number"] {
   height: auto;
   position: relative;
 }
-.company {
-  flex-shrink: 0;
+.companyWrapper {
   width: 70px;
   height: 70px;
-  position: relative;
-  overflow: visible;
-  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border-radius: 8px;
+}
+.company {
+  max-width: 100%;
+  max-height: 100%;
+  color: #000;
+  object-fit: contain;
 }
 .offer-header {
   display: flex;

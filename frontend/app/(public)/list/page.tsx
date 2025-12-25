@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { ListElement } from "@/components/feature/list/ListElement";
-
+import offersJson from '@/store/data/DummyOffers.json';
 import "../../../styles/SearchView.css";
 import "../../../styles/Hero.css";
 import "../../../styles/OfferList.css";
@@ -11,8 +11,9 @@ import { DynamicFilter } from "@/components/feature/list/Filters";
 import { RecentSearches } from "@/components/feature/list/RecentSearches";
 import { Filter } from "@/components/feature/search/Filters";
 import { Search } from "@/types/search/search";
-import { useSearch } from "@/context/SearchContext";
+import { useSearch } from "@/store/SearchContext";
 import { Pagination } from "@/components/feature/list/Pagination";
+import { mapToDynamicFilter } from "@/utils/offerFilters/mapToDynamicFilter";
 
 export default function OfferList() {
   const {search} = useSearch();
@@ -22,14 +23,9 @@ export default function OfferList() {
     category: search?.category || "",
     city: search?.city || "",
   });
-  const offers = [
-    <ListElement key={1} />,
-    <ListElement key={2} />,  
-    <ListElement key={3} />
-  ];
-  const [filters, setFilters] = useState<{ sort?: string }>({ sort: "CreationDate" });
+  const [sorts, setSort] = useState<{ sort?: string }>({ sort: "CreationDate" });
   const updateFilter = (key: "sort", value: string) => {
-    setFilters((prev) => ({
+    setSort((prev) => ({
       ...prev,
       [key]: value,
     }));
@@ -40,7 +36,12 @@ export default function OfferList() {
     { label: "Salary asc", value: "Salaryasc" },
     { label: "Name asc", value: "Nameasc" },
   ];
-
+  const dynamicFilters = [
+    mapToDynamicFilter("Stopień doświadczenia", offersJson.dynamicFilters.experienceLevels),
+    mapToDynamicFilter("Doświadczenie", offersJson.dynamicFilters.experienceMonths),
+    mapToDynamicFilter("Stopnień edukacji", offersJson.dynamicFilters.educationNames),
+    mapToDynamicFilter("Języki", offersJson.dynamicFilters.languagesNames),
+  ]
   return (
       <div className="offer-list-view">
         <div className="search-bar-component">
@@ -55,8 +56,9 @@ export default function OfferList() {
         </div>
         <div className="offers-list">
           <div className="dynamic-filter">
-            <DynamicFilter />
-            <DynamicFilter />
+            {dynamicFilters.map((filter, index) => (
+              <DynamicFilter key={index} header={filter.header} items={filter.items} />
+            ))}
           </div>
           <div className="list-with-filter">
             <div className="filternav">
@@ -67,16 +69,18 @@ export default function OfferList() {
                   clearable={false}
                   items={items}
                   onChange={(v) => updateFilter("sort", v)}
-                  value={filters.sort}>
+                  value={sorts.sort}>
                 </Filter>
               </div>
-              <Pagination offset={offset} limit={10} count={offers.length} onChange={setOffset} />
+              <Pagination offset={offset} limit={10} count={offersJson.pagination.items.length} onChange={setOffset} />
             </div>
-            {offers}
+            {offersJson.pagination.items.map((offer) => (
+              <ListElement key={offer.id} offer={offer} />
+            ))}
           </div>
         </div>
         <div className="second-pagination">
-          <Pagination offset={offset} limit={10} count={offers.length} onChange={setOffset} />
+          <Pagination offset={offset} limit={10} count={offersJson.pagination.items.length} onChange={setOffset} />
         </div>
       </div>
   );

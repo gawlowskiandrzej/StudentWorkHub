@@ -1,0 +1,2762 @@
+{
+    "pagination": {
+        "items": [
+            {
+                "id": 141,
+                "source": "Justjoinit",
+                "url": "https://justjoin.it/job-offer/nexio-management-programista-java-warszawa-java-457a37b4",
+                "jobTitle": "Programista Java",
+                "company": {
+                    "name": "Nexio Management",
+                    "logoUrl": "https://imgproxy.justjoinit.tech/OV1fBxWkALkQtVGeku17DjJMtnQ3hNItWoVzRjpNaao/h:200/w:200/plain/https://public.justjoin.it/companies/logos/original/14b98e1ca0be77aa2bf6183ec71778cf31def719.png"
+                },
+                "description": "Nexio Management to zaufany partner biznesowy w drodze do cyfrowej przyszłości. Posiadamy prawie 20-letnie doświadczenie na rynku IT w Polsce i poza jej granicami. Prowadzimy działania w oparciu o transparentne i szczere relacje. Tworzymy innowacyjne rozwiązania technologiczne, kreując przy tym interesujące i rozwojowe środowisko pracy dla naszych ekspertów. Obecnie zatrudniamy 550 konsultantów, którzy świadczą usługi IT dla Klientów na całym świecie. Nasza główna siedziba mieści się w Warszawie, poza tym mamy biura w Rumunii oraz Wielkiej Brytanii. Posiadamy również własne R&amp;D Center, które jest miejscem powstawania innowacyjnych projektów m.in. : w obszarach testów, Big Data, Cloud czy AI.W ramach naszych usług tworzymy szyte na miarę rozwiązania, utrzymujemy i rozwijamy nawet najbardziej wymagające systemy IT. Działamy w takich modelach biznesowych jak managed services, fixed prices oraz wspieramy zespoły naszych klientów w modelach scale up the team. Naszymi klientami są firmy z wielu zróżnicowanych branż, szukające wsparcia najwyższej klasy ekspertów.Zadania:\nProjektowanie i implementacja nowych rozwiązań z wykorzystaniem Java/Spring/Groovy\nUdział w code review, dbanie o jakość kodu i zgodność z dobrymi praktykami\nMonitorowanie działania aplikacji, naprawa błędów​,&nbsp;optymalizacja wydajności i wprowadzanie usprawnień\nWspółpraca z zespołem projektowym i udział w spotkaniach zespołowych\nPrzygotowywanie dokumentacji projektowej​\nOczekiwania:\nMinimum 4-letnie doświadczenie w pracy jako Programista Java\nDoświadczenie w pracy z Java/Spring/Groovy (min. 3 lata)\nZnajomość Maven i Git\nZnajomość CI/CD Jenkins\nDoświadczenie w pracy z Apache Kafka\nDoświadczenie z ELK Stack (Elastic oraz Grafana)\nZnajomość narzędzi do statycznej analizy kodu (np. SonarQube)\nDoświadczenie w obszarze testów (JUnit, Mockito, Spock etc.) \nZnajomość REST, mile widziane MQ\nDostępność do pracy w modelu hybrydowym\nMile widziane:\nZnajomość procesów BPM oraz doświadczenie w pracy z notacją BPMN\nZnajomość/doświadczenie w pracy z DDD\nOferujemy:\nPracę w modelu hybrydowym (min. 1 dzień w tygodniu praca w biurze, Warszawa, Wola) \nDługoterminową współpracę w oparciu o umowę B2B, umowę o pracę, zlecenie&nbsp;\nBenefity: pakiet Medicover (rozszerzony o stomatologię) i karta FitProfit\nFinansowanie certyfikatów technicznych\nDarmowe lekcje j. angielskiego\nUnikalną atmosferę pracy w zgranych zespołach oraz udział w cyklicznych integracjach\nUdział w różnorodnych inicjatywach charytatywnych oraz sportowych (np. biegi firmowe, turnieje szachowe, treningi sportowe w klubie F45)",
+                "salary": {
+                    "from": null,
+                    "to": null,
+                    "currency": "PLN",
+                    "period": "Miesięcznie",
+                    "type": "netto"
+                },
+                "location": {
+                    "buildingNumber": null,
+                    "street": null,
+                    "city": "Warszawa",
+                    "postalCode": null,
+                    "coordinates": {
+                        "latitude": 52.2296756,
+                        "longitude": 21.0122287
+                    },
+                    "isRemote": null,
+                    "isHybrid": true
+                },
+                "category": {
+                    "leadingCategory": "Informatyka",
+                    "subCategories": null
+                },
+                "requirements": {
+                    "skills": [
+                        {
+                            "skill": "Apache Kafka",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "BPMN",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "CI/CD Jenkins",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "DDD",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "ELK Stack",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Git",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Groovy",
+                            "experienceMonths": 36,
+                            "experienceLevel": [
+                                "Średniozaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "Java",
+                            "experienceMonths": 48,
+                            "experienceLevel": [
+                                "Średniozaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "JUnit",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Maven",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Mockito",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "MQ",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "REST",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "SonarQube",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Spock",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Spring",
+                            "experienceMonths": 36,
+                            "experienceLevel": [
+                                "Średniozaawansowany"
+                            ]
+                        }
+                    ],
+                    "education": null,
+                    "languages": [
+                        {
+                            "language": "Angielski",
+                            "level": "B2"
+                        }
+                    ]
+                },
+                "employment": {
+                    "types": [
+                        "Kontrakt B2B",
+                        "Umowa o pracę",
+                        "Umowa zlecenie"
+                    ],
+                    "schedules": [
+                        "Pełny etat"
+                    ]
+                },
+                "dates": {
+                    "published": "2025-12-04 09:01:36",
+                    "expires": "2026-01-13 08:23:52"
+                },
+                "benefits": [
+                    "Dofinansowanie szkoleń",
+                    "Karta sportowa",
+                    "Lekcje języków obcych",
+                    "Prywatna opieka medyczna"
+                ],
+                "isUrgent": false,
+                "isForUkrainians": false
+            },
+            {
+                "id": 377,
+                "source": "Justjoinit",
+                "url": "https://justjoin.it/job-offer/opera-software-senior-python-developer---ai-initiatives-wroclaw-python",
+                "jobTitle": "Starszy Programista Python - Inicjatywy AI",
+                "company": {
+                    "name": "Opera Software",
+                    "logoUrl": "https://imgproxy.justjoinit.tech/Dt6ZALHMFACk5n-06_ArUETBQMFHesSNVRNgrhMc-CU/h:200/w:200/plain/https://public.justjoin.it/companies/logos/original/5084dd9f2dcc5ed26fda1ede054d842364b631b4.png"
+                },
+                "description": "Lokalizacja: Wrocław, Polska (tryb hybrydowy - brak relokacji lub lokalizacji zdalnej) Czy jesteś gotowy, aby przesuwać granice tego, co jest możliwe dzięki sztucznej inteligencji, i kształtować przyszłość interakcji AI z ludźmi? Opera poszukuje pełnych pasji i innowacyjnych Starszych Programistów Python, którzy pomogą nam zbudować przeglądarki nowej generacji oparte na sztucznej inteligencji. Jest to wyjątkowa okazja do pracy nad najnowocześniejszymi technologiami AI podczas tworzenia produktów używanych przez miliony ludzi na całym świecie. Będziesz w czołówce innowacji, koncentrując się na rozwoju Pythona, jednocześnie przyczyniając się do inicjatyw AI Opery, wykorzystując swoją wiedzę specjalistyczną do tworzenia przełomowych rozwiązań, które zachwycą naszych użytkowników. Jako członek naszego zespołu AI będziesz odgrywać kluczową rolę w projektowaniu, budowaniu i optymalizacji funkcji AI opartych na Pythonie, integrowaniu rozwiązań AI z naszymi produktami i ciągłym ulepszaniu przeglądania. Doświadczenie w AI/ML jest mile widziane, w tym znajomość frameworków takich jak TensorFlow lub PyTorch. Silne zainteresowanie AI, LLM, sieciami neuronowymi i nowoczesnymi algorytmami ML jest koniecznością.",
+                "salary": {
+                    "from": null,
+                    "to": null,
+                    "currency": "PLN",
+                    "period": "Miesięcznie",
+                    "type": "netto"
+                },
+                "location": {
+                    "buildingNumber": null,
+                    "street": "plac Teatralny 8",
+                    "city": "Wrocław",
+                    "postalCode": null,
+                    "coordinates": {
+                        "latitude": 51.1057813,
+                        "longitude": 17.0319372
+                    },
+                    "isRemote": null,
+                    "isHybrid": true
+                },
+                "category": {
+                    "leadingCategory": "Informatyka",
+                    "subCategories": null
+                },
+                "requirements": {
+                    "skills": [
+                        {
+                            "skill": "AI/ML",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Algorytmy ML",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "LLM",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Python",
+                            "experienceMonths": 84,
+                            "experienceLevel": [
+                                "Zaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "PyTorch",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Sieci neuronowe",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "TensorFlow",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        }
+                    ],
+                    "education": null,
+                    "languages": [
+                        {
+                            "language": "Angielski",
+                            "level": "B2"
+                        }
+                    ]
+                },
+                "employment": {
+                    "types": [
+                        "Umowa o pracę"
+                    ],
+                    "schedules": [
+                        "Pełny etat"
+                    ]
+                },
+                "dates": {
+                    "published": "2025-12-05 09:01:50",
+                    "expires": "2026-01-04 08:36:53"
+                },
+                "benefits": null,
+                "isUrgent": false,
+                "isForUkrainians": true
+            },
+            {
+                "id": 610,
+                "source": "Justjoinit",
+                "url": "https://justjoin.it/job-offer/upvanta-sp-z-o-o--architekt-rozwiazan-it-wroclaw-architecture-af88c0c2",
+                "jobTitle": "Architekt Rozwiązań IT",
+                "company": {
+                    "name": "Upvanta sp. z o.o.",
+                    "logoUrl": "https://imgproxy.justjoinit.tech/Bh_zoFX-WYCsPr3y1Qeu4GL-qIc5lhkGgumXrHnrFZ8/h:200/w:200/plain/https://public.justjoin.it/companies/logos/original/ff9b4facf163f49a0ed5a2b165e7a06abc6c1858.jpg"
+                },
+                "description": "Poszukujemy doświadczonego Architekta Rozwiązań IT, który będzie odpowiedzialny za projektowanie i nadzór nad architekturą rozwiązań dla kluczowych projektów informatycznych. Osoba na tym stanowisku będzie łączyć wiedzę techniczną z rozumieniem procesów biznesowych, współpracując z analitykami, projektantami, programistami oraz dostawcami oprogramowania. Praca zdalna.B2B: 1400-1500 PLN na dzień.Główne zadania• Przygotowanie architektury rozwiązań dla projektów informatycznych na poziomie architektury oprogramowania, w tym: – Określanie aplikacji tworzonych lub modyfikowanych w ramach projektu. – Projektowanie przepływów danych pomiędzy aplikacjami. – Dokumentowanie zmian przy użyciu diagramów UML (Component, Sequence).• Definiowanie wymagań dla infrastruktury IT wynikających ze zmian projektowych.• Wybór technologii realizacji nowych aplikacji zgodnie ze standardami organizacji.• Uczestnictwo w odbiorach analiz biznesowych i ocena wykonalności wymagań.• Koordynacja pracy projektantów systemów informatycznych.• Weryfikacja dokumentacji projektowej pod kątem zgodności z architekturą rozwiązania.• Udział w procesie wyboru dostawców oprogramowania (RFP, ocena ofert, wybór).• Współpraca z dostawcami w zakresie architektury i integracji systemów.• Opracowywanie i utrzymywanie standardów architektonicznych.• Analiza ryzyka zmian w systemach informatycznych.",
+                "salary": {
+                    "from": 1400.00,
+                    "to": 1500.00,
+                    "currency": "PLN",
+                    "period": "Dziennie",
+                    "type": "netto"
+                },
+                "location": {
+                    "buildingNumber": null,
+                    "street": "-",
+                    "city": "Wrocław",
+                    "postalCode": null,
+                    "coordinates": {
+                        "latitude": 51.1092948,
+                        "longitude": 17.0386019
+                    },
+                    "isRemote": true,
+                    "isHybrid": null
+                },
+                "category": {
+                    "leadingCategory": "Informatyka",
+                    "subCategories": null
+                },
+                "requirements": {
+                    "skills": [
+                        {
+                            "skill": "Agile",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Angular",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "BPMN 2.0",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Camunda",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "GraphQL",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Integracja Systemów",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Java",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Kafka",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Kubernetes",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Mikrofrontendy",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Mikroserwisy",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "MongoDB",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Oracle",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "REST",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Scrum",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "SOA",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "SOAP",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "UML",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        }
+                    ],
+                    "education": [
+                        "Certyfikat TOGAF® 9"
+                    ],
+                    "languages": [
+                        {
+                            "language": "Angielski",
+                            "level": "B2"
+                        }
+                    ]
+                },
+                "employment": {
+                    "types": [
+                        "Kontrakt B2B"
+                    ],
+                    "schedules": [
+                        "Pełny etat"
+                    ]
+                },
+                "dates": {
+                    "published": "2025-12-05 08:01:52",
+                    "expires": "2026-02-03 22:59:59"
+                },
+                "benefits": [
+                    "Elastyczny czas pracy",
+                    "Możliwość rozwoju zawodowego"
+                ],
+                "isUrgent": false,
+                "isForUkrainians": false
+            },
+            {
+                "id": 157,
+                "source": "Pracujpl",
+                "url": "https://www.pracuj.pl/praca/senior-backend-developer-java-m-k-warszawa-aleje-jerozolimskie-132,oferta,1004522750",
+                "jobTitle": "Starszy Programista Backend - Java (m/k)",
+                "company": {
+                    "name": "PSE INNOWACJE SP Z O O",
+                    "logoUrl": "https://logos.gpcdn.pl/loga-firm/20247292/2c580000-43a8-f403-bc97-08d848e756b7_280x280.png"
+                },
+                "description": "<ul><li>Masz minimum 5 lat doświadczenia w programowaniu w <b>Java</b> oraz znajomość <b>Spring, Spring Boot, JPA, Hibernate</b>.</li><li>Pracujesz z <b>REST API</b>, bazami danych SQL, zwłaszcza <b>Oracle</b>, oraz narzędziami <b>DevOps, Docker</b>.</li><li>Posiadasz doświadczenie w implementacji i utrzymaniu oprogramowania, w tym w <b>testowaniu i analizie błędów</b>.</li><li>Pracujesz w zespołach działających w metodyce <b>Agile</b> i współpracujesz z zespołem <b>DevOps</b>.</li><li>Cenisz <b>elastyczny czas pracy</b> i możliwość <b>pracy zdalnej/hybrydowej</b> oraz dodatkowe benefity, takie jak medyczna opieka czy karta Multisport.</li><li>Zainteresowany jesteś udziałem w projektach <b>greenfield</b> o znaczeniu strategicznym dla sektora energetycznego.</li></ul>",
+                "salary": {
+                    "from": null,
+                    "to": null,
+                    "currency": null,
+                    "period": null,
+                    "type": null
+                },
+                "location": {
+                    "buildingNumber": "132",
+                    "street": "Aleje Jerozolimskie",
+                    "city": "Warszawa",
+                    "postalCode": "02-305",
+                    "coordinates": {
+                        "latitude": 52.220947265625,
+                        "longitude": 20.97309684753418
+                    },
+                    "isRemote": null,
+                    "isHybrid": true
+                },
+                "category": {
+                    "leadingCategory": "Informatyka",
+                    "subCategories": [
+                        "Administrowanie systemami",
+                        "Programowanie"
+                    ]
+                },
+                "requirements": {
+                    "skills": [
+                        {
+                            "skill": "DevOps",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Docker",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Hibernate",
+                            "experienceMonths": null,
+                            "experienceLevel": [
+                                "Zaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "Java",
+                            "experienceMonths": 60,
+                            "experienceLevel": [
+                                "Zaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "JPA",
+                            "experienceMonths": null,
+                            "experienceLevel": [
+                                "Zaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "Oracle",
+                            "experienceMonths": null,
+                            "experienceLevel": [
+                                "Dobry"
+                            ]
+                        },
+                        {
+                            "skill": "REST API",
+                            "experienceMonths": null,
+                            "experienceLevel": [
+                                "Zaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "Spring",
+                            "experienceMonths": null,
+                            "experienceLevel": [
+                                "Zaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "Spring Boot",
+                            "experienceMonths": null,
+                            "experienceLevel": [
+                                "Zaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "SQL",
+                            "experienceMonths": null,
+                            "experienceLevel": [
+                                "Dobry"
+                            ]
+                        }
+                    ],
+                    "education": null,
+                    "languages": []
+                },
+                "employment": {
+                    "types": [
+                        "Umowa o pracę"
+                    ],
+                    "schedules": [
+                        "Pełny etat"
+                    ]
+                },
+                "dates": {
+                    "published": "2025-12-05 23:00:00",
+                    "expires": "2026-01-05 22:59:59"
+                },
+                "benefits": [
+                    "dodatkowe świadczenia socjalne",
+                    "dofinansowanie nauki języków",
+                    "dofinansowanie szkoleń i kursów",
+                    "dofinansowanie zajęć sportowych",
+                    "Elastyczny czas pracy",
+                    "firmowa biblioteka",
+                    "możliwość pracy zdalnej",
+                    "prywatna opieka medyczna",
+                    "spotkania integracyjne",
+                    "ubezpieczenie na życie"
+                ],
+                "isUrgent": true,
+                "isForUkrainians": false
+            },
+            {
+                "id": 68,
+                "source": "Justjoinit",
+                "url": "https://justjoin.it/job-offer/innsoft-sp-z-o-o--mlodszy-programista-java-warszawa-java",
+                "jobTitle": "Młodszy Programista JAVA",
+                "company": {
+                    "name": "INNSOFT Sp. z o.o.",
+                    "logoUrl": "https://imgproxy.justjoinit.tech/1IfOTYKZHb1LZXn-qhpA57Pg9QEj7k0Hwe808ADoEsI/h:200/w:200/plain/https://public.justjoin.it/offers/company_logos/original/01055bac7fa5bc471e2328917f6f2ec152f95383.jpg"
+                },
+                "description": "Innsoft Sp. z o.o. to wiodący dostawca rozwiązań informatycznych dla sektora energetyki. Od ponad 35 lat wytwarzamy autorskie oprogramowanie, które na przestrzeni lat jest konsultowane z udziałem wielu ekspertów z branży. Kluczem naszego sukcesu jest przyjęta przez Innsoft metodyka zarządzania i organizacji pracy zespołów, w której każdy aktywnie uczestniczy w projektach realizowanych dla naszych klientów. Pracując w w naszym zespole będziesz realizował projekty dla największych firm z branży energetycznej (i nie tylko) w Polsce.Twój zakres obowiązków:\ntworzenie, rozwój i modyfikacja oprogramowania dla branży energetycznej,\ndbanie o wysoką jakość wytwarzanego kodu,\nopracowywanie dokumentacji technicznej zgodnej z obowiązującymi standardami,\nwspółpraca z programistami, analitykami i innymi członkami zespołów przy realizacji zadań i projektów.\nNasze wymagania:\nznasz język programowania JAVA,\nposiadasz wiedzę z zakresu relacyjnych bazy danych i języka PL/SQL,\nchcesz rozwijać swoje umiejętności budowy aplikacji bazodanowych,\n&nbsp;znasz zagadnienia związane z programowaniem obiektowym i zasady czystego kodu,\nmasz praktyczną znajomość wzorców projektowych,\npotrafisz pisać testy automatyczne,\nznasz narzędzia: GIT, Jenkins.\nMile widziane:\nznajomość optymalizacji wydajności i jakości istniejących systemów,\nznajomość tematów w zakresie automatyzacji i integracji przy wykorzystaniu narzędzia Jenkins i języka Python.\nOferujemy:\nstabilną i pełną wyzwań pracę w firmie o ugruntowanej pozycji lidera na rynku rozwiązań IT dla energetyki,\ndługofalową współpracę przy tworzeniu nowych projektów,\notwartość na Twoje pomysły i możliwość wdrażania własnych&nbsp;rozwiązań,\nniekorporacyjną kulturę pracy - bezpośrednie kontakty z przełożonymi, koleżeńskie relacje wśród pracowników, transfer wiedzy między działami,\nelastyczne godziny pracy oraz możliwość pracy zdalnej\nwsparcie merytoryczne doświadczonego zespołu,\nrozwój kompetencji zawodowych,\nszkolenia dopasowane do profilu stanowiska pracy,\nzaplecze socjalne i przyjazną przestrzeń pracy.\nBenefity:\nspotkania integracyjne,\npaczki świąteczne,\nbrak dress code'u,\nkawa/herbata,\nowoce,\nparking dla pracowników,\nstrefa relaksu,\nprogram rekomendacji pracowników,\nmożliwość uczestnictwa w grupowym systemie opieki zdrowotnej oraz programie sportowym „FitSport”.",
+                "salary": {
+                    "from": 6000.00,
+                    "to": 9500.00,
+                    "currency": "PLN",
+                    "period": "Miesięcznie",
+                    "type": "netto"
+                },
+                "location": {
+                    "buildingNumber": null,
+                    "street": "ul. Murmańska 25",
+                    "city": "Warszawa",
+                    "postalCode": null,
+                    "coordinates": {
+                        "latitude": 52.2378602,
+                        "longitude": 21.1287139
+                    },
+                    "isRemote": null,
+                    "isHybrid": true
+                },
+                "category": {
+                    "leadingCategory": "Inna",
+                    "subCategories": null
+                },
+                "requirements": {
+                    "skills": [
+                        {
+                            "skill": "GIT",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "JAVA",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Jenkins",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "PL/SQL",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        }
+                    ],
+                    "education": null,
+                    "languages": []
+                },
+                "employment": {
+                    "types": [
+                        "Kontrakt B2B"
+                    ],
+                    "schedules": [
+                        "Pełny etat"
+                    ]
+                },
+                "dates": {
+                    "published": "2025-12-05 13:38:54",
+                    "expires": "2026-01-04 13:38:54"
+                },
+                "benefits": [
+                    "Brak dress code'u",
+                    "Kawa/herbata",
+                    "Możliwość uczestnictwa w grupowym systemie opieki zdrowotnej",
+                    "Owoce",
+                    "Paczki świąteczne",
+                    "Parking dla pracowników",
+                    "Program rekomendacji pracowników",
+                    "Program sportowy „FitSport”",
+                    "Spotkania integracyjne",
+                    "Strefa relaksu"
+                ],
+                "isUrgent": false,
+                "isForUkrainians": false
+            },
+            {
+                "id": 115,
+                "source": "Justjoinit",
+                "url": "https://justjoin.it/job-offer/billennium-programista-fullstack-java-angular---sektor-publiczny-warszawa-java",
+                "jobTitle": "Programista Fullstack (Java + Angular) – Sektor Publiczny",
+                "company": {
+                    "name": "Billennium",
+                    "logoUrl": "https://imgproxy.justjoinit.tech/OHRyCesrYHHxFrEspnzbY-pQnrze7QnNENPOEoqCAOw/h:200/w:200/plain/https://public.justjoin.it/companies/logos/original/718f4e9764c3eef95ba260b577ee3f26056c3af3.jpg"
+                },
+                "description": "Billennium to globalna firma technologiczna z ponad 20-letnim doświadczeniem, zaangażowana w innowacje i wspieranie przedsiębiorstw. Jako pracodawca oferujemy wspierające, nastawione na rozwój środowisko, w którym współpraca i kreatywność to naczelne wartości. Dołącz do nas, aby wspólnie kształtować przyszłość technologii! Do naszego zespołu poszukujemy doświadczonego Fullstack Developera, który wesprze nas w realizacji projektów IT, w tym w obszarze ochrony zdrowia. Ostatni etap rekrutacji związanej z projektem odbędzie się w formie stacjonarnej w Warszawie. Pokrywamy koszty podróży związane ze spotkaniem w siedzibie Klienta. Zakres zadań:\nProjektowanie i rozwój aplikacji webowych w technologii Java (Spring) oraz Angular.\nTworzenie REST API i integracja z bazami danych.\nImplementacja warstwy frontendowej w HTML, CSS, JavaScript.\nWspółpraca z zespołem w metodykach zwinnych.\nWymagania:\nMinimum 5 lat doświadczenia w pracy jako programista Fullstack.\nBardzo dobra znajomość Java (minimum wersja 8).\nDoświadczenie w pracy z JPA lub inną biblioteką ORM (np. Hibernate).\nPraktyczna znajomość relacyjnych baz danych (MySQL, PostgreSQL, MS SQL, Oracle).\nBardzo dobra znajomość frameworku Spring / Spring Boot.\nUmiejętność tworzenia i integracji REST API.\nBardzo dobra znajomość HTML, CSS, JavaScript.\nDoświadczenie w pracy z Angular oraz narzędziami Node.js, NPM.\nDoświadczenie w projektach dla klienta masowego / obywatela\nNasza oferta:\nPakiet benefitów pozapłacowych — korzystaj z Udemy for Business, prywatnej opieki medycznej, karty Multisport, pakietu weterynaryjnego, lekcji językowych i bonów zakupowych.\nElastyczność — elastyczne godziny pracy i opcje pracy zdalnej/hybrydowej dostosowane do Twojego stylu życia i lokalizcji.\nRozwój kariery — dostęp do możliwości rozwoju zawodowego i nauki, w tym korzyści związanych z naszymi oficjalnymi partnerstwami z globalnymi gigantami IT, m.in. Microsoft, AWS, Snowflake, Salesforce.\nAngażująca społeczność — praca z pełnymi pasji profesjonalistami i udział w wydarzeniach team buildingowych, hackathonach i inicjatywach CSR.\nWydarzenia team buildingowe, w tym nasza tradycja firmowa (coroczne wydarzenie firmowe na Mazurach).\nCzekamy właśnie na Ciebie!",
+                "salary": {
+                    "from": null,
+                    "to": null,
+                    "currency": null,
+                    "period": null,
+                    "type": null
+                },
+                "location": {
+                    "buildingNumber": null,
+                    "street": null,
+                    "city": "Warszawa",
+                    "postalCode": null,
+                    "coordinates": {
+                        "latitude": 52.2296756,
+                        "longitude": 21.0122287
+                    },
+                    "isRemote": true,
+                    "isHybrid": null
+                },
+                "category": {
+                    "leadingCategory": "Informatyka",
+                    "subCategories": null
+                },
+                "requirements": {
+                    "skills": [
+                        {
+                            "skill": "Angular",
+                            "experienceMonths": null,
+                            "experienceLevel": [
+                                "Średniozaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "CSS",
+                            "experienceMonths": null,
+                            "experienceLevel": [
+                                "Średniozaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "Hibernate",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "HTML",
+                            "experienceMonths": null,
+                            "experienceLevel": [
+                                "Średniozaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "Java",
+                            "experienceMonths": 60,
+                            "experienceLevel": [
+                                "Zaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "JavaScript",
+                            "experienceMonths": null,
+                            "experienceLevel": [
+                                "Średniozaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "JPA",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "MS SQL",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "MySQL",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Node.js",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "NPM",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Oracle",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "PostgreSQL",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "REST API",
+                            "experienceMonths": null,
+                            "experienceLevel": [
+                                "Średniozaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "Spring",
+                            "experienceMonths": null,
+                            "experienceLevel": [
+                                "Zaawansowany"
+                            ]
+                        }
+                    ],
+                    "education": null,
+                    "languages": []
+                },
+                "employment": {
+                    "types": [
+                        "Kontrakt B2B"
+                    ],
+                    "schedules": [
+                        "Pełny etat"
+                    ]
+                },
+                "dates": {
+                    "published": "2025-12-04 12:01:58",
+                    "expires": "2026-02-17 11:21:37"
+                },
+                "benefits": null,
+                "isUrgent": false,
+                "isForUkrainians": false
+            },
+            {
+                "id": 100,
+                "source": "Aplikujpl",
+                "url": "https://www.aplikuj.pl/oferta/2923368/operator-maszyn-cnc-programista-cnc-belgia-umowa-o-prace-eastgate-recruitment",
+                "jobTitle": "Operator maszyn CNC Programista CNC Belgia",
+                "company": {
+                    "name": "Eastgate Recruitment",
+                    "logoUrl": "/media/6-2mJYa-_fQUmzbKho1Z7o2iuDoIoPmWSVxoPgtQiPwJumDCy8_o0POLepFLXCdxQbV5QNHNUHtP4R7XhCUxLgJtQCdwWxuF0z_tVSOKoODDTAWMS0JM7RQXRn0jJn9HtWIs_SmGIAzOWiFjiiBmuldmro8G7J-GqqQDj2ImIAWaGWAltymIbxiBj02gwW1zdQ-iYzmF_WCg0IbErNMhxOI2wRswWZ2ttzTJAxh7VRzwm2ABt0IK8F4QO8-pv5G22DVF4Fv-7js7kVVuip--JkvH4B07pJ2G8yyyXXxtlpkZQ9qbWEWZgovfkISeP-A5dKmdAKM0mAZt51pJ77hF1MbDxC6fBjONCeeqeobg-ehVooktsvPXE-1vn9mHncNzyR6h0MwmaleLDQLIJkgAwcSuhHqm1nBOSAlJIyuYOIMw9D9r3_tNKHz8pRtWGQSL3oIEgGPjpG-BcQ/171534449949186200.webp"
+                },
+                "description": "EastGateRecruitment jest agencją pośrednictwa pracy wpisaną do Rejestru Podmiotów Prowadzących Agencje Zatrudnienia pod numerem 17627. Od 2017 oferujemy profesjonalne usługi rekrutacyjne firmom, które poszukują pracowników do pracy w siedzibach firm znajdujących się w całej Europie. Pracownikom gwarantujemy natomiast pomoc nie tylko w znalezieniu pracy, ale również doradztwo personalne oraz poradnictwo zawodowe. Firma EastGate Recruitment, wpisana do rejestru podmiotów prowadzących agencje zatrudnienia pod numerem 17627, dla swojego klienta poszukuje osób do pracy w Belgii",
+                "salary": {
+                    "from": null,
+                    "to": null,
+                    "currency": null,
+                    "period": null,
+                    "type": null
+                },
+                "location": {
+                    "buildingNumber": null,
+                    "street": null,
+                    "city": "Belgia",
+                    "postalCode": null,
+                    "coordinates": {
+                        "latitude": null,
+                        "longitude": null
+                    },
+                    "isRemote": false,
+                    "isHybrid": false
+                },
+                "category": {
+                    "leadingCategory": "Inna",
+                    "subCategories": null
+                },
+                "requirements": {
+                    "skills": [],
+                    "education": null,
+                    "languages": []
+                },
+                "employment": {
+                    "types": [
+                        "Umowa o pracę"
+                    ],
+                    "schedules": [
+                        "Pełny etat"
+                    ]
+                },
+                "dates": {
+                    "published": "2025-07-30 00:00:00",
+                    "expires": "2026-07-31 00:00:00"
+                },
+                "benefits": null,
+                "isUrgent": false,
+                "isForUkrainians": false
+            },
+            {
+                "id": 145,
+                "source": "Justjoinit",
+                "url": "https://justjoin.it/job-offer/asseco-poland-s-a--programista-c--wroclaw-c",
+                "jobTitle": "Programista C++",
+                "company": {
+                    "name": "Asseco Poland S.A.",
+                    "logoUrl": "https://imgproxy.justjoinit.tech/AWQ5bvyhsWxrtIJ--RIHgfw8m9aYIo--FiG50oIfI1Q/h:200/w:200/plain/https://public.justjoin.it/companies/logos/original/a0319acfbc6c80fde89e8caaae37e1acd09952e0.png"
+                },
+                "description": "Szukamy Programisty C++ do pracy przy największym systemie informatycznym IT w Europie środkowo-wschodniej. Jeżeli masz już pierwsze komercyjne doświadczenie w programowaniu i chcesz rozwijać się w obszarze ubezpieczeń społecznych oraz jesteś otwarta/y na nowe wyzwania i dzielenie się wiedzą - zapoznaj się z naszą ofertą i zaaplikuj! Pracujemy w modelu hybrydowym z biura (Wrocław, Katowice) Proces rekrutacyjny prowadzony jest zdalnie (rozmowa telefoniczna, zadanie, spotkanie spotkanie z Zespołem i decyzja). Czym będziesz się zajmować?\nTworzeniem i rozwijaniem aplikacji w języku C++ (C++17 lub nowszy)\nUtrzymaniem oraz rozwojem oprogramowania działającego na platformach UNIX lub Windows\nPracą z relacyjnymi bazami danych i językiem SQL\nUdziałem w projektach związanych z transformacją i automatyzacją systemów\nTworzeniem i aktualizacją dokumentacji technicznej\nWspółpracą z zespołem projektowym (analitykami, testerami, innymi programistami)\nCo będzie Ci potrzebne aby móc wykonywać powierzone Ci zadania?\nMin. 2 lata doświadczenia jako programista C/C++\nBardzo dobra znajomość programowania strukturalnego i obiektowego\nZnajomość języka C++ (preferowana wersja 17 lub wyższa)\nZnajomość języka SQL i zagadnień relacyjnych baz danych\nDoświadczenie w pracy na systemach UNIX lub Windows\nZnajomość języków skryptowych: Python, Shell (lub inne)\nZnajomość narzędzi: GIT, Jira\nMile widziane:\nZnajomość bazy danych DB2\nZnajomość systemu z/OS\nDoświadczenie z narzędziami CI/CA (automatyzacja procesów wytwórczych)\nZnajomość UML\nZnajomość środowiska Java oraz technologii: Spring, Spring Boot, Hibernate, REST\nPodstawowa znajomość frameworka Angular\nDoświadczenie w pracy w metodyce Scrum\nBenefity:\nUbezpieczenie grupowe\nPrywatna opieka medyczna\nMultisport\nKursy językowe\nSzkolenia\nDostęp do zaawansowanych technologii\nDrużyna Active Team\nOwocowe środy\nPracownicy Plan Emerytalny\nSpotkania integracyjne",
+                "salary": {
+                    "from": null,
+                    "to": null,
+                    "currency": "PLN",
+                    "period": "Miesięcznie",
+                    "type": "netto"
+                },
+                "location": {
+                    "buildingNumber": null,
+                    "street": null,
+                    "city": "Wrocław",
+                    "postalCode": null,
+                    "coordinates": {
+                        "latitude": 51.1092948,
+                        "longitude": 17.0386019
+                    },
+                    "isRemote": null,
+                    "isHybrid": true
+                },
+                "category": {
+                    "leadingCategory": "Informatyka",
+                    "subCategories": null
+                },
+                "requirements": {
+                    "skills": [
+                        {
+                            "skill": "Angular",
+                            "experienceMonths": null,
+                            "experienceLevel": [
+                                "Początkujący"
+                            ]
+                        },
+                        {
+                            "skill": "C++",
+                            "experienceMonths": 24,
+                            "experienceLevel": [
+                                "Średniozaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "DB2",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "GIT",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Hibernate",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Java",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Jira",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Python",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "REST",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Scrum",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Shell",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Spring",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "SQL",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "UML",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "UNIX",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Windows",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        }
+                    ],
+                    "education": null,
+                    "languages": []
+                },
+                "employment": {
+                    "types": [
+                        "Umowa o pracę"
+                    ],
+                    "schedules": [
+                        "Pełny etat"
+                    ]
+                },
+                "dates": {
+                    "published": "2025-12-05 13:01:58",
+                    "expires": "2025-12-15 22:59:59"
+                },
+                "benefits": [
+                    "Dostęp do zaawansowanych technologii",
+                    "Drużyna Active Team",
+                    "Kursy językowe",
+                    "Multisport",
+                    "Owocowe środy",
+                    "Pracownicy Plan Emerytalny",
+                    "Prywatna opieka medyczna",
+                    "Spotkania integracyjne",
+                    "Szkolenia",
+                    "Ubezpieczenie grupowe"
+                ],
+                "isUrgent": false,
+                "isForUkrainians": false
+            },
+            {
+                "id": 80,
+                "source": "Justjoinit",
+                "url": "https://justjoin.it/job-offer/rits-professional-services-programista-web-angular--warszawa-javascript",
+                "jobTitle": "Programista Web (Angular)",
+                "company": {
+                    "name": "RITS Professional Services",
+                    "logoUrl": "https://imgproxy.justjoinit.tech/LafTl_MeCWaAWPuPbktKxejN19c402krOnqHqFPzAiQ/h:200/w:200/plain/https://public.justjoin.it/companies/logos/original/f2ba2d96fabedd9025bf85126372dc27ecef96ed.png"
+                },
+                "description": "Tworzenie i rozwój aplikacji webowych w oparciu o nowoczesne technologie front- i backendowe. Implementacja interfejsów zgodnych z zasadami RWD i cross-browser compatibility. Współpraca z zespołem projektowym w ramach metodyki Scrum. Utrzymanie i rozwój istniejących systemów.",
+                "salary": {
+                    "from": 720.00,
+                    "to": 960.00,
+                    "currency": "PLN",
+                    "period": "Dziennie",
+                    "type": "netto"
+                },
+                "location": {
+                    "buildingNumber": null,
+                    "street": null,
+                    "city": "Warszawa",
+                    "postalCode": null,
+                    "coordinates": {
+                        "latitude": 52.2296756,
+                        "longitude": 21.0122287
+                    },
+                    "isRemote": null,
+                    "isHybrid": true
+                },
+                "category": {
+                    "leadingCategory": "Informatyka",
+                    "subCategories": null
+                },
+                "requirements": {
+                    "skills": [
+                        {
+                            "skill": "Angular",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Bootstrap",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "C#",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "CSS",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "GIT",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "HTML5",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "JavaScript",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "JIRA",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "jQuery",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Material Design",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": ".NET",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Node.js",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "RWD",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "SASS",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "SQL",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "TypeScript",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        }
+                    ],
+                    "education": null,
+                    "languages": [
+                        {
+                            "language": "Angielski",
+                            "level": "B1"
+                        },
+                        {
+                            "language": "Polski",
+                            "level": "B2"
+                        }
+                    ]
+                },
+                "employment": {
+                    "types": [
+                        "Kontrakt B2B"
+                    ],
+                    "schedules": [
+                        "Pełny etat"
+                    ]
+                },
+                "dates": {
+                    "published": "2025-12-03 14:34:15",
+                    "expires": "2026-01-10 22:59:59"
+                },
+                "benefits": null,
+                "isUrgent": false,
+                "isForUkrainians": false
+            },
+            {
+                "id": 81,
+                "source": "Pracujpl",
+                "url": "https://www.pracuj.pl/praca/automatyk-programista-programistka-plc-wrzesnia-objazdowa-27,oferta,1004522530",
+                "jobTitle": "Automatyk - Programista / programistka PLC",
+                "company": {
+                    "name": "ATM ROBOTICS sp. z o.o. sp. z o.o.",
+                    "logoUrl": null
+                },
+                "description": "<ul><li>Masz minimum 2 lata doświadczenia w programowaniu <b>PLC Siemens (TIA Portal) i Mitsubishi</b>.</li><li>Znajomość <b>HMI (WinCC, GOT)</b> oraz podstaw elektrotechniki i czytania schematów.</li><li>Potrafisz programować i modyfikować logikę <b>sterowników PLC i systemów wizualizacji</b>.</li><li>Jesteś gotowy do krótkoterminowych wyjazdów serwisowych i posiadasz prawo jazdy kat. B.</li><li>Cenisz <b>pracę stacjonarną</b> i dostęp do niezbędnych narzędzi pracy, takich jak laptop i oprogramowanie.</li></ul>",
+                "salary": {
+                    "from": 11000.00,
+                    "to": 19000.00,
+                    "currency": "PLN",
+                    "period": "Miesięcznie",
+                    "type": null
+                },
+                "location": {
+                    "buildingNumber": "15B",
+                    "street": "Słupecka",
+                    "city": "Ciążeń",
+                    "postalCode": "62-404",
+                    "coordinates": {
+                        "latitude": 52.31207275390625,
+                        "longitude": 17.569215774536133
+                    },
+                    "isRemote": false,
+                    "isHybrid": false
+                },
+                "category": {
+                    "leadingCategory": "Automatyka i robotyka",
+                    "subCategories": null
+                },
+                "requirements": {
+                    "skills": [
+                        {
+                            "skill": "Elektrotechnika",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "HMI GOT",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "HMI WinCC",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "PLC Mitsubishi",
+                            "experienceMonths": 24,
+                            "experienceLevel": [
+                                "Średniozaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "PLC Siemens TIA Portal",
+                            "experienceMonths": 24,
+                            "experienceLevel": [
+                                "Średniozaawansowany"
+                            ]
+                        }
+                    ],
+                    "education": null,
+                    "languages": []
+                },
+                "employment": {
+                    "types": [
+                        "Kontrakt B2B",
+                        "Umowa o pracę"
+                    ],
+                    "schedules": [
+                        "Pełny etat"
+                    ]
+                },
+                "dates": {
+                    "published": "2025-12-05 15:57:41",
+                    "expires": "2026-01-04 22:59:59"
+                },
+                "benefits": null,
+                "isUrgent": true,
+                "isForUkrainians": false
+            },
+            {
+                "id": 220,
+                "source": "Aplikujpl",
+                "url": "https://www.aplikuj.pl/oferta/3022153/programista-robotyk-umowa-o-prace-esox-automatyka-przemyslowa",
+                "jobTitle": "Programista / Robotyk",
+                "company": {
+                    "name": "ESOX Automatyka Przemysłowa",
+                    "logoUrl": "/media/6-2mJYa-_fQUmzbKho1Z7o2iuDoIoPmWSVxoPgtQiPwJumDCy8_o0POLepFLXCdxQbZ1QNHOUHtP5RvWgyg9LwttTi5xXRuF0z_tVSOKoODDTAWMS0JM7RQXRn0jJn9HtWIs_SmGIAzOWiFjiiBmuldmro8G7J-GqqQDj2ImIAWaGWAltymIbxiBj02gwW1zdQ-iYzmF_WCg0IbErNMhxOI2wRswWZ2ttzTJAxh7VRzwm2ABt0IK8F4QO8-pv5G22DVF4Fv-7js7kVVuip--JkvH4B07pJ2G8yyyXXxtlpkZQ9qbWEWZgovfkISeP-A5dKmdAKM0mAZt51pJ77hF1MbDxC6fBjONCeeqeobg-ehVooktsvPXE-1vn9mHncNzyR6h0MwmaleLDQLIJkgAwcSuhHqm1nBOSAlJIyuYOIMw9D9r3_tNKHz8pRtWGQSL3oIEgGPjpG-BcQ/175023988047890200.webp"
+                },
+                "description": "Firma ESOX Automatyka Przemysłowa z Łodygowic działa na rynku od ponad 15 lat. Specjalizujemy się w projektowaniu, budowie maszyn i linii technologicznych dla różnych gałęzi przemysłu, pod indywidualne potrzeby klientów.",
+                "salary": {
+                    "from": null,
+                    "to": null,
+                    "currency": null,
+                    "period": null,
+                    "type": null
+                },
+                "location": {
+                    "buildingNumber": null,
+                    "street": null,
+                    "city": "Łodygowice",
+                    "postalCode": null,
+                    "coordinates": {
+                        "latitude": null,
+                        "longitude": null
+                    },
+                    "isRemote": null,
+                    "isHybrid": null
+                },
+                "category": {
+                    "leadingCategory": "Informatyka",
+                    "subCategories": [
+                        "Programista"
+                    ]
+                },
+                "requirements": {
+                    "skills": [
+                        {
+                            "skill": "Automatyka",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Elektromechanika",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Elektrotechnika",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "LAD",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Mechatronika",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Pakiet Office",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Robotyka",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "SCL",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        }
+                    ],
+                    "education": [
+                        "Wykształcenie wyższe techniczne"
+                    ],
+                    "languages": [
+                        {
+                            "language": "Angielski",
+                            "level": "B2"
+                        }
+                    ]
+                },
+                "employment": {
+                    "types": [
+                        "Umowa o pracę"
+                    ],
+                    "schedules": [
+                        "Pełny etat"
+                    ]
+                },
+                "dates": {
+                    "published": "2025-11-17 00:00:00",
+                    "expires": "2026-01-01 00:00:00"
+                },
+                "benefits": [
+                    "Aktywny udział w realizacji projektów.",
+                    "Dobra atmosfera pracy.",
+                    "Komfortowe warunki biurowe.",
+                    "Możliwość ciągłego rozwoju i podnoszenia swoich kwalifikacji.",
+                    "Pakiet świadczeń socjalnych.",
+                    "Po weryfikacji umiejętności i zaangażowania samochód służbowy",
+                    "Praca w dynamicznie rozwijającej się firmie, realizującej projekty na całym świecie",
+                    "Realna możliwość rozwoju zawodowego i realizacji własnych pomysłów",
+                    "Rozwój z wykorzystaniem najnowszych rozwiązań PLC na rynku",
+                    "Stabilne zatrudnienie w ramach umowy o pracę",
+                    "Udział w ciekawych projektach w Polsce i zagranicą",
+                    "Współpraca w oparciu o partnerską relację, otwartość na propozycje i Twój punkt widzenia",
+                    "Współpraca z ambitnym i doświadczonym zespołem, któremu nie obce są wyzwania",
+                    "Wynagrodzenie rosnące adekwatnie do umiejętności."
+                ],
+                "isUrgent": false,
+                "isForUkrainians": false
+            },
+            {
+                "id": 116,
+                "source": "Justjoinit",
+                "url": "https://justjoin.it/job-offer/insert-spolka-akcyjna-programista-c-mid--wroclaw-c",
+                "jobTitle": "Programista C++ (Mid)",
+                "company": {
+                    "name": "\"INSERT\" SPÓŁKA AKCYJNA",
+                    "logoUrl": "https://imgproxy.justjoinit.tech/VTMCOuO0b7PuYn68GU-UYMUGlA4CEfaRbm-P0FkMxDc/h:200/w:200/plain/https://insert.traffit.com/api/file/publicFileContent/54350"
+                },
+                "description": "Obecnie poszukujemy kolejnych pasjonatów do rozbudowy kluczowych projektów InsERT w linii GT, który dołączy do naszego zespołu księgowości i wesprze nas w tworzeniu nowych funkcjonalności usprawniających procesy księgowe, dostosowywaniu systemów do zmieniających się przepisów podatkowych oraz utrzymaniu i optymalizacji istniejących rozwiązań. Na tym stanowisku będziesz mieć możliwość: tworzenia nowych rozwiązań IT, rozwijania istniejących produktów, dostosowując je do zmieniających się potrzeb naszych użytkowników oraz wymagań technologicznych, współtworzenia złożonych projektów, w ramach których powstają systemy do zarządzania sprzedażą, księgowe, finansowe i kadrowo-płacowe przeznaczone dla małych firm, a także systemy klasy ERP przeznaczone dla średnich i dużych firm. W ramach prowadzonych projektów wykorzystujemy technologie: Visual C++ (C++20), MFC, COM, .NET, WPF, MS SQL Server, Crystal Reports.U nas możesz naprawdę tworzyć programy, mieć realny wpływ na ich finalny wygląd i funkcjonalność, a nie realizować odgórnie narzucone specyfikacje.Jeśli: posiadasz minimum 4 lata komercyjnego doświadczenia w programowaniu w C++ i jesteś na bieżąco z najnowszymi trendami w tym języku, masz doświadczenie w pracy z rozbudowanymi projektami, z dużą bazą kodu (preferowane aplikacje desktopowe Windows), znasz technologie i pojęcia związane z relacyjnymi bazami danych, potrafisz pracować z danymi, korzystając z języka SQL, posiadasz znajomość bibliotek STL, posiadasz dobrą znajomość technologii Microsoft, jesteś kreatywny i samodzielny, nie boisz się odpowiedzialnych zadań i podejmowania decyzji potrafisz łączyć umiejętności techniczne z dbałością o estetykę, zarówno w tworzeniu czytelnego, dobrze zaprojektowanego kodu, jak i w projektowaniu intuicyjnych interfejsów użytkownika. - to szukamy właśnie Ciebie!Podwójnie docenimy: wykształcenie wyższe informatyczne, znajomość technologii COM oraz ADO, znajomość Microsoft Visual Studio, znajomość technologii COM Interop (współpraca kodu C++ z kodem .NET), znajomość Microsoft SQL Server z punktu widzenia programisty, znajomość technologii .NET, znajomość Crystal Reports, znajomość GoogleTest lub Catch2, znajomość WPF (podstawy tworzenia interfejsu w języku XAML), znajomość bibliotek Boost, doświadczenie w pracy z git, doświadczenie w pracy z Azure DevOps lub podobnym systemem (CI, automatyzacja buildów), doświadczenie w pisaniu testów (także dla kodu legacy), zacięcie do refaktoryzacji. Z naszej strony możesz liczyć na: przyjazne, samodzielne stanowisko, z realnymi możliwościami rozwoju; pracę nad rozwojem projektu wewnętrznego w przyjaznym, dzielącym się wiedzą zespole; ciągły rozwój, z możliwością udziału w szkoleniach i konferencjach; luźną atmosferę i brak oficjalnego dress code; elastyczne godziny pracy; komfortowe warunki pracy; zatrudnienie w ramach umowy o pracę; imprezy i integracje firmowe; inicjatywy i zajęcia sportowe dla naszych pracowników; dostęp do prywatnej opieki zdrowotnej; kartę sportową; darmowy parking i udogodnienia dla rowerzystów; kawę i herbatę bez limitów. Podoba Ci się nasza oferta? Kliknij „APLIKUJ”, dołącz do nas i pracuj z przyjemnością!",
+                "salary": {
+                    "from": null,
+                    "to": null,
+                    "currency": null,
+                    "period": null,
+                    "type": null
+                },
+                "location": {
+                    "buildingNumber": null,
+                    "street": "ul. Jerzmanowska 2",
+                    "city": "Wrocław",
+                    "postalCode": null,
+                    "coordinates": {
+                        "latitude": 51.101742,
+                        "longitude": 17.05987
+                    },
+                    "isRemote": null,
+                    "isHybrid": true
+                },
+                "category": {
+                    "leadingCategory": "Informatyka",
+                    "subCategories": null
+                },
+                "requirements": {
+                    "skills": [
+                        {
+                            "skill": "ADO",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Azure DevOps",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Boost",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "C++",
+                            "experienceMonths": 48,
+                            "experienceLevel": [
+                                "Średniozaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "Catch2",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "COM",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "COM Interop",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Crystal Reports",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Git",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "GoogleTest",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Microsoft",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Microsoft SQL Server",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Microsoft Visual Studio",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": ".NET",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "SQL",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "STL",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "WPF",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        }
+                    ],
+                    "education": [
+                        "Wykształcenie wyższe informatyczne"
+                    ],
+                    "languages": [
+                        {
+                            "language": "Polski",
+                            "level": "C1"
+                        }
+                    ]
+                },
+                "employment": {
+                    "types": [
+                        "Umowa o pracę"
+                    ],
+                    "schedules": [
+                        "Pełny etat"
+                    ]
+                },
+                "dates": {
+                    "published": "2025-12-02 13:01:57",
+                    "expires": "2026-01-01 12:26:03"
+                },
+                "benefits": [
+                    "Elastyczny czas pracy",
+                    "Karta sportowa",
+                    "Prywatna opieka medyczna"
+                ],
+                "isUrgent": false,
+                "isForUkrainians": false
+            },
+            {
+                "id": 112,
+                "source": "Justjoinit",
+                "url": "https://justjoin.it/job-offer/asseco-poland-s-a--programista-java-c--wroclaw-c",
+                "jobTitle": "Programista JAVA+C++",
+                "company": {
+                    "name": "Asseco Poland S.A.",
+                    "logoUrl": "https://imgproxy.justjoinit.tech/AWQ5bvyhsWxrtIJ--RIHgfw8m9aYIo--FiG50oIfI1Q/h:200/w:200/plain/https://public.justjoin.it/companies/logos/original/a0319acfbc6c80fde89e8caaae37e1acd09952e0.png"
+                },
+                "description": "Szukamy Programisty Java + C++ do długofalowego projektu przy jednym z kluczowych systemów informatycznych w Polsce – systemie, wspierającym procesy związane z przyznawaniem emerytur i rent. System jest częścią rozbudowanego środowiska w obszarze ubezpieczeń społecznych, wykorzystywanego codziennie przez tysiące pracowników Zakładu Ubezpieczeń Społecznych. Dołączysz do niewielkiego, zgranego zespołu (2 programistów, Scrum Master, Product Owner/analityczka), który odpowiada za rozwój i utrzymanie modułów przetwarzania danych masowych w systemie. Projekt jest stabilny, długoterminowy i daje realną możliwość rozwoju w technologiach Java i C++. Jeśli masz doświadczenie w programowaniu w Javie oraz C++ lub chcesz ją rozwijać w praktyce, szukasz stabilnego, ale dynamicznego środowiska pracy – zapraszamy! Pracujemy w modelu hybrydowym z biura (Wrocław, Katowice)Proces rekrutacyjny prowadzony jest zdalnie (rozmowa telefoniczna, zadanie, spotkanie spotkanie z Zespołem i decyzja). Czym będziesz się zajmować?\nTworzenie i rozwijanie oprogramowania w językach Java oraz C++ (ANSI C/C++98; docelowo C11/C17)\nUtrzymanie i rozwój systemu o architekturze monolitycznej (obsługa procesów masowych) oraz komponentów opartych na mikrousługach (Tuxedo, OpenShift)\nWspółpraca z zespołami odpowiedzialnymi za interfejsy użytkownika i inne moduły\nTworzenie i aktualizacja dokumentacji technicznej\nCo będzie Ci potrzebne aby móc wykonywać powierzone Ci zadania?\nMinimum 2 lata doświadczenia jako programista Java/C++\nDobra znajomość Javy i technologii takich jak Spring, Spring Boot, Hibernate\nZnajomość języka C++ (ANSI C/C++98; mile widziane C11/C17)\nZnajomość SQL i relacyjnych baz danych (preferowana DB2)\nDoświadczenie w pracy na systemach UNIX / Windows\nZnajomość narzędzi: Git, Jira\nUmiejętność pracy zespołowej i analitycznego myślenia\nMile widziane:\nDoświadczenie z Tuxedo, OpenShift lub mikroserwisami\nZnajomość języków skryptowych (Python, Shell)\nWiedza z zakresu UML, CI/CD, automatyzacji procesów wytwórczych\nZnajomość Angular lub chęć rozwoju w kierunku front-endu\nPraktyka w pracy w metodyce Scrum\nBenefity\nPracowniczy Plan Emerytalny\nDrużyna Active Team\nSpotkania integracyjne\nUbezpieczenie grupowe\nPrywatna opieka medyczna\nMultisport\nSzkolenia\nDostęp do zaawansowanych technologii\nPraca w największej spółce IT",
+                "salary": {
+                    "from": null,
+                    "to": null,
+                    "currency": "PLN",
+                    "period": "Miesięcznie",
+                    "type": "netto"
+                },
+                "location": {
+                    "buildingNumber": null,
+                    "street": "-",
+                    "city": "Wrocław",
+                    "postalCode": null,
+                    "coordinates": {
+                        "latitude": 51.1092948,
+                        "longitude": 17.0386019
+                    },
+                    "isRemote": null,
+                    "isHybrid": true
+                },
+                "category": {
+                    "leadingCategory": "Informatyka",
+                    "subCategories": null
+                },
+                "requirements": {
+                    "skills": [
+                        {
+                            "skill": "Angular",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "C++",
+                            "experienceMonths": 24,
+                            "experienceLevel": [
+                                "Średniozaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "CI/CD",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "DB2",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Git",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Hibernate",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Java",
+                            "experienceMonths": 24,
+                            "experienceLevel": [
+                                "Średniozaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "Jira",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Python",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Scrum",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Shell",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Spring",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Spring Boot",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "SQL",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "UML",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        }
+                    ],
+                    "education": null,
+                    "languages": []
+                },
+                "employment": {
+                    "types": [
+                        "Umowa o pracę"
+                    ],
+                    "schedules": [
+                        "Pełny etat"
+                    ]
+                },
+                "dates": {
+                    "published": "2025-12-05 09:01:50",
+                    "expires": "2026-01-04 08:42:22"
+                },
+                "benefits": [
+                    "Dostęp do zaawansowanych technologii",
+                    "Drużyna Active Team",
+                    "Multisport",
+                    "Praca w największej spółce IT",
+                    "Pracowniczy Plan Emerytalny",
+                    "Prywatna opieka medyczna",
+                    "Spotkania integracyjne",
+                    "Szkolenia",
+                    "Ubezpieczenie grupowe"
+                ],
+                "isUrgent": false,
+                "isForUkrainians": false
+            },
+            {
+                "id": 153,
+                "source": "Aplikujpl",
+                "url": "https://www.aplikuj.pl/oferta/2923339/programista-operator-maszyn-cnc-finlandia-umowa-o-prace-eastgate-recruitment",
+                "jobTitle": "Programista Operator maszyn CNC Finlandia",
+                "company": {
+                    "name": "Eastgate Recruitment",
+                    "logoUrl": "/media/6-2mJYa-_fQUmzbKho1Z7o2iuDoIoPmWSVxoPgtQiPwJumDCy8_o0POLepFLXCdxQbV5QNHNUHtP4R7XhCUxLgJtQCdwWxuF0z_tVSOKoODDTAWMS0JM7RQXRn0jJn9HtWIs_SmGIAzOWiFjiiBmuldmro8G7J-GqqQDj2ImIAWaGWAltymIbxiBj02gwW1zdQ-iYzmF_WCg0IbErNMhxOI2wRswWZ2ttzTJAxh7VRzwm2ABt0IK8F4QO8-pv5G22DVF4Fv-7js7kVVuip--JkvH4B07pJ2G8yyyXXxtlpkZQ9qbWEWZgovfkISeP-A5dKmdAKM0mAZt51pJ77hF1MbDxC6fBjONCeeqeobg-ehVooktsvPXE-1vn9mHncNzyR6h0MwmaleLDQLIJkgAwcSuhHqm1nBOSAlJIyuYOIMw9D9r3_tNKHz8pRtWGQSL3oIEgGPjpG-BcQ/171534449949186200.webp"
+                },
+                "description": "EastGateRecruitment jest agencją pośrednictwa pracy wpisaną do Rejestru Podmiotów Prowadzących Agencje Zatrudnienia pod numerem 17627. Od 2017 oferujemy profesjonalne usługi rekrutacyjne firmom, które poszukują pracowników do pracy w siedzibach firm znajdujących się w całej Europie. Pracownikom gwarantujemy natomiast pomoc nie tylko w znalezieniu pracy, ale również doradztwo personalne oraz poradnictwo zawodowe. Firma EastGate Recruitment, wpisana do rejestru podmiotów prowadzących agencje zatrudnienia pod numerem 17627, dla swojego klienta poszukuje osób do pracy Finlandii",
+                "salary": {
+                    "from": 15.00,
+                    "to": 18.00,
+                    "currency": "EUR",
+                    "period": "Godzinowo",
+                    "type": "netto"
+                },
+                "location": {
+                    "buildingNumber": null,
+                    "street": null,
+                    "city": "Finlandia",
+                    "postalCode": null,
+                    "coordinates": {
+                        "latitude": null,
+                        "longitude": null
+                    },
+                    "isRemote": false,
+                    "isHybrid": false
+                },
+                "category": {
+                    "leadingCategory": "Informatyka",
+                    "subCategories": null
+                },
+                "requirements": {
+                    "skills": [
+                        {
+                            "skill": "Programowanie CNC",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Rysunek techniczny",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        }
+                    ],
+                    "education": null,
+                    "languages": [
+                        {
+                            "language": "Angielski",
+                            "level": "B1"
+                        }
+                    ]
+                },
+                "employment": {
+                    "types": [
+                        "Umowa o pracę"
+                    ],
+                    "schedules": [
+                        "Pełny etat"
+                    ]
+                },
+                "dates": {
+                    "published": "2025-07-30 00:00:00",
+                    "expires": "2026-07-31 00:00:00"
+                },
+                "benefits": [
+                    "fińska umowa o pracę",
+                    "Pracodawca pokrywa koszt dojazdu do Finlandii (do 100 euro)",
+                    "składki oraz podatki odprowadzane w Finlandii przez Pracodawcę",
+                    "ubezpieczenie",
+                    "zakwaterowanie zorganizowane przez Pracodawcę"
+                ],
+                "isUrgent": false,
+                "isForUkrainians": false
+            },
+            {
+                "id": 113,
+                "source": "Justjoinit",
+                "url": "https://justjoin.it/job-offer/asseco-poland-s-a--programista-java-c--wroclaw-java",
+                "jobTitle": "Programista JAVA+C++",
+                "company": {
+                    "name": "Asseco Poland S.A.",
+                    "logoUrl": "https://imgproxy.justjoinit.tech/AWQ5bvyhsWxrtIJ--RIHgfw8m9aYIo--FiG50oIfI1Q/h:200/w:200/plain/https://public.justjoin.it/companies/logos/original/a0319acfbc6c80fde89e8caaae37e1acd09952e0.png"
+                },
+                "description": "Szukamy Programisty Java + C++ do długofalowego projektu przy jednym z kluczowych systemów informatycznych w Polsce – systemie, wspierającym procesy związane z przyznawaniem emerytur i rent. System jest częścią rozbudowanego środowiska w obszarze ubezpieczeń społecznych, wykorzystywanego codziennie przez tysiące pracowników Zakładu Ubezpieczeń Społecznych. Dołączysz do niewielkiego, zgranego zespołu (2 programistów, Scrum Master, Product Owner/analityczka), który odpowiada za rozwój i utrzymanie modułów przetwarzania danych masowych w systemie. Projekt jest stabilny, długoterminowy i daje realną możliwość rozwoju w technologiach Java i C++. Jeśli masz doświadczenie w programowaniu w Javie oraz C++ lub chcesz ją rozwijać w praktyce, szukasz stabilnego, ale dynamicznego środowiska pracy – zapraszamy! Pracujemy w modelu hybrydowym z biura (Wrocław, Katowice)Proces rekrutacyjny prowadzony jest zdalnie (rozmowa telefoniczna, zadanie, spotkanie spotkanie z Zespołem i decyzja). Czym będziesz się zajmować?\nTworzenie i rozwijanie oprogramowania w językach Java oraz C++ (ANSI C/C++98; docelowo C11/C17)\nUtrzymanie i rozwój systemu o architekturze monolitycznej (obsługa procesów masowych) oraz komponentów opartych na mikrousługach (Tuxedo, OpenShift)\nWspółpraca z zespołami odpowiedzialnymi za interfejsy użytkownika i inne moduły\nTworzenie i aktualizacja dokumentacji technicznej\nCo będzie Ci potrzebne aby móc wykonywać powierzone Ci zadania?\nMinimum 2 lata doświadczenia jako programista Java/C++\nDobra znajomość Javy i technologii takich jak Spring, Spring Boot, Hibernate\nZnajomość języka C++ (ANSI C/C++98; mile widziane C11/C17)\nZnajomość SQL i relacyjnych baz danych (preferowana DB2)\nDoświadczenie w pracy na systemach UNIX / Windows\nZnajomość narzędzi: Git, Jira\nUmiejętność pracy zespołowej i analitycznego myślenia\nMile widziane:\nDoświadczenie z Tuxedo, OpenShift lub mikroserwisami\nZnajomość języków skryptowych (Python, Shell)\nWiedza z zakresu UML, CI/CD, automatyzacji procesów wytwórczych\nZnajomość Angular lub chęć rozwoju w kierunku front-endu\nPraktyka w pracy w metodyce Scrum\nBenefity\nPracowniczy Plan Emerytalny\nDrużyna Active Team\nSpotkania integracyjne\nUbezpieczenie grupowe\nPrywatna opieka medyczna\nMultisport\nSzkolenia\nDostęp do zaawansowanych technologii\nPraca w największej spółce IT",
+                "salary": {
+                    "from": null,
+                    "to": null,
+                    "currency": "PLN",
+                    "period": "Miesięcznie",
+                    "type": "netto"
+                },
+                "location": {
+                    "buildingNumber": null,
+                    "street": "-",
+                    "city": "Wrocław",
+                    "postalCode": null,
+                    "coordinates": {
+                        "latitude": 51.1092948,
+                        "longitude": 17.0386019
+                    },
+                    "isRemote": null,
+                    "isHybrid": true
+                },
+                "category": {
+                    "leadingCategory": "Informatyka",
+                    "subCategories": null
+                },
+                "requirements": {
+                    "skills": [
+                        {
+                            "skill": "Angular",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "C++",
+                            "experienceMonths": 24,
+                            "experienceLevel": [
+                                "Średniozaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "CI/CD",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "DB2",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Git",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Hibernate",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Java",
+                            "experienceMonths": 24,
+                            "experienceLevel": [
+                                "Średniozaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "Jira",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Python",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Scrum",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Shell",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Spring",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Spring Boot",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "SQL",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "UML",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        }
+                    ],
+                    "education": null,
+                    "languages": []
+                },
+                "employment": {
+                    "types": [
+                        "Umowa o pracę"
+                    ],
+                    "schedules": [
+                        "Pełny etat"
+                    ]
+                },
+                "dates": {
+                    "published": "2025-12-05 09:01:50",
+                    "expires": "2025-12-31 22:59:59"
+                },
+                "benefits": [
+                    "Dostęp do zaawansowanych technologii",
+                    "Drużyna Active Team",
+                    "Multisport",
+                    "Praca w największej spółce IT",
+                    "Pracowniczy Plan Emerytalny",
+                    "Prywatna opieka medyczna",
+                    "Spotkania integracyjne",
+                    "Szkolenia",
+                    "Ubezpieczenie grupowe"
+                ],
+                "isUrgent": false,
+                "isForUkrainians": false
+            },
+            {
+                "id": 137,
+                "source": "Justjoinit",
+                "url": "https://justjoin.it/job-offer/dps-systems-sp-z-o-o--programista-c-net--warszawa-c",
+                "jobTitle": "Programista C# (.NET)",
+                "company": {
+                    "name": "DPS Systems Sp. z o.o.",
+                    "logoUrl": "https://imgproxy.justjoinit.tech/z62QX_HlhtygHqAHThbBft3SibGpV-sQUYGTg4CZEDU/h:200/w:200/plain/https://s3.eu-west-1.amazonaws.com/images.justjoin.it/justjoinit/company-logos/d1c78feb-a924-49af-8aa7-8a11376c4b4e.png"
+                },
+                "description": "Dla naszego partnera, firmy Remedia-IT Sp. z o.o. poszukujemy osoby na stanowisko:Programista C# (.NET)🧠 Twoje zadania:▪️tworzenie rozszerzeń do oprogramowania ERP Enova365,▪️tworzenie raportów i wydruków dla oprogramowania ERP Enova365 (DevExpress XtraReports),▪️tworzenie raportów SQL,▪️wsparcie zespołu wdrożeniowego w procesie analizy wymagań oraz wdrażania rozszerzeń do ERP.🔍 Wymagania:▪️Co najmniej 2 lata doświadczenia w programowaniu aplikacji w języku C#,▪️Co najmniej 2 lata doświadczenia w tworzeniu dodatków do systemu Enova365,▪️Znajomość systemów ERP,▪️Znajomość API systemu Enova365,▪️Znajomość Visual Studio oraz języka C# (WinForms, WPF),▪️Znajomość bazy danych MS SQL Server,▪️Znajomość WebAPI,▪️Umiejętność pracy z repozytorium GIT,▪️Znajomość języka angielskiego w zakresie zrozumienia dokumentacji technicznej.🎯 Mile widziane:▪️Znajomość kontrolek DevExpress▪️ Znajomość bazy danych Oracle🎁Oferujemy:▪️stabilne projekty w systemie ERP,▪️praca blisko procesów biznesowych,▪️elastyczne godziny pracy,▪️możliwość pracy hybrydowej/ zdalnej,▪️zapewniamy narzędzia pracy (laptop, monitor itp.),▪️zniżkę na kartę sportową oraz pakiet medyczny Warta- Luxmed,▪️świetna, niekorporacyjna atmosfera.Wygląda ciekawie?Jest ciekawie, nie czekaj, aplikuj!",
+                "salary": {
+                    "from": 8600.00,
+                    "to": 14000.00,
+                    "currency": "PLN",
+                    "period": "Miesięcznie",
+                    "type": "netto"
+                },
+                "location": {
+                    "buildingNumber": null,
+                    "street": "Marynarska 15",
+                    "city": "Warszawa",
+                    "postalCode": null,
+                    "coordinates": {
+                        "latitude": 52.178301,
+                        "longitude": 20.999583
+                    },
+                    "isRemote": null,
+                    "isHybrid": true
+                },
+                "category": {
+                    "leadingCategory": "Informatyka",
+                    "subCategories": null
+                },
+                "requirements": {
+                    "skills": [
+                        {
+                            "skill": "C#",
+                            "experienceMonths": 24,
+                            "experienceLevel": [
+                                "Średniozaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "DevExpress",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "ERP Enova365",
+                            "experienceMonths": 24,
+                            "experienceLevel": [
+                                "Średniozaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "GIT",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "MS SQL Server",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": ".NET",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Oracle",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "SQL",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Visual Studio",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "WebAPI",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "WinForms",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "WPF",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        }
+                    ],
+                    "education": null,
+                    "languages": [
+                        {
+                            "language": "Angielski",
+                            "level": "B1"
+                        }
+                    ]
+                },
+                "employment": {
+                    "types": [
+                        "Kontrakt B2B"
+                    ],
+                    "schedules": [
+                        "Pełny etat"
+                    ]
+                },
+                "dates": {
+                    "published": "2025-12-02 09:01:37",
+                    "expires": "2026-01-21 22:59:59"
+                },
+                "benefits": null,
+                "isUrgent": false,
+                "isForUkrainians": false
+            },
+            {
+                "id": 133,
+                "source": "Justjoinit",
+                "url": "https://justjoin.it/job-offer/dps-systems-sp-z-o-o--programista-c-net--warszawa-erp",
+                "jobTitle": "Programista C# (.NET)",
+                "company": {
+                    "name": "DPS Systems Sp. z o.o.",
+                    "logoUrl": "https://imgproxy.justjoinit.tech/z62QX_HlhtygHqAHThbBft3SibGpV-sQUYGTg4CZEDU/h:200/w:200/plain/https://s3.eu-west-1.amazonaws.com/images.justjoin.it/justjoinit/company-logos/d1c78feb-a924-49af-8aa7-8a11376c4b4e.png"
+                },
+                "description": "Dla naszego partnera, firmy Remedia-IT Sp. z o.o. poszukujemy osoby na stanowisko:Programista C# (.NET) Twoje zadania: tworzenie rozszerzeń do oprogramowania ERP Enova365, tworzenie raportów i wydruków dla oprogramowania ERP Enova365 (DevExpress XtraReports), tworzenie raportów SQL, wsparcie zespołu wdrożeniowego w procesie analizy wymagań oraz wdrażania rozszerzeń do ERP. Wymagania: Co najmniej 2 lata doświadczenia w programowaniu aplikacji w języku C#, Co najmniej 2 lata doświadczenia w tworzeniu dodatków do systemu Enova365, Znajomość systemów ERP, Znajomość API systemu Enova365, Znajomość Visual Studio oraz języka C# (WinForms, WPF), Znajomość bazy danych MS SQL Server, Znajomość WebAPI, Umiejętność pracy z repozytorium GIT, Znajomość języka angielskiego w zakresie zrozumienia dokumentacji technicznej. Mile widziane: Znajomość kontrolek DevExpress Znajomość bazy danych Oracle Oferujemy: stabilne projekty w systemie ERP, praca blisko procesów biznesowych, elastyczne godziny pracy, możliwość pracy hybrydowej/ zdalnej, zapewniamy narzędzia pracy (laptop, monitor itp.), zniżkę na kartę sportową oraz pakiet medyczny Warta- Luxmed, świetna, niekorporacyjna atmosfera.Wygląda ciekawie?Jest ciekawie, nie czekaj, aplikuj!",
+                "salary": {
+                    "from": 8600.00,
+                    "to": 14000.00,
+                    "currency": "PLN",
+                    "period": "Miesięcznie",
+                    "type": "netto"
+                },
+                "location": {
+                    "buildingNumber": null,
+                    "street": "Marynarska 15",
+                    "city": "Warszawa",
+                    "postalCode": null,
+                    "coordinates": {
+                        "latitude": 52.178301,
+                        "longitude": 20.999583
+                    },
+                    "isRemote": null,
+                    "isHybrid": true
+                },
+                "category": {
+                    "leadingCategory": "Informatyka",
+                    "subCategories": null
+                },
+                "requirements": {
+                    "skills": [
+                        {
+                            "skill": "C#",
+                            "experienceMonths": 24,
+                            "experienceLevel": [
+                                "Średniozaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "DevExpress",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "ERP Enova365",
+                            "experienceMonths": 24,
+                            "experienceLevel": [
+                                "Średniozaawansowany"
+                            ]
+                        },
+                        {
+                            "skill": "GIT",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "MS SQL Server",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": ".NET",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Oracle",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "SQL",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Visual Studio",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "WebAPI",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "WinForms",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "WPF",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        }
+                    ],
+                    "education": null,
+                    "languages": [
+                        {
+                            "language": "Angielski",
+                            "level": "B1"
+                        }
+                    ]
+                },
+                "employment": {
+                    "types": [
+                        "Kontrakt B2B"
+                    ],
+                    "schedules": [
+                        "Pełny etat"
+                    ]
+                },
+                "dates": {
+                    "published": "2025-12-02 09:01:37",
+                    "expires": "2026-01-21 22:59:59"
+                },
+                "benefits": [
+                    "Elastyczny czas pracy",
+                    "Karta sportowa",
+                    "Możliwość pracy zdalnej",
+                    "Opieka medyczna"
+                ],
+                "isUrgent": false,
+                "isForUkrainians": false
+            },
+            {
+                "id": 206,
+                "source": "Aplikujpl",
+                "url": "https://www.aplikuj.pl/oferta/3017140/programista-operator-maszyn-cnc-frezarki-umowa-o-prace-baltix-se-sp-z-o-o-",
+                "jobTitle": "Programista - operator maszyn CNC (frezarki)",
+                "company": {
+                    "name": "Baltix.se sp. z o.o.",
+                    "logoUrl": "/media/6-2mJYa-_fQUmzbKho1Z7o2iuDoIoPmWSVxoPgtQiPwJumDCy8_o0POLepFLXCdxQbV3QNHJUHtP4RnTgyEzIAlrQS55VBmF0z_tVSOKoODDTAWMS0JM7RQXRn0jJn9HtWIs_SmGIAzOWiFjiiBmuldmro8G7J-GqqQDj2ImIAWaGWAltymIbxiBj02gwW1zdQ-iYzmF_WCg0IbErNMhxOI2wRswWZ2ttzTJAxh7VRzwm2ABt0IK8F4QO8-pv5G22DVF4Fv-7js7kVVuip--JkvH4B07pJ2G8yyyXXxtlpkZQ9qbWEWZgovfkISeP-A5dKmdAKM0mAZt51pJ77hF1MbDxC6fBjONCeeqeobg-ehVooktsvPXE-1vn9mHncNzyR6h0MwmaleLDQLIJkgAwcSuhHqm1nBOSAlJIyuYOIMw9D9r3_tNKHz8pRtWGQSL3oIEgGPjpG-BcQ/171273067228819000.webp"
+                },
+                "description": "<p style=\"text-align: left\"><strong>&nbsp;</strong></p>\n \n <p> Baltix.se – Agencja Zatrudnienia nr 22373 - specjalizuje się w obsłudze firm skandynawskich ceniących wykwalifikowanych pracowników z Polski. Obecnie do pracy na terenie Szwecji poszukujemy kandydatów na stanowisko:</p>\n<br>\n<br>\n<br>\n<p><strong>Programista - operator maszyn CNC (frezarki)</strong></p>",
+                "salary": {
+                    "from": null,
+                    "to": null,
+                    "currency": null,
+                    "period": null,
+                    "type": null
+                },
+                "location": {
+                    "buildingNumber": null,
+                    "street": null,
+                    "city": "Szwecja",
+                    "postalCode": null,
+                    "coordinates": {
+                        "latitude": null,
+                        "longitude": null
+                    },
+                    "isRemote": false,
+                    "isHybrid": false
+                },
+                "category": {
+                    "leadingCategory": "Informatyka",
+                    "subCategories": [
+                        "Programista"
+                    ]
+                },
+                "requirements": {
+                    "skills": [
+                        {
+                            "skill": "CNC",
+                            "experienceMonths": 120,
+                            "experienceLevel": [
+                                "Ekspert"
+                            ]
+                        },
+                        {
+                            "skill": "Fanuc",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Heidenhain",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        }
+                    ],
+                    "education": null,
+                    "languages": [
+                        {
+                            "language": "Angielski",
+                            "level": "B2"
+                        },
+                        {
+                            "language": "Polski",
+                            "level": "C2"
+                        }
+                    ]
+                },
+                "employment": {
+                    "types": [
+                        "Umowa o pracę"
+                    ],
+                    "schedules": [
+                        "Pełny etat"
+                    ]
+                },
+                "dates": {
+                    "published": "2025-11-10 00:00:00",
+                    "expires": "2025-12-10 00:00:00"
+                },
+                "benefits": [
+                    "bezpłatne przejazdy (plus kilometrówka dla osób jadących własnym autem)",
+                    "bezpłatne zakwaterowanie (jednoosobowe pokoje z dostępem do Wi-Fi)",
+                    "długofalową współpracę w systemie rotacyjnym 6/2 tygodnie",
+                    "dodatkową prywatną opiekę medyczną (po 3 miesiącach)",
+                    "finansowanie uprawnień na wózki, suwnice (w zależności od potrzeb)",
+                    "możliwość przystąpienia do grupowego ubezpieczenia na życie",
+                    "Program poleceń pracowników",
+                    "program \"Premia za polecenie\"",
+                    "Prywatna opieka medyczna",
+                    "Ubezpieczenie grupowe",
+                    "Zapewniony transport lub dopłata do dojazdów",
+                    "zatrudnienie na podstawie polskiej umowy o pracę"
+                ],
+                "isUrgent": false,
+                "isForUkrainians": false
+            },
+            {
+                "id": 119,
+                "source": "Justjoinit",
+                "url": "https://justjoin.it/job-offer/comarch-programista-baz-danych-gdansk-data",
+                "jobTitle": "Programista baz danych",
+                "company": {
+                    "name": "Comarch",
+                    "logoUrl": "https://imgproxy.justjoinit.tech/Y9SDPQdrOFKJeJmz-dIJsS9l0lT-iGfcrkm1otkuvEU/h:200/w:200/plain/https://public.justjoin.it/companies/logos/original/de697eeb7d1a7c010f57d7759f98ab1da64cc6d2.png"
+                },
+                "description": "Sektor finansowy Comarch pracuje przy projektach rozwojowych dla&nbsp;klientów na&nbsp;całym świecie. Wdrażamy rozwiązania wspierające działalność banków, firm ubezpieczeniowych oraz instytucji finansowych w&nbsp;takich obszarach jak&nbsp;bankowość korporacyjna i&nbsp;SME. Realizujemy zadania od&nbsp;projektowania, programowania, testowania aż&nbsp;do momentu wdrożenia systemu.Czy wiesz, że&nbsp;już ponad 2,5 miliona klientów korzysta z&nbsp;naszego oprogramowania dla&nbsp;bankowości korporacyjnej? A&nbsp;dzięki naszym systemom, co&nbsp;miesiąc obliczanych jest ponad 200 tys. składek ubezpieczeniowych?W Comarch stale poszukujemy doświadczonych programistów, którzy potrafią tworzyć przemyślany kod, są&nbsp;nastawieni na&nbsp;pracę zespołową i&nbsp;dzielenie się&nbsp;wiedzą. Otrzymując odpowiedzialne zadania, szybko zdobędziesz nowe umiejętności, poznasz nowe technologie oraz najlepsze praktyki w&nbsp;programowaniu.Posiadasz doświadczenie jako Programista baz&nbsp;danych? Chcemy Cię&nbsp;poznać! Aplikuj już&nbsp;dziś i&nbsp;dołącz do&nbsp;naszego zespołu!",
+                "salary": {
+                    "from": null,
+                    "to": null,
+                    "currency": null,
+                    "period": null,
+                    "type": null
+                },
+                "location": {
+                    "buildingNumber": null,
+                    "street": "aleja Grunwaldzka 409",
+                    "city": "Gdańsk",
+                    "postalCode": null,
+                    "coordinates": {
+                        "latitude": 54.3984408,
+                        "longitude": 18.5775267
+                    },
+                    "isRemote": null,
+                    "isHybrid": true
+                },
+                "category": {
+                    "leadingCategory": "Informatyka",
+                    "subCategories": null
+                },
+                "requirements": {
+                    "skills": [
+                        {
+                            "skill": "Java",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "PL/SQL",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "SQL",
+                            "experienceMonths": 12,
+                            "experienceLevel": []
+                        }
+                    ],
+                    "education": [
+                        "Wykształcenie wyższe informatyczne"
+                    ],
+                    "languages": [
+                        {
+                            "language": "Angielski",
+                            "level": "B2"
+                        }
+                    ]
+                },
+                "employment": {
+                    "types": [
+                        "Umowa o pracę"
+                    ],
+                    "schedules": [
+                        "Pełny etat"
+                    ]
+                },
+                "dates": {
+                    "published": "2025-12-02 13:01:57",
+                    "expires": "2026-02-05 12:35:42"
+                },
+                "benefits": [
+                    "Prywatna opieka medyczna"
+                ],
+                "isUrgent": false,
+                "isForUkrainians": false
+            },
+            {
+                "id": 224,
+                "source": "Aplikujpl",
+                "url": "https://www.aplikuj.pl/oferta/3034304/operator-i-programista-cnc-w-spx-flow-|-sprzet-przemyslowy-umowa-o-prace-tymczasowa-otto-work-force",
+                "jobTitle": "Operator i Programista CNC w SPX Flow | Sprzęt Przemysłowy",
+                "company": {
+                    "name": "OTTO Work Force",
+                    "logoUrl": "/media/6-2mJYa-_fQUmzbKho1Z7o2iuDoIoPmWSVxoPgtQiPwJumDCy8_o0POLepFLXCdxQbZyQNHMUHtO5Rvchyk8IwNhSi57XB2F0z_tVSOKoODDTAWMS0JM7RQXRn0jJn9HtWIs_SmGIAzOWiFjiiBmuldmro8G7J-GqqQDj2ImIAWaGWAltymIbxiBj02gwW1zdQ-iYzmF_WCg0IbErNMhxOI2wRswWZ2ttzTJAxh7VRzwm2ABt0IK8F4QO8-pv5G22DVF4Fv-7js7kVVuip--JkvH4B07pJ2G8yyyXXxtlpkZQ9qbWEWZgovfkISeP-A5dKmdAKM0mAZt51pJ77hF1MbDxC6fBjONCeeqeobg-ehVooktsvPXE-1vn9mHncNzyR6h0MwmaleLDQLIJkgAwcSuhHqm1nBOSAlJIyuYOIMw9D9r3_tNKHz8pRtWGQSL3oIEgGPjpG-BcQ/165087894883831400.webp"
+                },
+                "description": "SPX Flow to dynamiczna firma z siedzibą w Assen, specjalizująca się w dostarczaniu wysokiej jakości rozwiązań w zakresie obsługi cieczy. Firma jest wyłącznym przedstawicielem w Holandii i Belgii czołowych producentów pomp wyporowych, mieszadeł, systemów dozujących, zaworów, urządzeń analitycznych oraz kompletnych instalacji.",
+                "salary": {
+                    "from": 21.00,
+                    "to": 24.00,
+                    "currency": "EUR",
+                    "period": "Godzinowo",
+                    "type": "netto"
+                },
+                "location": {
+                    "buildingNumber": null,
+                    "street": null,
+                    "city": "Holandia",
+                    "postalCode": null,
+                    "coordinates": {
+                        "latitude": null,
+                        "longitude": null
+                    },
+                    "isRemote": false,
+                    "isHybrid": false
+                },
+                "category": {
+                    "leadingCategory": "Inna",
+                    "subCategories": [
+                        "Programista"
+                    ]
+                },
+                "requirements": {
+                    "skills": [
+                        {
+                            "skill": "CNC",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Frezowanie",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Rysunek techniczny",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        },
+                        {
+                            "skill": "Toczenie",
+                            "experienceMonths": null,
+                            "experienceLevel": []
+                        }
+                    ],
+                    "education": [
+                        "Wykształcenie techniczne"
+                    ],
+                    "languages": [
+                        {
+                            "language": "Angielski",
+                            "level": "B2"
+                        },
+                        {
+                            "language": "Niemiecki",
+                            "level": "B2"
+                        }
+                    ]
+                },
+                "employment": {
+                    "types": [
+                        "Umowa o pracę tymczasową"
+                    ],
+                    "schedules": [
+                        "Pełny etat"
+                    ]
+                },
+                "dates": {
+                    "published": "2025-12-02 00:00:00",
+                    "expires": "2026-01-01 00:00:00"
+                },
+                "benefits": [
+                    "Atrakcyjna stawka godzinowa",
+                    "Cotygodniowe wypłaty",
+                    "Dostęp do aplikacji myOTTO",
+                    "Rekrutacja ONLINE",
+                    "Transport do pracy",
+                    "Ubezpieczenie zdrowotne",
+                    "Umowa o pracę tymczasową zgodnie z prawem holenderskim",
+                    "Wsparcie 24/7",
+                    "Zorganizowane zakwaterowanie"
+                ],
+                "isUrgent": false,
+                "isForUkrainians": false
+            }
+        ],
+        "page": 1,
+        "pageSize": 20,
+        "totalItems": 61,
+        "totalPages": 4,
+        "isLastPage": false
+    },
+    "dynamicFilters": {
+        "languagesNames": [
+            "Angielski",
+            "Polski",
+            "Niemiecki"
+        ],
+        "languagesLevels": [
+            "B2",
+            "B1",
+            "C1",
+            "C2"
+        ],
+        "experienceMonths": [
+            36,
+            48,
+            84,
+            60,
+            24,
+            120,
+            12,
+            72
+        ],
+        "experienceLevels": [
+            "Średniozaawansowany",
+            "Zaawansowany",
+            "Dobry",
+            "Początkujący",
+            "Ekspert"
+        ],
+        "educationNames": [
+            "Certyfikat TOGAF® 9",
+            "Wykształcenie wyższe techniczne",
+            "Wykształcenie wyższe informatyczne",
+            "Wykształcenie techniczne",
+            "Wykształcenie wyższe",
+            "Wykształcenie wyższe (informatyka, matematyka, telekomunikacja)",
+            "Licencjat",
+            "Magister",
+            "Wykształcenie wyższe w dziedzinie IT lub pokrewnej",
+            "Wykształcenie wyższe telekomunikacyjne"
+        ],
+        "skillsList": [
+            "Apache Kafka",
+            "BPMN",
+            "CI/CD Jenkins",
+            "DDD",
+            "ELK Stack",
+            "Git",
+            "Groovy",
+            "Java",
+            "JUnit",
+            "Maven",
+            "Mockito",
+            "MQ",
+            "REST",
+            "SonarQube",
+            "Spock",
+            "Spring",
+            "AI/ML",
+            "Algorytmy ML",
+            "LLM",
+            "Python",
+            "PyTorch",
+            "Sieci neuronowe",
+            "TensorFlow",
+            "Agile",
+            "Angular",
+            "BPMN 2.0",
+            "Camunda",
+            "GraphQL",
+            "Integracja Systemów",
+            "Kafka",
+            "Kubernetes",
+            "Mikrofrontendy",
+            "Mikroserwisy",
+            "MongoDB",
+            "Oracle",
+            "Scrum",
+            "SOA",
+            "SOAP",
+            "UML",
+            "DevOps",
+            "Docker",
+            "Hibernate",
+            "JPA",
+            "REST API",
+            "Spring Boot",
+            "SQL",
+            "GIT",
+            "JAVA",
+            "Jenkins",
+            "PL/SQL",
+            "CSS",
+            "HTML",
+            "JavaScript",
+            "MS SQL",
+            "MySQL",
+            "Node.js",
+            "NPM",
+            "PostgreSQL",
+            "C++",
+            "DB2",
+            "Jira",
+            "Shell",
+            "UNIX",
+            "Windows",
+            "Bootstrap",
+            "C#",
+            "HTML5",
+            "JIRA",
+            "jQuery",
+            "Material Design",
+            ".NET",
+            "RWD",
+            "SASS",
+            "TypeScript",
+            "Elektrotechnika",
+            "HMI GOT",
+            "HMI WinCC",
+            "PLC Mitsubishi",
+            "PLC Siemens TIA Portal",
+            "Automatyka",
+            "Elektromechanika",
+            "LAD",
+            "Mechatronika",
+            "Pakiet Office",
+            "Robotyka",
+            "SCL",
+            "ADO",
+            "Azure DevOps",
+            "Boost",
+            "Catch2",
+            "COM",
+            "COM Interop",
+            "Crystal Reports",
+            "GoogleTest",
+            "Microsoft",
+            "Microsoft SQL Server",
+            "Microsoft Visual Studio",
+            "STL",
+            "WPF",
+            "CI/CD",
+            "Programowanie CNC",
+            "Rysunek techniczny",
+            "DevExpress",
+            "ERP Enova365",
+            "MS SQL Server",
+            "Visual Studio",
+            "WebAPI",
+            "WinForms",
+            "CNC",
+            "Fanuc",
+            "Heidenhain",
+            "Frezowanie",
+            "Toczenie",
+            "Go",
+            "gRPC",
+            "Linux",
+            "MQTT",
+            "OPC UA",
+            "CMake",
+            "CAD/CAM",
+            "Esprit CAM",
+            "EUREKA",
+            "ZW3D",
+            "Backend",
+            "Java SE",
+            "Enova365",
+            "ERP",
+            "Adobe XD",
+            "API",
+            "Bitrix",
+            "ClickUp",
+            "FIGMA",
+            "SEO",
+            "MSSQL",
+            "Percona XtraDB Cluster for MySQL",
+            "PL/PqSQL",
+            "ASP.NET Core",
+            "ASP.NET Core Blazor",
+            "ASP.NET MVC",
+            "Gradle",
+            "Relacyjne bazy danych",
+            "Testy jednostkowe",
+            "React",
+            "PL/pgSQL",
+            "Jasmine",
+            ".NET Standard",
+            "node.js",
+            "RxJS",
+            "Entity Framework Core",
+            "Graphtalk AIA",
+            "Mitsubishi",
+            "PLC",
+            "Roboty przemysłowe",
+            "Schematy elektryczne",
+            "Azure",
+            "Vue.js",
+            "WSO2",
+            "Android",
+            "C/C++",
+            "HTTP",
+            "JNI",
+            "Koin",
+            "RxJava",
+            "SSL/TLS",
+            "TCP/IP",
+            "AWS Bedrock",
+            "Azure OpenAI",
+            "Cognitive Search",
+            "Gemini Multimodal",
+            "LangChain",
+            "MLOps Pipelines",
+            "ONNX Runtime",
+            "TensorFlow Extended (TFX)",
+            "TPU v5 Pods",
+            "Vertex AI LLM Evaluation",
+            "Programowanie",
+            "ORACLE",
+            "Analiza biznesowa",
+            "Bazy danych",
+            "Hurtownia danych",
+            "PgPL/SQL",
+            "Programowanie obiektowe",
+            "Rozwiązywanie problemów",
+            "T-SQL",
+            "Anthropic",
+            "AWS",
+            "Chroma",
+            "FAISS",
+            "GCP",
+            "Generative AI",
+            "Hugging Face",
+            "OpenAI",
+            "Pinecone",
+            "RESTful API",
+            "Domain-Driven Design",
+            "ElasticSearch",
+            "PHP",
+            "Redis",
+            "SOLID",
+            "Solr",
+            "SQLite",
+            "Symfony",
+            "AVFoundation",
+            "Clean Architecture",
+            "Combine",
+            "Confluence",
+            "DRM",
+            "FairPlay",
+            "Fastlane",
+            "GitLab",
+            "HLS",
+            "IMA SDK",
+            "iOS",
+            "MVVM",
+            "RxSwift",
+            "Swift",
+            "SwiftUI",
+            "tvOS",
+            "UIKit",
+            "Universal Links",
+            "VOD",
+            "WCAG",
+            "Oracle Forms",
+            "Oracle Reports",
+            "Apache Airflow",
+            "Apache Spark",
+            "Hadoop",
+            "JSON",
+            "MinIO",
+            "XML",
+            "Analiza wymagań",
+            "Modelowanie UML",
+            "Oracle Database"
+        ],
+        "benefitsList": [
+            "Dofinansowanie szkoleń",
+            "Karta sportowa",
+            "Lekcje języków obcych",
+            "Prywatna opieka medyczna",
+            "Elastyczny czas pracy",
+            "Możliwość rozwoju zawodowego",
+            "dodatkowe świadczenia socjalne",
+            "dofinansowanie nauki języków",
+            "dofinansowanie szkoleń i kursów",
+            "dofinansowanie zajęć sportowych",
+            "firmowa biblioteka",
+            "możliwość pracy zdalnej",
+            "prywatna opieka medyczna",
+            "spotkania integracyjne",
+            "ubezpieczenie na życie",
+            "Brak dress code'u",
+            "Kawa/herbata",
+            "Możliwość uczestnictwa w grupowym systemie opieki zdrowotnej",
+            "Owoce",
+            "Paczki świąteczne",
+            "Parking dla pracowników",
+            "Program rekomendacji pracowników",
+            "Program sportowy „FitSport”",
+            "Spotkania integracyjne",
+            "Strefa relaksu",
+            "Dostęp do zaawansowanych technologii",
+            "Drużyna Active Team",
+            "Kursy językowe",
+            "Multisport",
+            "Owocowe środy",
+            "Pracownicy Plan Emerytalny",
+            "Szkolenia",
+            "Ubezpieczenie grupowe",
+            "Aktywny udział w realizacji projektów.",
+            "Dobra atmosfera pracy.",
+            "Komfortowe warunki biurowe.",
+            "Możliwość ciągłego rozwoju i podnoszenia swoich kwalifikacji.",
+            "Pakiet świadczeń socjalnych.",
+            "Po weryfikacji umiejętności i zaangażowania samochód służbowy",
+            "Praca w dynamicznie rozwijającej się firmie, realizującej projekty na całym świecie",
+            "Realna możliwość rozwoju zawodowego i realizacji własnych pomysłów",
+            "Rozwój z wykorzystaniem najnowszych rozwiązań PLC na rynku",
+            "Stabilne zatrudnienie w ramach umowy o pracę",
+            "Udział w ciekawych projektach w Polsce i zagranicą",
+            "Współpraca w oparciu o partnerską relację, otwartość na propozycje i Twój punkt widzenia",
+            "Współpraca z ambitnym i doświadczonym zespołem, któremu nie obce są wyzwania",
+            "Wynagrodzenie rosnące adekwatnie do umiejętności.",
+            "Praca w największej spółce IT",
+            "Pracowniczy Plan Emerytalny",
+            "fińska umowa o pracę",
+            "Pracodawca pokrywa koszt dojazdu do Finlandii (do 100 euro)",
+            "składki oraz podatki odprowadzane w Finlandii przez Pracodawcę",
+            "ubezpieczenie",
+            "zakwaterowanie zorganizowane przez Pracodawcę",
+            "Możliwość pracy zdalnej",
+            "Opieka medyczna",
+            "bezpłatne przejazdy (plus kilometrówka dla osób jadących własnym autem)",
+            "bezpłatne zakwaterowanie (jednoosobowe pokoje z dostępem do Wi-Fi)",
+            "długofalową współpracę w systemie rotacyjnym 6/2 tygodnie",
+            "dodatkową prywatną opiekę medyczną (po 3 miesiącach)",
+            "finansowanie uprawnień na wózki, suwnice (w zależności od potrzeb)",
+            "możliwość przystąpienia do grupowego ubezpieczenia na życie",
+            "Program poleceń pracowników",
+            "program \"Premia za polecenie\"",
+            "Zapewniony transport lub dopłata do dojazdów",
+            "zatrudnienie na podstawie polskiej umowy o pracę",
+            "Atrakcyjna stawka godzinowa",
+            "Cotygodniowe wypłaty",
+            "Dostęp do aplikacji myOTTO",
+            "Rekrutacja ONLINE",
+            "Transport do pracy",
+            "Ubezpieczenie zdrowotne",
+            "Umowa o pracę tymczasową zgodnie z prawem holenderskim",
+            "Wsparcie 24/7",
+            "Zorganizowane zakwaterowanie",
+            "Platforma kafeteryjna",
+            "Zniżki na samochody",
+            "Darmowe lekcje j. angielskiego",
+            "parking dla pracowników",
+            "program rekomendacji pracowników",
+            "program wellbeingowy",
+            "ubezpieczenie szpitalne",
+            "szkolenia i możliwość rozwoju zawodowego w branży Automatyki Przemysłowej.",
+            "wynagrodzenie adekwatne do posiadanych umiejętności i osiąganych wyników w pracy",
+            "zatrudnienie na podstawie umowy o pracę",
+            "Brak dress code’u",
+            "Dofinansowanie nauki języków",
+            "Dofinansowanie szkoleń i kursów",
+            "Firmowa biblioteka",
+            "Lunch Pass",
+            "Opieka stomatologiczna",
+            "Ubezpieczenie na życie",
+            "Budżet na szkolenia",
+            "długotrwała fińska umowa o pracę",
+            "wynagrodzenie 14.00-15,00 €/h brutto",
+            "zakwaterowanie zorganizowane przez Pracodawcę płatne 200 Euro",
+            "Ciągły rozwój zawodowy oraz możliwość poszerzania specjalistycznej wiedzy z zakresu projektów IT",
+            "Pracę w nieformalnej atmosferze wśród osób o ciekawych doświadczeniach i zainteresowaniach",
+            "Płatne dni wolne",
+            "Dofinansowanie do nauki języka angielskiego",
+            "Karta Multisport",
+            "Dofinansowanie do prywatnej opieki zdrowotnej",
+            "Nauka języka angielskiego na platformie TUTLO",
+            "Pakiet medyczny Medicover",
+            "Pakiet rekreacyjno-sportowy Multisport"
+        ],
+        "isForUkrainians": false,
+        "isUrgent": false
+    }
+}

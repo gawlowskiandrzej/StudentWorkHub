@@ -6,7 +6,7 @@ import { useState } from "react";
 import { SearchBar } from "@/components/feature/search/SearchBar";
 import { FilterWithDialog } from "@/components/feature/search/FilterWithDialog";
 import { useRouter } from 'next/navigation';
-import { useSearch } from "@/context/SearchContext";
+import { useSearch } from "@/store/SearchContext";
 
 type FiltersState = {
     workType?: string;

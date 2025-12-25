@@ -3,7 +3,7 @@ import { Geist, Geist_Mono, Roboto } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { SearchProvider } from "@/context/SearchContext";
+import { SearchProvider } from "@/store/SearchContext";
 
 const roboto = Roboto({
   weight: '400',
