@@ -1,4 +1,4 @@
-import { dynamicFilter } from "@/types/details/DynamicFilter";
+import { dynamicFilter } from "@/types/details/dynamicFilter";
 
 export function mapToDynamicFilter(
   header: string,

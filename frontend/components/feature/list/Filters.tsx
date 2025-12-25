@@ -3,7 +3,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { ChevronDownIcon } from "lucide-react";
 import { useState } from "react";
 import "../../../styles/DynamicFilter.css";
-import { dynamicFilter } from "@/types/details/DynamicFilter";
+import { dynamicFilter } from "@/types/details/dynamicFilter";
 
 export function DynamicFilter({header, items}: dynamicFilter) {
   const [open, setOpen] = useState(false);
@@ -23,14 +23,6 @@ export function DynamicFilter({header, items}: dynamicFilter) {
             <div className="option-long-name-name">{item.label}</div>
           </label>
         ))}
-        {/* <label className="offer-list-filter-item cursor-pointer">
-          <Checkbox className="frame-20"></Checkbox>
-          <div className="option-long-name-name">OptionLongNameName</div>
-        </label>
-        <label className="offer-list-filter-item cursor-pointer">
-          <Checkbox className="frame-20"></Checkbox>
-          <div className="option-long-name-name">OptionLongNameName</div>
-      </label> */}
       </CollapsibleContent>
     </Collapsible>
   );

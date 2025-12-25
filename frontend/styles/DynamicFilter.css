@@ -54,7 +54,7 @@
   color: #ffffff;
   text-align: center;
   font-family: "Roboto-Bold", sans-serif;
-  font-size: var(--subHeader, 25px);
+  font-size: var(--mediumSize);
   font-weight: 700;
   position: relative;
   flex: 1;
