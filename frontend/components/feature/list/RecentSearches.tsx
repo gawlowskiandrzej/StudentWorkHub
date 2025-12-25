@@ -1,4 +1,4 @@
-import { useSearch } from "@/context/SearchContext";
+import { useSearch } from "@/store/SearchContext";
 import {Search} from "../../../types/search/search";
 
 const lastSearches: Search[] = [
