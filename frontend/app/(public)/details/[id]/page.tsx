@@ -6,21 +6,30 @@ import ProgressBar from "@/components/feature/details/Progress";
 import { useParams, useRouter } from 'next/navigation';
 import offersJson from '@/store/data/DummyOffers.json';
 import { formatSalaryValue } from "@/utils/salary/formatSalary";
+import { calculateProgress } from "@/utils/date/dateProgress";
+import { SkillsSection } from "@/components/feature/details/SkillSection";
+import { LanguageSection } from "@/components/feature/details/LanguagesSection";
+import { EducationSection } from "@/components/feature/details/EducationSection";
+import { BenefitsSection } from "@/components/feature/details/BenefitsSection";
 
 
 export default function DetailsPage() {
-  const params = useParams();
-  const id = params.id as string;
+    const params = useParams();
+    const id = params.id as string;
     const router = useRouter();
     function goBackToListView() {
         router.push('/list');
     };
     const offer = offersJson.pagination.items.find(
-    (item) => item.id === Number(id)
+        (item) => item.id === Number(id)
     );
     if (!offer) {
-    return <div>Offer not found</div>;
+        return <div>Offer not found</div>;
     }
+    const progress = calculateProgress(
+        offer.dates.published,
+        offer.dates.expires
+    );
     const logoUrl = offer.company.logoUrl
         ? offer.source === 'Aplikujpl'
             ? `https://aplikuj.pl${offer.company.logoUrl}`
@@ -28,184 +37,117 @@ export default function DetailsPage() {
         : '/icons/company0.svg';
     return (
         <div className="offer-details-view">
-            <div className="general-details">
-                <div className="flex flex-col gap-10 items-center justify-start self-stretch">
-                    <div className="flex flex-row items-center self-stretch text-left justify-start cursor-pointer scale-hover gap-5" onClick={() => goBackToListView()}><ArrowLeft className="primary chevron-left" /> Go back</div>
-                    <div className="categories-header">
-                        <div className="leading-category">leading category</div>
-                        <ChevronRight />
-                        <div className="subcategory-subcategory">subcategory / subcategory</div>
-                    </div>
+            <div className="offer-details-view-navigation">
+                <div className="go-back-button scale-hover">
+                    <div className="flex flex-row items-center self-stretch text-left justify-start cursor-pointer gap-3" onClick={() => goBackToListView()}><ArrowLeft className="secondary chevron-left" /> Go to list</div>
                 </div>
-
-                <div className="general-header">
-                    <img className="company" src={logoUrl} />
-                    <div className="header-of-details">
-                        <div className="job-main-info">
-                            <div className="frame-53">
-                                <div className="job-title">{offer.jobTitle}</div>
-                                <div className="company-name">{offer.company.name}</div>
-                            </div>
-                            <div className="frame-73">
-                                <div className="_100-200-z">{offer.salary.from != null && offer.salary.to != null
-                                    ? `${formatSalaryValue(offer.salary.from)} ${offer.salary.currency} - ${formatSalaryValue(offer.salary.to)} ${offer.salary.currency}`
-                                    : 'Nie zdefiniowano'}</div>
-                            </div>
-                        </div>
-                        <ProgressBar current={70} max={100} date={new Date()} />
-                    </div>
-                </div>
-                <div className="line-1"></div>
-                <div className="general-info-skills">
-                    <div className="skill-section-content">
-                        <div className="skill-section-row">
-                            <div className="frame-163">
-                                <img className="file-text" src="/icons/file-text0.svg" />
-                                <div className="job-category">JobCategory</div>
-                            </div>
-                            <div className="frame-162">
-                                <img className="file-text" src="/icons/map-pin0.svg" />
-                                <div className="job-category">CityName</div>
-                            </div>
-                        </div>
-                        <div className="skill-section-row">
-                            <div className="frame-163">
-                                <img className="file-text" src="/icons/house.svg" />
-                                <div className="job-category">WorkPlace</div>
-                            </div>
-                            <div className="frame-162">
-                                <img className="file-text" src="/icons/briefcase0.svg" />
-                                <div className="job-category">WorkType</div>
-                            </div>
-                        </div>
-                        <div className="skill-section-row">
-                            <div className="frame-163">
-                                <img className="file-text" src="/icons/dollar-sign0.svg" />
-                                <div className="job-category">SalaryType</div>
-                            </div>
-                            <div className="frame-162">
-                                <img className="file-text" src="/icons/pie-chart0.svg" />
-                                <div className="job-category">WorkSchedule</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="line-2"></div>
-                <div className="required-skills-section">
-                    <div className="required-skills">Required skills</div>
-                    <div className="skill-section-content2">
-                        <div className="skill-section-row">
-                            <div className="skill-section-name">
-                                <img className="file-text" src="/icons/check-circle0.svg" />
-                                <div className="job-category">SkillName</div>
-                            </div>
-                            <div className="skill-section-months">
-                                <img className="file-text" src="/icons/clock0.svg" />
-                                <div className="job-category">SkillMonths</div>
-                            </div>
-                            <div className="skill-section-level">
-                                <img className="file-text" src="/icons/award0.svg" />
-                                <div className="job-category">SkillLevel</div>
-                            </div>
-                        </div>
-                        <div className="skill-section-row">
-                            <div className="skill-section-name">
-                                <img className="file-text" src="/icons/check-circle0.svg" />
-                                <div className="job-category">SkillName</div>
-                            </div>
-                            <div className="skill-section-months">
-                                <img className="file-text" src="/icons/clock0.svg" />
-                                <div className="job-category">SkillMonths</div>
-                            </div>
-                            <div className="skill-section-level">
-                                <img className="file-text" src="/icons/award0.svg" />
-                                <div className="job-category">SkillLevel</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="line-3"></div>
-                <div className="required-skills-section">
-                    <div className="required-skills">Required languages</div>
-                    <div className="skill-section-content2">
-                        <div className="skill-section-row">
-                            <div className="skill-section-name">
-                                <img className="file-text" src="/icons/file-text0.svg" />
-                                <div className="job-category">LanguageLevel</div>
-                            </div>
-                            <div className="skill-section-level">
-                                <img className="file-text" src="/icons/award0.svg" />
-                                <div className="job-category">LanguageLevel</div>
-                            </div>
-                        </div>
-                        <div className="skill-language-row">
-                            <div className="skill-section-name">
-                                <img className="file-text" src="/icons/file-text0.svg" />
-                                <div className="job-category">LanguageLevel</div>
-                            </div>
-                            <div className="skill-section-level">
-                                <img className="file-text" src="/icons/award0.svg" />
-                                <div className="job-category">LanguageLevel</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="line-4"></div>
-                <div className="required-skills-section">
-                    <div className="required-skills">Required languages</div>
-                    <div className="skill-section-content2">
-                        <div className="skill-section-row">
-                            <div className="skill-section-name">
-                                <img className="file-text" src="/icons/gift0.svg" />
-                                <div className="job-category">BenefitName</div>
-                            </div>
-                            <div className="skill-section-level">
-                                <img className="file-text" src="/icons/gift0.svg" />
-                                <div className="job-category">BenefitName</div>
-                            </div>
-                        </div>
-                        <div className="skill-language-row">
-                            <div className="skill-section-name">
-                                <img className="file-text" src="/icons/gift0.svg" />
-                                <div className="job-category">BenefitName</div>
-                            </div>
-                            <div className="skill-section-level">
-                                <img className="file-text" src="/icons/gift0.svg" />
-                                <div className="job-category">BenefitName</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="line-5"></div>
-                <div className="apply-for-offer-button">
-                    <div className="main-button">
-                        <div className="find-mathing-job">Go to offer page</div>
-                    </div>
+                <div className="categories-header">
+                    <div className="leading-category">{offer.category.leadingCategory}</div>
+                    <ChevronRight />
+                    {offer.category.subCategories ? <div className="subcategory-subcategory">{offer.category.subCategories?.join(' / ')}</div> : <div className="subcategory-subcategory">brak podkategorii</div>}
                 </div>
             </div>
-            <div className="frame-165">
-                <div className="right-column-details">
-                    <div className="main-button">
-                        <div className="find-mathing-job">Go to offer page</div>
-                    </div>
-                    <div className="education-section">
-                        <div className="required-education">Required education</div>
-                        <div className="frame-85">
-                            <div className="education-row">
-                                <img className="education" src="/icons/education0.svg" />
-                                <div className="job-category">Educ. level</div>
-                                <img className="file-text" src="/icons/check-circle0.svg" />
+            <div className="offer-details-view-content">
+                <div className="general-details">
+                    <div className="general-header">
+                        <div className="companyWrapper">
+                            <img className="company" src={logoUrl} />
+                        </div>
+                        <div className="header-of-details">
+                            <div className="job-main-info">
+                                <div className="frame-53">
+                                    <div className="job-title">{offer.jobTitle}</div>
+                                    <div className="company-name">{offer.company.name}</div>
+                                </div>
+                                <div className="frame-73">
+                                    <div className="_100-200-z">{offer.salary.from != null && offer.salary.to != null
+                                        ? `${formatSalaryValue(offer.salary.from)} ${offer.salary.currency} - ${formatSalaryValue(offer.salary.to)} ${offer.salary.currency}`
+                                        : 'Nie zdefiniowano'}</div>
+                                </div>
                             </div>
-                            <div className="education-row">
-                                <img className="education" src="/icons/education0.svg" />
-                                <div className="job-category">Educ. level</div>
-                                <img className="file-text" src="/icons/check-circle0.svg" />
+                            <ProgressBar
+                                progress={progress}
+                                expiresAt={new Date(offer.dates.expires)}
+                            />
+                        </div>
+                    </div>
+                    <div className="line-6"></div>
+                    <div className="skill-section-content">
+                        <div className="skill-section-row">
+                            <div className="skill-section-item">
+                                <img className="map-pin" src="/icons/light/map-pinLight.svg" />
+                                <div className="city-name">
+                                    {offer.location.street
+                                        ? `${offer.location.street}, ${offer.location.postalCode ? offer.location.postalCode : "Nie wykryto kodu pocztowego"}`
+                                        : "Nie zdefiniowano adresu"}
+                                </div>
+                            </div>
+                            <div className="skill-section-item2">
+                                <img className="map-pin2" src="/icons/flag0.svg" />
+                                <div className="city-name">{offer.isForUkrainians == true ? "Również dla ukaińców" : "Praca przeznaczona dla Polaków"}</div>
+                            </div>
+                            <div className="skill-section-item3">
+                                <img className="file-text" src="/icons/light/file-textLight.svg" />
+                                <div className="city-name">{offer.category.leadingCategory}</div>
                             </div>
                         </div>
+                        <div className="skill-section-row">
+                            <div className="skill-section-item">
+                                <img className="briefcase" src="/icons/light/briefcaseLight.svg" />
+                                <div className="city-name">{offer.employment.types.join(' / ')}</div>
+                            </div>
+                            <div className="skill-section-item2">
+                                <img className="map-pin3" src="/icons/cast0.svg" />
+                                <div className="city-name">
+                                    {offer.location.isRemote
+                                        ? "Możliwa praca zdalna"
+                                        : offer.location.isHybrid
+                                            ? "Możliwa praca hybrydowa"
+                                            : "Praca tylko stacjonarnie"}
+                                </div>
+
+                            </div>
+                            <div className="skill-section-item3">
+                                <img className="home" src="/icons/light/homeLight.svg" />
+                                <div className="city-name">{offer.location.city ? offer.location.city : "Nie zdefiniowano miasta"}</div>
+                            </div>
+                        </div>
+                        <div className="skill-section-row">
+                            <div className="skill-section-item">
+                                <img className="pie-chart" src="/icons/light/pie-chartLight.svg" />
+                                <div className="city-name">{offer.employment.schedules ? offer.employment.schedules?.join(' / ') : "Nie zdefiniowano godzin pracy"}</div>
+                            </div>
+                            <div className="skill-section-item2">
+                                <img className="map-pin4" src="/icons/linkedin0.svg" />
+                                <div className="city-name">{offer.source}</div>
+                            </div>
+                            <div className="skill-section-item3">
+                                <img className="dollar-sign" src="/icons/light/dollar-signLight.svg" />
+                                <div className="city-name">{offer.salary.period ? offer.salary.period : "Nie zdefiniowno czasu wynagrodzenia"}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <SkillsSection offerSkills={offer.requirements.skills}/>
+                    <LanguageSection languages={offer.requirements.languages}/>
+                    <EducationSection educations={offer.requirements.education}/>
+                    <BenefitsSection benefits={offer.benefits}/>
+                    <div
+                        className="main-button"
+                        onClick={() => window.open(offer.url, "_blank", "noopener,noreferrer")}
+                    >
+                        <div className="find-mathing-job">Go to offer page</div>
+                    </div>
+                    {/* <div className="line-5"></div> */}
+                </div>
+                <div className="right-column-details">
+                    <div
+                        className="main-button"
+                        onClick={() => window.open(offer.url, "_blank", "noopener,noreferrer")}
+                    >
+                        <div className="find-mathing-job">Go to offer page</div>
                     </div>
                 </div>
             </div>
         </div>
-
     );
 }

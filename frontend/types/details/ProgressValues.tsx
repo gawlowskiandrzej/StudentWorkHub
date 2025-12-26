@@ -1,5 +1,4 @@
 export type ProgressValues = {
-  current: number;
-  max: number;
-  date: Date;
+  progress: number;
+  expiresAt:Date;
 };
