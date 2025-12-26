@@ -39,7 +39,9 @@ export default function DetailsPage() {
                 </div>
 
                 <div className="general-header">
-                    <img className="company" src={logoUrl} />
+                    <div className="companyWrapper">
+                        <img className="company" src={logoUrl} />
+                    </div>
                     <div className="header-of-details">
                         <div className="job-main-info">
                             <div className="frame-53">
