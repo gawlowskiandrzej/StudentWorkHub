@@ -8,6 +8,20 @@ namespace Users
     public readonly struct UserPasswordPolicy
     {
         /// <summary>
+        ///  Default constructor
+        /// </summary>
+        public UserPasswordPolicy() : this(
+            minLength: 12,
+            maxLength: 128,
+            requireUppercase: false,
+            requireLowercase: false,
+            requireDigit: false,
+            requireNonAlphanumeric: false,
+            requiredUniqueChars: 4,
+            allowedSpecialCharacters: "!@#$%^&*()-_=+[]{};:,.<>?",
+            knownPasswordsListPath: null) {}
+
+        /// <summary>
         /// Minimum allowed password length.
         /// </summary>
         public int MinLength { get; }
@@ -73,15 +87,15 @@ namespace Users
         /// and the file does not exist.
         /// </exception>
         public UserPasswordPolicy(
-            int minLength = 12,
-            int maxLength = 128,
-            bool requireUppercase = false,
-            bool requireLowercase = false,
-            bool requireDigit = false,
-            bool requireNonAlphanumeric = false,
-            int requiredUniqueChars = 4,
-            string? allowedSpecialCharacters = "!@#$%^&*()-_=+[]{};:,.<>?",
-            string? knownPasswordsListPath = null)
+            int minLength,
+            int maxLength,
+            bool requireUppercase,
+            bool requireLowercase,
+            bool requireDigit,
+            bool requireNonAlphanumeric,
+            int requiredUniqueChars,
+            string? allowedSpecialCharacters,
+            string? knownPasswordsListPath)
         {
             // Normalize configuration values to safe defaults.
             minLength = minLength > 0 ? minLength : 12;

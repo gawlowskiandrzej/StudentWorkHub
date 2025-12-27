@@ -88,7 +88,7 @@ namespace Users
             cancellation.ThrowIfCancellationRequested();
 
             await using var command = dataSource.CreateCommand(
-                "CALL public.standard_add_user(@p_email, @p_password, @p_first_name, @p_last_name)");
+                "CALL public.standard_add_user(@p_email, @p_password, @p_first_name, @p_last_name, NULL, NULL, NULL)");
 
             command.Parameters.AddWithValue("p_email", email);
             command.Parameters.AddWithValue("p_password", passwordHash);
@@ -157,7 +157,7 @@ namespace Users
             cancellation.ThrowIfCancellationRequested();
 
             await using var command = dataSource.CreateCommand(
-                "CALL public.set_user_remember_token(@p_user_id, @p_token)");
+                "CALL public.set_user_remember_token(@p_user_id, @p_token, NULL)");
 
             command.Parameters.AddWithValue("p_user_id", userId);
 
@@ -209,7 +209,7 @@ namespace Users
             cancellation.ThrowIfCancellationRequested();
 
             await using var command = dataSource.CreateCommand(
-                "CALL public.set_user_password(@p_user_id, @p_password)");
+                "CALL public.set_user_password(@p_user_id, @p_password, NULL)");
 
             command.Parameters.AddWithValue("p_user_id", userId);
             command.Parameters.AddWithValue("p_password", passwordHash);
@@ -259,7 +259,7 @@ namespace Users
             cancellation.ThrowIfCancellationRequested();
 
             await using var command = dataSource.CreateCommand(
-                "CALL public.set_user_phone(@p_user_id, @p_phone)");
+                "CALL public.set_user_phone(@p_user_id, @p_phone, NULL)");
 
             command.Parameters.AddWithValue("p_user_id", userId);
 
@@ -311,7 +311,7 @@ namespace Users
             cancellation.ThrowIfCancellationRequested();
 
             await using var command = dataSource.CreateCommand(
-                "CALL public.set_user_first_name(@p_user_id, @p_first_name)");
+                "CALL public.set_user_first_name(@p_user_id, @p_first_name, NULL)");
 
             command.Parameters.AddWithValue("p_user_id", userId);
             command.Parameters.AddWithValue("p_first_name", firstName);
@@ -361,7 +361,7 @@ namespace Users
             cancellation.ThrowIfCancellationRequested();
 
             await using var command = dataSource.CreateCommand(
-                "CALL public.set_user_second_name(@p_user_id, @p_second_name)");
+                "CALL public.set_user_second_name(@p_user_id, @p_second_name, NULL)");
 
             command.Parameters.AddWithValue("p_user_id", userId);
             command.Parameters.AddWithValue("p_second_name", secondName);
@@ -411,7 +411,7 @@ namespace Users
             cancellation.ThrowIfCancellationRequested();
 
             await using var command = dataSource.CreateCommand(
-                "CALL public.set_user_last_name(@p_user_id, @p_last_name)");
+                "CALL public.set_user_last_name(@p_user_id, @p_last_name, NULL)");
 
             command.Parameters.AddWithValue("p_user_id", userId);
             command.Parameters.AddWithValue("p_last_name", lastName);
@@ -459,7 +459,7 @@ namespace Users
             cancellation.ThrowIfCancellationRequested();
 
             await using var command = dataSource.CreateCommand(
-                "CALL public.delete_user(@p_user_id)");
+                "CALL public.delete_user(@p_user_id, NULL)");
 
             command.Parameters.AddWithValue("p_user_id", userId);
 
@@ -586,6 +586,21 @@ namespace Users
             }
         }
 
+        /// <summary>
+        /// Retrieves the weights configuration for the specified user as a JSON string
+        /// based on the row stored in the <c>public.weights</c> table.
+        /// </summary>
+        /// <param name="userId">
+        /// Identifier of the user whose row in the <c>public.weights</c> table should be retrieved.
+        /// </param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// A JSON string representing the weights configuration for the specified user if a row exists
+        /// in the <c>public.weights</c> table; otherwise <c>null</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">Thrown when an unexpected database error occurs.</exception>
         internal static async Task<string?> GetWeightsJsonAsync(
             long userId,
             NpgsqlDataSource dataSource,
@@ -594,14 +609,14 @@ namespace Users
             // Respect cancellation before initiating the scalar query.
             cancellation.ThrowIfCancellationRequested();
 
-            await using var command = dataSource.CreateCommand(
+            await using NpgsqlCommand command = dataSource.CreateCommand(
                 "SELECT public.get_weights_json(@p_user_id);");
 
             command.Parameters.AddWithValue("p_user_id", userId);
 
             try
             {
-                var result = await command.ExecuteScalarAsync(cancellation);
+                object? result = await command.ExecuteScalarAsync(cancellation);
 
                 // Null or DBNull indicates that there is no weights row for this user.
                 if (result is null || result is DBNull)
@@ -616,25 +631,87 @@ namespace Users
             }
         }
 
+        /// <summary>
+        /// Retrieves the public user profile for the specified user as a JSON string,
+        /// based on the row stored in the <c>public.users</c> table and related name tables.
+        /// </summary>
+        /// <param name="userId">
+        /// Identifier of the user whose profile should be retrieved.
+        /// </param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// A JSON string representing the public profile of the specified user if a row exists
+        /// in the <c>public.users</c> table; otherwise <c>null</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">Thrown when an unexpected database error occurs.</exception>
+        internal static async Task<string?> GetUserJsonAsync(
+            long userId,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
+        {
+            // Respect cancellation before initiating the scalar query.
+            cancellation.ThrowIfCancellationRequested();
 
+            await using NpgsqlCommand command = dataSource.CreateCommand(
+                "SELECT public.get_user_json(@p_user_id);");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+
+            try
+            {
+                object? result = await command.ExecuteScalarAsync(cancellation);
+
+                // Null or DBNull indicates that the user does not exist.
+                if (result is null || result is DBNull)
+                    return null;
+
+                // Npgsql maps jsonb to string by default.
+                return (string)result;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error", ex);
+            }
+        }
+
+        /// <summary>
+        /// Updates the <c>order_by_option</c> column in the <c>public.weights</c> table
+        /// for the specified user.
+        /// </summary>
+        /// <param name="userId">
+        /// Identifier of the user whose <c>public.weights.order_by_option</c> value should be updated.
+        /// </param>
+        /// <param name="orderByOption">
+        /// Array of ordering option values to be stored in the <c>order_by_option</c> column
+        /// of the <c>public.weights</c> table for the specified user.
+        /// </param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// <c>true</c> if the database operation completed successfully and reported success; otherwise <c>false</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">Thrown when an unexpected database error occurs.</exception>
         internal static async Task<bool> SetWeightsOrderByOptionAsync(
-    long userId,
-    string[]? orderByOption,
-    NpgsqlDataSource dataSource,
-    CancellationToken cancellation = default)
+            long userId,
+            string[] orderByOption,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
         {
             // Allow caller to cancel before any query is sent to the database.
             cancellation.ThrowIfCancellationRequested();
 
-            await using var command = dataSource.CreateCommand(
+            await using NpgsqlCommand command = dataSource.CreateCommand(
                 "SELECT public.set_weights_order_by_option(@p_user_id, @p_order_by_option);");
 
             command.Parameters.AddWithValue("p_user_id", userId);
-            command.Parameters.AddWithValue("p_order_by_option", (object?)orderByOption ?? DBNull.Value);
+            command.Parameters.AddWithValue("p_order_by_option", orderByOption);
 
             try
             {
-                var result = await command.ExecuteScalarAsync(cancellation);
+                object? result = await command.ExecuteScalarAsync(cancellation);
                 return ConvertDbResultToBoolean(result);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
@@ -643,23 +720,41 @@ namespace Users
             }
         }
 
+        /// <summary>
+        /// Updates the <c>mean_value_ids</c> column in the <c>public.weights</c> table
+        /// for the specified user.
+        /// </summary>
+        /// <param name="userId">
+        /// Identifier of the user whose <c>public.weights.mean_value_ids</c> value should be updated.
+        /// </param>
+        /// <param name="meanValueIds">
+        /// Array of mean value identifiers to be stored in the <c>mean_value_ids</c> column
+        /// of the <c>public.weights</c> table for the specified user.
+        /// </param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// <c>true</c> if the database operation completed successfully and reported success; otherwise <c>false</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">Thrown when an unexpected database error occurs.</exception>
         internal static async Task<bool> SetWeightsMeanValueIdsAsync(
-    long userId,
-    string[]? meanValueIds,
-    NpgsqlDataSource dataSource,
-    CancellationToken cancellation = default)
+            long userId,
+            string[] meanValueIds,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
         {
             cancellation.ThrowIfCancellationRequested();
 
-            await using var command = dataSource.CreateCommand(
+            await using NpgsqlCommand command = dataSource.CreateCommand(
                 "SELECT public.set_weights_mean_value_ids(@p_user_id, @p_mean_value_ids);");
 
             command.Parameters.AddWithValue("p_user_id", userId);
-            command.Parameters.AddWithValue("p_mean_value_ids", (object?)meanValueIds ?? DBNull.Value);
+            command.Parameters.AddWithValue("p_mean_value_ids", meanValueIds);
 
             try
             {
-                var result = await command.ExecuteScalarAsync(cancellation);
+                object? result = await command.ExecuteScalarAsync(cancellation);
                 return ConvertDbResultToBoolean(result);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
@@ -667,23 +762,42 @@ namespace Users
                 throw new UserDbQueryException("Database error", ex);
             }
         }
+
+        /// <summary>
+        /// Updates the <c>vector</c> column in the <c>public.weights</c> table
+        /// for the specified user.
+        /// </summary>
+        /// <param name="userId">
+        /// Identifier of the user whose <c>public.weights.vector</c> value should be updated.
+        /// </param>
+        /// <param name="vector">
+        /// Array of floating-point values representing the weights vector to be stored in the
+        /// <c>vector</c> column of the <c>public.weights</c> table for the specified user.
+        /// </param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// <c>true</c> if the database operation completed successfully and reported success; otherwise <c>false</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">Thrown when an unexpected database error occurs.</exception>
         internal static async Task<bool> SetWeightsVectorAsync(
-    long userId,
-    float[]? vector,
-    NpgsqlDataSource dataSource,
-    CancellationToken cancellation = default)
+            long userId,
+            float[] vector,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
         {
             cancellation.ThrowIfCancellationRequested();
 
-            await using var command = dataSource.CreateCommand(
+            await using NpgsqlCommand command = dataSource.CreateCommand(
                 "SELECT public.set_weights_vector(@p_user_id, @p_vector);");
 
             command.Parameters.AddWithValue("p_user_id", userId);
-            command.Parameters.AddWithValue("p_vector", (object?)vector ?? DBNull.Value);
+            command.Parameters.AddWithValue("p_vector", vector);
 
             try
             {
-                var result = await command.ExecuteScalarAsync(cancellation);
+                object? result = await command.ExecuteScalarAsync(cancellation);
                 return ConvertDbResultToBoolean(result);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
@@ -691,23 +805,42 @@ namespace Users
                 throw new UserDbQueryException("Database error", ex);
             }
         }
+
+        /// <summary>
+        /// Updates the <c>mean_dist</c> column in the <c>public.weights</c> table
+        /// for the specified user.
+        /// </summary>
+        /// <param name="userId">
+        /// Identifier of the user whose <c>public.weights.mean_dist</c> value should be updated.
+        /// </param>
+        /// <param name="meanDist">
+        /// Array of floating-point values representing mean distances to be stored in the
+        /// <c>mean_dist</c> column of the <c>public.weights</c> table for the specified user.
+        /// </param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// <c>true</c> if the database operation completed successfully and reported success; otherwise <c>false</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">Thrown when an unexpected database error occurs.</exception>
         internal static async Task<bool> SetWeightsMeanDistAsync(
-    long userId,
-    float[]? meanDist,
-    NpgsqlDataSource dataSource,
-    CancellationToken cancellation = default)
+            long userId,
+            float[] meanDist,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
         {
             cancellation.ThrowIfCancellationRequested();
 
-            await using var command = dataSource.CreateCommand(
+            await using NpgsqlCommand command = dataSource.CreateCommand(
                 "SELECT public.set_weights_mean_dist(@p_user_id, @p_mean_dist);");
 
             command.Parameters.AddWithValue("p_user_id", userId);
-            command.Parameters.AddWithValue("p_mean_dist", (object?)meanDist ?? DBNull.Value);
+            command.Parameters.AddWithValue("p_mean_dist", meanDist);
 
             try
             {
-                var result = await command.ExecuteScalarAsync(cancellation);
+                object? result = await command.ExecuteScalarAsync(cancellation);
                 return ConvertDbResultToBoolean(result);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
@@ -715,23 +848,42 @@ namespace Users
                 throw new UserDbQueryException("Database error", ex);
             }
         }
+
+        /// <summary>
+        /// Updates the <c>means_value_sum</c> column in the <c>public.weights</c> table
+        /// for the specified user.
+        /// </summary>
+        /// <param name="userId">
+        /// Identifier of the user whose <c>public.weights.means_value_sum</c> value should be updated.
+        /// </param>
+        /// <param name="meansValueSum">
+        /// Array of floating-point values representing the sum of mean values to be stored in the
+        /// <c>means_value_sum</c> column of the <c>public.weights</c> table for the specified user.
+        /// </param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// <c>true</c> if the database operation completed successfully and reported success; otherwise <c>false</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">Thrown when an unexpected database error occurs.</exception>
         internal static async Task<bool> SetWeightsMeansValueSumAsync(
-    long userId,
-    float[]? meansValueSum,
-    NpgsqlDataSource dataSource,
-    CancellationToken cancellation = default)
+            long userId,
+            float[] meansValueSum,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
         {
             cancellation.ThrowIfCancellationRequested();
 
-            await using var command = dataSource.CreateCommand(
+            await using NpgsqlCommand command = dataSource.CreateCommand(
                 "SELECT public.set_weights_means_value_sum(@p_user_id, @p_means_value_sum);");
 
             command.Parameters.AddWithValue("p_user_id", userId);
-            command.Parameters.AddWithValue("p_means_value_sum", (object?)meansValueSum ?? DBNull.Value);
+            command.Parameters.AddWithValue("p_means_value_sum", meansValueSum);
 
             try
             {
-                var result = await command.ExecuteScalarAsync(cancellation);
+                object? result = await command.ExecuteScalarAsync(cancellation);
                 return ConvertDbResultToBoolean(result);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
@@ -739,23 +891,42 @@ namespace Users
                 throw new UserDbQueryException("Database error", ex);
             }
         }
+
+        /// <summary>
+        /// Updates the <c>means_value_ssum</c> column in the <c>public.weights</c> table
+        /// for the specified user.
+        /// </summary>
+        /// <param name="userId">
+        /// Identifier of the user whose <c>public.weights.means_value_ssum</c> value should be updated.
+        /// </param>
+        /// <param name="meansValueSsum">
+        /// Array of double-precision values representing the sum of squared mean values to be stored in the
+        /// <c>means_value_ssum</c> column of the <c>public.weights</c> table for the specified user.
+        /// </param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// <c>true</c> if the database operation completed successfully and reported success; otherwise <c>false</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">Thrown when an unexpected database error occurs.</exception>
         internal static async Task<bool> SetWeightsMeansValueSsumAsync(
-    long userId,
-    double[]? meansValueSsum,
-    NpgsqlDataSource dataSource,
-    CancellationToken cancellation = default)
+            long userId,
+            double[] meansValueSsum,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
         {
             cancellation.ThrowIfCancellationRequested();
 
-            await using var command = dataSource.CreateCommand(
+            await using NpgsqlCommand command = dataSource.CreateCommand(
                 "SELECT public.set_weights_means_value_ssum(@p_user_id, @p_means_value_ssum);");
 
             command.Parameters.AddWithValue("p_user_id", userId);
-            command.Parameters.AddWithValue("p_means_value_ssum", (object?)meansValueSsum ?? DBNull.Value);
+            command.Parameters.AddWithValue("p_means_value_ssum", meansValueSsum);
 
             try
             {
-                var result = await command.ExecuteScalarAsync(cancellation);
+                object? result = await command.ExecuteScalarAsync(cancellation);
                 return ConvertDbResultToBoolean(result);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
@@ -763,23 +934,42 @@ namespace Users
                 throw new UserDbQueryException("Database error", ex);
             }
         }
+
+        /// <summary>
+        /// Updates the <c>means_value_count</c> column in the <c>public.weights</c> table
+        /// for the specified user.
+        /// </summary>
+        /// <param name="userId">
+        /// Identifier of the user whose <c>public.weights.means_value_count</c> value should be updated.
+        /// </param>
+        /// <param name="meansValueCount">
+        /// Array of integer counts representing the number of values contributing to each mean to be stored in the
+        /// <c>means_value_count</c> column of the <c>public.weights</c> table for the specified user.
+        /// </param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// <c>true</c> if the database operation completed successfully and reported success; otherwise <c>false</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">Thrown when an unexpected database error occurs.</exception>
         internal static async Task<bool> SetWeightsMeansValueCountAsync(
-    long userId,
-    int[]? meansValueCount,
-    NpgsqlDataSource dataSource,
-    CancellationToken cancellation = default)
+            long userId,
+            int[] meansValueCount,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
         {
             cancellation.ThrowIfCancellationRequested();
 
-            await using var command = dataSource.CreateCommand(
+            await using NpgsqlCommand command = dataSource.CreateCommand(
                 "SELECT public.set_weights_means_value_count(@p_user_id, @p_means_value_count);");
 
             command.Parameters.AddWithValue("p_user_id", userId);
-            command.Parameters.AddWithValue("p_means_value_count", (object?)meansValueCount ?? DBNull.Value);
+            command.Parameters.AddWithValue("p_means_value_count", meansValueCount);
 
             try
             {
-                var result = await command.ExecuteScalarAsync(cancellation);
+                object? result = await command.ExecuteScalarAsync(cancellation);
                 return ConvertDbResultToBoolean(result);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
@@ -787,23 +977,42 @@ namespace Users
                 throw new UserDbQueryException("Database error", ex);
             }
         }
+
+        /// <summary>
+        /// Updates the <c>means_weight_sum</c> column in the <c>public.weights</c> table
+        /// for the specified user.
+        /// </summary>
+        /// <param name="userId">
+        /// Identifier of the user whose <c>public.weights.means_weight_sum</c> value should be updated.
+        /// </param>
+        /// <param name="meansWeightSum">
+        /// Array of floating-point values representing the sum of weights to be stored in the
+        /// <c>means_weight_sum</c> column of the <c>public.weights</c> table for the specified user.
+        /// </param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// <c>true</c> if the database operation completed successfully and reported success; otherwise <c>false</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">Thrown when an unexpected database error occurs.</exception>
         internal static async Task<bool> SetWeightsMeansWeightSumAsync(
-    long userId,
-    float[]? meansWeightSum,
-    NpgsqlDataSource dataSource,
-    CancellationToken cancellation = default)
+            long userId,
+            float[] meansWeightSum,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
         {
             cancellation.ThrowIfCancellationRequested();
 
-            await using var command = dataSource.CreateCommand(
+            await using NpgsqlCommand command = dataSource.CreateCommand(
                 "SELECT public.set_weights_means_weight_sum(@p_user_id, @p_means_weight_sum);");
 
             command.Parameters.AddWithValue("p_user_id", userId);
-            command.Parameters.AddWithValue("p_means_weight_sum", (object?)meansWeightSum ?? DBNull.Value);
+            command.Parameters.AddWithValue("p_means_weight_sum", meansWeightSum);
 
             try
             {
-                var result = await command.ExecuteScalarAsync(cancellation);
+                object? result = await command.ExecuteScalarAsync(cancellation);
                 return ConvertDbResultToBoolean(result);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
@@ -811,23 +1020,42 @@ namespace Users
                 throw new UserDbQueryException("Database error", ex);
             }
         }
+
+        /// <summary>
+        /// Updates the <c>means_weight_ssum</c> column in the <c>public.weights</c> table
+        /// for the specified user.
+        /// </summary>
+        /// <param name="userId">
+        /// Identifier of the user whose <c>public.weights.means_weight_ssum</c> value should be updated.
+        /// </param>
+        /// <param name="meansWeightSsum">
+        /// Array of double-precision values representing the sum of squared weights to be stored in the
+        /// <c>means_weight_ssum</c> column of the <c>public.weights</c> table for the specified user.
+        /// </param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// <c>true</c> if the database operation completed successfully and reported success; otherwise <c>false</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">Thrown when an unexpected database error occurs.</exception>
         internal static async Task<bool> SetWeightsMeansWeightSsumAsync(
-    long userId,
-    double[]? meansWeightSsum,
-    NpgsqlDataSource dataSource,
-    CancellationToken cancellation = default)
+            long userId,
+            double[] meansWeightSsum,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
         {
             cancellation.ThrowIfCancellationRequested();
 
-            await using var command = dataSource.CreateCommand(
+            await using NpgsqlCommand command = dataSource.CreateCommand(
                 "SELECT public.set_weights_means_weight_ssum(@p_user_id, @p_means_weight_ssum);");
 
             command.Parameters.AddWithValue("p_user_id", userId);
-            command.Parameters.AddWithValue("p_means_weight_ssum", (object?)meansWeightSsum ?? DBNull.Value);
+            command.Parameters.AddWithValue("p_means_weight_ssum", meansWeightSsum);
 
             try
             {
-                var result = await command.ExecuteScalarAsync(cancellation);
+                object? result = await command.ExecuteScalarAsync(cancellation);
                 return ConvertDbResultToBoolean(result);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
@@ -835,28 +1063,276 @@ namespace Users
                 throw new UserDbQueryException("Database error", ex);
             }
         }
+
+        /// <summary>
+        /// Updates the <c>means_weight_count</c> column in the <c>public.weights</c> table
+        /// for the specified user.
+        /// </summary>
+        /// <param name="userId">
+        /// Identifier of the user whose <c>public.weights.means_weight_count</c> value should be updated.
+        /// </param>
+        /// <param name="meansWeightCount">
+        /// Array of integer counts representing the number of weights contributing to each mean to be stored in the
+        /// <c>means_weight_count</c> column of the <c>public.weights</c> table for the specified user.
+        /// </param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// <c>true</c> if the database operation completed successfully and reported success; otherwise <c>false</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">Thrown when an unexpected database error occurs.</exception>
         internal static async Task<bool> SetWeightsMeansWeightCountAsync(
-    long userId,
-    int[]? meansWeightCount,
-    NpgsqlDataSource dataSource,
-    CancellationToken cancellation = default)
+            long userId,
+            int[] meansWeightCount,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
         {
             cancellation.ThrowIfCancellationRequested();
 
-            await using var command = dataSource.CreateCommand(
+            await using NpgsqlCommand command = dataSource.CreateCommand(
                 "SELECT public.set_weights_means_weight_count(@p_user_id, @p_means_weight_count);");
 
             command.Parameters.AddWithValue("p_user_id", userId);
-            command.Parameters.AddWithValue("p_means_weight_count", (object?)meansWeightCount ?? DBNull.Value);
+            command.Parameters.AddWithValue("p_means_weight_count", meansWeightCount);
 
             try
             {
-                var result = await command.ExecuteScalarAsync(cancellation);
+                object? result = await command.ExecuteScalarAsync(cancellation);
                 return ConvertDbResultToBoolean(result);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 throw new UserDbQueryException("Database error", ex);
+            }
+        }
+
+        /// <summary>
+        /// Checks whether the specified user has the given permission by invoking
+        /// the <c>public.user_has_permission</c> function in the database.
+        /// </summary>
+        /// <param name="userId">
+        /// Identifier of the user whose permissions should be checked.
+        /// </param>
+        /// <param name="permissionName">
+        /// Name of the permission to be verified for the specified user.
+        /// </param>
+        /// <param name="dataSource">
+        /// PostgreSQL data source used to create and execute the command.
+        /// </param>
+        /// <param name="cancellation">
+        /// Cancellation token to observe during the operation.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the database operation completed successfully and the user
+        /// has the specified permission; otherwise <c>false</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">
+        /// Thrown when the operation is cancelled.
+        /// </exception>
+        /// <exception cref="UserDbQueryException">
+        /// Thrown when an unexpected database error occurs.
+        /// </exception>
+        internal static async Task<bool> CheckPermission(
+            long userId,
+            string permissionName,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            await using NpgsqlCommand command = dataSource.CreateCommand(
+                "SELECT public.user_has_permission(@p_user_id, @p_permission_name);");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+            command.Parameters.AddWithValue("p_permission_name", permissionName);
+
+            try
+            {
+                object? result = await command.ExecuteScalarAsync(cancellation);
+                return ConvertDbResultToBoolean(result);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error", ex);
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the search history for the specified user as a JSON string
+        /// using the <c>public.get_search_history_json</c> PostgreSQL function.
+        /// The JSON result contains an array of search history entries ordered
+        /// from the most recent to the oldest one.
+        /// </summary>
+        /// <param name="userId">
+        /// Identifier of the user whose search history should be retrieved.
+        /// </param>
+        /// <param name="limit">
+        /// Maximum number of search history entries to return. If the value is less than
+        /// or equal to zero, an empty JSON array is returned.
+        /// </param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// A JSON string representing the search history for the specified user. When no
+        /// matching entries exist, an empty JSON array (<c>[]</c>) is returned.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">
+        /// Thrown when an unexpected database error occurs while retrieving the search history.
+        /// </exception>
+        internal static async Task<string> GetSearchHistoryJsonAsync(
+            long userId,
+            int limit,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
+        {
+            // Respect cancellation before initiating the scalar query.
+            cancellation.ThrowIfCancellationRequested();
+
+            await using NpgsqlCommand command = dataSource.CreateCommand(
+                "SELECT public.get_search_history_json(@p_user_id, @p_limit);");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+            command.Parameters.AddWithValue("p_limit", limit);
+
+            try
+            {
+                object? result = await command.ExecuteScalarAsync(cancellation);
+
+                // If the function would ever return NULL (it currently returns []), fallback to empty array.
+                if (result is null || result is DBNull)
+                    return "[]";
+
+                // Npgsql maps jsonb to string by default.
+                return (string)result;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error while retrieving search history.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Inserts a new search history entry for the specified user using the
+        /// <c>public.insert_search_history</c> stored procedure.
+        /// </summary>
+        /// <param name="userId">Identifier of the user for whom the search history entry is created.</param>
+        /// <param name="keywords">Optional search keywords used by the user.</param>
+        /// <param name="distance">Maximum distance used in the query.</param>
+        /// <param name="isRemote">Indicates whether the search was limited to remote offers.</param>
+        /// <param name="isHybrid">Indicates whether the search was limited to hybrid offers.</param>
+        /// <param name="leadingCategoryId">Optional identifier of the leading category used in the search.</param>
+        /// <param name="cityId">Optional identifier of the city used in the search.</param>
+        /// <param name="salaryFrom">Lower bound of the salary range used in the search.</param>
+        /// <param name="salaryTo">Upper bound of the salary range used in the search.</param>
+        /// <param name="salaryPeriodId">Optional salary period identifier.</param>
+        /// <param name="salaryCurrencyId">Optional salary currency identifier.</param>
+        /// <param name="salaryTypeId">Optional salary type identifier.</param>
+        /// <param name="employmentScheduleIds">
+        /// Optional collection of employment schedule identifiers used in the search.
+        /// </param>
+        /// <param name="employmentTypeIds">
+        /// Optional collection of employment type identifiers used in the search.
+        /// </param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// <c>true</c> when the stored procedure reports success via the <c>o_result</c> output parameter;
+        /// otherwise <c>false</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">
+        /// Thrown when the procedure does not return a valid result row or an unexpected database error occurs.
+        /// </exception>
+        internal static async Task<bool> InsertSearchHistoryAsync(
+            long userId,
+            string? keywords,
+            int? distance,
+            bool? isRemote,
+            bool? isHybrid,
+            short? leadingCategoryId,
+            int? cityId,
+            decimal salaryFrom,
+            decimal salaryTo,
+            short? salaryPeriodId,
+            short? salaryCurrencyId,
+            short? salaryTypeId,
+            short[]? employmentScheduleIds,
+            short[]? employmentTypeIds,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
+        {
+            // Fail fast if a cancellation was already requested before starting any I/O.
+            cancellation.ThrowIfCancellationRequested();
+
+            await using var command = dataSource.CreateCommand(
+                "CALL public.insert_search_history(" +
+                "@p_user_id, " +
+                "@p_keywords, " +
+                "@p_distance, " +
+                "@p_is_remote, " +
+                "@p_is_hybrid, " +
+                "@p_leading_category_id, " +
+                "@p_city_id, " +
+                "@p_salary_from, " +
+                "@p_salary_to, " +
+                "@p_salary_period_id, " +
+                "@p_salary_currency_id, " +
+                "@p_salary_type_id, " +
+                "@p_employment_schedule_ids, " +
+                "@p_employment_type_ids, " +
+                "NULL)");
+
+            // Required parameter
+            command.Parameters.AddWithValue("p_user_id", userId);
+
+            // Optional parameters: map nulls to DBNull.Value so that procedure defaults can be used when appropriate.
+            command.Parameters.AddWithValue("p_keywords", (object?)keywords ?? DBNull.Value);
+            command.Parameters.AddWithValue("p_distance", (object?)distance ?? DBNull.Value);
+
+            command.Parameters.AddWithValue("p_is_remote", (object?)isRemote ?? DBNull.Value);
+            command.Parameters.AddWithValue("p_is_hybrid", (object?)isHybrid ?? DBNull.Value);
+
+            command.Parameters.AddWithValue("p_leading_category_id", (object?)leadingCategoryId ?? DBNull.Value);
+            command.Parameters.AddWithValue("p_city_id", (object?)cityId ?? DBNull.Value);
+
+            command.Parameters.AddWithValue("p_salary_from", salaryFrom);
+            command.Parameters.AddWithValue("p_salary_to", salaryTo);
+
+            command.Parameters.AddWithValue("p_salary_period_id", (object?)salaryPeriodId ?? DBNull.Value);
+            command.Parameters.AddWithValue("p_salary_currency_id", (object?)salaryCurrencyId ?? DBNull.Value);
+            command.Parameters.AddWithValue("p_salary_type_id", (object?)salaryTypeId ?? DBNull.Value);
+
+            command.Parameters.AddWithValue(
+                "p_employment_schedule_ids",
+                (object?)employmentScheduleIds ?? DBNull.Value);
+
+            command.Parameters.AddWithValue(
+                "p_employment_type_ids",
+                (object?)employmentTypeIds ?? DBNull.Value);
+
+            try
+            {
+                // SingleRow hints to the provider that at most one row is expected, allowing optimizations.
+                await using var reader = await command
+                    .ExecuteReaderAsync(CommandBehavior.SingleRow, cancellation);
+
+                // Enforce contract that the stored procedure must always return a row with the OUT parameter(s).
+                if (!await reader.ReadAsync(cancellation))
+                    throw new UserDbQueryException("No result returned from `insert_search_history`.");
+
+                int resultOrdinal = reader.GetOrdinal("o_result");
+
+                // Missing or NULL result is treated as failure.
+                bool success = !reader.IsDBNull(resultOrdinal) &&
+                               reader.GetBoolean(resultOrdinal);
+
+                return success;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error while inserting search history.", ex);
             }
         }
 
