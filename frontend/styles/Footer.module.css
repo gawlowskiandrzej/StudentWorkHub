@@ -121,6 +121,7 @@
 }
 .copyright > .student-work-hub {
   height: auto;
+  color: var(--secondary);
 }
 .profile {
   color: #000000;
