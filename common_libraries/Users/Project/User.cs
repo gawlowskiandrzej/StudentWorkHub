@@ -483,7 +483,6 @@ namespace Users
 
             // Normalize the absence of data to a default empty JSON object for the caller.
             return result ?? "{}";
-
         }
 
         /// <summary>
@@ -760,7 +759,7 @@ namespace Users
             // - drop entries with empty keys or null values,
             // - keep only the first occurrence for duplicate keys to avoid conflicting updates.
             Dictionary<string, string> cleanedFieldNames = fieldNames
-                .Where(entry => string.IsNullOrWhiteSpace(entry.Value))
+                .Where(entry => !string.IsNullOrWhiteSpace(entry.Value))
                 .GroupBy(entry => entry.Key)
                 .Select(group => group.First())
                 .ToDictionary(entry => entry.Key, entry => entry.Value);
@@ -933,7 +932,7 @@ namespace Users
         /// <exception cref="OperationCanceledException">
         /// Thrown when the permission check is cancelled before or during the operation.
         /// </exception>
-        public async Task<bool> CheckPermissionAsync(long userId, string? permission, CancellationToken cancellation)
+        public async Task<bool> CheckPermissionAsync(long userId, string? permission, CancellationToken cancellation = default)
         {
             // Allow the caller to interrupt the whole update sequence before any processing starts.
             cancellation.ThrowIfCancellationRequested();
@@ -1045,8 +1044,8 @@ namespace Users
             bool? isHybrid,
             short? leadingCategoryId,
             int? cityId,
-            decimal salaryFrom,
-            decimal salaryTo,
+            decimal? salaryFrom,
+            decimal? salaryTo,
             short? salaryPeriodId,
             short? salaryCurrencyId,
             short? salaryTypeId,

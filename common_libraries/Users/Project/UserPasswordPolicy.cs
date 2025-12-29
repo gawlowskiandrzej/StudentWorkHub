@@ -5,22 +5,8 @@ namespace Users
     /// <summary>
     /// Defines password complexity requirements for user accounts.
     /// </summary>
-    public readonly struct UserPasswordPolicy
+    public sealed class UserPasswordPolicy
     {
-        /// <summary>
-        ///  Default constructor
-        /// </summary>
-        public UserPasswordPolicy() : this(
-            minLength: 12,
-            maxLength: 128,
-            requireUppercase: false,
-            requireLowercase: false,
-            requireDigit: false,
-            requireNonAlphanumeric: false,
-            requiredUniqueChars: 4,
-            allowedSpecialCharacters: "!@#$%^&*()-_=+[]{};:,.<>?",
-            knownPasswordsListPath: null) {}
-
         /// <summary>
         /// Minimum allowed password length.
         /// </summary>
@@ -87,15 +73,15 @@ namespace Users
         /// and the file does not exist.
         /// </exception>
         public UserPasswordPolicy(
-            int minLength,
-            int maxLength,
-            bool requireUppercase,
-            bool requireLowercase,
-            bool requireDigit,
-            bool requireNonAlphanumeric,
-            int requiredUniqueChars,
-            string? allowedSpecialCharacters,
-            string? knownPasswordsListPath)
+            int minLength = 12,
+            int maxLength = 128,
+            bool requireUppercase = false,
+            bool requireLowercase = false,
+            bool requireDigit = false,
+            bool requireNonAlphanumeric = false,
+            int requiredUniqueChars = 4,
+            string? allowedSpecialCharacters = "!@#$%^&*()-_=+[]{};:,.<>?",
+            string? knownPasswordsListPath = null)
         {
             // Normalize configuration values to safe defaults.
             minLength = minLength > 0 ? minLength : 12;

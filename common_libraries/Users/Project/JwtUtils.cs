@@ -8,7 +8,7 @@ namespace Users
     /// Internal helper for issuing and validating JWT access tokens for users.
     /// Uses HMAC-SHA256 and stores the user id in the "sub" claim.
     /// </summary>
-    internal static class JwtUtils
+    public static class JwtUtils
     {
         /// <summary>
         /// Generates a signed JWT containing the user id in the "UserId" claim.
@@ -34,7 +34,7 @@ namespace Users
         /// Thrown by <see cref="JwtSecurityTokenHandler.WriteToken(SecurityToken)"/> in encryption/JWE scenarios
         /// (not expected here because the token is signed-only). :contentReference[oaicite:5]{index=5}
         /// </exception>
-        internal static string Generate(JwtOptions jwtOptions, long userId)
+        public static string Generate(JwtOptions jwtOptions, long userId)
         {
             ArgumentNullException.ThrowIfNull(jwtOptions, nameof(jwtOptions));
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(userId, nameof(userId));
@@ -78,7 +78,7 @@ namespace Users
         /// Thrown when validation fails for reasons other than expiration, when the algorithm is unexpected,
         /// or when the "UserId" claim is missing/invalid.
         /// </exception>
-        internal static long GetUserId(JwtOptions jwtOptions, string jwt)
+        public static long GetUserId(JwtOptions jwtOptions, string jwt)
         {
             ArgumentNullException.ThrowIfNull(jwtOptions, nameof(jwtOptions));
             ArgumentException.ThrowIfNullOrWhiteSpace(jwt, nameof(jwt));

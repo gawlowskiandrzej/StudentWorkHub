@@ -1253,8 +1253,8 @@ namespace Users
             bool? isHybrid,
             short? leadingCategoryId,
             int? cityId,
-            decimal salaryFrom,
-            decimal salaryTo,
+            decimal? salaryFrom,
+            decimal? salaryTo,
             short? salaryPeriodId,
             short? salaryCurrencyId,
             short? salaryTypeId,
@@ -1268,6 +1268,7 @@ namespace Users
 
             await using var command = dataSource.CreateCommand(
                 "CALL public.insert_search_history(" +
+                "NULL, " +
                 "@p_user_id, " +
                 "@p_keywords, " +
                 "@p_distance, " +
@@ -1281,8 +1282,7 @@ namespace Users
                 "@p_salary_currency_id, " +
                 "@p_salary_type_id, " +
                 "@p_employment_schedule_ids, " +
-                "@p_employment_type_ids, " +
-                "NULL)");
+                "@p_employment_type_ids)");
 
             // Required parameter
             command.Parameters.AddWithValue("p_user_id", userId);
@@ -1297,8 +1297,8 @@ namespace Users
             command.Parameters.AddWithValue("p_leading_category_id", (object?)leadingCategoryId ?? DBNull.Value);
             command.Parameters.AddWithValue("p_city_id", (object?)cityId ?? DBNull.Value);
 
-            command.Parameters.AddWithValue("p_salary_from", salaryFrom);
-            command.Parameters.AddWithValue("p_salary_to", salaryTo);
+            command.Parameters.AddWithValue("p_salary_from", (object?)salaryFrom ?? DBNull.Value);
+            command.Parameters.AddWithValue("p_salary_to", (object?)salaryTo ?? DBNull.Value);
 
             command.Parameters.AddWithValue("p_salary_period_id", (object?)salaryPeriodId ?? DBNull.Value);
             command.Parameters.AddWithValue("p_salary_currency_id", (object?)salaryCurrencyId ?? DBNull.Value);
