@@ -700,19 +700,28 @@ namespace Users
             NpgsqlDataSource dataSource,
             CancellationToken cancellation = default)
         {
-            // Allow caller to cancel before any query is sent to the database.
             cancellation.ThrowIfCancellationRequested();
 
-            await using NpgsqlCommand command = dataSource.CreateCommand(
-                "SELECT public.set_weights_order_by_option(@p_user_id, @p_order_by_option);");
+            await using var command = dataSource.CreateCommand(
+                "CALL public.set_weights_order_by_option(@p_user_id, @p_order_by_option, NULL)");
 
             command.Parameters.AddWithValue("p_user_id", userId);
             command.Parameters.AddWithValue("p_order_by_option", orderByOption);
 
             try
             {
-                object? result = await command.ExecuteScalarAsync(cancellation);
-                return ConvertDbResultToBoolean(result);
+                await using var reader = await command
+                    .ExecuteReaderAsync(CommandBehavior.SingleRow, cancellation);
+
+                if (!await reader.ReadAsync(cancellation))
+                    throw new UserDbQueryException("No result returned from `set_weights_order_by_option`");
+
+                int successOrdinal = reader.GetOrdinal("p_success");
+
+                bool success = !reader.IsDBNull(successOrdinal) &&
+                               reader.GetBoolean(successOrdinal);
+
+                return success;
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -746,16 +755,26 @@ namespace Users
         {
             cancellation.ThrowIfCancellationRequested();
 
-            await using NpgsqlCommand command = dataSource.CreateCommand(
-                "SELECT public.set_weights_mean_value_ids(@p_user_id, @p_mean_value_ids);");
+            await using var command = dataSource.CreateCommand(
+                "CALL public.set_weights_mean_value_ids(@p_user_id, @p_mean_value_ids, NULL)");
 
             command.Parameters.AddWithValue("p_user_id", userId);
             command.Parameters.AddWithValue("p_mean_value_ids", meanValueIds);
 
             try
             {
-                object? result = await command.ExecuteScalarAsync(cancellation);
-                return ConvertDbResultToBoolean(result);
+                await using var reader = await command
+                    .ExecuteReaderAsync(CommandBehavior.SingleRow, cancellation);
+
+                if (!await reader.ReadAsync(cancellation))
+                    throw new UserDbQueryException("No result returned from `set_weights_mean_value_ids`");
+
+                int successOrdinal = reader.GetOrdinal("p_success");
+
+                bool success = !reader.IsDBNull(successOrdinal) &&
+                               reader.GetBoolean(successOrdinal);
+
+                return success;
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -789,16 +808,26 @@ namespace Users
         {
             cancellation.ThrowIfCancellationRequested();
 
-            await using NpgsqlCommand command = dataSource.CreateCommand(
-                "SELECT public.set_weights_vector(@p_user_id, @p_vector);");
+            await using var command = dataSource.CreateCommand(
+                "CALL public.set_weights_vector(@p_user_id, @p_vector, NULL)");
 
             command.Parameters.AddWithValue("p_user_id", userId);
             command.Parameters.AddWithValue("p_vector", vector);
 
             try
             {
-                object? result = await command.ExecuteScalarAsync(cancellation);
-                return ConvertDbResultToBoolean(result);
+                await using var reader = await command
+                    .ExecuteReaderAsync(CommandBehavior.SingleRow, cancellation);
+
+                if (!await reader.ReadAsync(cancellation))
+                    throw new UserDbQueryException("No result returned from `set_weights_vector`");
+
+                int successOrdinal = reader.GetOrdinal("p_success");
+
+                bool success = !reader.IsDBNull(successOrdinal) &&
+                               reader.GetBoolean(successOrdinal);
+
+                return success;
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -832,16 +861,26 @@ namespace Users
         {
             cancellation.ThrowIfCancellationRequested();
 
-            await using NpgsqlCommand command = dataSource.CreateCommand(
-                "SELECT public.set_weights_mean_dist(@p_user_id, @p_mean_dist);");
+            await using var command = dataSource.CreateCommand(
+                "CALL public.set_weights_mean_dist(@p_user_id, @p_mean_dist, NULL)");
 
             command.Parameters.AddWithValue("p_user_id", userId);
             command.Parameters.AddWithValue("p_mean_dist", meanDist);
 
             try
             {
-                object? result = await command.ExecuteScalarAsync(cancellation);
-                return ConvertDbResultToBoolean(result);
+                await using var reader = await command
+                    .ExecuteReaderAsync(CommandBehavior.SingleRow, cancellation);
+
+                if (!await reader.ReadAsync(cancellation))
+                    throw new UserDbQueryException("No result returned from `set_weights_mean_dist`");
+
+                int successOrdinal = reader.GetOrdinal("p_success");
+
+                bool success = !reader.IsDBNull(successOrdinal) &&
+                               reader.GetBoolean(successOrdinal);
+
+                return success;
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -875,16 +914,26 @@ namespace Users
         {
             cancellation.ThrowIfCancellationRequested();
 
-            await using NpgsqlCommand command = dataSource.CreateCommand(
-                "SELECT public.set_weights_means_value_sum(@p_user_id, @p_means_value_sum);");
+            await using var command = dataSource.CreateCommand(
+                "CALL public.set_weights_means_value_sum(@p_user_id, @p_means_value_sum, NULL)");
 
             command.Parameters.AddWithValue("p_user_id", userId);
             command.Parameters.AddWithValue("p_means_value_sum", meansValueSum);
 
             try
             {
-                object? result = await command.ExecuteScalarAsync(cancellation);
-                return ConvertDbResultToBoolean(result);
+                await using var reader = await command
+                    .ExecuteReaderAsync(CommandBehavior.SingleRow, cancellation);
+
+                if (!await reader.ReadAsync(cancellation))
+                    throw new UserDbQueryException("No result returned from `set_weights_means_value_sum`");
+
+                int successOrdinal = reader.GetOrdinal("p_success");
+
+                bool success = !reader.IsDBNull(successOrdinal) &&
+                               reader.GetBoolean(successOrdinal);
+
+                return success;
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -918,16 +967,26 @@ namespace Users
         {
             cancellation.ThrowIfCancellationRequested();
 
-            await using NpgsqlCommand command = dataSource.CreateCommand(
-                "SELECT public.set_weights_means_value_ssum(@p_user_id, @p_means_value_ssum);");
+            await using var command = dataSource.CreateCommand(
+                "CALL public.set_weights_means_value_ssum(@p_user_id, @p_means_value_ssum, NULL)");
 
             command.Parameters.AddWithValue("p_user_id", userId);
             command.Parameters.AddWithValue("p_means_value_ssum", meansValueSsum);
 
             try
             {
-                object? result = await command.ExecuteScalarAsync(cancellation);
-                return ConvertDbResultToBoolean(result);
+                await using var reader = await command
+                    .ExecuteReaderAsync(CommandBehavior.SingleRow, cancellation);
+
+                if (!await reader.ReadAsync(cancellation))
+                    throw new UserDbQueryException("No result returned from `set_weights_means_value_ssum`");
+
+                int successOrdinal = reader.GetOrdinal("p_success");
+
+                bool success = !reader.IsDBNull(successOrdinal) &&
+                               reader.GetBoolean(successOrdinal);
+
+                return success;
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -961,16 +1020,26 @@ namespace Users
         {
             cancellation.ThrowIfCancellationRequested();
 
-            await using NpgsqlCommand command = dataSource.CreateCommand(
-                "SELECT public.set_weights_means_value_count(@p_user_id, @p_means_value_count);");
+            await using var command = dataSource.CreateCommand(
+                "CALL public.set_weights_means_value_count(@p_user_id, @p_means_value_count, NULL)");
 
             command.Parameters.AddWithValue("p_user_id", userId);
             command.Parameters.AddWithValue("p_means_value_count", meansValueCount);
 
             try
             {
-                object? result = await command.ExecuteScalarAsync(cancellation);
-                return ConvertDbResultToBoolean(result);
+                await using var reader = await command
+                    .ExecuteReaderAsync(CommandBehavior.SingleRow, cancellation);
+
+                if (!await reader.ReadAsync(cancellation))
+                    throw new UserDbQueryException("No result returned from `set_weights_means_value_count`");
+
+                int successOrdinal = reader.GetOrdinal("p_success");
+
+                bool success = !reader.IsDBNull(successOrdinal) &&
+                               reader.GetBoolean(successOrdinal);
+
+                return success;
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -1004,16 +1073,26 @@ namespace Users
         {
             cancellation.ThrowIfCancellationRequested();
 
-            await using NpgsqlCommand command = dataSource.CreateCommand(
-                "SELECT public.set_weights_means_weight_sum(@p_user_id, @p_means_weight_sum);");
+            await using var command = dataSource.CreateCommand(
+                "CALL public.set_weights_means_weight_sum(@p_user_id, @p_means_weight_sum, NULL)");
 
             command.Parameters.AddWithValue("p_user_id", userId);
             command.Parameters.AddWithValue("p_means_weight_sum", meansWeightSum);
 
             try
             {
-                object? result = await command.ExecuteScalarAsync(cancellation);
-                return ConvertDbResultToBoolean(result);
+                await using var reader = await command
+                    .ExecuteReaderAsync(CommandBehavior.SingleRow, cancellation);
+
+                if (!await reader.ReadAsync(cancellation))
+                    throw new UserDbQueryException("No result returned from `set_weights_means_weight_sum`");
+
+                int successOrdinal = reader.GetOrdinal("p_success");
+
+                bool success = !reader.IsDBNull(successOrdinal) &&
+                               reader.GetBoolean(successOrdinal);
+
+                return success;
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -1047,16 +1126,26 @@ namespace Users
         {
             cancellation.ThrowIfCancellationRequested();
 
-            await using NpgsqlCommand command = dataSource.CreateCommand(
-                "SELECT public.set_weights_means_weight_ssum(@p_user_id, @p_means_weight_ssum);");
+            await using var command = dataSource.CreateCommand(
+                "CALL public.set_weights_means_weight_ssum(@p_user_id, @p_means_weight_ssum, NULL)");
 
             command.Parameters.AddWithValue("p_user_id", userId);
             command.Parameters.AddWithValue("p_means_weight_ssum", meansWeightSsum);
 
             try
             {
-                object? result = await command.ExecuteScalarAsync(cancellation);
-                return ConvertDbResultToBoolean(result);
+                await using var reader = await command
+                    .ExecuteReaderAsync(CommandBehavior.SingleRow, cancellation);
+
+                if (!await reader.ReadAsync(cancellation))
+                    throw new UserDbQueryException("No result returned from `set_weights_means_weight_ssum`");
+
+                int successOrdinal = reader.GetOrdinal("p_success");
+
+                bool success = !reader.IsDBNull(successOrdinal) &&
+                               reader.GetBoolean(successOrdinal);
+
+                return success;
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -1090,16 +1179,26 @@ namespace Users
         {
             cancellation.ThrowIfCancellationRequested();
 
-            await using NpgsqlCommand command = dataSource.CreateCommand(
-                "SELECT public.set_weights_means_weight_count(@p_user_id, @p_means_weight_count);");
+            await using var command = dataSource.CreateCommand(
+                "CALL public.set_weights_means_weight_count(@p_user_id, @p_means_weight_count, NULL)");
 
             command.Parameters.AddWithValue("p_user_id", userId);
             command.Parameters.AddWithValue("p_means_weight_count", meansWeightCount);
 
             try
             {
-                object? result = await command.ExecuteScalarAsync(cancellation);
-                return ConvertDbResultToBoolean(result);
+                await using var reader = await command
+                    .ExecuteReaderAsync(CommandBehavior.SingleRow, cancellation);
+
+                if (!await reader.ReadAsync(cancellation))
+                    throw new UserDbQueryException("No result returned from `set_weights_means_weight_count`");
+
+                int successOrdinal = reader.GetOrdinal("p_success");
+
+                bool success = !reader.IsDBNull(successOrdinal) &&
+                               reader.GetBoolean(successOrdinal);
+
+                return success;
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
