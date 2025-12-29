@@ -26,9 +26,9 @@
   width: auto;
   position: relative;
 }
-#register-button{
-  padding: 7px 15px;
-  border-radius: 8px;
+.register-button{
+  padding: 7px 15px !important;
+  border-radius: 8px !important;
 }
 .student-work-hub-logo-1 {
   flex-shrink: 0;

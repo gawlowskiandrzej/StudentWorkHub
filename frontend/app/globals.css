@@ -173,13 +173,12 @@
     }
   }
 }
-.scale-hover{
-  transition: transform 0.5s ease;
-  cursor: pointer;
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
-.main-button:hover {
-  transform: scale(1.035);
-}
-.scale-hover:hover {
-  transform: scale(1.005);
+
+input[type="number"] {
+  -moz-appearance: textfield;
 }

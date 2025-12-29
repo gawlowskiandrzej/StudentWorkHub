@@ -10,15 +10,6 @@
   min-width: 200px;
   position: relative;
 }
-.offer-header-info {
-  align-self: stretch;
-  flex: 1;
-  display: grid;
-  gap: 0px;
-  position: relative;
-  grid-template-columns: minmax(0, 2.5fr) minmax(0, 1fr);
-  grid-template-rows: repeat(1, minmax(0, 1fr));
-}
 .offer-list-filter-section {
   background: rgba(0, 0, 0, 0.01);
   border-radius: 16px;
@@ -89,4 +80,15 @@
   align-self: stretch;
   flex-shrink: 0;
   position: relative;
+}
+.option-long-name-name {
+  color: var(--secondary);
+  text-align: center;
+  font-family: "Roboto-Regular", sans-serif;
+  font-size: var(--mediumSize);
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
