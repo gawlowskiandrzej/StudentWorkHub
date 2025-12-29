@@ -1048,7 +1048,6 @@ namespace Users
             decimal? salaryTo,
             short? salaryPeriodId,
             short? salaryCurrencyId,
-            short? salaryTypeId,
             short[]? employmentScheduleIds,
             short[]? employmentTypeIds,
             CancellationToken cancellation = default)
@@ -1072,7 +1071,6 @@ namespace Users
                     salaryTo,
                     salaryPeriodId,
                     salaryCurrencyId,
-                    salaryTypeId,
                     employmentScheduleIds,
                     employmentTypeIds,
                     _dataSource,

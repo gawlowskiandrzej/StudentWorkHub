@@ -1356,7 +1356,6 @@ namespace Users
             decimal? salaryTo,
             short? salaryPeriodId,
             short? salaryCurrencyId,
-            short? salaryTypeId,
             short[]? employmentScheduleIds,
             short[]? employmentTypeIds,
             NpgsqlDataSource dataSource,
@@ -1379,7 +1378,6 @@ namespace Users
                 "@p_salary_to, " +
                 "@p_salary_period_id, " +
                 "@p_salary_currency_id, " +
-                "@p_salary_type_id, " +
                 "@p_employment_schedule_ids, " +
                 "@p_employment_type_ids)");
 
@@ -1401,7 +1399,6 @@ namespace Users
 
             command.Parameters.AddWithValue("p_salary_period_id", (object?)salaryPeriodId ?? DBNull.Value);
             command.Parameters.AddWithValue("p_salary_currency_id", (object?)salaryCurrencyId ?? DBNull.Value);
-            command.Parameters.AddWithValue("p_salary_type_id", (object?)salaryTypeId ?? DBNull.Value);
 
             command.Parameters.AddWithValue(
                 "p_employment_schedule_ids",
