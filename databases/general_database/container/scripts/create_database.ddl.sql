@@ -144,7 +144,6 @@ CREATE TABLE public.search_histories (
     salary_to NUMERIC(8,2) NOT NULL DEFAULT 0.0,
     salary_period_id SMALLINT NULL,
     salary_currency_id SMALLINT NULL,
-    salary_type_id SMALLINT NULL,
 
     employment_schedule_ids SMALLINT[] NOT NULL DEFAULT '{}',
     employment_type_ids SMALLINT[] NOT NULL DEFAULT '{}'

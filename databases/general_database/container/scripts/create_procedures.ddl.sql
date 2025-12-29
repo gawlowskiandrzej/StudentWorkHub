@@ -656,7 +656,6 @@ CREATE OR REPLACE PROCEDURE public.insert_search_history(
     IN  p_salary_to               NUMERIC(8,2)  DEFAULT 0.0,
     IN  p_salary_period_id        SMALLINT      DEFAULT NULL,
     IN  p_salary_currency_id      SMALLINT      DEFAULT NULL,
-    IN  p_salary_type_id          SMALLINT      DEFAULT NULL,
     IN  p_employment_schedule_ids SMALLINT[]    DEFAULT '{}',
     IN  p_employment_type_ids     SMALLINT[]    DEFAULT '{}'
 )
@@ -681,7 +680,6 @@ BEGIN
         salary_to,
         salary_period_id,
         salary_currency_id,
-        salary_type_id,
         employment_schedule_ids,
         employment_type_ids
     )
@@ -697,7 +695,6 @@ BEGIN
         COALESCE(p_salary_to, 0.0),
         p_salary_period_id,
         p_salary_currency_id,
-        p_salary_type_id,
         COALESCE(p_employment_schedule_ids, '{}'),
         COALESCE(p_employment_type_ids, '{}')
     );
