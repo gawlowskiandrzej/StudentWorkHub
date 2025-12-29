@@ -24,10 +24,6 @@ const nullEle = (
 export function LanguageSection({ languages }: languageSection) {
     const [expanded, setExpanded] = useState(false);
 
-    if (!languages || languages.length === 0) {
-        return <div className={detailsStyles["required-skills-section"]}>{nullEle}</div>;
-    }
-
     const visibleLanguages = expanded
         ? languages
         : languages.slice(0, INITIAL_VISIBLE);
@@ -43,7 +39,7 @@ export function LanguageSection({ languages }: languageSection) {
                 </div>
 
                 <div className={`${detailsStyles["skill-section-content"]} thighter-section`}>
-                    {visibleLanguages.map((lang, index) => (
+                    {visibleLanguages.length > 0 ? visibleLanguages.map((lang, index) => (
                         <div key={index} className={detailsStyles["skill-section-row"]}>
                             <div className={detailsStyles["skill-section-item1"]}>
                                 <img
@@ -64,7 +60,7 @@ export function LanguageSection({ languages }: languageSection) {
                                 </div>
                             </div>
                         </div>
-                    ))}
+                    )): nullEle}
                 </div>
             </div>
 

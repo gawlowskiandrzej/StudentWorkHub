@@ -24,20 +24,12 @@ const nullEle = (
 export function BenefitsSection({ benefits }: benefitsSection) {
     const [expanded, setExpanded] = useState(false);
 
-    if (!benefits || benefits.length === 0) {
-        return (
-            <div className={detailsStyles["required-skills-section"]}>
-                {nullEle}
-            </div>
-        );
-    }
-
     const visibleBenefits = expanded
         ? benefits
-        : benefits.slice(0, INITIAL_VISIBLE);
+        : benefits?.slice(0, INITIAL_VISIBLE);
 
     const rowsCount = Math.ceil(
-        visibleBenefits.length / BENEFITS_PER_ROW
+        (visibleBenefits?.length ?? 0) / BENEFITS_PER_ROW
     );
 
     return (
@@ -49,9 +41,9 @@ export function BenefitsSection({ benefits }: benefitsSection) {
                 </div>
 
                 <div className={`${detailsStyles["skill-section-content"]} thight-section`}>
-                    {Array.from({ length: rowsCount }).map((_, rowIndex) => {
+                    {benefits ? Array.from({ length: rowsCount }).map((_, rowIndex) => {
                         const start = rowIndex * BENEFITS_PER_ROW;
-                        const rowItems = visibleBenefits.slice(
+                        const rowItems = visibleBenefits?.slice(
                             start,
                             start + BENEFITS_PER_ROW
                         );
@@ -61,7 +53,7 @@ export function BenefitsSection({ benefits }: benefitsSection) {
                                 key={rowIndex}
                                 className={detailsStyles["skill-section-row"]}
                             >
-                                {rowItems.map((benefit, idx) => (
+                                {rowItems?.map((benefit, idx) => (
                                     <div
                                         key={idx}
                                         className={detailsStyles[`skill-section-item${idx + 1}`]}
@@ -77,11 +69,11 @@ export function BenefitsSection({ benefits }: benefitsSection) {
                                 ))}
                             </div>
                         );
-                    })}
+                    }): nullEle}
                 </div>
             </div>
 
-            {benefits.length > INITIAL_VISIBLE && (
+            {benefits && (benefits.length > INITIAL_VISIBLE && (
                 <div className={detailsStyles["frame-172"]}>
                     <div
                         className={`${buttonStyles["main-button"]} ${detailsStyles["show-more-button"]}`}
@@ -94,7 +86,7 @@ export function BenefitsSection({ benefits }: benefitsSection) {
                         </div>
                     </div>
                 </div>
-            )}
+            ))}
         </div>
     );
 }

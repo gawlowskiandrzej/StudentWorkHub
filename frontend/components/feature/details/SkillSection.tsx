@@ -19,7 +19,18 @@ export function SkillsSection({ offerSkills }: skillSection) {
             return levelB.localeCompare(levelA);
         });
     }, [offerSkills]);
-
+    const nullEle =
+        <div className={detailsStyles["skill-section-row"]}>
+            <div className={detailsStyles["skill-section-item1"]}>
+                <img
+                    className={detailsStyles["check-circle"]}
+                    src="/icons/light/check-circleLight.svg"
+                />
+                <div className={detailsStyles["city-name"]}>
+                    -
+                </div>
+            </div>
+        </div>
     const visibleSkills = expanded
         ? sortedSkills
         : sortedSkills.slice(0, 5);
@@ -37,7 +48,7 @@ export function SkillsSection({ offerSkills }: skillSection) {
                 <div
                     className={`${detailsStyles["skill-section-content"]} ${detailsStyles["thighter-section"]}`}
                 >
-                    {visibleSkills.map((offer, index) => (
+                    {visibleSkills.length > 0 ? visibleSkills.map((offer, index) => (
                         <div key={index} className={detailsStyles["skill-section-row"]}>
                             <div className={detailsStyles["skill-section-item1"]}>
                                 <img
@@ -73,7 +84,7 @@ export function SkillsSection({ offerSkills }: skillSection) {
                                 </div>
                             </div>
                         </div>
-                    ))}
+                    )) : nullEle}
                 </div>
             </div>
 
