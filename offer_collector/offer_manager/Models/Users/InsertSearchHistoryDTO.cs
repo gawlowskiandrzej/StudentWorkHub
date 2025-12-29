@@ -14,7 +14,6 @@
         public decimal? SalaryTo { get; init; }
         public short? SalaryPeriodId { get; init; }
         public short? SalaryCurrencyId { get; init; }
-        public short? SalaryTypeId { get; init; }
         public short[]? EmploymentScheduleIds { get; init; }
         public short[]? EmploymentTypeIds { get; init; }
     }

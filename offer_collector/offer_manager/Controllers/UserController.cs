@@ -589,7 +589,6 @@ namespace offer_manager.Controllers
                 (request.SalaryTo is not null) ||
                 (request.SalaryPeriodId is not null) ||
                 (request.SalaryCurrencyId is not null) ||
-                (request.SalaryTypeId is not null) ||
                 (request.EmploymentScheduleIds is not null && request.EmploymentScheduleIds.Length > 0) ||
                 (request.EmploymentTypeIds is not null && request.EmploymentTypeIds.Length > 0);
 
@@ -609,16 +608,17 @@ namespace offer_manager.Controllers
             {
                 return Unauthorized(new InsertSearchHistoryResponse { ErrorMessage = _errJwtInvalid });
             }
-
+            
             try
             {
                 bool result = await _userController.InsertSearchHistoryAsync(
                     userId, request.Keywords, request.Distance,
                     request.IsRemote, request.IsHybrid, request.LeadingCategoryId,
                     request.CityId, request.SalaryFrom, request.SalaryTo,
-                    request.SalaryPeriodId, request.SalaryCurrencyId, request.SalaryTypeId,
+                    request.SalaryPeriodId, request.SalaryCurrencyId,
                     request.EmploymentScheduleIds, request.EmploymentTypeIds
                 );
+
                 if (!result)
                     throw new Exception("Inserting history failed");
 
