@@ -12,6 +12,7 @@
   flex-direction: row;
   gap: 20px;
   align-items: center;
+  place-self: center left;
   justify-content: center;
   justify-self: right;
   align-self: center;
