@@ -1,13 +1,15 @@
 DROP TABLE IF EXISTS public.weights;
 DROP TABLE IF EXISTS public.search_histories;
 DROP TABLE IF EXISTS public.users;
+
+DROP TABLE IF EXISTS public.role_permissions_roles_junction;
+DROP TABLE IF EXISTS public.role_permissions;
+DROP TABLE IF EXISTS public.roles;
+
 DROP TABLE IF EXISTS public.first_names;
 DROP TABLE IF EXISTS public.second_names;
 DROP TABLE IF EXISTS public.last_names;
-DROP TABLE IF EXISTS public.phones;
-DROP TABLE IF EXISTS public.roles;
-DROP TABLE IF EXISTS public.role_permissions;
-DROP TABLE IF EXISTS public.role_permissions_roles_junction;
+
 
 -- =========================================================
 -- Users
@@ -47,7 +49,7 @@ CREATE TABLE public.roles (
 
 CREATE TABLE public.role_permissions (
     id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY, 
-    permission_name VARCHAR(100) NOT NULL
+    permission_name VARCHAR(100) NOT NULL,
 
     CONSTRAINT uq_role_permissions_permission_name
         UNIQUE (permission_name)
@@ -81,7 +83,7 @@ CREATE TABLE public.users (
     first_name_id BIGINT NOT NULL,
     second_name_id BIGINT NULL,
     last_name_id BIGINT NOT NULL,
-    role_id SMALLINT NOT NULL DEFAULT 1
+    role_id SMALLINT NOT NULL DEFAULT 1,
 
     CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
     CHECK (phone ~ '^\+[0-9]{7,15}$'),
@@ -92,7 +94,7 @@ CREATE TABLE public.users (
     CONSTRAINT uq_users_remember_token
         UNIQUE (remember_token),
 
-    CONSTRAINT uq_phones_phone
+    CONSTRAINT uq_users_phone
         UNIQUE (phone),
 
     CONSTRAINT fk_users_first_names
@@ -108,7 +110,7 @@ CREATE TABLE public.users (
     CONSTRAINT fk_users_last_names
         FOREIGN KEY (last_name_id)
         REFERENCES public.last_names (id)
-        ON DELETE RESTRICT
+        ON DELETE RESTRICT,
 
     CONSTRAINT fk_users_roles
         FOREIGN KEY (role_id)

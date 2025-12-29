@@ -12,6 +12,15 @@ AS $$
 DECLARE
     v_first_name_id bigint;
     v_last_name_id  bigint;
+
+    -- diagnostics
+    v_sqlstate   text;
+    v_constraint text;
+    v_schema     text;
+    v_table      text;
+    v_detail     text;
+    v_hint       text;
+    v_context    text;
 BEGIN
     -- Email must not be empty
     IF p_email IS NULL OR btrim(p_email) = '' THEN
@@ -68,7 +77,7 @@ BEGIN
         RETURNING id INTO o_user_id;
 
         INSERT INTO public.weights(user_id)
-            VALUES (o_user_id);
+        VALUES (o_user_id);
 
         o_success := true;
         o_message := 'User created successfully.';
@@ -88,19 +97,52 @@ BEGIN
             RETURN;
 
         WHEN foreign_key_violation THEN
+            GET STACKED DIAGNOSTICS
+                v_sqlstate   = RETURNED_SQLSTATE,
+                v_constraint = CONSTRAINT_NAME,
+                v_schema     = SCHEMA_NAME,
+                v_table      = TABLE_NAME,
+                v_detail     = PG_EXCEPTION_DETAIL,
+                v_hint       = PG_EXCEPTION_HINT;
+
             o_success := false;
-            o_message := 'Foreign key violation while inserting user.';
+            o_message :=
+                format(
+                    'Foreign key violation (SQLSTATE %s) on %I.%I, constraint %I. %s%s%s',
+                    v_sqlstate,
+                    coalesce(v_schema, 'public'),
+                    coalesce(v_table, '?'),
+                    coalesce(v_constraint, '?'),
+                    SQLERRM,
+                    CASE WHEN v_detail IS NOT NULL THEN E'\nDETAIL: ' || v_detail ELSE '' END,
+                    CASE WHEN v_hint   IS NOT NULL THEN E'\nHINT: '   || v_hint   ELSE '' END
+                );
             o_user_id := NULL;
             RETURN;
 
         WHEN others THEN
+            GET STACKED DIAGNOSTICS
+                v_sqlstate = RETURNED_SQLSTATE,
+                v_detail   = PG_EXCEPTION_DETAIL,
+                v_hint     = PG_EXCEPTION_HINT,
+                v_context  = PG_EXCEPTION_CONTEXT;
+
             o_success := false;
-            o_message := 'Unexpected error while inserting user: ' || SQLERRM;
+            o_message :=
+                format(
+                    'Unexpected error (SQLSTATE %s): %s%s%s%s',
+                    v_sqlstate,
+                    SQLERRM,
+                    CASE WHEN v_detail  IS NOT NULL THEN E'\nDETAIL: '  || v_detail  ELSE '' END,
+                    CASE WHEN v_hint    IS NOT NULL THEN E'\nHINT: '    || v_hint    ELSE '' END,
+                    CASE WHEN v_context IS NOT NULL THEN E'\nCONTEXT: ' || v_context ELSE '' END
+                );
             o_user_id := NULL;
             RETURN;
     END;
 END;
 $$;
+
 
 CREATE OR REPLACE PROCEDURE public.set_user_remember_token(
     IN  p_user_id   BIGINT,
@@ -601,26 +643,28 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION public.insert_search_history(
-    IN p_user_id                 BIGINT,
-    IN p_keywords                VARCHAR(1024) DEFAULT NULL,
-    IN p_distance                INTEGER       DEFAULT 0,
-    IN p_is_remote               BOOLEAN       DEFAULT NULL,
-    IN p_is_hybrid               BOOLEAN       DEFAULT NULL,
-    IN p_leading_category_id     SMALLINT      DEFAULT NULL,
-    IN p_city_id                 INTEGER       DEFAULT NULL,
-    IN p_salary_from             NUMERIC(8,2)  DEFAULT 0.0,
-    IN p_salary_to               NUMERIC(8,2)  DEFAULT 0.0,
-    IN p_salary_period_id        SMALLINT      DEFAULT NULL,
-    IN p_salary_currency_id      SMALLINT      DEFAULT NULL,
-    IN p_salary_type_id          SMALLINT      DEFAULT NULL,
-    IN p_employment_schedule_ids SMALLINT[]    DEFAULT '{}',
-    IN p_employment_type_ids     SMALLINT[]    DEFAULT '{}',
-    OUT o_result                  BOOLEAN
+CREATE OR REPLACE PROCEDURE public.insert_search_history(
+    OUT o_result                  BOOLEAN,
+    IN  p_user_id                 BIGINT,
+    IN  p_keywords                VARCHAR(1024) DEFAULT NULL,
+    IN  p_distance                INTEGER       DEFAULT 0,
+    IN  p_is_remote               BOOLEAN       DEFAULT NULL,
+    IN  p_is_hybrid               BOOLEAN       DEFAULT NULL,
+    IN  p_leading_category_id     SMALLINT      DEFAULT NULL,
+    IN  p_city_id                 INTEGER       DEFAULT NULL,
+    IN  p_salary_from             NUMERIC(8,2)  DEFAULT 0.0,
+    IN  p_salary_to               NUMERIC(8,2)  DEFAULT 0.0,
+    IN  p_salary_period_id        SMALLINT      DEFAULT NULL,
+    IN  p_salary_currency_id      SMALLINT      DEFAULT NULL,
+    IN  p_salary_type_id          SMALLINT      DEFAULT NULL,
+    IN  p_employment_schedule_ids SMALLINT[]    DEFAULT '{}',
+    IN  p_employment_type_ids     SMALLINT[]    DEFAULT '{}'
 )
 LANGUAGE plpgsql
 AS $$
 BEGIN
+    o_result := FALSE;
+
     IF p_user_id IS NULL THEN
         RAISE EXCEPTION 'user_id cannot be null';
     END IF;
@@ -658,10 +702,12 @@ BEGIN
         COALESCE(p_employment_type_ids, '{}')
     );
 
-    RETURN TRUE;
+    o_result := TRUE;
+    RETURN;
 
 EXCEPTION
     WHEN OTHERS THEN
-        RETURN FALSE;
+        o_result := FALSE;
+        RETURN;
 END;
 $$;
