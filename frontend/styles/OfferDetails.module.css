@@ -125,6 +125,10 @@
   color: #000;
   object-fit: contain;
 }
+.offer-details-view-navigation .scale-hover{
+  transition: transform 0.5s ease;
+  cursor: pointer;
+}
 .offer-details-view-navigation .scale-hover:hover{
   transform: scale(1.05);
 }
@@ -528,10 +532,10 @@
   flex-shrink: 0;
   position: relative;
 }
-.frame-172 .main-button{
-  border-radius: 8px;
-  padding: 7px 15px;
-  box-shadow: none;
+.show-more-button{
+  border-radius: 8px !important;
+  padding: 7px 15px !important;
+  box-shadow: none !important;
 }
 .award3 {
   flex-shrink: 0;

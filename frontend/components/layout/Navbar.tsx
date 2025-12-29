@@ -16,7 +16,7 @@ const Navbar = () => {
   return (
     <nav className={navigationStyles["navigation-with-short-logo"]}>
       <div
-        className={`${navigationStyles["logo"]} ${navigationStyles["cursor-pointer"]}`}
+        className={`${navigationStyles["logo"]} cursor-pointer`}
         onClick={() => router.push("/")}
       >
         <img

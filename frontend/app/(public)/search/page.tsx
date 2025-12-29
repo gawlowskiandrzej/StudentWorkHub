@@ -1,6 +1,7 @@
 "use client";
-import "../../../styles/SearchView.css";
-import "../../../styles/Hero.css";
+import searchStyle from "../../../styles/SearchView.module.css";
+import buttonStyles from "../../../styles/ButtonStyle.module.css";
+import footerStyle from '../../../styles/Footer.module.css'
 import { Filter } from "@/components/feature/search/Filters";
 import { useState } from "react";
 import { SearchBar } from "@/components/feature/search/SearchBar";
@@ -40,21 +41,21 @@ const Search = () => {
     router.push('/list');
     };
     return (
-        <div className="search-view">
-            <div className="search-view-content">
-                <div className="search-view-header">
+        <div className={searchStyle["search-view"]}>
+            <div className={searchStyle["search-view-content"]}>
+                <div className={searchStyle["search-view-header"]}>
                     <span>
-                        <span className="search-view-header-span">
+                        <span className={searchStyle["search-view-header-span"]}>
                             We have many offers for you.
                         </span>
-                        <span className="search-view-header-span2"> Let them find you.</span>
+                        <span className={searchStyle["search-view-header-span2"]}> Let them find you.</span>
                     </span>
                 </div>
                     <SearchBar localSearch={localSearch} setLocalSearch={setLocalSearch}>
                     </SearchBar>
-                    <div className="search-sub-section">
-                        <div className="sub-filters">
-                            <div className="basic-filter-item">
+                    <div className={searchStyle["search-sub-section"]}>
+                        <div className={searchStyle["sub-filters"]}>
+                            <div className={searchStyle["basic-filter-item"]}>
                                 <Filter
                                     label="Work type"
                                     items={items}
@@ -62,7 +63,7 @@ const Search = () => {
                                     value={filters.workType}>
                                 </Filter>
                             </div>
-                            <div className="basic-filter-item">
+                            <div className={searchStyle["basic-filter-item"]}>
                                 <Filter
                                     label="Work time"
                                     items={items}
@@ -70,7 +71,7 @@ const Search = () => {
                                     value={filters.workTime}>
                                 </Filter>
                             </div>
-                            <div className="basic-filter-item">
+                            <div className={searchStyle["basic-filter-item"]}>
                                 <Filter
                                     label="Employment type"
                                     items={items}
@@ -78,18 +79,17 @@ const Search = () => {
                                     value={filters.employmentType}>
                                 </Filter>
                             </div>
-                            <div className="basic-filter-item">
+                            <div className={`${searchStyle["basic-filter-item"]}`}>
                                 <FilterWithDialog
                                     label="Salary"
                                     items={items}
-                                    onChange={(v) => updateFilter("salary", v)}
-                                    value={filters.salary}>
+                                    onChange={(v) => updateFilter("salary", v)}>
                                 </FilterWithDialog>
                             </div>
                         </div>
-                        <div onClick={gotoListPage} className="main-button">
-                            <img id="searchVec" className="search" src="/icons/search0.svg" />
-                            <button className="find-matching-job">Find matching jobs</button>
+                        <div onClick={gotoListPage} className={buttonStyles["main-button"]}>
+                            <img className={`${footerStyle["search"]} mt-0.5`} src="/icons/search0.svg" />
+                            <div className={buttonStyles["find-matching-job"]}>Find matching jobs</div>
                         </div>
                 </div>
             </div>

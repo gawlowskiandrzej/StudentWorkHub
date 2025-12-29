@@ -1,4 +1,6 @@
 import { skill } from "@/types/list/Offer/skill";
+import detailsStyles from '../../../styles/OfferDetails.module.css'
+import buttonStyles from '../../../styles/ButtonStyle.module.css'
 
 type skillSection = {
     offerSkills: skill[]
@@ -6,13 +8,13 @@ type skillSection = {
 
 export function SkillsSection({ offerSkills }: skillSection) {
     return (
-        <div className="required-skills-section">
-            <div className="frame-168">
-                <div className="frame-166">
-                    <div className="required-skills">Required skills</div>
-                    <div className="line-10" />
+        <div className={detailsStyles["required-skills-section"]}>
+            <div className={detailsStyles["frame-168"]}>
+                <div className={detailsStyles["frame-166"]}>
+                    <div className={detailsStyles["required-skills"]}>Required skills</div>
+                    <div className={detailsStyles["line-10"]} />
                 </div>
-                <div className="skill-section-content thighter-section">
+                <div className={`${detailsStyles["skill-section-content"]} ${detailsStyles["thighter-section"]}`}>
                     {offerSkills
                         .sort((a, b) => {
                             if (a.experienceMonths != b.experienceMonths) {
@@ -24,21 +26,21 @@ export function SkillsSection({ offerSkills }: skillSection) {
                         })
                         .slice(0, Math.min(5, offerSkills.length))
                         .map((offer, index) => (
-                            <div key={index} className="skill-section-row ">
-                                <div className="skill-section-item1">
-                                    <img className="check-circle" src="/icons/light/check-circleLight.svg" />
-                                    <div className="city-name">{offer.skill ?? "-"}</div>
+                            <div key={index} className={detailsStyles["skill-section-row"]}>
+                                <div className={detailsStyles["skill-section-item1"]}>
+                                    <img className={detailsStyles["check-circle"]} src="/icons/light/check-circleLight.svg" />
+                                    <div className={detailsStyles["city-name"]}>{offer.skill ?? "-"}</div>
                                 </div>
                                 {
-                                    <div className="skill-section-item2">
-                                        <img className="pie-chart2" src="/icons/light/clockLight.svg" />
-                                        <div className="city-name">{offer.experienceMonths ? `${offer.experienceMonths / 12} lata` : "-"}</div>
+                                    <div className={detailsStyles["skill-section-item2"]}>
+                                        <img className={detailsStyles["pie-chart2"]} src="/icons/light/clockLight.svg" />
+                                        <div className={detailsStyles["city-name"]}>{offer.experienceMonths ? `${offer.experienceMonths / 12} lata` : "-"}</div>
                                     </div>
                                 }
                                 {
-                                    <div className="skill-section-item3">
-                                        <img className="award" src="/icons/light/awardLight.svg" />
-                                        <div className="city-name">
+                                    <div className={detailsStyles["skill-section-item3"]}>
+                                        <img className={detailsStyles["award"]} src="/icons/light/awardLight.svg" />
+                                        <div className={detailsStyles["city-name"]}>
                                             {offer.experienceLevel?.length
                                                 ? offer.experienceLevel.join(' / ')
                                                 : "-"}
@@ -50,9 +52,9 @@ export function SkillsSection({ offerSkills }: skillSection) {
                 </div>
             </div>
             {offerSkills.length > 5 ?
-                <div className="frame-172">
-                    <div className="main-button">
-                        <div className="find-mathing-job">Show more ({offerSkills.length - 4})</div>
+                <div className={detailsStyles["frame-172"]}>
+                    <div className={`${buttonStyles["main-button"]} ${detailsStyles["show-more-button"]}`}>
+                        <div className={detailsStyles["find-mathing-job"]}>Show more ({offerSkills.length - 4})</div>
                     </div>
                 </div>
                 :

@@ -5,6 +5,8 @@ import { offer } from '../../../types/list/Offer/offer';
 import { calculateProgress } from '@/utils/date/dateProgress';
 import { formatDateTime } from '@/utils/date/dateFormatter';
 import { formatSalaryValue } from '@/utils/salary/formatSalary';
+import listStyles from "../../../styles/OfferList.module.css";
+import buttonStyles from "../../../styles/ButtonStyle.module.css";
 
 export function ListElement({ offer }: { offer: offer }) {
     const router = useRouter();
@@ -22,39 +24,39 @@ export function ListElement({ offer }: { offer: offer }) {
         : '/icons/company0.svg';
 
     return (
-        <div className="offer-list-header cursor-pointer scale-hover" onClick={() => goToDetails(offer.id)}>
-            <div className='companyWrapper'>
-                <img className="company" src={`${logoUrl}`} />
+        <div className={`${listStyles["offer-list-header"]} ${buttonStyles["scale-hover"]}`} onClick={() => goToDetails(offer.id)}>
+            <div className={listStyles['companyWrapper']}>
+                <img className={listStyles["company"]} src={`${logoUrl}`} />
             </div>
-            <div className="offer-header">
-                <div className="offer-header-info">
-                    <div className="offer-header-content">
-                        <div className="offer-header2">
-                            <div className="job-title">{offer.jobTitle}</div>
-                            <div className="company-name">{offer.company.name}</div>
+            <div className={listStyles["offer-header"]}>
+                <div className={listStyles["offer-header-info"]}>
+                    <div className={listStyles["offer-header-content"]}>
+                        <div className={listStyles["offer-header2"]}>
+                            <div className={listStyles["job-title"]}>{offer.jobTitle}</div>
+                            <div className={listStyles["company-name"]}>{offer.company.name}</div>
                         </div>
-                        <div className="offer-header-desc">
-                            <div className="job-header-sub-item">
-                                <img className="vector5" src="/icons/location.svg" />
-                                <div className="address">{offer.location.city}</div>
+                        <div className={listStyles["offer-header-desc"]}>
+                            <div className={listStyles["job-header-sub-item"]}>
+                                <img className={listStyles["vector5"]} src="/icons/location.svg" />
+                                <div className={listStyles["address"]}>{offer.location.city}</div>
                             </div>
-                            <div className="job-header-sub-item">
-                                <img className="vector5" src="/icons/house.svg" />
-                                <div className="employment-type">{offer.employment.types?.join(' / ')}</div>
+                            <div className={listStyles["job-header-sub-item"]}>
+                                <img className={listStyles["vector5"]} src="/icons/house.svg" />
+                                <div className={listStyles["employment-type"]}>{offer.employment.types?.join(' / ')}</div>
                             </div>
-                            <div className="job-header-sub-item">
-                                <img className="vector5" src="/icons/document.svg" />
-                                <div className="employment-schedules">{offer.employment.schedules?.join(' / ')}</div>
+                            <div className={listStyles["job-header-sub-item"]}>
+                                <img className={listStyles["vector5"]} src="/icons/document.svg" />
+                                <div className={listStyles["employment-schedules"]}>{offer.employment.schedules?.join(' / ')}</div>
                             </div>
                         </div>
                     </div>
-                    <div className="offer-header-salary-date">
-                        <div className="job-salary">
+                    <div className={listStyles["offer-header-salary-date"]}>
+                        <div className={listStyles["job-salary"]}>
                             {offer.salary.from != null && offer.salary.to != null
                                 ? `${formatSalaryValue(offer.salary.from)} ${offer.salary.currency} - ${formatSalaryValue(offer.salary.to)} ${offer.salary.currency}`
                                 : 'Nie zdefiniowano'}
                         </div>
-                        <div className="added-10-12-2025 flex gap-5"><div>{formatDateTime(offer.dates.published)}</div><Progress className='w-[100px]' value={progress} max={100} /><div>{formatDateTime(offer.dates.expires)}</div></div>
+                        <div className={`${listStyles["added-10-12-2025"]} flex gap-5`}><div>{formatDateTime(offer.dates.published)}</div><Progress className='w-[100px]' value={progress} max={100} /><div>{formatDateTime(offer.dates.expires)}</div></div>
                     </div>
                 </div>
             </div>

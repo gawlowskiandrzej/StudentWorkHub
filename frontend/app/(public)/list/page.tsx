@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { ListElement } from "@/components/feature/list/ListElement";
 import offersJson from '@/store/data/DummyOffers.json';
 import listStyles from "../../../styles/OfferList.module.css";
+import dynamicFilterStyles from "../../../styles/DynamicFilter.module.css";
 import buttonStyle from "../../../styles/ButtonStyle.module.css";
 import { SearchBar } from "@/components/feature/search/SearchBar";
 import { DynamicFilter } from "@/components/feature/list/Filters";
@@ -45,15 +46,15 @@ export default function OfferList() {
         <div className={listStyles["search-bar-component"]}>
           <div className={listStyles["search-bar-list"]}>
             <SearchBar localSearch={localSearch} setLocalSearch={setLocalSearch} />
-            <div className={`${buttonStyle["main-button"]} cursor-pointer`}>
-              <img className="search" src="/icons/search0.svg" />
+            <div className={`${buttonStyle["main-button"]}`}>
+              <img className={listStyles["search"]} src="/icons/search0.svg" />
               <div className={buttonStyle["find-matching-job"]}>Find matching job</div>
             </div>
           </div>
           <RecentSearches setSearch={setLocalSearch} />
         </div>
         <div className={listStyles["offers-list"]}>
-          <div className={listStyles["dynamic-filter"]}>
+          <div className={dynamicFilterStyles["dynamic-filter"]}>
             {dynamicFilters.map((filter, index) => (
               <DynamicFilter key={index} header={filter.header} items={filter.items} />
             ))}
@@ -62,7 +63,7 @@ export default function OfferList() {
             <div className={listStyles["filternav"]}>
               <div className={listStyles["offer-list-sort-select"]}>
                 <div className={listStyles["sort-by"]}>Sort by:</div>
-                <Filter className={`${listStyles["creation-date"]} cursor-pointer`}
+                <Filter className={`${listStyles["creation-date"]}`}
                   label="Sort"
                   clearable={false}
                   items={items}
@@ -77,7 +78,7 @@ export default function OfferList() {
             ))}
           </div>
         </div>
-        <div className="second-pagination">
+        <div className={listStyles["second-pagination"]}>
           <Pagination offset={offset} limit={10} count={offersJson.pagination.items.length} onChange={setOffset} />
         </div>
       </div>
