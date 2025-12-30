@@ -1,0 +1,15 @@
+{
+    "goBackButton": "Go to list",
+    "noSubCategories": "no subcategories",
+    "noSalary": "Salary not defined",
+    "noAddress": "No address defined",
+    "goToOfferPage": "Go to source offer page",
+    "showMore": "Show more",
+    "requiredSkills": "Required skills",
+    "requiredLanguages": "Required languages",
+    "requiredEducation": "Required education",
+    "benefits": "Benefits",
+    "expires": "expires in ",
+    "days": "days",
+    "to": "in"
+}

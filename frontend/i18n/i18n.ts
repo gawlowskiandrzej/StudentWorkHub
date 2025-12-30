@@ -1,16 +1,47 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
-import pl from "./locales/pl.json";
-import en from "./locales/en.json";
+// PL
+import plCommon from "./locales/pl/common.json";
+import plNavbar from "./locales/pl/navigation.json";
+import plFooter from "./locales/pl/footer.json";
+import plHero from "./locales/pl/hero.json";
+import plList from "./locales/pl/list.json";
+import plDetails from "./locales/pl/details.json";
+import plSearchbar from "./locales/pl/searchbar.json";
+import plSearchView from "./locales/pl/searchView.json";
+// EN
+// import enCommon from "./locales/en/common.json";
+// import enNavbar from "./locales/en/navigation.json";
+// import enFooter from "./locales/en/footer.json";
+// import enHome from "./locales/en/.json";
 
 i18n.use(initReactI18next).init({
   lng: "pl",
   fallbackLng: "en",
+
+  ns: ["common", "navigation", "footer", "hero", "list", "details", "searchbar", "searchView"],
+  defaultNS: "common",
+
   resources: {
-    pl: { translation: pl },
-    en: { translation: en }
+    pl: {
+      common: plCommon,
+      navigation: plNavbar,
+      footer: plFooter,
+      home: plHero,
+      list: plList,
+      details: plDetails,
+      searchbar: plSearchbar,
+      searchView: plSearchView
+    },
+    // en: {
+    //   common: enCommon,
+    //   navbar: enNavbar,
+    //   footer: enFooter,
+    //   home: enHome
+    // }
   },
+
   interpolation: {
     escapeValue: false
   }

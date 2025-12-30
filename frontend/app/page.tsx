@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/i18n/i18nWrapper";
 import buttonStyles from "../styles/ButtonStyle.module.css"
 import heroStyles from '../styles/Hero.module.css';
 
@@ -7,7 +8,7 @@ import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const router = useRouter();
-
+  const t = useT("hero");
   const goToSearchPage = () => {
     router.push('/search');
   };
