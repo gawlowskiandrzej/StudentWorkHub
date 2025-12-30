@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "react-i18next";
 import buttonStyles from "../styles/ButtonStyle.module.css"
 import heroStyles from '../styles/Hero.module.css';
 
@@ -7,7 +8,7 @@ import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const router = useRouter();
-
+  const {t} = useTranslation(["hero", "common"])
   const goToSearchPage = () => {
     router.push('/search');
   };
@@ -18,13 +19,12 @@ export default function Home() {
       <div className={heroStyles["main-content-frame"]}>
         <div className={heroStyles["main-text-frame"]}>
           <div className={heroStyles["header-sec-1"]}>
-            Find job offers that match your
-            preferences.
+            {t("heroTitle")}
           </div>
           <div className={heroStyles["sub-header-sec-1"]}>
-            Finding the best suited job has never been easier!
+            {t("heroSubtitle1")}
             <br />
-            Want to give it a try?
+            {t("heroSubtitle2")}
           </div>
         </div>
         <button
@@ -37,7 +37,7 @@ export default function Home() {
           }
           onClick={goToSearchPage}
         >
-          Find matching job
+          {t("common:findMatchingJob")}
         </button>
       </div>
       <img
@@ -50,7 +50,7 @@ export default function Home() {
   <div className={heroStyles["section-2"]}>
     <div className={heroStyles["home-trust-section"]}>
       <div className={heroStyles["main-header-sec-2"]}>
-        Features and Benefits
+        {t("hero:featureSectionTitle")}
       </div>
       <div className={heroStyles["main-content-sec-2"]}>
         <img className={heroStyles.wave} src="/icons/wave0.svg" />
@@ -62,11 +62,10 @@ export default function Home() {
             />
             <div className={heroStyles["feature-element-text"]}>
               <div className={heroStyles["feature-1"]}>
-                Find your job faster
+                {t("hero:featureSectionItem1Title")}
               </div>
               <div className={heroStyles["feature-desc"]}>
-                Precise search based on your interests, skills and abilities
-                allows us to select only the most suitable offers for you
+                {t("hero:featureSectionItem1Subtile")}
               </div>
             </div>
           </div>
@@ -77,11 +76,9 @@ export default function Home() {
               src="/images/hero/unsplash-376-kn-i-spl-e1.png"
             />
             <div className={heroStyles["feature-element-text"]}>
-              <div className={heroStyles["feature-1"]}>Make it simple</div>
+              <div className={heroStyles["feature-1"]}> {t("hero:featureSectionItem2Title")}</div>
               <div className={heroStyles["the-feature-or-any-details"]}>
-                We have tried to simplify the search process so that it is
-                straightforward, intuitive, and leads you directly to the
-                specific location.
+                 {t("hero:featureSectionItem2Subtile")}
               </div>
             </div>
           </div>
@@ -92,10 +89,9 @@ export default function Home() {
               src="/images/hero/unsplash-376-kn-i-spl-e2.png"
             />
             <div className={heroStyles["feature-element-text"]}>
-              <div className={heroStyles["feature-1"]}>Be successful</div>
+              <div className={heroStyles["feature-1"]}> {t("hero:featureSectionItem3Title")}</div>
               <div className={heroStyles["the-feature-or-any-details"]}>
-                We search for offers from the largest portals, which
-                significantly increases your chances of finding a job.
+                 {t("hero:featureSectionItem3Subtile")}
               </div>
             </div>
           </div>
@@ -107,11 +103,11 @@ export default function Home() {
   <div className={heroStyles["section-3"]}>
     <div className={heroStyles["main-header-sec-3"]}>
       <span>
-        <span className={heroStyles["main-header-sec-3-span"]}>How </span>
+        <span className={heroStyles["main-header-sec-3-span"]}>{t("hero:howWorksSectionTitlepart1")} </span>
         <span className={heroStyles["main-header-sec-3-span2"]}>
           StudentWorkHub
         </span>
-        <span className={heroStyles["main-header-sec-3-span"]}> works?</span>
+        <span className={heroStyles["main-header-sec-3-span"]}> {t("hero:howWorksSectionTitlepart2")}</span>
       </span>
     </div>
 
@@ -123,10 +119,9 @@ export default function Home() {
           </div>
         </div>
         <div className={heroStyles["work-feature-text"]}>
-          <div className={heroStyles["feature-12"]}>Browse job offers</div>
+          <div className={heroStyles["feature-12"]}>{t("hero:howWorksSectionItem1Title")}</div>
           <div className={heroStyles["description-of-feature-1"]}>
-            With StudentWorkHub, you can browse offers from the largest job
-            portals.
+            {t("hero:howWorksSectionItem1Subtitle")}
           </div>
         </div>
       </div>
@@ -139,11 +134,10 @@ export default function Home() {
         </div>
         <div className={heroStyles["work-feature-text"]}>
           <div className={heroStyles["feature-12"]}>
-            Create a free account
+            {t("hero:howWorksSectionItem2Title")}
           </div>
           <div className={heroStyles["description-of-feature-1"]}>
-            After creating an account, you will gain access to all the
-            app&#039;s features like search and ranking.
+            {t("hero:howWorksSectionItem2Subtitle")}
           </div>
         </div>
       </div>
@@ -157,11 +151,10 @@ export default function Home() {
         </div>
         <div className={heroStyles["work-feature-text"]}>
           <div className={heroStyles["feature-12"]}>
-            Using AI and algorithms
+            {t("hero:howWorksSectionItem3Title")}
           </div>
           <div className={heroStyles["description-of-feature-1"]}>
-            Artificial intelligence and ranking algorithms will allow you to
-            find only the most accurate offers.
+            {t("hero:howWorksSectionItem3Subtitle")}
           </div>
         </div>
       </div>

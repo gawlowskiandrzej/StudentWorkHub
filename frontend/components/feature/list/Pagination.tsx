@@ -2,8 +2,10 @@ import { PaginationType } from "@/types/search/pagination";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import listStyles from '../../../styles/OfferList.module.css'
 import buttonStyles from '../../../styles/ButtonStyle.module.css'
+import { useTranslation } from "react-i18next";
 
 export function Pagination({ offset, limit, count, onChange }: PaginationType) {
+    const {t} = useTranslation("list");
     const currentPage = Math.floor(offset / limit) + 1;
     const totalPages = Math.ceil(count / limit);
 
@@ -34,7 +36,7 @@ export function Pagination({ offset, limit, count, onChange }: PaginationType) {
             <div className={listStyles["offer-count"]}>
                 <input className={listStyles["_100"]} type="number" maxLength={10} onChange={(e) => onChange(e.target.valueAsNumber)} value={currentPage || 1} />
             </div>
-            <div className={listStyles["from"]}>from</div>
+            <div className={listStyles["from"]}>{t("from")}</div>
             <div className={listStyles["_100"]}>{totalPages}</div>
 
             <button

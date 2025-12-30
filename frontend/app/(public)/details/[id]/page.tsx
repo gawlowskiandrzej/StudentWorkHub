@@ -9,16 +9,16 @@ import { SkillsSection } from "@/components/feature/details/SkillSection";
 import { LanguageSection } from "@/components/feature/details/LanguagesSection";
 import { EducationSection } from "@/components/feature/details/EducationSection";
 import { BenefitsSection } from "@/components/feature/details/BenefitsSection";
-import { useT } from "@/i18n/i18nWrapper";
 import { InfoSection } from "@/components/feature/details/InfoSection";
 import detailsStyles from '../../../../styles/OfferDetails.module.css';
 import buttonStyles from '../../../../styles/ButtonStyle.module.css';
+import { useTranslation } from "react-i18next";
 
 export default function DetailsPage() {
     const params = useParams();
     const id = params.id as string;
     const router = useRouter();
-    const t = useT();
+    const {t} = useTranslation("details");
     function goBackToListView() {
         router.back();
     };
@@ -45,7 +45,7 @@ export default function DetailsPage() {
                 className={`flex flex-row items-center self-stretch text-left justify-start cursor-pointer gap-3`}
                 onClick={() => goBackToListView()}
             >
-                <ArrowLeft className={`secondary ${detailsStyles["chevron-left"]}`} /> Go to list
+                <ArrowLeft className={`secondary ${detailsStyles["chevron-left"]}`} /> {t("goBackButton")}
             </div>
         </div>
         <div className={detailsStyles["categories-header"]}>
@@ -56,7 +56,7 @@ export default function DetailsPage() {
                     {offer.category.subCategories?.join(" / ")}
                 </div>
             ) : (
-                <div className={detailsStyles["subcategory-subcategory"]}>brak podkategorii</div>
+                <div className={detailsStyles["subcategory-subcategory"]}>{t("noSubCategories")}</div>
             )}
         </div>
     </div>
@@ -77,7 +77,7 @@ export default function DetailsPage() {
                             <div className={detailsStyles["_100-200-z"]}>
                                 {offer.salary.from != null && offer.salary.to != null
                                     ? `${formatSalaryValue(offer.salary.from)} ${offer.salary.currency} - ${formatSalaryValue(offer.salary.to)} ${offer.salary.currency}`
-                                    : t("salaryNotDefined")}
+                                    : t("noSalary")}
                             </div>
                         </div>
                     </div>
@@ -100,7 +100,7 @@ export default function DetailsPage() {
                 className={buttonStyles["main-button"]}
                 onClick={() => window.open(offer.url, "_blank", "noopener,noreferrer")}
             >
-                <div className={buttonStyles["find-mathing-job"]}>Go to offer page</div>
+                <div className={buttonStyles["find-mathing-job"]}>{t("goToOfferPage")}</div>
             </div>
         </div>
 
@@ -109,7 +109,7 @@ export default function DetailsPage() {
                 className={buttonStyles["main-button"]}
                 onClick={() => window.open(offer.url, "_blank", "noopener,noreferrer")}
             >
-                <div className={buttonStyles["find-mathing-job"]}>Go to offer page</div>
+                <div className={buttonStyles["find-mathing-job"]}>{t("goToOfferPage")}</div>
             </div>
         </div>
     </div>

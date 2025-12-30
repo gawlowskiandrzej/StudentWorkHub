@@ -2,12 +2,14 @@ import { skill } from "@/types/list/Offer/skill";
 import detailsStyles from '../../../styles/OfferDetails.module.css'
 import buttonStyles from '../../../styles/ButtonStyle.module.css'
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 type skillSection = {
     offerSkills: skill[]
 }
 
 export function SkillsSection({ offerSkills }: skillSection) {
+    const {t} = useTranslation("details");
     const [expanded, setExpanded] = useState(false);
     const sortedSkills = useMemo(() => {
         return [...offerSkills].sort((a, b) => {
@@ -40,7 +42,7 @@ export function SkillsSection({ offerSkills }: skillSection) {
             <div className={detailsStyles["frame-168"]}>
                 <div className={detailsStyles["frame-166"]}>
                     <div className={detailsStyles["required-skills"]}>
-                        Required skills
+                        {t("requiredSkills")}
                     </div>
                     <div className={detailsStyles["line-10"]} />
                 </div>
@@ -96,8 +98,8 @@ export function SkillsSection({ offerSkills }: skillSection) {
                     >
                         <div className={detailsStyles["find-mathing-job"]}>
                             {expanded
-                                ? "Show less"
-                                : `Show more (${offerSkills.length - 5})`}
+                                ? t("showLess")
+                                : `${t("showMore")} (${offerSkills.length - 5})`}
                         </div>
                     </div>
                 </div>

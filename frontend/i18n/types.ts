@@ -1,3 +1,13 @@
-import pl from "./locales/pl.json";
+import hero from "@/i18n/locales/pl/hero.json";
+import common from "@/i18n/locales/pl/common.json";
+import { useTranslation } from "react-i18next";
 
-export type TranslationKey = keyof typeof pl;
+type Resources = {
+  hero: typeof hero;
+  common: typeof common;
+};
+
+export const useT = <NS extends keyof Resources>(ns: NS) => {
+  const { t } = useTranslation(ns);
+  return (key: keyof Resources[NS]) => t(key as string);
+};

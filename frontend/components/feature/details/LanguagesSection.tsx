@@ -2,6 +2,7 @@ import { useState } from "react";
 import { language } from "@/types/list/Offer/language";
 import detailsStyles from "../../../styles/OfferDetails.module.css";
 import buttonStyles from "../../../styles/ButtonStyle.module.css";
+import { useTranslation } from "react-i18next";
 
 type languageSection = {
     languages: language[];
@@ -23,7 +24,7 @@ const nullEle = (
 
 export function LanguageSection({ languages }: languageSection) {
     const [expanded, setExpanded] = useState(false);
-
+    const {t} = useTranslation("details");
     const visibleLanguages = expanded
         ? languages
         : languages.slice(0, INITIAL_VISIBLE);
@@ -33,7 +34,7 @@ export function LanguageSection({ languages }: languageSection) {
             <div className={detailsStyles["frame-168"]}>
                 <div className={detailsStyles["frame-166"]}>
                     <div className={detailsStyles["required-skills"]}>
-                        Required languages
+                        {t("requiredLanguages")}
                     </div>
                     <div className={detailsStyles["line-10"]}></div>
                 </div>
@@ -72,8 +73,8 @@ export function LanguageSection({ languages }: languageSection) {
                     >
                         <div className={detailsStyles["find-mathing-job"]}>
                             {expanded
-                                ? "Show less"
-                                : `Show more (${languages.length - INITIAL_VISIBLE})`}
+                                ? t("showLess")
+                                : `${t("showMore")} (${languages.length - INITIAL_VISIBLE})`}
                         </div>
                     </div>
                 </div>

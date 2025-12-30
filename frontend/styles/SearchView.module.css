@@ -112,6 +112,7 @@
   display: flex;
   flex-direction: row;
   gap: 0px;
+  font-size: var(--mediumSize);
   width: 100%;
   align-items: center;
   justify-content: flex-start;
@@ -124,7 +125,7 @@
   color: #fbfbfb;
   text-align: center;
   font-family: "Roboto-SemiBold", sans-serif;
-  font-size: var(--mediumSize, 10px);
+  font-size: var(--mediumSize);
   font-weight: 600;
   position: relative;
   align-self: stretch;
@@ -181,6 +182,7 @@
   display: flex;
   flex-direction: row;
   gap: 15px;
+  font-size: var(--subHeader);
   align-items: center;
   justify-content: flex-start;
   flex-shrink: 0;

@@ -8,6 +8,7 @@ import { SearchBar } from "@/components/feature/search/SearchBar";
 import { FilterWithDialog } from "@/components/feature/search/FilterWithDialog";
 import { useRouter } from 'next/navigation';
 import { useSearch } from "@/store/SearchContext";
+import { useTranslation } from "react-i18next";
 
 type FiltersState = {
     workType?: string;
@@ -23,6 +24,7 @@ const Search = () => {
         city: "",
     });
     const [filters, setFilters] = useState<FiltersState>({});
+    const {t} = useTranslation(["searchView", "searchbar", "common"])
     const { setSearch} = useSearch();
     const updateFilter = (key: keyof FiltersState, value: string) => {
         setFilters((prev) => ({
@@ -46,9 +48,9 @@ const Search = () => {
                 <div className={searchStyle["search-view-header"]}>
                     <span>
                         <span className={searchStyle["search-view-header-span"]}>
-                            We have many offers for you.
+                            {t("searchView:searchViewTitlePart1")}
                         </span>
-                        <span className={searchStyle["search-view-header-span2"]}> Let them find you.</span>
+                        <span className={searchStyle["search-view-header-span2"]}> {t("searchView:searchViewTitlePart2")}</span>
                     </span>
                 </div>
                     <SearchBar localSearch={localSearch} setLocalSearch={setLocalSearch}>
@@ -57,7 +59,7 @@ const Search = () => {
                         <div className={searchStyle["sub-filters"]}>
                             <div className={searchStyle["basic-filter-item"]}>
                                 <Filter
-                                    label="Work type"
+                                    label={t("searchView:workTypeFilterTitle")}
                                     items={items}
                                     onChange={(v) => updateFilter("workType", v)}
                                     value={filters.workType}>
@@ -65,7 +67,7 @@ const Search = () => {
                             </div>
                             <div className={searchStyle["basic-filter-item"]}>
                                 <Filter
-                                    label="Work time"
+                                    label={t("searchView:workTime")}
                                     items={items}
                                     onChange={(v) => updateFilter("workTime", v)}
                                     value={filters.workTime}>
@@ -73,7 +75,7 @@ const Search = () => {
                             </div>
                             <div className={searchStyle["basic-filter-item"]}>
                                 <Filter
-                                    label="Employment type"
+                                    label={t("searchView:employmentType")}
                                     items={items}
                                     onChange={(v) => updateFilter("employmentType", v)}
                                     value={filters.employmentType}>
@@ -81,7 +83,7 @@ const Search = () => {
                             </div>
                             <div className={`${searchStyle["basic-filter-item"]}`}>
                                 <FilterWithDialog
-                                    label="Salary"
+                                    label={t("searchView:salary")}
                                     items={items}
                                     onChange={(v) => updateFilter("salary", v)}>
                                 </FilterWithDialog>
@@ -89,7 +91,7 @@ const Search = () => {
                         </div>
                         <div onClick={gotoListPage} className={buttonStyles["main-button"]}>
                             <img className={`${footerStyle["search"]} mt-0.5`} src="/icons/search0.svg" />
-                            <div className={buttonStyles["find-matching-job"]}>Find matching jobs</div>
+                            <div className={buttonStyles["find-matching-job"]}>{t("common:findMatchingJob")}</div>
                         </div>
                 </div>
             </div>
