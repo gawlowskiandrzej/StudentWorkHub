@@ -1,60 +1,75 @@
-> ℹ This is still development version, used as a standalone server to test working with offers database, future versions will be developed with centralized scripts, security and deployment and use safer authentication methods.
+TEST USERS SUMMARY
 
-# Configuration and deployment of offers_database container #
-## Deployment ##
-1. Change `.env.example` to `.env` and change value for `POSTGRES_PASSWORD`.
-2. Open console in **container** folder.
-3. Run:
-   ```powershell
-   docker compose build
-   docker compose up
-   ```
-## Rebuilding database ##
-In case of **scripts** changing to test new changes, we need to recreate the container.
-> ⚠ This will delete all container data, including data stored on the host.
+> NOTE: RememberMe tokens are rotated on each login (they change every time). The tokens listed above are valid only right after running the script / performing the login that generated them.
 
-1. Destroy the container:
-   ```powershell
-   docker compose down
-   ```
-2. Destroy attached volume
-    ```powershell
-    docker volume rm pgdata
-    ```
-3. Rebuild the container with new scripts content:
-   ```powershell
-   docker compose up
-   ```
-## Database communication ##
-From now on you should use provided library to communicate with database. You can learn more from README.md in `offers_database/lib` folder.
+Common password: Test123!Test1
 
-# Container creation details #
-## Dockerfile ##
-- `FROM postgres:17.6-trixie` - uses version **17.6** based on **Debian trixie**, instead of **latest** to avoid using different versions between developers.
-- `ENV POSTGRES_INITDB_ARGS="--auth=scram-sha-256 --data-checksums"` - Enforces **SCRAM-SHA-256** algorithm to secure authentication, and enables checkums on database data to allow for faster error detection.
-- `COPY --chown=postgres:postgres xyz xyz` - Copies .sql scripts from `scripts` folder, to `docker-entrypoint-initdb.d`. PostgreSQL will run those scripts while `docker compose up`.
-- `EXPOSE 5432` - Informs that the container wants to use 5432 port.
-- `HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=5 CMD pg_isready -h 127.0.0.1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" || exit 1` - Tests every 30 seconds *(after first 30 seconds)* if database is up. Uses `POSTGRES_USER` and `POSTGRES_DB` variables from .env file. If container doesnt respond it is marked by `unhealthy` status.
+User01
+- Email: user01@a.pl
+- Second name: Jan
+- Phone: +48111111111
+- Search history entries: 6
+- RememberMe token: xAwktYlNejDX6f2A3kFOGzTlBUM470YVj6dXXreXSpO+1O9trSzdAgrvlju9njsrXdoU5pRfiV1T05HuJFPZH+HiXorPc5e0HN5rhcRCK4fsxX1lvUJWcYkn2RxZJaJ+r03v/+4O0L1vcVv23JD3tp8EZYh8dtY1PJr+4g05g3iywmohD/2zJ/BFSbPdzJtZEioRi4GrwDVW5Hjad1t3TZlQgeBy0JRg2rojrbFqW1aL/nuKE1HgEvlcJc6apo/C
 
-## 00_hardening.sql ##
-- `ALTER SYSTEM SET password_encryption = 'scram-sha-256';` - Sets **SCRAM-SHA-256** as default hashing algorith for new passwords.
-- `ALTER SYSTEM SET log*` - Enables log collection, confogures log preservation, rotation, enables logging connection creation/deletion and log format.
-- `ALTER SYSTEM SET shared_preload_libraries = 'pg_stat_statements';` - Enables `pg_stat` module to allow analysis of statements generated load.
-- `CREATE EXTENSION IF NOT EXISTS pg_stat_statements;` - Creates extension for `pg_stat` module if it doesn't already exist in database.
-- `ALTER SYSTEM SET log_min_duration_statement = 3000;` - Logs every statement that takes more than 3s, to easier catch abuse, and bottlenecks.
-- `SELECT pg_reload_conf();` - Reloads **Postgre** configuration.
+User02
+- Email: user02@a.pl
+- Second name: Anna
+- Phone: (not set)
+- Search history entries: 0
+- RememberMe token: G2J/PUGm1GNhiV4lAu/3cp1M0HLjhssnG+YruBhrzB/kVXPVBkEpjE8QyW7gkwTzv7a2RT2psg1ItpqzOLNQbnOwlsZRNVP9CYGCb2Zp7G7xmIbO5ID46sJ4EYUK32mZ89OulpX3yXtaSyThKIpBEDHuLoqv9aO1VjW6ygn7ii0fZZ2IyIuzXZVw5vSO+U2bRyNjnpnY+rWsb1McmrGGi+RzRymWhd7yApNrp4PfU0G63YWWjkyuT9k06fvX5vyW
 
-## Docker-compose.yaml ##
-- `context: .` - Searches for files in the same directory.
-- `image: local/postgres-secure:17.6` - `compose build` will create new image on local system with `postgres-secure:17.6` name.
-- `env_file: ./.env` - Uses `.env` file from current directory.
-- `ports: - "5432:5432"` - Exposes **5432** port on host system.
-- `volumes: - pgdata:/var/lib/postgresql/data` - Mounts `pgdata` volume.
-- `volumes: - ./scripts:/docker-entrypoint-initdb.d:ro` - Mounts `scripts` folder as a read-only (**:ro**) directory.
-- `volumes: pgdata:` - Creates `pgdata` volume.
+User03
+- Email: user03@a.pl
+- Second name: (not set)
+- Phone: +48222222222
+- Search history entries: 1
+- RememberMe token: (not provided)
 
-## create_database.ddl.sql ##
-This scripts creates tables, relations, indexes, etc.
+User04
+- Email: user04@a.pl
+- Second name: Maria
+- Phone: +48333333333
+- Search history entries: 2
+- RememberMe token: (not provided)
 
-## sample_data.dml.sql ##
-This scripts fills previously created database with 22 fake external offers.
+User05
+- Email: user05@a.pl
+- Second name: Piotr
+- Phone: (not set)
+- Search history entries: 3
+- RememberMe token: (not provided)
+
+User06
+- Email: user06@a.pl
+- Second name: (not set)
+- Phone: +48444444444
+- Search history entries: 4
+- RememberMe token: (not provided)
+
+User07
+- Email: user07@a.pl
+- Second name: Kamil
+- Phone: +48555555555
+- Search history entries: 5
+- RememberMe token: (not provided)
+
+User08
+- Email: user08@a.pl
+- Second name: (not set)
+- Phone: (not set)
+- Search history entries: 2
+- RememberMe token: (not provided)
+
+User09
+- Email: user09@a.pl
+- Second name: Zofia
+- Phone: (not set)
+- Search history entries: 1
+- RememberMe token: ByzD2+mYq0XYKLDVnZoBfgDdNv0qMaD9hJI1vUnMHfV+8CX/heNL4+0s9enYZa64en0UURrZVZituCB8og34AaXKU0CBz4o/+1NgBYLpRt+8lF6gFiZgTtMr/koX4ZpRtk9iDj/yVwKaFARrj0dgpwA2LG3Y8rzakzziiTHXB3yol/8ul7mEcaKpmjmb4uIoykipWmjoICLa+EU3b6tARFz8T0ObOAuguk78OjP2SRWqWSPQgM8HUrMYvi6TWUEX
+
+User10
+- Email: user10@a.pl
+- Second name: (not set)
+- Phone: +48666666666
+- Search history entries: 3
+- RememberMe token: QGCms5xwOoqpp5/u7waiPpcRy52YsxcIjMcJ0wF0j9I6OYfyLkcE4zUV3VZ5/2cbVEySf5c+rxXiD2FaYBbVmb6HSmCsrSn0WUhQpsJOKUJI8I0d+bt/2IsO5xViByX7gX9+mGlEbPx9STci2hj8cLPgKzONirgHXE1uDhjHAg5oq2erDR2d4Am9357ml40LHrbRT0qO0fsi2iNcIDTL7gLF3YnRgz04oJ35BlF6oZrkpY2yQxqPIOYqaOZjKNtw

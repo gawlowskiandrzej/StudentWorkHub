@@ -1,4 +1,4 @@
-x-name: databases
+name: databases
 services:
     db_offers:
         build:
@@ -11,7 +11,6 @@ services:
             - "5432:5432"
         volumes:
             - pg_offers:/var/lib/postgresql/data
-            - ./offers_database/container/scripts:/docker-entrypoint-initdb.d:ro
     
     db_general:
         build:
@@ -24,8 +23,8 @@ services:
             - "5433:5432"
         volumes:
             - pg_general:/var/lib/postgresql/data
-            - ./general_database/container/scripts:/docker-entrypoint-initdb.d:ro
 
 volumes:
     pg_offers:
     pg_general:
+

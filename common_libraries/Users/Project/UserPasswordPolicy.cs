@@ -5,7 +5,7 @@ namespace Users
     /// <summary>
     /// Defines password complexity requirements for user accounts.
     /// </summary>
-    public readonly struct UserPasswordPolicy
+    public sealed class UserPasswordPolicy
     {
         /// <summary>
         /// Minimum allowed password length.

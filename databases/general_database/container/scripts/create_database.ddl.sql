@@ -1,15 +1,15 @@
-DROP TABLE IF EXISTS public.search_histories_employment_types_junction;
-DROP TABLE IF EXISTS public.search_histories_employment_schedules_junction;
-DROP TABLE IF EXISTS public.history_salaries;
-DROP TABLE IF EXISTS public.employment_types;
-DROP TABLE IF EXISTS public.employment_schedules;
 DROP TABLE IF EXISTS public.weights;
 DROP TABLE IF EXISTS public.search_histories;
 DROP TABLE IF EXISTS public.users;
+
+DROP TABLE IF EXISTS public.role_permissions_roles_junction;
+DROP TABLE IF EXISTS public.role_permissions;
+DROP TABLE IF EXISTS public.roles;
+
 DROP TABLE IF EXISTS public.first_names;
 DROP TABLE IF EXISTS public.second_names;
 DROP TABLE IF EXISTS public.last_names;
-DROP TABLE IF EXISTS public.phones;
+
 
 -- =========================================================
 -- Users
@@ -39,6 +39,40 @@ CREATE TABLE public.last_names (
         UNIQUE (last_name)
 );
 
+CREATE TABLE public.roles (
+    id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    role_name VARCHAR(100) NOT NULL,
+
+    CONSTRAINT uq_roles_role_name
+        UNIQUE (role_name)
+);
+
+CREATE TABLE public.role_permissions (
+    id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY, 
+    permission_name VARCHAR(100) NOT NULL,
+
+    CONSTRAINT uq_role_permissions_permission_name
+        UNIQUE (permission_name)
+);
+
+CREATE TABLE public.role_permissions_roles_junction (
+    role_id SMALLINT NOT NULL,
+    role_permission_id SMALLINT NOT NULL,
+
+    CONSTRAINT pk_role_permissions_roles_junction
+        PRIMARY KEY (role_id, role_permission_id),
+
+    CONSTRAINT fk_rprj_roles
+        FOREIGN KEY (role_id)
+        REFERENCES public.roles (id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_rprj_role_permissions
+        FOREIGN KEY (role_permission_id)
+        REFERENCES public.role_permissions (id)
+        ON DELETE CASCADE
+);
+
 CREATE TABLE public.users (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     email VARCHAR(255) NULL,
@@ -49,6 +83,7 @@ CREATE TABLE public.users (
     first_name_id BIGINT NOT NULL,
     second_name_id BIGINT NULL,
     last_name_id BIGINT NOT NULL,
+    role_id SMALLINT NOT NULL DEFAULT 1,
 
     CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
     CHECK (phone ~ '^\+[0-9]{7,15}$'),
@@ -59,7 +94,7 @@ CREATE TABLE public.users (
     CONSTRAINT uq_users_remember_token
         UNIQUE (remember_token),
 
-    CONSTRAINT uq_phones_phone
+    CONSTRAINT uq_users_phone
         UNIQUE (phone),
 
     CONSTRAINT fk_users_first_names
@@ -75,6 +110,11 @@ CREATE TABLE public.users (
     CONSTRAINT fk_users_last_names
         FOREIGN KEY (last_name_id)
         REFERENCES public.last_names (id)
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_users_roles
+        FOREIGN KEY (role_id)
+        REFERENCES public.roles (id)
         ON DELETE RESTRICT
 );
 
@@ -98,74 +138,15 @@ CREATE TABLE public.search_histories (
     CONSTRAINT fk_users_search_histories
         FOREIGN KEY (user_id)
             REFERENCES public.users(id)
-            ON DELETE CASCADE
-);
+            ON DELETE CASCADE,
 
-CREATE TABLE public.history_salaries (
-    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    salary_from NUMERIC(8,2) NULL DEFAULT 0.0,
-    salary_to NUMERIC(8,2) NULL DEFAULT 0.0,
+    salary_from NUMERIC(8,2) NOT NULL DEFAULT 0.0,
+    salary_to NUMERIC(8,2) NOT NULL DEFAULT 0.0,
     salary_period_id SMALLINT NULL,
     salary_currency_id SMALLINT NULL,
-    salary_type_id SMALLINT NULL,
 
-    search_history_id INTEGER NOT NULL,
-    CONSTRAINT fk_search_histories_history_salaries
-        FOREIGN KEY (search_history_id) 
-            REFERENCES public.search_histories(id) 
-            ON DELETE CASCADE
-);
-
-CREATE TABLE public.employment_schedules (
-    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    employment_schedule_id SMALLINT NOT NULL,
-    
-    CONSTRAINT uq_employment_schedules_employment_schedule_id 
-        UNIQUE (employment_schedule_id)
-);
-
-CREATE TABLE public.search_histories_employment_schedules_junction (
-    search_history_id INTEGER NOT NULL,
-    employment_schedule_id INTEGER NOT NULL,
-
-    CONSTRAINT pk_search_histories_employment_schedules_junction
-        PRIMARY KEY (search_history_id, employment_schedule_id),
-
-    CONSTRAINT fk_search_histories_search_histories_employment_schedules_junction_search_history_id
-        FOREIGN KEY (search_history_id)
-            REFERENCES public.search_histories(id)
-            ON DELETE CASCADE,
-
-    CONSTRAINT fk_employment_schedules_search_histories_employment_schedules_junction_employment_schedule_id
-        FOREIGN KEY (employment_schedule_id)
-            REFERENCES public.employment_schedules(id)
-            ON DELETE CASCADE
-);
-
-CREATE TABLE public.employment_types (
-    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    employment_type_id SMALLINT NOT NULL,
-    
-    CONSTRAINT uq_employment_types_employment_type_id
-        UNIQUE (employment_type_id)
-);
-
-CREATE TABLE public.search_histories_employment_types_junction (
-    search_history_id INTEGER NOT NULL,
-    employment_type_id INTEGER NOT NULL,
-
-    CONSTRAINT pk_search_histories_employment_types_junction
-        PRIMARY KEY (search_history_id, employment_type_id),
-
-    CONSTRAINT fk_search_histories_search_histories_employment_types_junction_search_history_id
-        FOREIGN KEY (search_history_id)
-            REFERENCES public.search_histories(id)
-            ON DELETE CASCADE,
-
-    CONSTRAINT fk_employment_types_search_histories_employment_types_junction_employment_type_id
-        FOREIGN KEY (employment_type_id)
-            REFERENCES public.employment_types(id)
-            ON DELETE CASCADE
+    employment_schedule_ids SMALLINT[] NOT NULL DEFAULT '{}',
+    employment_type_ids SMALLINT[] NOT NULL DEFAULT '{}'
 );
 
 -- =========================================================

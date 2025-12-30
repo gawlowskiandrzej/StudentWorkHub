@@ -1,5 +1,3 @@
-using AngleSharp;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Offer_collector.Models.AI;
 using Offer_collector.Models.DatabaseService;
@@ -8,8 +6,8 @@ using offer_manager.Models.FilterService;
 using offer_manager.Models.Others;
 using offer_manager.Models.PaginationService;
 using offer_manager.Models.WorkerService;
-using OffersConnector;
 using StackExchange.Redis;
+using Users;
 
 namespace offer_manager
 {
@@ -57,6 +55,30 @@ namespace offer_manager
             builder.Services.AddScoped<PaginationService>();
             builder.Services.AddScoped<FilterService>();
 
+            // Password policy used by auth endpoints.
+            // TODO: Move policy configuration to appsettings / env (min length, required chars, known-passwords file path).
+            builder.Services.AddSingleton<UserPasswordPolicy>();
+
+            // JWT configuration used for generating access tokens.
+            // TODO: Load issuer/audience/signing key from configuration (appsettings / env / secrets).
+            // TODO: Replace 'signingKey: null' with a real secret/private key (and validate it's present on startup).
+            builder.Services.AddSingleton(new JwtOptions(
+                issuer: null,
+                audience: null,
+                signingKey: null,
+                accessTokenTtl: TimeSpan.FromHours(2.0),
+                clockSkew: null
+            ));
+
+            // Service for talking to PostgreSQL / user storage (keeps datasource/connection settings, no per-user state).
+            // TODO: Read DB credentials/connection string from configuration (appsettings / env / user secrets).
+            builder.Services.AddSingleton(new User(
+                username: "postgres",
+                password: "1qazXSW@",
+                host: "db_general",
+                port: 5432
+            ));
+
             var app = builder.Build();
 
             app.UseSwagger();
@@ -66,12 +88,8 @@ namespace offer_manager
             app.UseHttpsRedirection();
             //app.UseAuthorization();
 
-
             app.MapControllers();
-
             app.Run();
-
-
         }
     }
 }

@@ -14,12 +14,12 @@ namespace Users
         /// <summary>
         /// Shared length of the remember-me token used across all user instances.
         /// </summary>
-        internal static readonly int _rememberMeTokenLength = 256;
+        internal static readonly int rememberMeTokenLength = 256;
 
         /// <summary>
         /// Maximum number of attempts to generate a unique remember-me token before failing.
         /// </summary>
-        internal static readonly int _generateRememberTokenMaxTries = 20;
+        internal static readonly int generateRememberTokenMaxTries = 20;
 
         /// <summary>
         /// Latest supported encryption function version.
