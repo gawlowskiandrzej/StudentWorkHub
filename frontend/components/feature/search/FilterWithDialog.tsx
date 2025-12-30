@@ -54,7 +54,7 @@ export function FilterWithDialog({
                         <span className="text-center">zł</span>
                     </div>
                     <DialogFooter>
-                        <Button
+                        <Button className="cursor-pointer"
                             onClick={() => {
                                 setOpenDialog(false);
                             }}

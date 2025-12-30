@@ -1,6 +1,7 @@
 import { ProgressValues } from "@/types/details/ProgressValues";
 import { Progress } from "@/components/ui/progress";
 import detailsStyles from '../../../styles/OfferDetails.module.css'
+import { useTranslation } from "react-i18next";
 
 function daysUntil(date: Date) {
     const now = new Date();
@@ -13,7 +14,7 @@ export default function ProgressBar({ progress, expiresAt }: ProgressValues) {
         day: "2-digit",
         month: "2-digit",
     }).format(expiresAt);
-
+    const {t} = useTranslation("details");
     const daysLeft = daysUntil(expiresAt);
 
     return (
@@ -23,10 +24,10 @@ export default function ProgressBar({ progress, expiresAt }: ProgressValues) {
                     <Progress value={progress} max={100} />
                 </div>
                 <div className={detailsStyles["expires-in-x-days"]}>
-                    expires in {daysLeft} days
+                    {t("expires")} {daysLeft} {t("days")}
                 </div>
             </div>
-            <div className={detailsStyles["to-dd-mm"]}>(to {formattedDate})</div>
+            <div className={detailsStyles["to-dd-mm"]}>({t("to")} {formattedDate})</div>
         </div>
     );
 }

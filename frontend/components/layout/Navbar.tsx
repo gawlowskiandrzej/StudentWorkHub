@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import navigationStyles from "../../styles/Navigation.module.css";
 import buttonStyles from "../../styles/ButtonStyle.module.css";
 import { Jura } from "next/font/google";
+import { useTranslation } from "react-i18next";
 
 const jura = Jura({
   weight: ["400", "700"],
@@ -12,6 +13,7 @@ const jura = Jura({
 
 const Navbar = () => {
   const router = useRouter();
+  const {t} = useTranslation(["navigation", "common"])
 
   return (
     <nav className={navigationStyles["navigation-with-short-logo"]}>
@@ -28,7 +30,7 @@ const Navbar = () => {
             StudentWorkHub
           </div>
           <div className={navigationStyles["subtitle-student-work-hub"]}>
-            your carrer starts now !
+            {t("common:siteSubHeader")}
           </div>
         </div>
       </div>
@@ -37,7 +39,7 @@ const Navbar = () => {
         <div
           className={`${buttonStyles["main-button"]} ${navigationStyles["register-button"]}`}
         >
-          <div className={"text-xs"}>Register</div>
+          <div className={"text-xs"}>{t("navigation:register")}</div>
         </div>
         <img
           className={navigationStyles["user"]}

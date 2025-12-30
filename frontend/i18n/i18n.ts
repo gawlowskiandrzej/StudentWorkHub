@@ -28,7 +28,7 @@ i18n.use(initReactI18next).init({
       common: plCommon,
       navigation: plNavbar,
       footer: plFooter,
-      home: plHero,
+      hero: plHero,
       list: plList,
       details: plDetails,
       searchbar: plSearchbar,

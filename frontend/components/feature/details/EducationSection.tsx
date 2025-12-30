@@ -1,6 +1,7 @@
 import detailsStyles from '../../../styles/OfferDetails.module.css'
 import buttonStyles from '../../../styles/ButtonStyle.module.css'
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type educationSection = {
     educations: string[] | null
@@ -20,6 +21,7 @@ const nullEle =
 
 export function EducationSection({ educations }: educationSection) {
     const [expanded, setExpanded] = useState(false);
+    const {t} = useTranslation("details");
     const visibleEducation = expanded
         ? educations
         : educations?.slice(0, INITIAL_VISIBLE);
@@ -28,7 +30,7 @@ export function EducationSection({ educations }: educationSection) {
         <div className={detailsStyles["required-skills-section"]}>
             <div className={detailsStyles["frame-168"]}>
                 <div className={detailsStyles["frame-166"]}>
-                    <div className={detailsStyles["required-skills"]}>Required education</div>
+                    <div className={detailsStyles["required-skills"]}>{t("requiredEducation")}</div>
                     <div className={detailsStyles["line-10"]}></div>
                 </div>
                 <div className={detailsStyles["skill-section-content thight-section"]}>
@@ -67,8 +69,8 @@ export function EducationSection({ educations }: educationSection) {
                 <div className={detailsStyles["frame-172"]}>
                     <div onClick={() => setExpanded((prev) => !prev)}  className={`${buttonStyles["main-button"]} ${detailsStyles["show-more-button"]}`}>
                         <div className={detailsStyles["find-mathing-job"]}>{expanded
-                                ? "Show less"
-                                : `Show more (${educations.length - INITIAL_VISIBLE})`}</div>
+                                ? t("showLess")
+                                : `${t("showMore")} (${educations.length - INITIAL_VISIBLE})`}</div>
                     </div>
                 </div>
                 : ""

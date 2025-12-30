@@ -13,6 +13,7 @@ import { Search } from "@/types/search/search";
 import { useSearch } from "@/store/SearchContext";
 import { Pagination } from "@/components/feature/list/Pagination";
 import { mapToDynamicFilter } from "@/utils/offerFilters/mapToDynamicFilter";
+import { useTranslation } from "react-i18next";
 
 export default function OfferList() {
   const {search} = useSearch();
@@ -29,11 +30,12 @@ export default function OfferList() {
       [key]: value,
     }));
   };
+  const {t} = useTranslation(["common", "list"]);
   const items = [
-    { label: "Creation Date", value: "CreationDate" },
-    { label: "Salary desc", value: "Salarydesc" },
-    { label: "Salary asc", value: "Salaryasc" },
-    { label: "Name asc", value: "Nameasc" },
+    { label: t("list:sort.creationAsc"), value: "CreationDate" },
+    { label: t("list:sort.salaryDesc"), value: "Salarydesc" },
+    { label: t("list:sort.salaryDesc"), value: "Salaryasc" },
+    { label: t("list:sort.nameAsc"), value: "Nameasc" },
   ];
   const dynamicFilters = [
     mapToDynamicFilter("Stopień doświadczenia", offersJson.dynamicFilters.experienceLevels),
@@ -48,7 +50,7 @@ export default function OfferList() {
             <SearchBar localSearch={localSearch} setLocalSearch={setLocalSearch} />
             <div className={`${buttonStyle["main-button"]}`}>
               <img className={listStyles["search"]} src="/icons/search0.svg" />
-              <div className={buttonStyle["find-matching-job"]}>Find matching job</div>
+              <div className={buttonStyle["find-matching-job"]}>{t("findMatchingJob")}</div>
             </div>
           </div>
           <RecentSearches setSearch={setLocalSearch} />
@@ -62,7 +64,7 @@ export default function OfferList() {
           <div className={listStyles["list-with-filter"]}>
             <div className={listStyles["filternav"]}>
               <div className={listStyles["offer-list-sort-select"]}>
-                <div className={listStyles["sort-by"]}>Sort by:</div>
+                <div className={listStyles["sort-by"]}>{t("list:sortByTitle")}</div>
                 <Filter className={`${listStyles["creation-date"]}`}
                   label="Sort"
                   clearable={false}

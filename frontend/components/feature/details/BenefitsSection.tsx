@@ -1,6 +1,7 @@
 import { useState } from "react";
 import detailsStyles from "../../../styles/OfferDetails.module.css";
 import buttonStyles from "../../../styles/ButtonStyle.module.css";
+import { useTranslation } from "react-i18next";
 
 type benefitsSection = {
     benefits: string[] | null;
@@ -23,6 +24,7 @@ const nullEle = (
 
 export function BenefitsSection({ benefits }: benefitsSection) {
     const [expanded, setExpanded] = useState(false);
+    const {t} = useTranslation("details");
 
     const visibleBenefits = expanded
         ? benefits
@@ -36,7 +38,7 @@ export function BenefitsSection({ benefits }: benefitsSection) {
         <div className={detailsStyles["required-skills-section"]}>
             <div className={detailsStyles["frame-168"]}>
                 <div className={detailsStyles["frame-166"]}>
-                    <div className={detailsStyles["required-skills"]}>Benefits</div>
+                    <div className={detailsStyles["required-skills"]}>{t("benefits")}</div>
                     <div className={detailsStyles["line-10"]} />
                 </div>
 
@@ -81,8 +83,8 @@ export function BenefitsSection({ benefits }: benefitsSection) {
                     >
                         <div className={detailsStyles["find-mathing-job"]}>
                             {expanded
-                                ? "Show less"
-                                : `Show more (${benefits.length - INITIAL_VISIBLE})`}
+                                ? t("showLess")
+                                : `${t("showMore")} (${benefits.length - INITIAL_VISIBLE})`}
                         </div>
                     </div>
                 </div>

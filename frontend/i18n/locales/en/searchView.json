@@ -1,5 +1,6 @@
 {
-    "searchViewTitle": "We have many offers for you. Let them find you.",
+    "searchViewTitlePart1": "We have many offers for you. Let them find you.",
+    "searchViewTitlePart2": "Let them find you!",
     "workTypeFilterTitle": "Work type",
     "workTime": "Work time",
     "employmentType": "Employment type",
