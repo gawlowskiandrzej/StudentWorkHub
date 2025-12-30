@@ -3,9 +3,15 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { ChevronDownIcon } from "lucide-react";
 import { useState } from "react";
 import dynamicFilterStyles from  "../../../styles/DynamicFilter.module.css";
-import { dynamicFilter } from "@/types/details/dynamicFilter";
+import { DynamicFilterProps } from "@/types/details/dynamicFilterProps";
 
-export function DynamicFilter({header, items}: dynamicFilter) {
+export function DynamicFilter({
+  header,
+  filterKey,
+  items,
+  selected,
+  onChange,
+}: DynamicFilterProps) {
   const [open, setOpen] = useState(false);
   return (
     <Collapsible className={`${dynamicFilterStyles["offer-list-filter-section"]} transition-all duration-300`} open={open} onOpenChange={setOpen}>
@@ -19,7 +25,12 @@ export function DynamicFilter({header, items}: dynamicFilter) {
       <CollapsibleContent className={`${dynamicFilterStyles["checkboxes"]} overflow-hidden transition-all data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down`}>
         {items.map((item, index) => (
           <label key={index} className={`${dynamicFilterStyles["offer-list-filter-item"]} cursor-pointer`}>
-            <Checkbox className={dynamicFilterStyles["frame-20"]} checked={item.checked} />
+            <Checkbox className={dynamicFilterStyles["frame-20"]}
+             checked={selected?.has(item.value)}
+              onCheckedChange={() =>
+                onChange(filterKey, item.value)
+              }
+            />
             <div className={dynamicFilterStyles["option-long-name-name"]}>{item.label}</div>
           </label>
         ))}

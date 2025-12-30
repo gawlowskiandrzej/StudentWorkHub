@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { ListElement } from "@/components/feature/list/ListElement";
 import offersJson from '@/store/data/DummyOffers.json';
 import listStyles from "../../../styles/OfferList.module.css";
@@ -12,8 +12,14 @@ import { Filter } from "@/components/feature/search/Filters";
 import { Search } from "@/types/search/search";
 import { useSearch } from "@/store/SearchContext";
 import { Pagination } from "@/components/feature/list/Pagination";
-import { mapToDynamicFilter } from "@/utils/offerFilters/mapToDynamicFilter";
+import { mapApiFilters } from "@/utils/offerFilters/mapToDynamicFilter";
 import { useTranslation } from "react-i18next";
+import { FilterKey, FilterValue } from "@/types/details/dynamicFilter";
+import { matchOfferToFilters } from "@/utils/offerFilters/matchOfferToFilters";
+
+export type FiltersState = Partial<
+  Record<FilterKey, Set<FilterValue>>
+>;
 
 export default function OfferList() {
   const {search} = useSearch();
@@ -30,6 +36,23 @@ export default function OfferList() {
       [key]: value,
     }));
   };
+  const toggleFilter = (
+  key: FilterKey,
+  value: FilterValue
+) => {
+  setFilters(prev => {
+    const set = new Set(prev[key] ?? []);
+    set.has(value) ? set.delete(value) : set.add(value);
+
+    return { ...prev, [key]: set };
+  });
+};
+  const [filters, setFilters] = useState<FiltersState>({});
+  const filteredOffers = useMemo(() => {
+  return offersJson.pagination.items.filter(offer =>
+    matchOfferToFilters(offer, filters)
+  );
+}, [filters]);
   const {t} = useTranslation(["common", "list"]);
   const items = [
     { label: t("list:sort.creationAsc"), value: "CreationDate" },
@@ -37,12 +60,7 @@ export default function OfferList() {
     { label: t("list:sort.salaryDesc"), value: "Salaryasc" },
     { label: t("list:sort.nameAsc"), value: "Nameasc" },
   ];
-  const dynamicFilters = [
-    mapToDynamicFilter("Stopień doświadczenia", offersJson.dynamicFilters.experienceLevels),
-    mapToDynamicFilter("Doświadczenie", offersJson.dynamicFilters.experienceMonths),
-    mapToDynamicFilter("Stopnień edukacji", offersJson.dynamicFilters.educationNames),
-    mapToDynamicFilter("Języki", offersJson.dynamicFilters.languagesNames),
-  ]
+  const dynamicFilters = mapApiFilters(offersJson.dynamicFilters)
   return (
       <div className={listStyles["offer-list-view"]}>
         <div className={listStyles["search-bar-component"]}>
@@ -57,8 +75,14 @@ export default function OfferList() {
         </div>
         <div className={listStyles["offers-list"]}>
           <div className={dynamicFilterStyles["dynamic-filter"]}>
-            {dynamicFilters.map((filter, index) => (
-              <DynamicFilter key={index} header={filter.header} items={filter.items} />
+            {dynamicFilters.map((filter) => (
+              <DynamicFilter key={filter.key}
+              filterKey={filter.key}
+              header={filter.header}
+              items={filter.items}
+              selected={filters[filter.key]}
+              onChange={toggleFilter}
+                />
             ))}
           </div>
           <div className={listStyles["list-with-filter"]}>
@@ -73,15 +97,15 @@ export default function OfferList() {
                   value={sorts.sort}>
                 </Filter>
               </div>
-              <Pagination offset={offset} limit={10} count={offersJson.pagination.items.length} onChange={setOffset} />
+              <Pagination offset={offset} limit={10} count={filteredOffers.length} onChange={setOffset} />
             </div>
-            {offersJson.pagination.items.map((offer) => (
+            {filteredOffers.map((offer) => (
               <ListElement key={offer.id} offer={offer} />
             ))}
           </div>
         </div>
         <div className={listStyles["second-pagination"]}>
-          <Pagination offset={offset} limit={10} count={offersJson.pagination.items.length} onChange={setOffset} />
+          <Pagination offset={offset} limit={10} count={filteredOffers.length} onChange={setOffset} />
         </div>
       </div>
   );
