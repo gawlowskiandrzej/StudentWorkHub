@@ -19,6 +19,8 @@ export function FilterWithDialog({
     onChange,
 }: FilterProps) {
     const [openDialog, setOpenDialog] = useState(false);
+    const [localFrom, setLocalFrom] = useState("");
+    const [localTo, setLocalTo] = useState("");
     const [customFrom, customTo] = value ? value.split("&") : ["", ""];
 
     return (
@@ -26,6 +28,9 @@ export function FilterWithDialog({
             <div className="flex cursor-pointer items-center gap-2">
                 <div
                     onClick={() => {
+                         const [customFrom, customTo] = value ? value.split("&") : ["", ""];
+                        setLocalFrom(customFrom);
+                        setLocalTo(customTo);
                         setOpenDialog(true);
                     }}>
                     {(customFrom || customTo) ? `${customFrom} - ${customTo} zł` : label}
@@ -41,20 +46,16 @@ export function FilterWithDialog({
                     <div className="grid grid-cols-[1fr_auto_1fr_auto] gap-2 w-full items-center">
                         <Input
                             placeholder="3500"
-                            value={customFrom}
-                            onChange={(e) =>
-                                onChange(`${e.target.value}&${customTo}`)
-                            }
+                            value={localFrom}
+                            onChange={(e) => setLocalFrom(e.target.value)}
                         />
 
                         <span className="text-center">-</span>
 
                         <Input
                             placeholder="6000"
-                            value={customTo}
-                            onChange={(e) =>
-                                onChange(`${customFrom}&${e.target.value}`)
-                            }
+                            value={localTo}
+                            onChange={(e) => setLocalTo(e.target.value)}
                         />
                         <span className="text-center">zł</span>
                     </div>
@@ -66,7 +67,7 @@ export function FilterWithDialog({
                         </Button>
                         <Button className="cursor-pointer"
                             onClick={() => {
-                                onChange(`${customFrom}&${customTo}`)
+                                onChange(`${localFrom}&${localTo}`)
                                 setOpenDialog(false);
                             }}
                         >
