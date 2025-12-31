@@ -1,7 +1,8 @@
 {
     "lastSearches": "Ostatnie wyszukiwania:",
     "sortByTitle": "Posortuj:",
-    "sort.creationAsc": "Data utworzenia",
+    "sort.idDesc": "Id malejąco",
+    "sort.creationAsc": "Data utworzenia malejąco",
     "sort.salaryDesc": "Płaca malejąco",
     "sort.salaryAsc": "Płaca rosnąco",
     "sort.nameAsc": "Nazwa",

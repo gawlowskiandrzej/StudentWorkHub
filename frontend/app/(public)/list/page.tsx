@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { ListElement } from "@/components/feature/list/ListElement";
 import offersJson from '@/store/data/DummyOffers.json';
 import listStyles from "../../../styles/OfferList.module.css";
@@ -7,50 +7,35 @@ import dynamicFilterStyles from "../../../styles/DynamicFilter.module.css";
 import buttonStyle from "../../../styles/ButtonStyle.module.css";
 import { SearchBar } from "@/components/feature/search/SearchBar";
 import { DynamicFilter } from "@/components/feature/list/Filters";
-import { RecentSearches } from "@/components/feature/list/RecentSearches";
+import { LastSearches } from "@/components/feature/list/RecentSearches";
 import { Filter } from "@/components/feature/search/Filters";
-import { search } from "@/types/search/search";
 import { useSearch } from "@/store/SearchContext";
 import { Pagination } from "@/components/feature/list/Pagination";
 import { mapApiFilters } from "@/utils/offerFilters/mapToDynamicFilter";
 import { useTranslation } from "react-i18next";
 import { FilterKey, FilterValue } from "@/types/details/dynamicFilter";
-import { matchOfferToFilters } from "@/utils/offerFilters/matchOfferToFilters";
-import { sortData } from "@/utils/offerFilters/sortOffers";
 import { usePagination } from "@/store/PaginationContext";
+import { useOfferList } from "@/hooks/useOfferList";
 
 export type FiltersState = Partial<
   Record<FilterKey, Set<FilterValue>>
 >;
 
 export default function OfferList() {
-  const { search, filters, toggleFilter } = useSearch();
+  const { filters, toggleFilter, sorts, setSorting } = useSearch();
   const { limit, offset, setOffset } = usePagination();
-  const [localSearch, setLocalSearch] = useState<search>({
-    keyword: search?.keyword || "",
-    category: search?.category || "",
-    city: search?.city || ""
-  });
-  const [sorts, setSort] = useState<{ sort?: string }>({ sort: "CreationDate" });
-  const updateFilter = (key: "sort", value: string) => {
-    setSort((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
-  const filteredAndSortedOffers = useMemo(() => {
-    const filtered = offersJson.pagination.items.filter(offer =>
-      matchOfferToFilters(offer, filters)
-    );
-    return sortData(filtered, sorts.sort || "CreationDate");
-  }, [filters, sorts.sort]);
+  
 
-  const paginatedOffers = useMemo(() => {
-    return filteredAndSortedOffers.slice(offset, offset + limit);
-  }, [filteredAndSortedOffers, offset, limit]);
+  const { offers, total } = useOfferList(
+    filters,
+    sorts.sort!,
+    offset,
+    limit
+  );
 
   const { t } = useTranslation(["common", "list"]);
   const items = [
+    { label: t("list:sort.idDesc"), value: "IdDesc" },
     { label: t("list:sort.creationAsc"), value: "CreationDate" },
     { label: t("list:sort.salaryDesc"), value: "Salarydesc" },
     { label: t("list:sort.salaryDesc"), value: "Salaryasc" },
@@ -61,13 +46,13 @@ export default function OfferList() {
     <div className={listStyles["offer-list-view"]}>
       <div className={listStyles["search-bar-component"]}>
         <div className={listStyles["search-bar-list"]}>
-          <SearchBar localSearch={localSearch} setLocalSearch={setLocalSearch} />
+          <SearchBar />
           <div className={`${buttonStyle["main-button"]}`}>
             <img className={listStyles["search"]} src="/icons/search0.svg" />
             <div className={buttonStyle["find-matching-job"]}>{t("findMatchingJob")}</div>
           </div>
         </div>
-        <RecentSearches setSearch={setLocalSearch} />
+        <LastSearches />
       </div>
       <div className={listStyles["offers-list"]}>
         <div className={dynamicFilterStyles["dynamic-filter"]}>
@@ -90,20 +75,22 @@ export default function OfferList() {
                 label="Sort"
                 clearable={false}
                 items={items}
-                onChange={(v) => updateFilter("sort", v)}
+                onChange={(v) => setSorting("sort", v)}
                 value={sorts.sort}>
               </Filter>
             </div>
-            <Pagination offset={offset} limit={limit} count={filteredAndSortedOffers.length} onChange={setOffset} />
+            <Pagination offset={offset} limit={limit} count={total} onChange={setOffset} />
           </div>
-          {paginatedOffers.map((offer) => (
+          {offers.map((offer) => (
             <ListElement key={offer.id} offer={offer} />
           ))}
+          <div className={listStyles["second-pagination"]}>
+            <Pagination offset={offset} limit={limit} count={total} onChange={setOffset} />
+          </div>
         </div>
+        
       </div>
-      <div className={listStyles["second-pagination"]}>
-        <Pagination offset={offset} limit={limit} count={filteredAndSortedOffers.length} onChange={setOffset} />
-      </div>
+      
     </div>
   );
 }

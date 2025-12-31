@@ -40,7 +40,7 @@ export function Filter({ label = "Options", className, variant, clearable = fals
       <SelectTrigger color={variant} className={`w-auto cursor-pointer border-0 m-0 ${className}`}>
           <SelectValue placeholder={`${label}`} />
       </SelectTrigger>
-       {(value !="" && value != undefined && clearable)? <X className="text-red-500 p-0 ml-2 cursor-pointer" size={16} onClick={() => onChange("")} /> : ""}
+       {(value !="" && value != undefined && clearable)? <X className="text-red-500 p-0 mr-2 cursor-pointer" size={16} onClick={() => onChange("")} /> : ""}
 
       <SelectContent>
         <SelectGroup>

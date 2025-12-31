@@ -2,11 +2,17 @@ import { offer } from "@/types/list/Offer/offer";
 
 export function sortData(items: offer[], sortValue: string) {
   switch (sortValue) {
+    case "IdDesc":
+      return [...items].sort(
+        (a, b) =>
+          b.id -
+          a.id
+      );
     case "CreationDate":
       return [...items].sort(
         (a, b) =>
-          new Date(a.dates.expires).getTime() -
-          new Date(b.dates.published).getTime()
+          new Date(b.dates.published).getTime() -
+          new Date(a.dates.published).getTime()
       );
     case "Salaryasc":
       return [...items].sort((a, b) => {

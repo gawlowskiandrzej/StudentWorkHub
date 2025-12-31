@@ -9,17 +9,11 @@ import { FilterWithDialog } from "@/components/feature/search/FilterWithDialog";
 import { useRouter } from 'next/navigation';
 import { useSearch } from "@/store/SearchContext";
 import { useTranslation } from "react-i18next";
-import { search } from "@/types/search/search";
 import {employment_types, employment_schedules,salary_periods } from "@/store/data/Dictionaries.json"
 import { toLabelValueFormat } from '../../../utils/others/toLabelValueFormat';
 
 const Search = () => {
-    const { setSearch, extraFilters, setExtraFilter, clearFilters} = useSearch();
-    const [localSearch, setLocalSearch] = useState<search>({
-        keyword: "",
-        category: "",
-        city: ""
-    });
+    const {search, extraFilters, setExtraFilter, addRecentSearch , clearFilters} = useSearch();
     const {t} = useTranslation(["searchView", "searchbar", "common"])
     const router = useRouter();
     const items = [
@@ -31,7 +25,7 @@ const Search = () => {
         clearFilters();
     }, [])
     const gotoListPage = () => {
-    setSearch(localSearch);
+    addRecentSearch(search);
     router.push('/list');
     };
     return (
@@ -45,7 +39,7 @@ const Search = () => {
                         <span className={searchStyle["search-view-header-span2"]}> {t("searchView:searchViewTitlePart2")}</span>
                     </span>
                 </div>
-                    <SearchBar localSearch={localSearch} setLocalSearch={setLocalSearch}>
+                    <SearchBar>
                     </SearchBar>
                     <div className={searchStyle["search-sub-section"]}>
                         <div className={searchStyle["sub-filters"]}>

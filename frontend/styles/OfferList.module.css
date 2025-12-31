@@ -408,7 +408,7 @@
   color: #ffffff;
   text-align: left;
   font-family: "Roboto-Regular", sans-serif;
-  font-size: var(--subheader, 16px);
+  font-size: var(--mediumSize);
   font-weight: 400;
   position: relative;
   align-self: stretch;
