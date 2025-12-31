@@ -185,7 +185,6 @@
   align-items: flex-start;
   justify-content: flex-start;
   align-self: stretch;
-  height: 185px;
   flex-shrink: 0;
   position: relative;
 }
@@ -193,7 +192,7 @@
   color: var(--white, #f8faff);
   text-align: left;
   font-family: "Roboto-Bold", sans-serif;
-  font-size: var(--semiHeader, 25px);
+  font-size: var(--subHeaderSize);
   font-weight: 700;
   position: relative;
   align-self: stretch;

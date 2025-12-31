@@ -1,61 +1,72 @@
-import "../../styles/Footer.css";
+"use client";
+import footerStyles from "../../styles/Footer.module.css";
 import { Inter } from "next/font/google";
+import { useTranslation } from "react-i18next";
 
 const inter = Inter({
-  weight: ['400', '700'],
-  subsets: ['latin'],
-  display: 'swap',
+  weight: ["400", "700"],
+  subsets: ["latin"],
+  display: "swap",
 });
 
-
 const Footer = () => {
-    return (
-        <footer className={`footer border-t ${inter.className}`}>
-            <div className="footer-content">
-                <div className="about-section">
-                <div className="about-us">About us</div>
-                <div className="aboutus-desc">
-                    StudentWorkHub is an engineering project created by three people who
-                    <br />
-                    want to find a job quickly and easily, based on their profession and
-                    hobbies.
-                </div>
-                </div>
-                <div className="navlinks">
-                <div className="frame-2">
-                    <div className="account">Account</div>
-                    <div className="login">Login</div>
-                    <div className="register">Register</div>
-                    <div className="profile">Profile</div>
-                </div>
-                <div className="frame-3">
-                    <div className="offers">Offers</div>
-                    <div className="matched">Search</div>
-                    <div className="matched">Matched</div>
-                    <div className="all-offers">All offers</div>
-                </div>
-                <div className="frame-4">
-                    <div className="links">Links</div>
-                    <div className="privace-policy">Privace Policy</div>
-                    <div className="legal-notice">Legal Notice</div>
-                    <div className="project-information">Project information</div>
-                </div>
-                </div>
-                <div className="socials">
-                <div className="follow-the-project">Follow the project</div>
-                <div className="community-icons">
-                    <img className="github" src="/icons/github0.svg" />
-                    <img className="facebook" src="/icons/facebook0.svg" />
-                    <img className="at-sign" src="/icons/at-sign0.svg" />
-                </div>
-                </div>
+  const {t}  = useTranslation("footer");
+  return (
+    <footer
+      className={`${footerStyles["footer"]} ${footerStyles["border-t"]} ${inter.className}`}
+    >
+      <div className={footerStyles["footer-content"]}>
+        <div className={footerStyles["about-section"]}>
+          <div className={footerStyles["about-us"]}>
+            {t("aboutUsTitle")}
+          </div>
+          <div className={footerStyles["aboutus-desc"]}>
+            {t("aboutUsSubtitle")}
+          </div>
+        </div>
+
+        <div className={footerStyles["navlinks"]}>
+          <div className={footerStyles["frame-2"]}>
+            <div className={footerStyles["account"]}>{t("account")}</div>
+            <div className={footerStyles["login"]}>{t("login")}</div>
+            <div className={footerStyles["register"]}>{t("register")}</div>
+            <div className={footerStyles["profile"]}>{t("profile")}</div>
+          </div>
+
+          <div className={footerStyles["frame-3"]}>
+            <div className={footerStyles["offers"]}>{t("offers")}</div>
+            <div className={footerStyles["matched"]}>{t("search")}</div>
+            <div className={footerStyles["matched"]}>{t("matched")}</div>
+            <div className={footerStyles["all-offers"]}>{t("allOffers")}</div>
+          </div>
+
+          <div className={footerStyles["frame-4"]}>
+            <div className={footerStyles["links"]}>{t("links")}</div>
+            <div className={footerStyles["privace-policy"]}>
+              {t("privacyPolicy")}
             </div>
-            <div className="copyright">
-                <div className="student-work-hub">StudentWorkHub</div>
-                <div className="copy-right-text">Copyright 2025. All rights reserved.</div>
+            <div className={footerStyles["legal-notice"]}>
+              {t("legalNotice")}
             </div>
-        </footer>
-    );
-}
- 
+            <div className={footerStyles["project-information"]}>
+              {t("projectInformation")}
+            </div>
+          </div>
+        </div>
+
+        <div className={footerStyles["socials"]}>
+          <div className={footerStyles["follow-the-project"]}>
+            {t("followProject")}
+          </div>
+          <div className={footerStyles["community-icons"]}>
+            <img className={footerStyles["github"]} src="/icons/github0.svg" />
+            <img className={footerStyles["facebook"]} src="/icons/facebook0.svg" />
+            <img className={footerStyles["at-sign"]} src="/icons/at-sign0.svg" />
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
 export default Footer;

@@ -2,10 +2,9 @@
 import React, { useState } from "react";
 import { ListElement } from "@/components/feature/list/ListElement";
 import offersJson from '@/store/data/DummyOffers.json';
-import "../../../styles/SearchView.css";
-import "../../../styles/Hero.css";
-import "../../../styles/OfferList.css";
-import "../../../styles/ButtonStyle.css";
+import listStyles from "../../../styles/OfferList.module.css";
+import dynamicFilterStyles from "../../../styles/DynamicFilter.module.css";
+import buttonStyle from "../../../styles/ButtonStyle.module.css";
 import { SearchBar } from "@/components/feature/search/SearchBar";
 import { DynamicFilter } from "@/components/feature/list/Filters";
 import { RecentSearches } from "@/components/feature/list/RecentSearches";
@@ -14,6 +13,7 @@ import { Search } from "@/types/search/search";
 import { useSearch } from "@/store/SearchContext";
 import { Pagination } from "@/components/feature/list/Pagination";
 import { mapToDynamicFilter } from "@/utils/offerFilters/mapToDynamicFilter";
+import { useTranslation } from "react-i18next";
 
 export default function OfferList() {
   const {search} = useSearch();
@@ -30,11 +30,12 @@ export default function OfferList() {
       [key]: value,
     }));
   };
+  const {t} = useTranslation(["common", "list"]);
   const items = [
-    { label: "Creation Date", value: "CreationDate" },
-    { label: "Salary desc", value: "Salarydesc" },
-    { label: "Salary asc", value: "Salaryasc" },
-    { label: "Name asc", value: "Nameasc" },
+    { label: t("list:sort.creationAsc"), value: "CreationDate" },
+    { label: t("list:sort.salaryDesc"), value: "Salarydesc" },
+    { label: t("list:sort.salaryDesc"), value: "Salaryasc" },
+    { label: t("list:sort.nameAsc"), value: "Nameasc" },
   ];
   const dynamicFilters = [
     mapToDynamicFilter("Stopień doświadczenia", offersJson.dynamicFilters.experienceLevels),
@@ -43,28 +44,28 @@ export default function OfferList() {
     mapToDynamicFilter("Języki", offersJson.dynamicFilters.languagesNames),
   ]
   return (
-      <div className="offer-list-view">
-        <div className="search-bar-component">
-          <div className="search-bar-list">
+      <div className={listStyles["offer-list-view"]}>
+        <div className={listStyles["search-bar-component"]}>
+          <div className={listStyles["search-bar-list"]}>
             <SearchBar localSearch={localSearch} setLocalSearch={setLocalSearch} />
-            <div className="main-button cursor-pointer">
-              <img className="search" src="/icons/search0.svg" />
-              <div className="find-matching-job">Find matching job</div>
+            <div className={`${buttonStyle["main-button"]}`}>
+              <img className={listStyles["search"]} src="/icons/search0.svg" />
+              <div className={buttonStyle["find-matching-job"]}>{t("findMatchingJob")}</div>
             </div>
           </div>
           <RecentSearches setSearch={setLocalSearch} />
         </div>
-        <div className="offers-list">
-          <div className="dynamic-filter">
+        <div className={listStyles["offers-list"]}>
+          <div className={dynamicFilterStyles["dynamic-filter"]}>
             {dynamicFilters.map((filter, index) => (
               <DynamicFilter key={index} header={filter.header} items={filter.items} />
             ))}
           </div>
-          <div className="list-with-filter">
-            <div className="filternav">
-              <div className="offer-list-sort-select">
-                <div className="sort-by">Sort by:</div>
-                <Filter className="creation-date cursor-pointer"
+          <div className={listStyles["list-with-filter"]}>
+            <div className={listStyles["filternav"]}>
+              <div className={listStyles["offer-list-sort-select"]}>
+                <div className={listStyles["sort-by"]}>{t("list:sortByTitle")}</div>
+                <Filter className={`${listStyles["creation-date"]}`}
                   label="Sort"
                   clearable={false}
                   items={items}
@@ -79,7 +80,7 @@ export default function OfferList() {
             ))}
           </div>
         </div>
-        <div className="second-pagination">
+        <div className={listStyles["second-pagination"]}>
           <Pagination offset={offset} limit={10} count={offersJson.pagination.items.length} onChange={setOffset} />
         </div>
       </div>

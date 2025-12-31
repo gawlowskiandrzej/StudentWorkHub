@@ -1,40 +1,63 @@
+import detailsStyles from '../../../styles/OfferDetails.module.css'
+import buttonStyles from '../../../styles/ButtonStyle.module.css'
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
 type educationSection = {
     educations: string[] | null
 }
 const EDUCATION_PER_ROW = 3;
+const INITIAL_VISIBLE = 6;
 const nullEle =
-    <div className="skill-section-row">
-        <div className={`skill-section-item1`}>
+    <div className={detailsStyles["skill-section-row"]}>
+        <div className={detailsStyles["skill-section-item1"]}>
             <img
                 className={`education`}
                 src="/icons/light/educationLight.svg"
                 alt=""
             />
-            <div className="city-name">-</div>
+            <div className={detailsStyles["city-name"]}>-</div>
         </div></div>
 
 export function EducationSection({ educations }: educationSection) {
+    const [expanded, setExpanded] = useState(false);
+    const {t} = useTranslation("details");
+    const visibleEducation = expanded
+        ? educations
+        : educations?.slice(0, INITIAL_VISIBLE);
+    const rowsCount = Math.ceil((visibleEducation?.length ?? 0) / EDUCATION_PER_ROW);
     return (
-        <div className="required-skills-section">
-            <div className="frame-168">
-                <div className="frame-166">
-                    <div className="required-skills">Required education</div>
-                    <div className="line-10"></div>
+        <div className={detailsStyles["required-skills-section"]}>
+            <div className={detailsStyles["frame-168"]}>
+                <div className={detailsStyles["frame-166"]}>
+                    <div className={detailsStyles["required-skills"]}>{t("requiredEducation")}</div>
+                    <div className={detailsStyles["line-10"]}></div>
                 </div>
-                <div className="skill-section-content thight-section">
-                    {educations ? Array.from({ length: Math.ceil(Math.min(educations.length, 6) / EDUCATION_PER_ROW) }).map((_, rowIndex) => {
+                <div className={detailsStyles["skill-section-content thight-section"]}>
+                    {educations ? Array.from({ length: rowsCount }).map((_, rowIndex) => {
                         const start = rowIndex * EDUCATION_PER_ROW;
-                        const rowItems = educations.slice(start, start + EDUCATION_PER_ROW);
+                        const rowItems = visibleEducation?.slice(
+                            start,
+                            start + EDUCATION_PER_ROW
+                        );
                         return (
-                            <div key={rowIndex} className="skill-section-row">
-                                {rowItems.map((education, idx) => (
-                                    <div key={idx} className={`skill-section-item${idx + 1}`}>
+                            <div
+                                key={rowIndex}
+                                className={detailsStyles["skill-section-row"]}
+                            >
+                                {rowItems?.map((education, idx) => (
+                                    <div
+                                        key={idx}
+                                        className={detailsStyles[`skill-section-item${idx + 1}`]}
+                                    >
                                         <img
-                                            className={`education`}
+                                            className={detailsStyles["education"]}
                                             src="/icons/light/educationLight.svg"
-                                            alt=""
+                                            alt='education'
                                         />
-                                        <div className="city-name">{education}</div>
+                                        <div className={detailsStyles["city-name"]}>
+                                            {education}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -42,10 +65,12 @@ export function EducationSection({ educations }: educationSection) {
                     }) : nullEle}
                 </div>
             </div>
-            {educations ? educations.length > 5 ?
-                <div className="frame-172">
-                    <div className="main-button">
-                        <div className="find-mathing-job">Show more ({educations.length - 5})</div>
+            {educations ? educations.length > INITIAL_VISIBLE ?
+                <div className={detailsStyles["frame-172"]}>
+                    <div onClick={() => setExpanded((prev) => !prev)}  className={`${buttonStyles["main-button"]} ${detailsStyles["show-more-button"]}`}>
+                        <div className={detailsStyles["find-mathing-job"]}>{expanded
+                                ? t("showLess")
+                                : `${t("showMore")} (${educations.length - INITIAL_VISIBLE})`}</div>
                     </div>
                 </div>
                 : ""

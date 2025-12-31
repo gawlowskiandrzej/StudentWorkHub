@@ -15,7 +15,6 @@ import { ChevronDownIcon } from "lucide-react";
 
 export function FilterWithDialog({
     label = "Options",
-    value,
 }: FilterProps) {
     const [openDialog, setOpenDialog] = useState(false);
     const [customFrom, setCustomFrom] = useState("");
@@ -23,14 +22,13 @@ export function FilterWithDialog({
 
     return (
         <>
-            <div className="flex items-center gap-2">
-                <button
-                    value={value}
+            <div className="flex cursor-pointer items-center gap-2">
+                <div
                     onClick={() => {
                         setOpenDialog(true);
                     }}
                 >{label}
-                </button>
+                </div>
                 <ChevronDownIcon className={`size-4 opacity-50`} />
             </div>
 
@@ -56,7 +54,7 @@ export function FilterWithDialog({
                         <span className="text-center">zł</span>
                     </div>
                     <DialogFooter>
-                        <Button
+                        <Button className="cursor-pointer"
                             onClick={() => {
                                 setOpenDialog(false);
                             }}

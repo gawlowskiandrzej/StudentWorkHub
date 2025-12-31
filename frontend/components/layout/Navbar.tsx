@@ -1,33 +1,53 @@
 "use client";
 import { useRouter } from "next/navigation";
-import "../../styles/Navigation.css";
+import navigationStyles from "../../styles/Navigation.module.css";
+import buttonStyles from "../../styles/ButtonStyle.module.css";
 import { Jura } from "next/font/google";
+import { useTranslation } from "react-i18next";
 
 const jura = Jura({
-  weight: ['400', '700'],
-  subsets: ['latin'],
-  display: 'swap',
+  weight: ["400", "700"],
+  subsets: ["latin"],
+  display: "swap",
 });
 
 const Navbar = () => {
-    const router = useRouter();
-    return (
-       <nav className="navigation-with-short-logo">
-          <div className="logo cursor-pointer" onClick={() => router.push('/')}>
-            <img className="student-work-hub-logo-1" src="/images/all/student-work-hub-logo-10.png" />
-            <div className={`logo-text ${jura.className}`}>
-              <div className="student-work-hub">StudentWorkHub</div>
-              <div className="subtitle-student-work-hub">your carrer starts now !</div>
-            </div>
+  const router = useRouter();
+  const {t} = useTranslation(["navigation", "common"])
+
+  return (
+    <nav className={navigationStyles["navigation-with-short-logo"]}>
+      <div
+        className={`${navigationStyles["logo"]} cursor-pointer`}
+        onClick={() => router.push("/")}
+      >
+        <img
+          className={navigationStyles["student-work-hub-logo-1"]}
+          src="/images/all/student-work-hub-logo-10.png"
+        />
+        <div className={`${navigationStyles["logo-text"]} ${jura.className}`}>
+          <div className={navigationStyles["student-work-hub"]}>
+            StudentWorkHub
           </div>
-          <div className="signin-frame">
-            <div id="register-button" className="main-button">
-              <div className="text-xs">Register</div>
-            </div>
-            <img className="user" src="/icons/user0.svg" />
+          <div className={navigationStyles["subtitle-student-work-hub"]}>
+            {t("common:siteSubHeader")}
           </div>
-      </nav>
-    );
-}
- 
+        </div>
+      </div>
+
+      <div className={navigationStyles["signin-frame"]}>
+        <div
+          className={`${buttonStyles["main-button"]} ${navigationStyles["register-button"]}`}
+        >
+          <div className={"text-xs"}>{t("navigation:register")}</div>
+        </div>
+        <img
+          className={navigationStyles["user"]}
+          src="/icons/user0.svg"
+        />
+      </div>
+    </nav>
+  );
+};
+
 export default Navbar;

@@ -1,7 +1,11 @@
 import { PaginationType } from "@/types/search/pagination";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import listStyles from '../../../styles/OfferList.module.css'
+import buttonStyles from '../../../styles/ButtonStyle.module.css'
+import { useTranslation } from "react-i18next";
 
 export function Pagination({ offset, limit, count, onChange }: PaginationType) {
+    const {t} = useTranslation("list");
     const currentPage = Math.floor(offset / limit) + 1;
     const totalPages = Math.ceil(count / limit);
 
@@ -19,9 +23,9 @@ export function Pagination({ offset, limit, count, onChange }: PaginationType) {
     };
 
     return (
-        <div className="offer-list-pagination">
+        <div className={listStyles["offer-list-pagination"]}>
             <button
-                className={`cursor-pointer klasa scale-hover ${!hasPrev ? "hidden" : ""}`}
+                className={`${buttonStyles["scale-hover"]} ${!hasPrev ? "hidden" : ""}`}
                 onClick={handlePrev}
                 aria-label="Previous page"
             >
@@ -29,14 +33,14 @@ export function Pagination({ offset, limit, count, onChange }: PaginationType) {
             </button>
 
             
-            <div className="offer-count">
-                <input className="_100" type="number" maxLength={10} onChange={(e) => onChange(e.target.valueAsNumber)} value={currentPage || 1} />
+            <div className={listStyles["offer-count"]}>
+                <input className={listStyles["_100"]} type="number" maxLength={10} onChange={(e) => onChange(e.target.valueAsNumber)} value={currentPage || 1} />
             </div>
-            <div className="from">from</div>
-            <div className="_100">{totalPages}</div>
+            <div className={listStyles["from"]}>{t("from")}</div>
+            <div className={listStyles["_100"]}>{totalPages}</div>
 
             <button
-                className="cursor-pointer klasa scale-hover"
+                className={buttonStyles["scale-hover"]}
                 onClick={handleNext}
                 aria-label="Next page"
             >

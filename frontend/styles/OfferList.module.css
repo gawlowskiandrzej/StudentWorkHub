@@ -207,17 +207,6 @@
   flex: 1;
   position: relative;
 }
-.option-long-name-name {
-  color: var(--secondary);
-  text-align: center;
-  font-family: "Roboto-Regular", sans-serif;
-  font-size: var(--mediumSize);
-  position: relative;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 .check2 {
   width: 15.88px;
   height: 15.88px;
@@ -323,14 +312,6 @@
 .offer-list-pagination > .scale-hover:hover {
   transform: scale(1.2);
 }
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-input[type="number"] {
-    -moz-appearance: textfield;
-}
 .from {
   color: #ffffff;
   text-align: left;
@@ -378,6 +359,15 @@ input[type="number"] {
   align-self: stretch;
   flex: 1;
   position: relative;
+}
+.offer-header-info {
+  align-self: stretch;
+  flex: 1;
+  display: grid;
+  gap: 0px;
+  position: relative;
+  grid-template-columns: minmax(0, 2.5fr) minmax(0, 1fr);
+  grid-template-rows: repeat(1, minmax(0, 1fr));
 }
 .second-pagination{
   align-self: flex-end;
