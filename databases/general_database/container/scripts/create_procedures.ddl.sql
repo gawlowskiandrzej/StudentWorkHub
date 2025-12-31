@@ -79,6 +79,9 @@ BEGIN
         INSERT INTO public.weights(user_id)
         VALUES (o_user_id);
 
+        INSERT INTO public.preferences(user_id)
+        VALUES (o_user_id);
+
         o_success := true;
         o_message := 'User created successfully.';
         RETURN;
@@ -706,5 +709,516 @@ EXCEPTION
     WHEN OTHERS THEN
         o_result := FALSE;
         RETURN;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE public.set_leading_category_preference(
+    IN  p_user_id BIGINT,
+    IN  p_leading_category_id SMALLINT,
+    OUT p_success BOOLEAN
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF p_leading_category_id IS NULL OR p_leading_category_id < 1 THEN
+        p_success := FALSE;
+        RETURN;
+    END IF;
+
+    UPDATE public.preferences
+    SET leading_category_id = p_leading_category_id
+    WHERE user_id = p_user_id;
+
+    p_success := FOUND;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        p_success := FALSE;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE public.set_salary_range_preference (
+    IN  p_user_id BIGINT,
+    IN  p_salary_from NUMERIC(8,2),
+    IN  p_salary_to   NUMERIC(8,2),
+    OUT p_success BOOLEAN
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_current_from NUMERIC(8,2);
+    v_current_to   NUMERIC(8,2);
+
+    v_new_from NUMERIC(8,2);
+    v_new_to   NUMERIC(8,2);
+
+    v_any_change BOOLEAN := FALSE;
+    v_tmp NUMERIC(8,2);
+BEGIN
+    p_success := FALSE;
+
+    SELECT salary_from, salary_to
+    INTO v_current_from, v_current_to
+    FROM public.preferences
+    WHERE user_id = p_user_id;
+
+    IF NOT FOUND THEN
+        RETURN;
+    END IF;
+
+    v_new_from := v_current_from;
+    v_new_to   := v_current_to;
+
+    IF p_salary_from IS NOT NULL AND p_salary_from >= 1 THEN
+        v_new_from := p_salary_from;
+        v_any_change := TRUE;
+    END IF;
+
+    IF p_salary_to IS NOT NULL AND p_salary_to >= 1 THEN
+        v_new_to := p_salary_to;
+        v_any_change := TRUE;
+    END IF;
+
+    IF NOT v_any_change THEN
+        RETURN;
+    END IF;
+
+    IF v_new_from IS NOT NULL AND v_new_to IS NOT NULL AND v_new_to < v_new_from THEN
+        v_tmp := v_new_from;
+        v_new_from := v_new_to;
+        v_new_to := v_tmp;
+    END IF;
+
+    UPDATE public.preferences
+    SET salary_from = v_new_from,
+        salary_to   = v_new_to
+    WHERE user_id = p_user_id;
+
+    p_success := FOUND;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        p_success := FALSE;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE public.set_employment_type_preference (
+    IN  p_user_id BIGINT,
+    IN  p_employment_type_ids SMALLINT[],
+    OUT p_success BOOLEAN
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_new_ids SMALLINT[];
+BEGIN
+    p_success := FALSE;
+
+    IF p_employment_type_ids IS NULL THEN
+        RETURN;
+    END IF;
+
+    SELECT COALESCE(array_agg(val ORDER BY first_ord), '{}'::SMALLINT[])
+    INTO v_new_ids
+    FROM (
+        SELECT val, MIN(ord) AS first_ord
+        FROM unnest(p_employment_type_ids) WITH ORDINALITY u(val, ord)
+        WHERE val IS NOT NULL AND val >= 1
+        GROUP BY val
+    ) s;
+
+    UPDATE public.preferences
+    SET employment_type_ids = v_new_ids
+    WHERE user_id = p_user_id;
+
+    p_success := FOUND;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        p_success := FALSE;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE public.set_language_preference (
+    IN  p_user_id BIGINT,
+    IN  p_language_id SMALLINT,
+    IN  p_language_level_id SMALLINT,
+    OUT p_success BOOLEAN
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_lang_ids  SMALLINT[];
+    v_level_ids SMALLINT[];
+BEGIN
+    p_success := FALSE;
+
+    SELECT language_ids, language_level_ids
+    INTO v_lang_ids, v_level_ids
+    FROM public.preferences
+    WHERE user_id = p_user_id
+    FOR UPDATE;
+
+    IF NOT FOUND THEN
+        RETURN;
+    END IF;
+
+    v_lang_ids  := COALESCE(v_lang_ids,  '{}'::SMALLINT[]);
+    v_level_ids := COALESCE(v_level_ids, '{}'::SMALLINT[]);
+
+    IF cardinality(v_lang_ids) <> cardinality(v_level_ids) THEN
+        v_lang_ids  := '{}'::SMALLINT[];
+        v_level_ids := '{}'::SMALLINT[];
+    END IF;
+
+    IF p_language_id IS NULL OR p_language_level_id IS NULL THEN
+        IF p_language_id IS NULL OR p_language_id < 1 THEN
+            v_lang_ids  := '{}'::SMALLINT[];
+            v_level_ids := '{}'::SMALLINT[];
+        ELSE
+            SELECT
+                COALESCE(array_agg(v_lang_ids[i] ORDER BY i),  '{}'::SMALLINT[]),
+                COALESCE(array_agg(v_level_ids[i] ORDER BY i), '{}'::SMALLINT[])
+            INTO v_lang_ids, v_level_ids
+            FROM generate_subscripts(v_lang_ids, 1) g(i)
+            WHERE v_lang_ids[i] <> p_language_id;
+        END IF;
+
+        UPDATE public.preferences
+        SET language_ids = v_lang_ids,
+            language_level_ids = v_level_ids
+        WHERE user_id = p_user_id;
+
+        p_success := FOUND;
+        RETURN;
+    END IF;
+
+    IF p_language_id < 1 OR p_language_level_id < 1 THEN
+        RETURN;
+    END IF;
+
+    IF array_position(v_lang_ids, p_language_id) IS NULL THEN
+        v_lang_ids  := array_append(v_lang_ids,  p_language_id);
+        v_level_ids := array_append(v_level_ids, p_language_level_id);
+    ELSE
+        v_level_ids[array_position(v_lang_ids, p_language_id)] := p_language_level_id;
+    END IF;
+
+    UPDATE public.preferences
+    SET language_ids = v_lang_ids,
+        language_level_ids = v_level_ids
+    WHERE user_id = p_user_id;
+
+    p_success := FOUND;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        p_success := FALSE;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE public.set_job_status_preference(
+    IN  p_user_id BIGINT,
+    IN  p_status_name VARCHAR(15),
+    OUT p_success BOOLEAN
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_status_name VARCHAR(15);
+    v_status_id   SMALLINT;
+BEGIN
+    p_success := FALSE;
+
+    v_status_name := btrim(p_status_name);
+
+    IF v_status_name IS NULL OR v_status_name = '' THEN
+        RETURN;
+    END IF;
+
+    IF char_length(v_status_name) > 15 THEN
+        RETURN;
+    END IF;
+
+    SELECT js.id
+    INTO v_status_id
+    FROM public.job_statuses js
+    WHERE js.status_name = v_status_name
+    LIMIT 1;
+
+    IF NOT FOUND THEN
+        BEGIN
+            INSERT INTO public.job_statuses (status_name)
+            VALUES (v_status_name)
+            RETURNING id INTO v_status_id;
+
+        EXCEPTION
+            WHEN unique_violation THEN
+                SELECT js.id
+                INTO v_status_id
+                FROM public.job_statuses js
+                WHERE js.status_name = v_status_name
+                LIMIT 1;
+        END;
+    END IF;
+
+    UPDATE public.preferences
+    SET job_status_id = v_status_id
+    WHERE user_id = p_user_id;
+
+    p_success := FOUND;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        p_success := FALSE;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE public.set_city_preference(
+    IN  p_user_id BIGINT,
+    IN  p_city_name VARCHAR(256),
+    OUT p_success BOOLEAN
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_city_name VARCHAR(256);
+    v_city_id   BIGINT;
+BEGIN
+    p_success := FALSE;
+
+    v_city_name := btrim(p_city_name);
+
+    IF v_city_name IS NULL OR v_city_name = '' THEN
+        RETURN;
+    END IF;
+
+    IF char_length(v_city_name) > 256 THEN
+        RETURN;
+    END IF;
+
+    SELECT c.id
+    INTO v_city_id
+    FROM public.cities c
+    WHERE c.city = v_city_name
+    LIMIT 1;
+
+    IF NOT FOUND THEN
+        BEGIN
+            INSERT INTO public.cities (city)
+            VALUES (v_city_name)
+            RETURNING id INTO v_city_id;
+
+        EXCEPTION
+            WHEN unique_violation THEN
+                SELECT c.id
+                INTO v_city_id
+                FROM public.cities c
+                WHERE c.city = v_city_name
+                LIMIT 1;
+        END;
+    END IF;
+
+    UPDATE public.preferences
+    SET city_id = v_city_id
+    WHERE user_id = p_user_id;
+
+    p_success := FOUND;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        p_success := FALSE;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE public.set_work_types_preference(
+    IN  p_user_id BIGINT,
+    IN  p_work_types TEXT[],
+    IN  p_work_type_ids SMALLINT[],
+    OUT p_success BOOLEAN
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_desired_ids SMALLINT[] := '{}'::SMALLINT[];
+    v_name TEXT;
+    v_id SMALLINT;
+BEGIN
+    p_success := FALSE;
+
+    IF p_work_types IS NULL AND p_work_type_ids IS NULL THEN
+        RETURN;
+    END IF;
+
+    PERFORM 1
+    FROM public.preferences
+    WHERE user_id = p_user_id
+    FOR UPDATE;
+
+    IF NOT FOUND THEN
+        RETURN;
+    END IF;
+
+    SELECT COALESCE(array_agg(val ORDER BY first_ord), '{}'::SMALLINT[])
+    INTO v_desired_ids
+    FROM (
+        SELECT val::SMALLINT AS val, MIN(ord) AS first_ord
+        FROM unnest(COALESCE(p_work_type_ids, '{}'::SMALLINT[])) WITH ORDINALITY u(val, ord)
+        WHERE val IS NOT NULL AND val >= 1
+        GROUP BY val
+    ) s;
+
+    IF p_work_types IS NOT NULL THEN
+        FOR v_name IN
+            SELECT val
+            FROM (
+                SELECT btrim(val) AS val, MIN(ord) AS first_ord
+                FROM unnest(p_work_types) WITH ORDINALITY u(val, ord)
+                WHERE val IS NOT NULL
+                  AND btrim(val) <> ''
+                  AND char_length(btrim(val)) <= 256
+                GROUP BY btrim(val)
+            ) t
+            ORDER BY first_ord
+        LOOP
+            SELECT wt.id
+            INTO v_id
+            FROM public.work_types wt
+            WHERE wt.work_type = v_name
+            LIMIT 1;
+
+            IF NOT FOUND THEN
+                BEGIN
+                    INSERT INTO public.work_types (work_type)
+                    VALUES (v_name)
+                    RETURNING id INTO v_id;
+                EXCEPTION
+                    WHEN unique_violation THEN
+                        SELECT wt.id
+                        INTO v_id
+                        FROM public.work_types wt
+                        WHERE wt.work_type = v_name
+                        LIMIT 1;
+                END;
+            END IF;
+
+            IF v_id IS NOT NULL AND v_id >= 1 AND array_position(v_desired_ids, v_id) IS NULL THEN
+                v_desired_ids := array_append(v_desired_ids, v_id);
+            END IF;
+        END LOOP;
+    END IF;
+
+    IF cardinality(v_desired_ids) = 0 THEN
+        DELETE FROM public.work_types_junction
+        WHERE user_id = p_user_id;
+    ELSE
+        DELETE FROM public.work_types_junction
+        WHERE user_id = p_user_id
+          AND NOT (work_type_id = ANY (v_desired_ids));
+
+        INSERT INTO public.work_types_junction (work_type_id, user_id)
+        SELECT x, p_user_id
+        FROM unnest(v_desired_ids) AS x
+        ON CONFLICT DO NOTHING;
+    END IF;
+
+    p_success := TRUE;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        p_success := FALSE;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE public.set_skills_preference(
+    IN  p_user_id BIGINT,
+    IN  p_skill_names TEXT[],
+    IN  p_experience_months SMALLINT[],
+    OUT p_success BOOLEAN
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_len_names INT;
+    v_len_months INT;
+    v_i INT;
+
+    v_name TEXT;
+    v_months SMALLINT;
+    v_skill_id BIGINT;
+BEGIN
+    p_success := FALSE;
+
+    IF p_skill_names IS NULL OR p_experience_months IS NULL THEN
+        RETURN;
+    END IF;
+
+    v_len_names := cardinality(p_skill_names);
+    v_len_months := cardinality(p_experience_months);
+
+    IF v_len_names IS DISTINCT FROM v_len_months THEN
+        RETURN;
+    END IF;
+
+    CREATE TEMP TABLE tmp_desired_user_skills (
+        skill_id BIGINT PRIMARY KEY,
+        experience_months SMALLINT NOT NULL
+    ) ON COMMIT DROP;
+
+    FOR v_i IN 1..COALESCE(v_len_names, 0) LOOP
+        v_name := btrim(p_skill_names[v_i]);
+        v_months := p_experience_months[v_i];
+
+        IF v_name IS NULL OR v_name = '' THEN
+            CONTINUE;
+        END IF;
+
+        IF char_length(v_name) > 256 THEN
+            CONTINUE;
+        END IF;
+
+        IF v_months IS NULL OR v_months < 0 THEN
+            CONTINUE;
+        END IF;
+
+        INSERT INTO public.skills (skill_name)
+        VALUES (v_name)
+        ON CONFLICT (skill_name)
+        DO UPDATE SET skill_name = EXCLUDED.skill_name
+        RETURNING id INTO v_skill_id;
+
+        INSERT INTO tmp_desired_user_skills (skill_id, experience_months)
+        VALUES (v_skill_id, v_months)
+        ON CONFLICT (skill_id)
+        DO UPDATE SET experience_months = EXCLUDED.experience_months;
+    END LOOP;
+
+    IF (SELECT COUNT(*) FROM tmp_desired_user_skills) = 0 THEN
+        DELETE FROM public.user_skills
+        WHERE user_id = p_user_id;
+
+        p_success := TRUE;
+        RETURN;
+    END IF;
+
+    DELETE FROM public.user_skills us
+    WHERE us.user_id = p_user_id
+      AND NOT EXISTS (
+          SELECT 1
+          FROM tmp_desired_user_skills d
+          WHERE d.skill_id = us.skill_id
+      );
+
+    INSERT INTO public.user_skills (user_id, skill_id, experience_months)
+    SELECT p_user_id, d.skill_id, d.experience_months
+    FROM tmp_desired_user_skills d
+    ON CONFLICT (user_id, skill_id)
+    DO UPDATE SET experience_months = EXCLUDED.experience_months;
+
+    p_success := TRUE;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        p_success := FALSE;
 END;
 $$;
