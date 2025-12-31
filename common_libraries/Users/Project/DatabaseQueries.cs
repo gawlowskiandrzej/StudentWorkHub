@@ -1,4 +1,5 @@
 ﻿using Npgsql;
+using NpgsqlTypes;
 using System.Data;
 
 namespace Users
@@ -1327,7 +1328,6 @@ namespace Users
         /// <param name="salaryTo">Upper bound of the salary range used in the search.</param>
         /// <param name="salaryPeriodId">Optional salary period identifier.</param>
         /// <param name="salaryCurrencyId">Optional salary currency identifier.</param>
-        /// <param name="salaryTypeId">Optional salary type identifier.</param>
         /// <param name="employmentScheduleIds">
         /// Optional collection of employment schedule identifiers used in the search.
         /// </param>
@@ -1432,5 +1432,498 @@ namespace Users
             }
         }
 
+        /// <summary>
+        /// Updates the <c>leading_category_id</c> column in the <c>public.preferences</c> table
+        /// for the specified user (legacy name: "leading_category" is actually study field).
+        /// </summary>
+        /// <param name="userId">Identifier of the user whose preferences should be updated.</param>
+        /// <param name="leadingCategoryId">Legacy study-field identifier stored in <c>public.preferences.leading_category_id</c>.</param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns><c>true</c> if the database operation reported success; otherwise <c>false</c>.</returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">Thrown when an unexpected database error occurs.</exception>
+        internal static async Task<bool> SetPreferencesLeadingCategoryAsync(
+            long userId,
+            short leadingCategoryId,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            await using var command = dataSource.CreateCommand(
+                "CALL public.set_leading_category_preference(@p_user_id, @p_leading_category_id, NULL)");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+            command.Parameters.AddWithValue("p_leading_category_id", leadingCategoryId);
+
+            try
+            {
+                await using var reader = await command
+                    .ExecuteReaderAsync(CommandBehavior.SingleRow, cancellation);
+
+                if (!await reader.ReadAsync(cancellation))
+                    throw new UserDbQueryException("No result returned from `set_leading_category_preference`");
+
+                int successOrdinal = reader.GetOrdinal("p_success");
+
+                bool success = !reader.IsDBNull(successOrdinal) &&
+                               reader.GetBoolean(successOrdinal);
+
+                return success;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error", ex);
+            }
+        }
+
+        /// <summary>
+        /// Updates the <c>salary_from</c> and/or <c>salary_to</c> columns in the <c>public.preferences</c> table
+        /// for the specified user. These values represent the expected salary range for job offers presented to the user.
+        /// </summary>
+        /// <param name="userId">
+        /// Identifier of the user whose <c>public.preferences.salary_from</c> and <c>public.preferences.salary_to</c>
+        /// values should be updated.
+        /// </param>
+        /// <param name="salaryFrom">
+        /// Lower bound of the expected salary range to be stored in the <c>salary_from</c> column of the
+        /// <c>public.preferences</c> table for the specified user. Pass <c>null</c> to keep the current value.
+        /// </param>
+        /// <param name="salaryTo">
+        /// Upper bound of the expected salary range to be stored in the <c>salary_to</c> column of the
+        /// <c>public.preferences</c> table for the specified user. Pass <c>null</c> to keep the current value.
+        /// </param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// <c>true</c> if the database operation completed successfully and reported success; otherwise <c>false</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">Thrown when an unexpected database error occurs.</exception>
+        internal static async Task<bool> SetPreferencesSalaryRangeAsync(
+            long userId,
+            decimal? salaryFrom,
+            decimal? salaryTo,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            await using var command = dataSource.CreateCommand(
+                "CALL public.set_salary_range_preference(@p_user_id, @p_salary_from, @p_salary_to, NULL)");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+
+            command.Parameters.Add("p_salary_from", NpgsqlDbType.Numeric).Value =
+                (object?)salaryFrom ?? DBNull.Value;
+
+            command.Parameters.Add("p_salary_to", NpgsqlDbType.Numeric).Value =
+                (object?)salaryTo ?? DBNull.Value;
+
+            try
+            {
+                await using var reader = await command
+                    .ExecuteReaderAsync(CommandBehavior.SingleRow, cancellation);
+
+                if (!await reader.ReadAsync(cancellation))
+                    throw new UserDbQueryException("No result returned from `set_salary_range_preference`");
+
+                int successOrdinal = reader.GetOrdinal("p_success");
+
+                bool success = !reader.IsDBNull(successOrdinal) &&
+                               reader.GetBoolean(successOrdinal);
+
+                return success;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error", ex);
+            }
+        }
+
+        /// <summary>
+        /// Overwrites the <c>employment_type_ids</c> column in the <c>public.preferences</c> table
+        /// for the specified user. The values represent offer-related identifiers managed by the application,
+        /// e.g. employment contract types used by the offers data.
+        /// </summary>
+        /// <param name="userId">
+        /// Identifier of the user whose <c>public.preferences.employment_type_ids</c> value should be updated.
+        /// </param>
+        /// <param name="employmentTypeIds">
+        /// Array of offer-related employment type identifiers to be stored in the <c>employment_type_ids</c> column of the
+        /// <c>public.preferences</c> table for the specified user.
+        /// </param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// <c>true</c> if the database operation completed successfully and reported success; otherwise <c>false</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">Thrown when an unexpected database error occurs.</exception>
+        internal static async Task<bool> SetPreferencesEmploymentTypesAsync(
+            long userId,
+            short[] employmentTypeIds,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            await using var command = dataSource.CreateCommand(
+                "CALL public.set_employment_type_preference(@p_user_id, @p_employment_type_ids, NULL)");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+            command.Parameters.Add("p_employment_type_ids", NpgsqlDbType.Array | NpgsqlDbType.Smallint).Value =
+                employmentTypeIds;
+
+            try
+            {
+                await using var reader = await command
+                    .ExecuteReaderAsync(CommandBehavior.SingleRow, cancellation);
+
+                if (!await reader.ReadAsync(cancellation))
+                    throw new UserDbQueryException("No result returned from `set_employment_type_preference`");
+
+                int successOrdinal = reader.GetOrdinal("p_success");
+
+                bool success = !reader.IsDBNull(successOrdinal) &&
+                               reader.GetBoolean(successOrdinal);
+
+                return success;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error", ex);
+            }
+        }
+
+        /// <summary>
+        /// Adds, updates, or removes a (language, language level) pair stored in the <c>public.preferences</c> table
+        /// for the specified user. Language and language level are always treated as a pair (e.g. English + C2).
+        /// </summary>
+        /// <param name="userId">
+        /// Identifier of the user whose language preference pair should be updated.
+        /// </param>
+        /// <param name="languageId">
+        /// Offer-related language identifier managed by the application. Pass <c>null</c> to indicate removal behavior
+        /// as defined by the underlying database procedure.
+        /// </param>
+        /// <param name="languageLevelId">
+        /// Offer-related language level identifier managed by the application. Pass <c>null</c> to indicate removal behavior
+        /// as defined by the underlying database procedure.
+        /// </param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// <c>true</c> if the database operation completed successfully and reported success; otherwise <c>false</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">Thrown when an unexpected database error occurs.</exception>
+        internal static async Task<bool> SetPreferencesLanguagePairAsync(
+            long userId,
+            short? languageId,
+            short? languageLevelId,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            await using var command = dataSource.CreateCommand(
+                "CALL public.set_language_preference(@p_user_id, @p_language_id, @p_language_level_id, NULL)");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+
+            command.Parameters.Add("p_language_id", NpgsqlDbType.Smallint).Value =
+                (object?)languageId ?? DBNull.Value;
+
+            command.Parameters.Add("p_language_level_id", NpgsqlDbType.Smallint).Value =
+                (object?)languageLevelId ?? DBNull.Value;
+
+            try
+            {
+                await using var reader = await command
+                    .ExecuteReaderAsync(CommandBehavior.SingleRow, cancellation);
+
+                if (!await reader.ReadAsync(cancellation))
+                    throw new UserDbQueryException("No result returned from `set_language_preference`");
+
+                int successOrdinal = reader.GetOrdinal("p_success");
+
+                bool success = !reader.IsDBNull(successOrdinal) &&
+                               reader.GetBoolean(successOrdinal);
+
+                return success;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error", ex);
+            }
+        }
+
+        /// <summary>
+        /// Updates the <c>job_status_id</c> column in the <c>public.preferences</c> table for the specified user
+        /// based on a provided status name. The job status indicates whether the user is open to offers, not looking,
+        /// or should not receive notifications, and similar states.
+        /// </summary>
+        /// <param name="userId">
+        /// Identifier of the user whose <c>public.preferences.job_status_id</c> value should be updated.
+        /// </param>
+        /// <param name="statusName">
+        /// Status name to be resolved against the <c>public.job_statuses</c> dictionary table. If the status does not exist,
+        /// the database procedure creates it and then links it in <c>public.preferences</c>.
+        /// </param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// <c>true</c> if the database operation completed successfully and reported success; otherwise <c>false</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">Thrown when an unexpected database error occurs.</exception>
+        internal static async Task<bool> SetPreferencesJobStatusAsync(
+            long userId,
+            string statusName,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            await using var command = dataSource.CreateCommand(
+                "CALL public.set_job_status_preference(@p_user_id, @p_status_name, NULL)");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+            command.Parameters.Add("p_status_name", NpgsqlDbType.Varchar).Value =
+                (object?)statusName ?? DBNull.Value;
+
+            try
+            {
+                await using var reader = await command
+                    .ExecuteReaderAsync(CommandBehavior.SingleRow, cancellation);
+
+                if (!await reader.ReadAsync(cancellation))
+                    throw new UserDbQueryException("No result returned from `set_job_status_preference`");
+
+                int successOrdinal = reader.GetOrdinal("p_success");
+
+                bool success = !reader.IsDBNull(successOrdinal) &&
+                               reader.GetBoolean(successOrdinal);
+
+                return success;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error", ex);
+            }
+        }
+
+        /// <summary>
+        /// Updates the <c>city_id</c> column in the <c>public.preferences</c> table for the specified user
+        /// based on a provided city name. The city indicates where the user lives or wants to search for a job.
+        /// </summary>
+        /// <param name="userId">
+        /// Identifier of the user whose <c>public.preferences.city_id</c> value should be updated.
+        /// </param>
+        /// <param name="cityName">
+        /// City name to be resolved against the <c>public.cities</c> dictionary table. If the city does not exist,
+        /// the database procedure creates it and then links it in <c>public.preferences</c>.
+        /// </param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// <c>true</c> if the database operation completed successfully and reported success; otherwise <c>false</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">Thrown when an unexpected database error occurs.</exception>
+        internal static async Task<bool> SetPreferencesCityAsync(
+            long userId,
+            string cityName,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            await using var command = dataSource.CreateCommand(
+                "CALL public.set_city_preference(@p_user_id, @p_city_name, NULL)");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+            command.Parameters.Add("p_city_name", NpgsqlDbType.Varchar).Value =
+                (object?)cityName ?? DBNull.Value;
+
+            try
+            {
+                await using var reader = await command
+                    .ExecuteReaderAsync(CommandBehavior.SingleRow, cancellation);
+
+                if (!await reader.ReadAsync(cancellation))
+                    throw new UserDbQueryException("No result returned from `set_city_preference`");
+
+                int successOrdinal = reader.GetOrdinal("p_success");
+
+                bool success = !reader.IsDBNull(successOrdinal) &&
+                               reader.GetBoolean(successOrdinal);
+
+                return success;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error", ex);
+            }
+        }
+
+        /// <summary>
+        /// Synchronizes preferred work types for the specified user using <c>public.work_types_junction</c>.
+        /// Work types describe how the job is performed, e.g. on-site, remote, or hybrid.
+        /// </summary>
+        /// <param name="userId">
+        /// Identifier of the user whose work type preferences should be synchronized.
+        /// </param>
+        /// <param name="workTypes">
+        /// Array of work type names to be resolved against the <c>public.work_types</c> dictionary table. If a work type does not exist,
+        /// the database procedure creates it and then links it in <c>public.work_types_junction</c>.
+        /// Pass <c>null</c> if the update should be driven only by <paramref name="workTypeIds"/>.
+        /// </param>
+        /// <param name="workTypeIds">
+        /// Array of existing work type identifiers to be linked for the user in <c>public.work_types_junction</c>.
+        /// Pass <c>null</c> if the update should be driven only by <paramref name="workTypes"/>.
+        /// </param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// <c>true</c> if the database operation completed successfully and reported success; otherwise <c>false</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">Thrown when an unexpected database error occurs.</exception>
+        internal static async Task<bool> SetPreferencesWorkTypesAsync(
+            long userId,
+            string[]? workTypes,
+            short[]? workTypeIds,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            await using var command = dataSource.CreateCommand(
+                "CALL public.set_work_types_preference(@p_user_id, @p_work_types, @p_work_type_ids, NULL)");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+
+            command.Parameters.Add("p_work_types", NpgsqlDbType.Array | NpgsqlDbType.Text).Value =
+                (object?)workTypes ?? DBNull.Value;
+
+            command.Parameters.Add("p_work_type_ids", NpgsqlDbType.Array | NpgsqlDbType.Smallint).Value =
+                (object?)workTypeIds ?? DBNull.Value;
+
+            try
+            {
+                await using var reader = await command
+                    .ExecuteReaderAsync(CommandBehavior.SingleRow, cancellation);
+
+                if (!await reader.ReadAsync(cancellation))
+                    throw new UserDbQueryException("No result returned from `set_work_types_preference`");
+
+                int successOrdinal = reader.GetOrdinal("p_success");
+
+                bool success = !reader.IsDBNull(successOrdinal) &&
+                               reader.GetBoolean(successOrdinal);
+
+                return success;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error", ex);
+            }
+        }
+
+        /// <summary>
+        /// Returns job-offer preferences for the specified user.
+        /// Includes preferred work types and user skills (skills are returned as parallel arrays).
+        /// </summary>
+        /// <param name="userId">Identifier of the user whose preferences should be returned.</param>
+        /// <param name="dataSource">PostgreSQL data source used to create the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// Preferences DTO if available; otherwise <c>null</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">Thrown when an unexpected database error occurs.</exception>
+        internal static async Task<UserPreferencesResult?> GetUserPreferencesAsync(
+            long userId,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            await using var command = dataSource.CreateCommand(
+                "SELECT public.get_user_preferences(@p_user_id);");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+
+            try
+            {
+                await using var reader = await command.ExecuteReaderAsync(cancellation);
+
+                if (!await reader.ReadAsync(cancellation))
+                    return null;
+
+                if (await reader.IsDBNullAsync(0, cancellation))
+                    return null;
+
+                return reader.GetFieldValue<UserPreferencesResult>(0);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error", ex);
+            }
+        }
+
+        /// <summary>
+        /// Synchronizes user skills used as job-offer preferences.
+        /// Each skill has experience months and an entry date stored in DB (entry date is not modified here).
+        /// The procedure overwrites the user's skill set: removes missing, adds new, updates months for existing.
+        /// </summary>
+        /// <param name="userId">Identifier of the user whose skills should be synchronized.</param>
+        /// <param name="skillNames">Array of skill names (dictionary is created on demand).</param>
+        /// <param name="experienceMonths">Array of months aligned by index with <paramref name="skillNames"/>.</param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns><c>true</c> if the database operation completed successfully and reported success; otherwise <c>false</c>.</returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">Thrown when an unexpected database error occurs.</exception>
+        internal static async Task<bool> SetPreferencesSkillsAsync(
+            long userId,
+            string[] skillNames,
+            short[] experienceMonths,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            await using var command = dataSource.CreateCommand(
+                "CALL public.set_skills_preference(@p_user_id, @p_skill_names, @p_experience_months, NULL)");
+
+            command.Parameters.AddWithValue("p_user_id", userId);
+
+            command.Parameters.Add("p_skill_names", NpgsqlDbType.Array | NpgsqlDbType.Text).Value = skillNames;
+            command.Parameters.Add("p_experience_months", NpgsqlDbType.Array | NpgsqlDbType.Smallint).Value = experienceMonths;
+
+            try
+            {
+                await using var reader = await command
+                    .ExecuteReaderAsync(CommandBehavior.SingleRow, cancellation);
+
+                if (!await reader.ReadAsync(cancellation))
+                    throw new UserDbQueryException("No result returned from `set_skills_preference`");
+
+                int successOrdinal = reader.GetOrdinal("p_success");
+
+                bool success = !reader.IsDBNull(successOrdinal) &&
+                               reader.GetBoolean(successOrdinal);
+
+                return success;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error", ex);
+            }
+        }
     }
 }

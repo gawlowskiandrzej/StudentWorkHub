@@ -68,6 +68,7 @@ namespace Users
             {
                 // Attempt to create the data source using the validated builder
                 NpgsqlDataSourceBuilder dataSourceBuilder = new(builder.ConnectionString);
+                dataSourceBuilder.MapComposite<UserPreferencesResult>("public.preference_dto");
                 _dataSource = dataSourceBuilder.Build();
             }
             catch (ArgumentException ex)
@@ -1104,6 +1105,323 @@ namespace Users
             cancellation.ThrowIfCancellationRequested();
 
             return await DatabaseQueries.DeleteUserAsync(userId, _dataSource, cancellation);
+        }
+
+        /// <summary>
+        /// Retrieves job-offer preferences for the specified <paramref name="userId"/>.
+        /// </summary>
+        /// <param name="userId">User identifier whose preferences should be retrieved.</param>
+        /// <param name="cancellation">Token used to cancel the operation before or during the query.</param>
+        /// <returns>
+        /// Tuple where <c>result</c> indicates whether the operation succeeded, and <c>userPreferences</c> contains
+        /// the data returned by the database when available. If the user has no preferences row, the method returns
+        /// <c>(true, null)</c>. On any database error, returns <c>(false, null)</c>.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">
+        /// Thrown when the operation is cancelled before or during execution.
+        /// </exception>
+        public async Task<(bool result, UserPreferencesResult? userPreferences)> GetUserPreferencesAsync(
+            long userId,
+            CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            try
+            {
+                UserPreferencesResult? prefs = await DatabaseQueries.GetUserPreferencesAsync(
+                    userId,
+                    _dataSource,
+                    cancellation);
+
+                return (true, prefs);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                return (false, null);
+            }
+        }
+
+        /// <summary>
+        /// Updates selected user job-offer preference fields for the specified <paramref name="userId"/>
+        /// and returns per-field success flags.
+        /// </summary>
+        /// <param name="userId">User identifier whose preference fields should be updated.</param>
+        /// <param name="fields">
+        /// Mapping of field keys to values. Unknown keys are returned with <c>false</c>.
+        /// </param>
+        /// <param name="cancellation">
+        /// Token used to cancel the operation before it starts or between individual field updates.
+        /// </param>
+        /// <returns>A dictionary mapping each processed field key to a boolean indicating whether its update succeeded.</returns>
+        /// <exception cref="UserException">Thrown when <paramref name="fields"/> is null.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        public async Task<Dictionary<string, bool>> UpdatePreferencesAsync(
+            long userId,
+            Dictionary<string, object?>? fields,
+            CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            if (fields is null)
+                throw new UserException("`fields` is empty");
+
+            // Clean input:
+            // - drop empty keys,
+            // - keep only first occurrence for duplicate keys
+            Dictionary<string, object?> cleanedFields = fields
+                .Where(entry => entry.Value is not null)
+                .GroupBy(entry => entry.Key)
+                .Select(group => group.First())
+                .ToDictionary(entry => entry.Key, entry => entry.Value);
+
+            Dictionary<string, bool> successes = [];
+            foreach (KeyValuePair<string, object?> field in cleanedFields)
+            {
+                cancellation.ThrowIfCancellationRequested();
+
+                string fieldName = field.Key;
+                object? fieldValue = field.Value;
+
+                try
+                {
+                    switch (fieldName)
+                    {
+                        case "leading_category":
+                            {
+                                // Expect: short
+                                if (fieldValue is not short leadingCategoryId)
+                                {
+                                    successes.TryAdd(fieldName, false);
+                                    break;
+                                }
+
+                                bool ok = await DatabaseQueries.SetPreferencesLeadingCategoryAsync(
+                                    userId,
+                                    leadingCategoryId,
+                                    _dataSource,
+                                    cancellation);
+
+                                successes.TryAdd(fieldName, ok);
+                                break;
+                            }
+
+                        case "salary_range":
+                            {
+                                // Expect: (decimal? from, decimal? to)
+                                // Accept: ValueTuple<decimal?, decimal?> or Tuple<decimal?, decimal?>
+                                decimal? from;
+                                decimal? to;
+
+                                if (fieldValue is Tuple<decimal?, decimal?> t)
+                                {
+                                    from = t.Item1;
+                                    to = t.Item2;
+                                }
+                                else
+                                {
+                                    successes.TryAdd(fieldName, false);
+                                    break;
+                                }
+
+                                bool ok = await DatabaseQueries.SetPreferencesSalaryRangeAsync(
+                                    userId,
+                                    from,
+                                    to,
+                                    _dataSource,
+                                    cancellation);
+
+                                successes.TryAdd(fieldName, ok);
+                                break;
+                            }
+
+                        case "employment_types":
+                            {
+                                // Expect: short[]
+                                if (fieldValue is not short[] employmentTypeIds)
+                                {
+                                    successes.TryAdd(fieldName, false);
+                                    break;
+                                }
+
+                                // Soft validation: drop empty array elements isn't possible for primitives,
+                                // but we can ignore empty input.
+                                if (employmentTypeIds.Length < 1)
+                                {
+                                    successes.TryAdd(fieldName, false);
+                                    break;
+                                }
+
+                                bool ok = await DatabaseQueries.SetPreferencesEmploymentTypesAsync(
+                                    userId,
+                                    employmentTypeIds,
+                                    _dataSource,
+                                    cancellation);
+
+                                successes.TryAdd(fieldName, ok);
+                                break;
+                            }
+
+                        case "language_pair":
+                            {
+                                // Expect: (short? languageId, short? levelId)
+                                short? languageId;
+                                short? levelId;
+
+                                if (fieldValue is Tuple<short?, short?> langT)
+                                {
+                                    languageId = langT.Item1;
+                                    levelId = langT.Item2;
+                                }
+                                else
+                                {
+                                    successes.TryAdd(fieldName, false);
+                                    break;
+                                }
+
+                                bool ok = await DatabaseQueries.SetPreferencesLanguagePairAsync(
+                                    userId,
+                                    languageId,
+                                    levelId,
+                                    _dataSource,
+                                    cancellation);
+
+                                successes.TryAdd(fieldName, ok);
+                                break;
+                            }
+
+                        case "job_status":
+                            {
+                                // Expect: string
+                                if (fieldValue is not string statusName || string.IsNullOrWhiteSpace(statusName))
+                                {
+                                    successes.TryAdd(fieldName, false);
+                                    break;
+                                }
+
+                                bool ok = await DatabaseQueries.SetPreferencesJobStatusAsync(
+                                    userId,
+                                    statusName,
+                                    _dataSource,
+                                    cancellation);
+
+                                successes.TryAdd(fieldName, ok);
+                                break;
+                            }
+
+                        case "city":
+                            {
+                                // Expect: string
+                                if (fieldValue is not string cityName || string.IsNullOrWhiteSpace(cityName))
+                                {
+                                    successes.TryAdd(fieldName, false);
+                                    break;
+                                }
+
+                                bool ok = await DatabaseQueries.SetPreferencesCityAsync(
+                                    userId,
+                                    cityName,
+                                    _dataSource,
+                                    cancellation);
+
+                                successes.TryAdd(fieldName, ok);
+                                break;
+                            }
+
+                        case "work_types":
+                            {
+                                // Accept:
+                                // - string[] (names)
+                                string[]? names = null;
+
+                                if (fieldValue is not string[])
+                                {
+                                    successes.TryAdd(fieldName, false);
+                                    break;
+                                }
+                                names = (string[])fieldValue;
+                                names = [.. names.Where(x => !string.IsNullOrWhiteSpace(x))];
+
+
+                                // Don't call DB if null/empty
+                                bool hasNames = names is not null && names.Length > 0;
+                                if (!hasNames)
+                                {
+                                    successes.TryAdd(fieldName, false);
+                                    break;
+                                }
+
+                                bool ok = await DatabaseQueries.SetPreferencesWorkTypesAsync(
+                                    userId,
+                                    hasNames ? names : null,
+                                    null,
+                                    _dataSource,
+                                    cancellation);
+
+                                successes.TryAdd(fieldName, ok);
+                                break;
+                            }
+
+                        case "skills":
+                            {
+                                // Expect: (string[] names, short[] months)
+                                string[] names;
+                                short[] months;
+
+                                if (fieldValue is Tuple<string[], short[]> st)
+                                {
+                                    names = st.Item1;
+                                    months = st.Item2;
+                                }
+                                else
+                                {
+                                    successes.TryAdd(fieldName, false);
+                                    break;
+                                }
+
+                                // Soft validation: drop empty names, keep arrays aligned by index by filtering pairs.
+                                if (names.Length == 0 || months.Length == 0 || names.Length != months.Length)
+                                {
+                                    successes.TryAdd(fieldName, false);
+                                    break;
+                                }
+
+                                var filteredPairs = names
+                                    .Select((n, idx) => (name: n, months: months[idx]))
+                                    .Where(p => !string.IsNullOrWhiteSpace(p.name))
+                                    .ToArray();
+
+                                if (filteredPairs.Length == 0)
+                                {
+                                    successes.TryAdd(fieldName, false);
+                                    break;
+                                }
+
+                                string[] cleanedNames = filteredPairs.Select(p => p.name.Trim()).ToArray();
+                                short[] cleanedMonths = filteredPairs.Select(p => p.months).ToArray();
+
+                                bool ok = await DatabaseQueries.SetPreferencesSkillsAsync(
+                                    userId,
+                                    cleanedNames,
+                                    cleanedMonths,
+                                    _dataSource,
+                                    cancellation);
+
+                                successes.TryAdd(fieldName, ok);
+                                break;
+                            }
+
+                        default:
+                            successes.TryAdd(fieldName, false);
+                            break;
+                    }
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    successes.TryAdd(fieldName, false);
+                }
+            }
+
+            return successes.ToDictionary();
         }
 
         /// <summary>
