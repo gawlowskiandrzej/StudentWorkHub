@@ -22,7 +22,7 @@ export type FiltersState = Partial<
 >;
 
 export default function OfferList() {
-  const {search} = useSearch();
+  const {search, filters, toggleFilter} = useSearch();
   const [offset, setOffset] = useState(0);
   const [localSearch, setLocalSearch]  = useState<Search>({
     keyword: search?.keyword || "",
@@ -36,18 +36,7 @@ export default function OfferList() {
       [key]: value,
     }));
   };
-  const toggleFilter = (
-  key: FilterKey,
-  value: FilterValue
-) => {
-  setFilters(prev => {
-    const set = new Set(prev[key] ?? []);
-    set.has(value) ? set.delete(value) : set.add(value);
 
-    return { ...prev, [key]: set };
-  });
-};
-  const [filters, setFilters] = useState<FiltersState>({});
   const filteredOffers = useMemo(() => {
   return offersJson.pagination.items.filter(offer =>
     matchOfferToFilters(offer, filters)
