@@ -1,6 +1,6 @@
 "use client";
 import { createContext, useContext, useState, ReactNode } from "react";
-import { Search } from "@/types/search/search";
+import { search } from "@/types/search/search";
 import { FiltersState } from "@/app/(public)/list/page";
 import { FilterKey, FilterValue } from "@/types/details/dynamicFilter";
 
@@ -11,8 +11,8 @@ export type ExtraFiltersState = {
     salary?: string;
 };
 type SearchContextType = {
-    search: Search;
-    setSearch: (search: Search) => void;
+    search: search;
+    setSearch: (search: search) => void;
 
     filters: FiltersState;
     toggleFilter: (key: FilterKey, value: FilterValue) => void;
@@ -27,7 +27,7 @@ type SearchContextType = {
 const SearchContext = createContext<SearchContextType | undefined>(undefined);
 
 export function SearchProvider({ children }: { children: ReactNode }) {
-    const [search, setSearch] = useState<Search>({
+    const [search, setSearch] = useState<search>({
         category: "",
         keyword: "",
         city: ""

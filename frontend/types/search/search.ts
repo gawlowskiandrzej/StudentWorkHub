@@ -1,6 +1,6 @@
-import { FiltersState } from "@/app/(public)/list/page";
 
-export type Search = {
+
+export type search = {
     category: string;
     keyword: string;
     city: string;

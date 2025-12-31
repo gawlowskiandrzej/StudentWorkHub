@@ -9,7 +9,7 @@ import { SearchBar } from "@/components/feature/search/SearchBar";
 import { DynamicFilter } from "@/components/feature/list/Filters";
 import { RecentSearches } from "@/components/feature/list/RecentSearches";
 import { Filter } from "@/components/feature/search/Filters";
-import { Search } from "@/types/search/search";
+import { search } from "@/types/search/search";
 import { useSearch } from "@/store/SearchContext";
 import { Pagination } from "@/components/feature/list/Pagination";
 import { mapApiFilters } from "@/utils/offerFilters/mapToDynamicFilter";
@@ -25,10 +25,10 @@ export type FiltersState = Partial<
 export default function OfferList() {
   const {search, filters, toggleFilter} = useSearch();
   const [offset, setOffset] = useState(0);
-  const [localSearch, setLocalSearch]  = useState<Search>({
+  const [localSearch, setLocalSearch]  = useState<search>({
     keyword: search?.keyword || "",
     category: search?.category || "",
-    city: search?.city || "",
+    city: search?.city || ""
   });
   const [sorts, setSort] = useState<{ sort?: string }>({ sort: "CreationDate" });
   const updateFilter = (key: "sort", value: string) => {
@@ -78,6 +78,7 @@ export default function OfferList() {
               onChange={toggleFilter}
                 />
             ))}
+
           </div>
           <div className={listStyles["list-with-filter"]}>
             <div className={listStyles["filternav"]}>

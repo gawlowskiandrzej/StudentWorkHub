@@ -1,13 +1,13 @@
-import {Search} from "../../../types/search/search";
+import {search} from "../../../types/search/search";
 import listStyles from "../../../styles/OfferList.module.css";
 import { useTranslation } from "react-i18next";
 
-const lastSearches: Search[] = [
+const lastSearches: search[] = [
     { category: "Category1", keyword: "React", city: "Warszawa" },
     { category: "Category2", keyword: "UI", city: "Kraków" },
 ];
 
-export function RecentSearches({ setSearch }: { setSearch: (search: Search) => void }) {
+export function RecentSearches({ setSearch }: { setSearch: (search: search) => void }) {
     const {t} = useTranslation("list");
     return (
         <div className={listStyles["recent-searches-navigation"]}>
