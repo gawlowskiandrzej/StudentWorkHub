@@ -17,15 +17,16 @@ import { useTranslation } from "react-i18next";
 import { FilterKey, FilterValue } from "@/types/details/dynamicFilter";
 import { matchOfferToFilters } from "@/utils/offerFilters/matchOfferToFilters";
 import { sortData } from "@/utils/offerFilters/sortOffers";
+import { usePagination } from "@/store/PaginationContext";
 
 export type FiltersState = Partial<
   Record<FilterKey, Set<FilterValue>>
 >;
 
 export default function OfferList() {
-  const {search, filters, toggleFilter} = useSearch();
-  const [offset, setOffset] = useState(0);
-  const [localSearch, setLocalSearch]  = useState<search>({
+  const { search, filters, toggleFilter } = useSearch();
+  const { limit, offset, setOffset } = usePagination();
+  const [localSearch, setLocalSearch] = useState<search>({
     keyword: search?.keyword || "",
     category: search?.category || "",
     city: search?.city || ""
@@ -37,17 +38,18 @@ export default function OfferList() {
       [key]: value,
     }));
   };
+  const filteredAndSortedOffers = useMemo(() => {
+    const filtered = offersJson.pagination.items.filter(offer =>
+      matchOfferToFilters(offer, filters)
+    );
+    return sortData(filtered, sorts.sort || "CreationDate");
+  }, [filters, sorts.sort]);
 
-  const filteredOffers = useMemo(() => {
-  // filtrujemy najpierw po filtrach
-  const filtered = offersJson.pagination.items.filter(offer =>
-    matchOfferToFilters(offer, filters)
-  );
+  const paginatedOffers = useMemo(() => {
+    return filteredAndSortedOffers.slice(offset, offset + limit);
+  }, [filteredAndSortedOffers, offset, limit]);
 
-  return sortData(filtered, sorts.sort || "CreationDate");
-}, [filters, sorts.sort]);
-
-  const {t} = useTranslation(["common", "list"]);
+  const { t } = useTranslation(["common", "list"]);
   const items = [
     { label: t("list:sort.creationAsc"), value: "CreationDate" },
     { label: t("list:sort.salaryDesc"), value: "Salarydesc" },
@@ -56,52 +58,52 @@ export default function OfferList() {
   ];
   const dynamicFilters = mapApiFilters(offersJson.dynamicFilters)
   return (
-      <div className={listStyles["offer-list-view"]}>
-        <div className={listStyles["search-bar-component"]}>
-          <div className={listStyles["search-bar-list"]}>
-            <SearchBar localSearch={localSearch} setLocalSearch={setLocalSearch} />
-            <div className={`${buttonStyle["main-button"]}`}>
-              <img className={listStyles["search"]} src="/icons/search0.svg" />
-              <div className={buttonStyle["find-matching-job"]}>{t("findMatchingJob")}</div>
-            </div>
+    <div className={listStyles["offer-list-view"]}>
+      <div className={listStyles["search-bar-component"]}>
+        <div className={listStyles["search-bar-list"]}>
+          <SearchBar localSearch={localSearch} setLocalSearch={setLocalSearch} />
+          <div className={`${buttonStyle["main-button"]}`}>
+            <img className={listStyles["search"]} src="/icons/search0.svg" />
+            <div className={buttonStyle["find-matching-job"]}>{t("findMatchingJob")}</div>
           </div>
-          <RecentSearches setSearch={setLocalSearch} />
         </div>
-        <div className={listStyles["offers-list"]}>
-          <div className={dynamicFilterStyles["dynamic-filter"]}>
-            {dynamicFilters.map((filter) => (
-              <DynamicFilter key={filter.key}
+        <RecentSearches setSearch={setLocalSearch} />
+      </div>
+      <div className={listStyles["offers-list"]}>
+        <div className={dynamicFilterStyles["dynamic-filter"]}>
+          {dynamicFilters.map((filter) => (
+            <DynamicFilter key={filter.key}
               filterKey={filter.key}
               header={filter.header}
               items={filter.items}
               selected={filters[filter.key]}
               onChange={toggleFilter}
-                />
-            ))}
+            />
+          ))}
 
-          </div>
-          <div className={listStyles["list-with-filter"]}>
-            <div className={listStyles["filternav"]}>
-              <div className={listStyles["offer-list-sort-select"]}>
-                <div className={listStyles["sort-by"]}>{t("list:sortByTitle")}</div>
-                <Filter className={`${listStyles["creation-date"]}`}
-                  label="Sort"
-                  clearable={false}
-                  items={items}
-                  onChange={(v) => updateFilter("sort", v)}
-                  value={sorts.sort}>
-                </Filter>
-              </div>
-              <Pagination offset={offset} limit={10} count={filteredOffers.length} onChange={setOffset} />
-            </div>
-            {filteredOffers.map((offer) => (
-              <ListElement key={offer.id} offer={offer} />
-            ))}
-          </div>
         </div>
-        <div className={listStyles["second-pagination"]}>
-          <Pagination offset={offset} limit={10} count={filteredOffers.length} onChange={setOffset} />
+        <div className={listStyles["list-with-filter"]}>
+          <div className={listStyles["filternav"]}>
+            <div className={listStyles["offer-list-sort-select"]}>
+              <div className={listStyles["sort-by"]}>{t("list:sortByTitle")}</div>
+              <Filter className={`${listStyles["creation-date"]}`}
+                label="Sort"
+                clearable={false}
+                items={items}
+                onChange={(v) => updateFilter("sort", v)}
+                value={sorts.sort}>
+              </Filter>
+            </div>
+            <Pagination offset={offset} limit={limit} count={filteredAndSortedOffers.length} onChange={setOffset} />
+          </div>
+          {paginatedOffers.map((offer) => (
+            <ListElement key={offer.id} offer={offer} />
+          ))}
         </div>
       </div>
+      <div className={listStyles["second-pagination"]}>
+        <Pagination offset={offset} limit={limit} count={filteredAndSortedOffers.length} onChange={setOffset} />
+      </div>
+    </div>
   );
 }
