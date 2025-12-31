@@ -20,15 +20,16 @@
     {
         public string ErrorMessage { get; init; } = string.Empty;
 
-        public bool OrderByOptionUpdated { get; init; }
-        public bool MeanValueIdsUpdated { get; init; }
-        public bool VectorUpdated { get; init; }
-        public bool MeanDistUpdated { get; init; }
-        public bool MeansValueSumUpdated { get; init; }
-        public bool MeansValueSsumUpdated { get; init; }
-        public bool MeansValueCountUpdated { get; init; }
-        public bool MeansWeightSumUpdated { get; init; }
-        public bool MeansWeightSsumUpdated { get; init; }
-        public bool MeansWeightCountUpdated { get; init; }
+        public bool OrderByOptionUpdated { get; init; } = false;
+        public bool MeanValueIdsUpdated { get; init; } = false;
+        public bool VectorUpdated { get; init; } = false;
+        public bool MeanDistUpdated { get; init; } = false;
+        public bool MeansValueSumUpdated { get; init; } = false;
+        public bool MeansValueSsumUpdated { get; init; } = false;
+        public bool MeansValueCountUpdated { get; init; } = false;
+        public bool MeansWeightSumUpdated { get; init; } = false;
+        public bool MeansWeightSsumUpdated { get; init; } = false;
+        public bool MeansWeightCountUpdated { get; init; } = false;
     }
+
 }

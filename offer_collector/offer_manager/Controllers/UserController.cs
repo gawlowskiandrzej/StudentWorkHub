@@ -39,6 +39,15 @@ namespace offer_manager.Controllers
         private const string _fieldMeansWeightSsum = "means_weight_ssum";
         private const string _fieldMeansWeightCount = "means_weight_count";
 
+        private const string _fieldLeadingCategory = "leading_category";
+        private const string _fieldSalaryRange = "salary_range";
+        private const string _fieldEmploymentTypes = "employment_types";
+        private const string _fieldLanguagePair = "language_pair";
+        private const string _fieldJobStatus = "job_status";
+        private const string _fieldCity = "city";
+        private const string _fieldWorkTypes = "work_types";
+        private const string _fieldSkills = "skills";
+
         // Common error messages
         private const string _errEmptyRequest = "Puste żądanie.";
         private const string _errLoginRequired = "Wymagane logowanie przed wykonaniem tej akcji.";
@@ -847,6 +856,176 @@ namespace offer_manager.Controllers
                 {
                     ErrorMessage = _errInternalServer,
                     UserData = JsonDocument.Parse("{}").RootElement.Clone()
+                });
+            }
+        }
+
+        [HttpPost("update-preferences")]
+        public async Task<ActionResult<UpdatePreferencesResponse>> UpdatePreferences(
+            [FromBody] UpdatePreferencesRequest? request
+        )
+        {
+            if (request is null)
+                return BadRequest(new UpdatePreferencesResponse { ErrorMessage = _errEmptyRequest });
+
+            if (string.IsNullOrWhiteSpace(request.Jwt))
+                return BadRequest(new UpdatePreferencesResponse { ErrorMessage = _errLoginRequired });
+
+            bool hasAnyUpdate =
+                request.LeadingCategoryId is not null ||
+                request.SalaryFrom is not null ||
+                request.SalaryTo is not null ||
+                (request.EmploymentTypeIds is not null && request.EmploymentTypeIds.Length > 0) ||
+                (request.LanguageId is not null && request.LanguageLevelId is not null) ||
+                !string.IsNullOrWhiteSpace(request.JobStatusName) ||
+                !string.IsNullOrWhiteSpace(request.CityName) ||
+                (request.WorkTypeNames is not null && request.WorkTypeNames.Length > 0) ||
+                (
+                    request.SkillNames is not null && request.SkillNames.Length > 0 &&
+                    request.SkillMonths is not null && request.SkillMonths.Length > 0
+                );
+
+            if (!hasAnyUpdate)
+                return BadRequest(new UpdatePreferencesResponse { ErrorMessage = _errNothingToUpdate });
+
+            long userId;
+            try
+            {
+                userId = JwtUtils.GetUserId(_jwtOptions, request.Jwt);
+            }
+            catch (SecurityTokenExpiredException)
+            {
+                return Unauthorized(new UpdatePreferencesResponse { ErrorMessage = _errJwtExpired });
+            }
+            catch
+            {
+                return Unauthorized(new UpdatePreferencesResponse { ErrorMessage = _errJwtInvalid });
+            }
+
+            Dictionary<string, object> dataFields = new(8);
+
+            if (request.LeadingCategoryId is not null)
+                dataFields.Add(_fieldLeadingCategory, request.LeadingCategoryId.Value);
+
+            if (request.SalaryFrom is not null || request.SalaryTo is not null)
+                dataFields.Add(_fieldSalaryRange, Tuple.Create(request.SalaryFrom, request.SalaryTo));
+
+            if (request.EmploymentTypeIds is not null && request.EmploymentTypeIds.Length > 0)
+                dataFields.Add(_fieldEmploymentTypes, request.EmploymentTypeIds);
+
+            if (request.LanguageId is not null || request.LanguageLevelId is not null)
+                dataFields.Add(_fieldLanguagePair, Tuple.Create(request.LanguageId, request.LanguageLevelId));
+
+            if (!string.IsNullOrWhiteSpace(request.JobStatusName))
+                dataFields.Add(_fieldJobStatus, request.JobStatusName);
+
+            if (!string.IsNullOrWhiteSpace(request.CityName))
+                dataFields.Add(_fieldCity, request.CityName);
+
+            if (request.WorkTypeNames is not null && request.WorkTypeNames.Length > 0)
+                dataFields.Add(_fieldWorkTypes, request.WorkTypeNames);
+
+            if (request.SkillNames is not null && request.SkillMonths is not null &&
+                request.SkillNames.Length == request.SkillMonths.Length)
+            {
+                dataFields.Add(_fieldSkills, Tuple.Create(request.SkillNames, request.SkillMonths));
+            }
+
+            try
+            {
+                Dictionary<string, bool> fieldResults = await _userController.UpdatePreferencesAsync(userId, dataFields);
+
+                return Ok(new UpdatePreferencesResponse
+                {
+                    ErrorMessage = string.Empty,
+
+                    LeadingCategoryIdUpdated =
+                    fieldResults.TryGetValue(_fieldLeadingCategory, out bool lc) && lc,
+
+                    SalaryFromUpdated =
+                    fieldResults.TryGetValue(_fieldSalaryRange, out bool srFrom) && srFrom,
+                    SalaryToUpdated =
+                    fieldResults.TryGetValue(_fieldSalaryRange, out bool srTo) && srTo,
+
+                    EmploymentTypeIdsUpdated =
+                    fieldResults.TryGetValue(_fieldEmploymentTypes, out bool et) && et,
+
+                    LanguageIdUpdated =
+                    fieldResults.TryGetValue(_fieldLanguagePair, out bool lpLang) && lpLang,
+                    LanguageLevelIdUpdated =
+                    fieldResults.TryGetValue(_fieldLanguagePair, out bool lpLvl) && lpLvl,
+
+                    JobStatusNameUpdated =
+                    fieldResults.TryGetValue(_fieldJobStatus, out bool js) && js,
+
+                    CityNameUpdated =
+                    fieldResults.TryGetValue(_fieldCity, out bool city) && city,
+
+                    WorkTypeNamesUpdated =
+                    fieldResults.TryGetValue(_fieldWorkTypes, out bool wt) && wt,
+
+                    SkillNamesUpdated =
+                    fieldResults.TryGetValue(_fieldSkills, out bool skNames) && skNames,
+                    SkillMonthsUpdated =
+                    fieldResults.TryGetValue(_fieldSkills, out bool skMonths) && skMonths
+                });
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new UpdatePreferencesResponse { ErrorMessage = _errInternalServer });
+            }
+        }
+
+        [HttpPost("get-preferences")]
+        public async Task<ActionResult<GetPreferencesResponse>> GetPreferences(
+            [FromBody] GetPreferencesRequest? request
+        )
+        {
+            if (request is null)
+                return BadRequest(new GetPreferencesResponse { ErrorMessage = _errEmptyRequest, Preferences = JsonDocument.Parse("{}").RootElement.Clone() });
+
+            if (string.IsNullOrWhiteSpace(request.Jwt))
+                return BadRequest(new GetPreferencesResponse { ErrorMessage = _errLoginRequired, Preferences = JsonDocument.Parse("{}").RootElement.Clone() });
+
+            long userId;
+            try
+            {
+                userId = JwtUtils.GetUserId(_jwtOptions, request.Jwt);
+            }
+            catch (SecurityTokenExpiredException)
+            {
+                return Unauthorized(new GetPreferencesResponse { ErrorMessage = _errJwtExpired, Preferences = JsonDocument.Parse("{}").RootElement.Clone() });
+            }
+            catch
+            {
+                return Unauthorized(new GetPreferencesResponse { ErrorMessage = _errJwtInvalid, Preferences = JsonDocument.Parse("{}").RootElement.Clone() });
+            }
+
+            try
+            {
+                (bool result, UserPreferencesResult? userPreferences) = await _userController.GetUserPreferencesAsync(userId);
+                if (!result || userPreferences is null)
+                    throw new Exception("Retrieving preferences failed");
+
+                using JsonDocument doc = JsonDocument.Parse("""
+                    {
+                    "result": "all good"
+                    }
+                    """);
+
+                return Ok(new GetPreferencesResponse
+                {
+                    ErrorMessage = string.Empty,
+                    Preferences = doc.RootElement.Clone()
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.InnerException.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, new GetPreferencesResponse
+                {
+                    ErrorMessage = _errInternalServer,
+                    Preferences = JsonDocument.Parse("{}").RootElement.Clone()
                 });
             }
         }
