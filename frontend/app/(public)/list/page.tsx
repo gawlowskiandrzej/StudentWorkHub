@@ -16,6 +16,7 @@ import { mapApiFilters } from "@/utils/offerFilters/mapToDynamicFilter";
 import { useTranslation } from "react-i18next";
 import { FilterKey, FilterValue } from "@/types/details/dynamicFilter";
 import { matchOfferToFilters } from "@/utils/offerFilters/matchOfferToFilters";
+import { sortData } from "@/utils/offerFilters/sortOffers";
 
 export type FiltersState = Partial<
   Record<FilterKey, Set<FilterValue>>
@@ -38,10 +39,14 @@ export default function OfferList() {
   };
 
   const filteredOffers = useMemo(() => {
-  return offersJson.pagination.items.filter(offer =>
+  // filtrujemy najpierw po filtrach
+  const filtered = offersJson.pagination.items.filter(offer =>
     matchOfferToFilters(offer, filters)
   );
-}, [filters]);
+
+  return sortData(filtered, sorts.sort || "CreationDate");
+}, [filters, sorts.sort]);
+
   const {t} = useTranslation(["common", "list"]);
   const items = [
     { label: t("list:sort.creationAsc"), value: "CreationDate" },

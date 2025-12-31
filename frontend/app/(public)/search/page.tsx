@@ -74,6 +74,7 @@ const Search = () => {
                                 <FilterWithDialog
                                     label={t("searchView:salary")}
                                     items={items}
+                                    value={extraFilters.salary}
                                     onChange={(v) => setExtraFilter("salary", v)}>
                                 </FilterWithDialog>
                             </div>

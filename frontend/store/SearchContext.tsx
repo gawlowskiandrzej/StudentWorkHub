@@ -3,13 +3,12 @@ import { createContext, useContext, useState, ReactNode } from "react";
 import { Search } from "@/types/search/search";
 import { FiltersState } from "@/app/(public)/list/page";
 import { FilterKey, FilterValue } from "@/types/details/dynamicFilter";
-import { salary } from "@/types/list/Offer/salary";
 
 export type ExtraFiltersState = {
     workType?: string;
     workTime?: string;
     employmentType?: string;
-    salary?: salary;
+    salary?: string;
 };
 type SearchContextType = {
     search: Search;
