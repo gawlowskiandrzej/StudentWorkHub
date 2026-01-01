@@ -15,7 +15,7 @@
     /// <param name="EmploymentTypes">
     /// Offer-related employment type identifiers managed by the application (e.g. "employment contract").
     /// </param>
-    /// <param name="JobStatusId">
+    /// <param name="JobStatus">
     /// User job-search status identifier (e.g. open to offers / do not notify).
     /// </param>
     /// <param name="Languages">Language identifiers managed by the application.</param>
@@ -34,12 +34,12 @@
         [PgName("salary_to")] public decimal? SalaryTo { get; init; }
 
         [PgName("employment_type_ids")] public short[] EmploymentTypes { get; init; } = [];
-        [PgName("job_status_id")] public short JobStatusId { get; init; }
+        [PgName("job_status")] public string? JobStatus { get; init; }
 
         [PgName("language_ids")] public short[] Languages { get; init; } = [];
         [PgName("language_level_ids")] public short[] LanguageLevels { get; init; } = [];
 
-        [PgName("city_id")] public long CityId { get; init; }
+        [PgName("city_name")] public string? CityName { get; init; }
 
         [PgName("work_types")] public string[] WorkTypes { get; init; } = [];
 
