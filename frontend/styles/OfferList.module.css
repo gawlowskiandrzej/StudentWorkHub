@@ -219,6 +219,7 @@
   padding: 0px 0px 0px 45px;
   display: flex;
   flex-direction: column;
+  min-height: 1500px;
   gap: 25px;
   align-items: flex-end;
   justify-content: flex-start;
@@ -408,7 +409,7 @@
   color: #ffffff;
   text-align: left;
   font-family: "Roboto-Regular", sans-serif;
-  font-size: var(--subheader, 16px);
+  font-size: var(--mediumSize);
   font-weight: 400;
   position: relative;
   align-self: stretch;

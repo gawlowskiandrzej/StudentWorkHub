@@ -53,7 +53,7 @@ export function ListElement({ offer }: { offer: offer }) {
                     <div className={listStyles["offer-header-salary-date"]}>
                         <div className={listStyles["job-salary"]}>
                             {offer.salary.from != null && offer.salary.to != null
-                                ? `${formatSalaryValue(offer.salary.from)} ${offer.salary.currency} - ${formatSalaryValue(offer.salary.to)} ${offer.salary.currency}`
+                                ? `${formatSalaryValue(offer.salary.from)} ${offer.salary.currency} - ${formatSalaryValue(offer.salary.to)} ${offer.salary.currency} / ${offer.salary.period}`
                                 : 'Nie zdefiniowano'}
                         </div>
                         <div className={`${listStyles["added-10-12-2025"]} flex gap-5`}><div>{formatDateTime(offer.dates.published)}</div><Progress className='w-[100px]' value={progress} max={100} /><div>{formatDateTime(offer.dates.expires)}</div></div>

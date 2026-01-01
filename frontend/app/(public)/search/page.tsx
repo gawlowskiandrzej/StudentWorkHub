@@ -3,43 +3,29 @@ import searchStyle from "../../../styles/SearchView.module.css";
 import buttonStyles from "../../../styles/ButtonStyle.module.css";
 import footerStyle from '../../../styles/Footer.module.css'
 import { Filter } from "@/components/feature/search/Filters";
-import { useState } from "react";
+import { useEffect } from "react";
 import { SearchBar } from "@/components/feature/search/SearchBar";
 import { FilterWithDialog } from "@/components/feature/search/FilterWithDialog";
 import { useRouter } from 'next/navigation';
 import { useSearch } from "@/store/SearchContext";
 import { useTranslation } from "react-i18next";
-
-type FiltersState = {
-    workType?: string;
-    workTime?: string;
-    employmentType?: string;
-    salary?: string;
-};
+import {employment_types, employment_schedules,salary_periods } from "@/store/data/Dictionaries.json"
+import { toLabelValueFormat } from '../../../utils/others/toLabelValueFormat';
 
 const Search = () => {
-    const [localSearch, setLocalSearch] = useState({
-        keyword: "",
-        category: "",
-        city: "",
-    });
-    const [filters, setFilters] = useState<FiltersState>({});
+    const {search, extraFilters, setExtraFilter, addRecentSearch , clearFilters} = useSearch();
     const {t} = useTranslation(["searchView", "searchbar", "common"])
-    const { setSearch} = useSearch();
-    const updateFilter = (key: keyof FiltersState, value: string) => {
-        setFilters((prev) => ({
-            ...prev,
-            [key]: value,
-        }));
-    };
     const router = useRouter();
     const items = [
-        { label: "Worktype1", value: "Worktype1" },
-        { label: "Worktype2", value: "Worktype2" },
-        { label: "Worktype3", value: "Worktype3" },
-    ]; 
+        toLabelValueFormat(employment_types),
+        toLabelValueFormat(employment_schedules),
+        toLabelValueFormat(salary_periods)
+    ]
+    useEffect(() => {
+        clearFilters();
+    }, [])
     const gotoListPage = () => {
-    setSearch(localSearch);
+    addRecentSearch(search);
     router.push('/list');
     };
     return (
@@ -53,39 +39,42 @@ const Search = () => {
                         <span className={searchStyle["search-view-header-span2"]}> {t("searchView:searchViewTitlePart2")}</span>
                     </span>
                 </div>
-                    <SearchBar localSearch={localSearch} setLocalSearch={setLocalSearch}>
+                    <SearchBar>
                     </SearchBar>
                     <div className={searchStyle["search-sub-section"]}>
                         <div className={searchStyle["sub-filters"]}>
                             <div className={searchStyle["basic-filter-item"]}>
                                 <Filter
+                                    clearable={true}
                                     label={t("searchView:workTypeFilterTitle")}
-                                    items={items}
-                                    onChange={(v) => updateFilter("workType", v)}
-                                    value={filters.workType}>
+                                    items={items[0]}
+                                    onChange={(v) => setExtraFilter("workType", v)}
+                                    value={extraFilters.workType}>
                                 </Filter>
                             </div>
                             <div className={searchStyle["basic-filter-item"]}>
                                 <Filter
+                                    clearable={true}
                                     label={t("searchView:workTime")}
-                                    items={items}
-                                    onChange={(v) => updateFilter("workTime", v)}
-                                    value={filters.workTime}>
+                                    items={items[1]}
+                                    onChange={(v) => setExtraFilter("workTime", v)}
+                                    value={extraFilters.workTime}>
                                 </Filter>
                             </div>
                             <div className={searchStyle["basic-filter-item"]}>
                                 <Filter
+                                    clearable={true}
                                     label={t("searchView:employmentType")}
-                                    items={items}
-                                    onChange={(v) => updateFilter("employmentType", v)}
-                                    value={filters.employmentType}>
+                                    items={items[2]}
+                                    onChange={(v) => setExtraFilter("employmentType", v)}
+                                    value={extraFilters.employmentType}>
                                 </Filter>
                             </div>
                             <div className={`${searchStyle["basic-filter-item"]}`}>
                                 <FilterWithDialog
                                     label={t("searchView:salary")}
-                                    items={items}
-                                    onChange={(v) => updateFilter("salary", v)}>
+                                    value={extraFilters.salary}
+                                    onChange={(v) => setExtraFilter("salary", v)}>
                                 </FilterWithDialog>
                             </div>
                         </div>

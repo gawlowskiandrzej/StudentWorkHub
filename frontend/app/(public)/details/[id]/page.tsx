@@ -76,7 +76,7 @@ export default function DetailsPage() {
                         <div className={detailsStyles["frame-73"]}>
                             <div className={detailsStyles["_100-200-z"]}>
                                 {offer.salary.from != null && offer.salary.to != null
-                                    ? `${formatSalaryValue(offer.salary.from)} ${offer.salary.currency} - ${formatSalaryValue(offer.salary.to)} ${offer.salary.currency}`
+                                    ? `${formatSalaryValue(offer.salary.from)} ${offer.salary.currency} - ${formatSalaryValue(offer.salary.to)} ${offer.salary.currency} / ${offer.salary.period}`
                                     : t("noSalary")}
                             </div>
                         </div>

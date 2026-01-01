@@ -1,4 +1,6 @@
-export type Search = {
+
+
+export type search = {
     category: string;
     keyword: string;
     city: string;

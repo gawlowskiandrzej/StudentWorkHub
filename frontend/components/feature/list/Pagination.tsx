@@ -10,7 +10,7 @@ export function Pagination({ offset, limit, count, onChange }: PaginationType) {
     const totalPages = Math.ceil(count / limit);
 
     const hasPrev = offset > 0;
-    const hasNext = offset + limit < count;
+    const hasNext = true;/*offset + limit < count;*/
 
     const handlePrev = () => {
         if (!hasPrev) return;

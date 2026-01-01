@@ -5,6 +5,7 @@ import I18nProvider from "@/i18n/I18nProvider";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { SearchProvider } from "@/store/SearchContext";
+import { PaginationProvider } from "@/store/PaginationContext";
 
 const roboto = Roboto({
   weight: '400',
@@ -31,11 +32,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pl" className={roboto.className}>
       <body>
         <I18nProvider>
-          <Navbar />
-          <SearchProvider>
-            <main className="min-h-screen">{children}</main>
-          </SearchProvider>
-          <Footer />
+          <PaginationProvider>
+            <Navbar />
+            <SearchProvider>
+              <main className="min-h-screen">{children}</main>
+            </SearchProvider>
+            <Footer />
+          </PaginationProvider>
         </I18nProvider>
       </body>
     </html>

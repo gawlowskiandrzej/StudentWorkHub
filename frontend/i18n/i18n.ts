@@ -11,10 +11,14 @@ import plDetails from "./locales/pl/details.json";
 import plSearchbar from "./locales/pl/searchbar.json";
 import plSearchView from "./locales/pl/searchView.json";
 // EN
-// import enCommon from "./locales/en/common.json";
-// import enNavbar from "./locales/en/navigation.json";
-// import enFooter from "./locales/en/footer.json";
-// import enHome from "./locales/en/.json";
+import enCommon from "./locales/en/common.json";
+import enNavbar from "./locales/en/navigation.json";
+import enFooter from "./locales/en/footer.json";
+import enHero from "./locales/en/hero.json";
+import enList from "./locales/en/list.json";
+import enDetails from "./locales/en/details.json";
+import enSearchbar from "./locales/en/searchbar.json";
+import enSearchView from "./locales/en/searchView.json";
 
 i18n.use(initReactI18next).init({
   lng: "pl",
@@ -34,12 +38,16 @@ i18n.use(initReactI18next).init({
       searchbar: plSearchbar,
       searchView: plSearchView
     },
-    // en: {
-    //   common: enCommon,
-    //   navbar: enNavbar,
-    //   footer: enFooter,
-    //   home: enHome
-    // }
+    en: {
+      common: enCommon,
+      navigation: enNavbar,
+      footer: enFooter,
+      hero: enHero,
+      list: enList,
+      details: enDetails,
+      searchbar: enSearchbar,
+      searchView: enSearchView
+    }
   },
 
   interpolation: {

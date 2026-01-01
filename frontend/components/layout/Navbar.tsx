@@ -1,9 +1,11 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import navigationStyles from "../../styles/Navigation.module.css";
 import buttonStyles from "../../styles/ButtonStyle.module.css";
 import { Jura } from "next/font/google";
 import { useTranslation } from "react-i18next";
+import { Menu, X } from "lucide-react";
 
 const jura = Jura({
   weight: ["400", "700"],
@@ -13,40 +15,72 @@ const jura = Jura({
 
 const Navbar = () => {
   const router = useRouter();
-  const {t} = useTranslation(["navigation", "common"])
+  const { t } = useTranslation(["navigation", "common"]);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <nav className={navigationStyles["navigation-with-short-logo"]}>
-      <div
-        className={`${navigationStyles["logo"]} cursor-pointer`}
-        onClick={() => router.push("/")}
-      >
-        <img
-          className={navigationStyles["student-work-hub-logo-1"]}
-          src="/images/all/student-work-hub-logo-10.png"
-        />
-        <div className={`${navigationStyles["logo-text"]} ${jura.className}`}>
-          <div className={navigationStyles["student-work-hub"]}>
-            StudentWorkHub
-          </div>
-          <div className={navigationStyles["subtitle-student-work-hub"]}>
-            {t("common:siteSubHeader")}
-          </div>
-        </div>
-      </div>
-
-      <div className={navigationStyles["signin-frame"]}>
+    <>
+      <nav className={navigationStyles["navigation-with-short-logo"]}>
         <div
-          className={`${buttonStyles["main-button"]} ${navigationStyles["register-button"]}`}
+          className={`${navigationStyles["logo"]} cursor-pointer`}
+          onClick={() => router.push("/")}
         >
-          <div className={"text-xs"}>{t("navigation:register")}</div>
+          <img
+            className={navigationStyles["student-work-hub-logo-1"]}
+            src="/images/all/student-work-hub-logo-10.png"
+          />
+          <div className={`${navigationStyles["logo-text"]} ${jura.className}`}>
+            <div className={navigationStyles["student-work-hub"]}>
+              StudentWorkHub
+            </div>
+            <div className={navigationStyles["subtitle-student-work-hub"]}>
+              {t("common:siteSubHeader")}
+            </div>
+          </div>
         </div>
-        <img
-          className={navigationStyles["user"]}
-          src="/icons/user0.svg"
+
+        <div className={navigationStyles["signin-frame"]}>
+          <div
+            className={`${buttonStyles["main-button"]} ${navigationStyles["register-button"]}`}
+          >
+            <div className="text-xs">{t("navigation:register")}</div>
+          </div>
+
+          <img className={navigationStyles["user"]} src="/icons/user0.svg" />
+
+          <Menu
+            className="cursor-pointer"
+            onClick={() => setMenuOpen(true)}
+          />
+        </div>
+      </nav>
+
+      {/* Overlay */}
+      {menuOpen && (
+        <div
+          className={navigationStyles.overlay}
+          onClick={() => setMenuOpen(false)}
         />
+      )}
+
+      {/* Slide menu */}
+      <div
+        className={`${navigationStyles.sideMenu} ${
+          menuOpen ? navigationStyles.open : ""
+        }`}
+      >
+        <X
+          className="cursor-pointer mb-4"
+          onClick={() => setMenuOpen(false)}
+        />
+
+        <ul>
+          <li onClick={() => router.push("/")}>Home</li>
+          <li onClick={() => router.push("/projects")}>Projects</li>
+          <li onClick={() => router.push("/profile")}>Profile</li>
+        </ul>
       </div>
-    </nav>
+    </>
   );
 };
 
