@@ -84,20 +84,36 @@ COPY public.weights (user_id, order_by_option, mean_value_ids, vector, mean_dist
 10	{""}	{""}	{0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5}	{0.5}	{0}	{0}	{0}	{0}	{0}	{0}
 \.
 
+COPY public.preferences (user_id, leading_category_id, salary_from, salary_to, employment_type_ids, language_ids, language_level_ids, job_status_id, city_id) FROM stdin;
+1	\N	\N	\N	{}	{}	{}	\N	\N
+2	\N	\N	\N	{}	{}	{}	\N	\N
+3	\N	\N	\N	{}	{}	{}	\N	\N
+4	\N	\N	\N	{}	{}	{}	\N	\N
+5	\N	\N	\N	{}	{}	{}	\N	\N
+6	\N	\N	\N	{}	{}	{}	\N	\N
+7	\N	\N	\N	{}	{}	{}	\N	\N
+8	\N	\N	\N	{}	{}	{}	\N	\N
+9	\N	\N	\N	{}	{}	{}	\N	\N
+10	\N	\N	\N	{}	{}	{}	\N	\N
+\.
+
 SELECT setval(pg_get_serial_sequence('public.search_histories','id'),
-              (SELECT COALESCE(MAX(id),0) FROM public.search_histories), true);
+    (SELECT COALESCE(MAX(id),0) FROM public.search_histories), true);
 
 SELECT setval(pg_get_serial_sequence('public.users','id'),
-              (SELECT COALESCE(MAX(id),0) FROM public.users), true);
+    (SELECT COALESCE(MAX(id),0) FROM public.users), true);
 
 SELECT setval(pg_get_serial_sequence('public.roles','id'),
-              (SELECT COALESCE(MAX(id),0) FROM public.roles), true);
+    (SELECT COALESCE(MAX(id),0) FROM public.roles), true);
 
 SELECT setval(pg_get_serial_sequence('public.first_names','id'),
-              (SELECT COALESCE(MAX(id),0) FROM public.first_names), true);
+    (SELECT COALESCE(MAX(id),0) FROM public.first_names), true);
 
 SELECT setval(pg_get_serial_sequence('public.last_names','id'),
-              (SELECT COALESCE(MAX(id),0) FROM public.last_names), true);
+    (SELECT COALESCE(MAX(id),0) FROM public.last_names), true);
 
 SELECT setval(pg_get_serial_sequence('public.second_names','id'),
-              (SELECT COALESCE(MAX(id),0) FROM public.second_names), true);
+    (SELECT COALESCE(MAX(id),0) FROM public.second_names), true);
+
+SELECT setval(pg_get_serial_sequence('public.preferences','id'),
+    (SELECT COALESCE(MAX(id),0) FROM public.preferences), true);

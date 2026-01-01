@@ -919,13 +919,13 @@ $$;
 
 CREATE OR REPLACE PROCEDURE public.set_job_status_preference(
     IN  p_user_id BIGINT,
-    IN  p_status_name VARCHAR(15),
+    IN  p_status_name VARCHAR(50),
     OUT p_success BOOLEAN
 )
 LANGUAGE plpgsql
 AS $$
 DECLARE
-    v_status_name VARCHAR(15);
+    v_status_name VARCHAR(50);
     v_status_id   SMALLINT;
 BEGIN
     p_success := FALSE;
@@ -936,7 +936,7 @@ BEGIN
         RETURN;
     END IF;
 
-    IF char_length(v_status_name) > 15 THEN
+    IF char_length(v_status_name) > 50 THEN
         RETURN;
     END IF;
 

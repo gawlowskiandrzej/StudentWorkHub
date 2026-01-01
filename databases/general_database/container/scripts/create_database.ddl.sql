@@ -184,7 +184,7 @@ CREATE TABLE public.cities (
 
 CREATE TABLE public.job_statuses (
     id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    status_name VARCHAR(15) NOT NULL,
+    status_name VARCHAR(50) NOT NULL,
 
     CONSTRAINT uq_job_statuses_status_name
         UNIQUE (status_name)

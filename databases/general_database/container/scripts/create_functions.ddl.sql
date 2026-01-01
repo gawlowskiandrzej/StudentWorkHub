@@ -3,10 +3,10 @@ CREATE TYPE public.preference_dto AS (
     salary_from             NUMERIC(8,2),
     salary_to               NUMERIC(8,2),
     employment_type_ids     SMALLINT[],
-    job_status_id           SMALLINT,
+    job_status              TEXT,
     language_ids            SMALLINT[],
     language_level_ids      SMALLINT[],
-    city_id                 BIGINT,
+    city_name               TEXT,
     work_types              TEXT[],
 
     skill_names             TEXT[],
@@ -156,19 +156,22 @@ AS $$
         p.leading_category_id,
         p.salary_from,
         p.salary_to,
-        p.employment_type_ids,
-        p.job_status_id,
-        p.language_ids,
-        p.language_level_ids,
-        p.city_id,
+        COALESCE(p.employment_type_ids, '{}'::smallint[]),
+
+        js.status_name,
+
+        COALESCE(p.language_ids, '{}'::smallint[]),
+        COALESCE(p.language_level_ids, '{}'::smallint[]),
+        c.city,
 
         COALESCE(wt.work_types, '{}'::text[]),
-
         COALESCE(sk.skill_names, '{}'::text[]),
         COALESCE(sk.skill_experience_months, '{}'::smallint[]),
         COALESCE(sk.skill_entry_dates, '{}'::timestamptz[])
     )::public.preference_dto
     FROM public.preferences p
+    LEFT JOIN public.cities c ON c.id = p.city_id
+    LEFT JOIN public.job_statuses js ON js.id = p.job_status_id
 
     LEFT JOIN LATERAL (
         SELECT array_agg(w.work_type ORDER BY w.work_type) AS work_types
@@ -179,9 +182,9 @@ AS $$
 
     LEFT JOIN LATERAL (
         SELECT
-            array_agg(s.skill_name ORDER BY s.skill_name)              AS skill_names,
-            array_agg(us.experience_months ORDER BY s.skill_name)      AS skill_experience_months,
-            array_agg(us.entry_date ORDER BY s.skill_name)             AS skill_entry_dates
+            array_agg(s.skill_name ORDER BY s.skill_name)         AS skill_names,
+            array_agg(us.experience_months ORDER BY s.skill_name) AS skill_experience_months,
+            array_agg(us.entry_date ORDER BY s.skill_name)        AS skill_entry_dates
         FROM public.user_skills us
         JOIN public.skills s ON s.id = us.skill_id
         WHERE us.user_id = p.user_id
@@ -189,3 +192,4 @@ AS $$
 
     WHERE p.user_id = p_user_id;
 $$;
+
