@@ -219,6 +219,7 @@
   padding: 0px 0px 0px 45px;
   display: flex;
   flex-direction: column;
+  min-height: 1500px;
   gap: 25px;
   align-items: flex-end;
   justify-content: flex-start;

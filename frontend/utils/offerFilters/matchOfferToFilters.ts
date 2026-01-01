@@ -27,21 +27,14 @@ export function matchOfferToFilters(
           ) ?? false
         );
 
-      case "experienceMonths":
-        return (
-          offer.requirements.skills?.some(skill =>
-            skill.experienceMonths != null &&
-            values.has(skill.experienceMonths)
-          ) ?? false
-        );
-
       case "experienceLevels":
         return (
-          offer.requirements.skills?.some(skill =>
-            skill.experienceLevel?.some(level =>
+          offer.requirements.skills?.every(skill =>{
+            if (skill.experienceLevel?.length == 0) return true;
+            return skill.experienceLevel?.some(level =>
               values.has(level)
             )
-          ) ?? false
+    }) ?? false
         );
 
       default:

@@ -1,9 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
 import { ListElement } from "@/components/feature/list/ListElement";
 import offersJson from '@/store/data/DummyOffers.json';
 import listStyles from "../../../styles/OfferList.module.css";
 import dynamicFilterStyles from "../../../styles/DynamicFilter.module.css";
+import detailsStyles from "../../../styles/OfferDetails.module.css";
 import buttonStyle from "../../../styles/ButtonStyle.module.css";
 import { SearchBar } from "@/components/feature/search/SearchBar";
 import { DynamicFilter } from "@/components/feature/list/Filters";
@@ -16,21 +16,24 @@ import { useTranslation } from "react-i18next";
 import { FilterKey, FilterValue } from "@/types/details/dynamicFilter";
 import { usePagination } from "@/store/PaginationContext";
 import { useOfferList } from "@/hooks/useOfferList";
+import { SearchFilterKeyword } from "@/components/feature/list/SearchFilterKeyword";
+import { searchKeywordFilters } from "@/store/data/searchKeywordFilterData";
 
 export type FiltersState = Partial<
   Record<FilterKey, Set<FilterValue>>
 >;
 
 export default function OfferList() {
-  const { filters, toggleFilter, sorts, setSorting } = useSearch();
+  const { filters, toggleFilter, sorts, searchFilterKeywords, setSearchFilterKeywords , setSorting, clearFilters } = useSearch();
   const { limit, offset, setOffset } = usePagination();
-  
+
 
   const { offers, total } = useOfferList(
     filters,
     sorts.sort!,
     offset,
-    limit
+    limit,
+    searchFilterKeywords
   );
 
   const { t } = useTranslation(["common", "list"]);
@@ -41,6 +44,7 @@ export default function OfferList() {
     { label: t("list:sort.salaryDesc"), value: "Salaryasc" },
     { label: t("list:sort.nameAsc"), value: "Nameasc" },
   ];
+  
   const dynamicFilters = mapApiFilters(offersJson.dynamicFilters)
   return (
     <div className={listStyles["offer-list-view"]}>
@@ -65,7 +69,14 @@ export default function OfferList() {
               onChange={toggleFilter}
             />
           ))}
-
+          {searchKeywordFilters.map((keywordFilter, index) => (
+            <SearchFilterKeyword key={index} filterKey={keywordFilter.filterKey} header={keywordFilter.header} value={searchFilterKeywords[keywordFilter.filterKey]} onChange={setSearchFilterKeywords}/>
+          ))}
+          <div className={`${buttonStyle["main-button"]} ${detailsStyles["show-more-button"]}`} onClick={() => clearFilters()}>
+            <div className={`${detailsStyles["find-mathing-job"]} text-sm`}>
+              Wyczyść filtry
+              </div>
+            </div>
         </div>
         <div className={listStyles["list-with-filter"]}>
           <div className={listStyles["filternav"]}>
@@ -88,9 +99,9 @@ export default function OfferList() {
             <Pagination offset={offset} limit={limit} count={total} onChange={setOffset} />
           </div>
         </div>
-        
+
       </div>
-      
+
     </div>
   );
 }

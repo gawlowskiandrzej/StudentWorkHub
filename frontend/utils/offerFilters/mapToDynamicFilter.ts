@@ -20,16 +20,16 @@ export function mapApiFilters(
         value: level,
       })),
     },
-    {
-      key: "experienceMonths",
-      header: "Doświadczenie (miesiące)",
-      items: [...api.experienceMonths]
-        .sort((a, b) => a - b)
-        .map(months => ({
-          label: `${months} miesięcy`,
-          value: months,
-        })),
-    },
+    // {
+    //   key: "experienceMonths",
+    //   header: "Doświadczenie (miesiące)",
+    //   items: [...api.experienceMonths]
+    //     .sort((a, b) => a - b)
+    //     .map(months => ({
+    //       label: `${months} miesięcy`,
+    //       value: months,
+    //     })),
+    // },
     {
       key: "experienceLevels",
       header: "Poziom doświadczenia",

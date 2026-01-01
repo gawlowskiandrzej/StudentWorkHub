@@ -3,7 +3,7 @@ import searchStyle from "../../../styles/SearchView.module.css";
 import buttonStyles from "../../../styles/ButtonStyle.module.css";
 import footerStyle from '../../../styles/Footer.module.css'
 import { Filter } from "@/components/feature/search/Filters";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { SearchBar } from "@/components/feature/search/SearchBar";
 import { FilterWithDialog } from "@/components/feature/search/FilterWithDialog";
 import { useRouter } from 'next/navigation';

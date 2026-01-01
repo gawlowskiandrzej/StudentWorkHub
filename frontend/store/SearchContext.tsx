@@ -5,6 +5,7 @@ import { FiltersState } from "@/app/(public)/list/page";
 import { FilterKey, FilterValue } from "@/types/details/dynamicFilter";
 import { sortType } from "@/types/list/sort";
 import { usePagination } from "./PaginationContext";
+import { searchFilterKeywords } from "@/types/list/searchFilterKeywords";
 
 export type ExtraFiltersState = {
     workType?: string;
@@ -28,6 +29,9 @@ type SearchContextType = {
     sorts: sortType;
     setSorting: (key: "sort", value: string) => void;
 
+    searchFilterKeywords: searchFilterKeywords;
+    setSearchFilterKeywords: (key: keyof searchFilterKeywords, value?: string) => void;
+
     clearFilters: () => void;
 };
 const MAX_RECENT = 5;
@@ -45,8 +49,9 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     const [recentSearches, setRecentSearches] = useState<search[]>([]);
     const { setOffset } = usePagination();
     const [sorts, setSort] = useState<sortType>({ sort: "IdDesc" });
+    const [searchFilterKeywords, setSearchFilterKeywordsState] = useState<searchFilterKeywords>({skillName: "", educationName: "", benefitName: ""});
 
-    const clearFilters = () => { setFilters({}); setExtraFilters({}); setSearch({ category: "", city: "", keyword: "" }); setOffset(0); }
+    const clearFilters = () => { setFilters({}); setExtraFilters({}); setSearch({ category: "", city: "", keyword: "" }); setOffset(0); setSearchFilterKeywordsState({skillName: "", educationName: "", benefitName: ""}) }
 
     const toggleFilter = (key: FilterKey, value: FilterValue) => {
         setOffset(0);
@@ -64,7 +69,16 @@ export function SearchProvider({ children }: { children: ReactNode }) {
         setSort(prev => ({ ...prev, [key]: value }));
 
     };
-
+    const setSearchFilterKeywords = (
+        key: keyof searchFilterKeywords,
+        value?: string
+    ) => {
+        setOffset(0);
+        setSearchFilterKeywordsState(prev => ({
+            ...prev,
+            [key]: value ?? "",
+        }));
+    };
     const addRecentSearch = (next: search) => {
         setRecentSearches(prev => {
             const filtered = prev.filter(
@@ -95,10 +109,12 @@ export function SearchProvider({ children }: { children: ReactNode }) {
             filters,
             extraFilters,
             recentSearches,
+            searchFilterKeywords,
             sorts,
             setSorting,
             addRecentSearch,
             setExtraFilter,
+            setSearchFilterKeywords,
             toggleFilter,
             clearFilters,
         }}>

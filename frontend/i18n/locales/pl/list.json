@@ -10,5 +10,6 @@
     "experienceFilter": "Doświadczenie (stopień)",
     "experienceYears": "Doświadczenie (lata)",
     "educationFilter": "Edukacja (stopień)",
-    "languagesFilter": "Języki"
+    "languagesFilter": "Języki",
+    "noDefinedLabel": "Nie zdefiniowano"
 }
