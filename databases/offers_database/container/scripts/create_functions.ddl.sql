@@ -151,7 +151,7 @@ BEGIN
     FROM public.offers o
     JOIN public.companies c        ON c.id = o.company_id
     JOIN public.sources   s        ON s.id = o.source_id
-    LEFT JOIN public.external_offers   eo ON eo.offer_id = o.id
+    JOIN public.external_offers   eo ON eo.offer_id = o.id
     LEFT JOIN public.location_details  ld ON ld.id = o.location_detail_id
     LEFT JOIN public.cities            ci ON ci.id = ld.city_id
     LEFT JOIN public.streets           st ON st.id = ld.street_id
@@ -184,20 +184,20 @@ BEGIN
       )
       AND (
             (p_salary_from IS NULL AND p_salary_to IS NULL)
-         OR (
-              (
-                (p_salary_from IS NULL OR o.salary_from IS NULL OR o.salary_from >= p_salary_from)
+            OR (
+                (
+                (p_salary_from IS NULL OR o.salary_from IS NULL OR o.salary_from = 0 OR o.salary_from >= p_salary_from)
                 AND
-                (p_salary_to   IS NULL OR o.salary_to   IS NULL OR o.salary_to   <= p_salary_to)
-              )
-              OR
-              (
-                (p_salary_from IS NULL OR o.salary_from IS NULL OR o.salary_from >= (p_salary_from / 160.0))
+                (p_salary_to   IS NULL OR o.salary_to   IS NULL OR o.salary_to   = 0 OR o.salary_to   <= p_salary_to)
+                )
+                OR
+                (
+                (p_salary_from IS NULL OR o.salary_from IS NULL OR o.salary_from = 0 OR o.salary_from >= (p_salary_from / 160.0))
                 AND
-                (p_salary_to   IS NULL OR o.salary_to   IS NULL OR o.salary_to   <= (p_salary_to   / 160.0))
-              )
+                (p_salary_to   IS NULL OR o.salary_to   IS NULL OR o.salary_to   = 0 OR o.salary_to   <= (p_salary_to   / 160.0))
+                )
             )
-          )
+        )
       AND (
         p_salary_currency IS NULL
         OR lower(cur.currency) = lower(p_salary_currency)
