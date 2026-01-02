@@ -42,6 +42,12 @@ CREATE OR REPLACE FUNCTION public.search_external_offers_by_keywords(
   p_salary_to            NUMERIC DEFAULT NULL,
   p_salary_currency      TEXT DEFAULT NULL,
   p_location_city        TEXT DEFAULT NULL,
+
+  -- NEW: filters by name (mapped to IDs inside)
+  p_salary_period        TEXT DEFAULT NULL,
+  p_employment_schedule  TEXT DEFAULT NULL,
+  p_employment_type      TEXT DEFAULT NULL,
+
   p_is_remote            BOOLEAN DEFAULT NULL,
   p_is_hybrid            BOOLEAN DEFAULT NULL,
   p_user_latitude        DOUBLE PRECISION DEFAULT NULL,
@@ -54,7 +60,48 @@ RETURNS SETOF JSONB
 LANGUAGE plpgsql
 STABLE
 AS $$
+DECLARE
+  v_salary_period_id       SMALLINT;
+  v_employment_schedule_id SMALLINT;
+  v_employment_type_id     SMALLINT;
 BEGIN
+  -- Map "name" -> "id" (case-insensitive). If provided but not found -> return empty set.
+  IF p_salary_period IS NOT NULL THEN
+    SELECT sp.id
+      INTO v_salary_period_id
+    FROM public.salary_periods sp
+    WHERE lower(sp.period) = lower(p_salary_period)
+    LIMIT 1;
+
+    IF v_salary_period_id IS NULL THEN
+      RETURN;
+    END IF;
+  END IF;
+
+  IF p_employment_schedule IS NOT NULL THEN
+    SELECT es.id
+      INTO v_employment_schedule_id
+    FROM public.employment_schedules es
+    WHERE lower(es.schedule) = lower(p_employment_schedule)
+    LIMIT 1;
+
+    IF v_employment_schedule_id IS NULL THEN
+      RETURN;
+    END IF;
+  END IF;
+
+  IF p_employment_type IS NOT NULL THEN
+    SELECT et.id
+      INTO v_employment_type_id
+    FROM public.employment_types et
+    WHERE lower(et.type) = lower(p_employment_type)
+    LIMIT 1;
+
+    IF v_employment_type_id IS NULL THEN
+      RETURN;
+    END IF;
+  END IF;
+
   RETURN QUERY
   WITH base AS (
     SELECT
@@ -104,7 +151,7 @@ BEGIN
     FROM public.offers o
     JOIN public.companies c        ON c.id = o.company_id
     JOIN public.sources   s        ON s.id = o.source_id
-    LEFT JOIN public.external_offers   eo ON eo.offer_id = o.id
+    JOIN public.external_offers   eo ON eo.offer_id = o.id
     LEFT JOIN public.location_details  ld ON ld.id = o.location_detail_id
     LEFT JOIN public.cities            ci ON ci.id = ld.city_id
     LEFT JOIN public.streets           st ON st.id = ld.street_id
@@ -114,7 +161,6 @@ BEGIN
     LEFT JOIN public.leading_categories lc ON lc.id = o.leading_category_id
     WHERE
       (
-        -- Keyword filter: job title OR company name OR description OR skill name
         p_keywords IS NULL
         OR EXISTS (
           SELECT 1
@@ -132,43 +178,58 @@ BEGIN
             )
         )
       )
-      -- Case-insensitive leading category filter
       AND (
         p_leading_category IS NULL
         OR lower(lc.leading_category) = lower(p_leading_category)
       )
-
-      -- salary filter: always check TWO ranges:
-      -- 1) [p_salary_from, p_salary_to]
-      -- 2) [p_salary_from / 240, p_salary_to / 240]
-      -- Offers with NULL salary_from / salary_to are kept (same behavior as before).
       AND (
-            -- no salary filter when both params are NULL
             (p_salary_from IS NULL AND p_salary_to IS NULL)
-         OR (
-              -- monthly-like range
-              (
-                (p_salary_from IS NULL OR o.salary_from IS NULL OR o.salary_from >= p_salary_from)
+            OR (
+                (
+                (p_salary_from IS NULL OR o.salary_from IS NULL OR o.salary_from = 0 OR o.salary_from >= p_salary_from)
                 AND
-                (p_salary_to   IS NULL OR o.salary_to   IS NULL OR o.salary_to   <= p_salary_to)
-              )
-              OR
-              -- hourly-like range (bieda conversion: divide by 160)
-              (
-                (p_salary_from IS NULL OR o.salary_from IS NULL OR o.salary_from >= (p_salary_from / 160.0))
+                (p_salary_to   IS NULL OR o.salary_to   IS NULL OR o.salary_to   = 0 OR o.salary_to   <= p_salary_to)
+                )
+                OR
+                (
+                (p_salary_from IS NULL OR o.salary_from IS NULL OR o.salary_from = 0 OR o.salary_from >= (p_salary_from / 160.0))
                 AND
-                (p_salary_to   IS NULL OR o.salary_to   IS NULL OR o.salary_to   <= (p_salary_to   / 160.0))
-              )
+                (p_salary_to   IS NULL OR o.salary_to   IS NULL OR o.salary_to   = 0 OR o.salary_to   <= (p_salary_to   / 160.0))
+                )
             )
-          )
-
-      -- Case-insensitive salary currency filter
+        )
       AND (
         p_salary_currency IS NULL
         OR lower(cur.currency) = lower(p_salary_currency)
       )
 
       AND (p_location_city IS NULL OR ci.city ILIKE '%' || p_location_city || '%')
+
+      -- NEW: salary period by ID (single-valued on offers)
+      AND (v_salary_period_id IS NULL OR o.salary_period_id = v_salary_period_id)
+
+      -- NEW: employment type by ID (many-to-many)
+      AND (
+        v_employment_type_id IS NULL
+        OR EXISTS (
+          SELECT 1
+          FROM public.employment_types_junction etj
+          WHERE etj.offer_id = o.id
+            AND etj.employment_type_id = v_employment_type_id
+        )
+      )
+
+      -- NEW: employment schedule by ID (many-to-many)
+      AND (
+        v_employment_schedule_id IS NULL
+        OR EXISTS (
+          SELECT 1
+          FROM public.employment_schedules_junction esj
+          WHERE esj.offer_id = o.id
+            AND esj.employment_schedule_id = v_employment_schedule_id
+        )
+      )
+
       AND (p_is_remote IS NULL OR o.is_remote = p_is_remote)
       AND (p_is_hybrid IS NULL OR o.is_hybrid = p_is_hybrid)
   ),
@@ -296,12 +357,13 @@ BEGIN
            'isForUkrainians', b.is_for_ukrainians
          ) AS uos
   FROM filtered b
-    ORDER BY
-    b.id ASC
+  ORDER BY b.id ASC
   LIMIT COALESCE(p_limit, 9223372036854775807)
   OFFSET COALESCE(p_offset, 0);
+
 END;
 $$;
+
 
 CREATE OR REPLACE FUNCTION public.get_sources_dict()
 RETURNS JSONB
