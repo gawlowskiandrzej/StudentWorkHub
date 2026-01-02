@@ -393,6 +393,9 @@ namespace OffersConnector
             decimal? salaryTo = null,
             string? salaryCurrency = null,
             string? locationCity = null,
+            string? salaryPeriod = null,
+            string? employmentSchedule = null,
+            string? employmentType = null,
             bool? isRemote = null,
             bool? isHybrid = null,
             double? userLatitude = null,
@@ -411,6 +414,9 @@ namespace OffersConnector
                 @p_salary_to,
                 @p_salary_currency,
                 @p_location_city,
+                @p_salary_period,
+                @p_employment_schedule,
+                @p_employment_type,
                 @p_is_remote,
                 @p_is_hybrid,
                 @p_user_latitude,
@@ -461,6 +467,21 @@ namespace OffersConnector
                 command.Parameters.Add(new NpgsqlParameter("p_location_city", NpgsqlDbType.Text)
                 {
                     Value = (object?)locationCity ?? DBNull.Value
+                });
+
+                command.Parameters.Add(new NpgsqlParameter("p_salary_period", NpgsqlDbType.Text)
+                {
+                    Value = (object?)salaryPeriod ?? DBNull.Value
+                });
+
+                command.Parameters.Add(new NpgsqlParameter("p_employment_schedule", NpgsqlDbType.Text)
+                {
+                    Value = (object?)employmentSchedule ?? DBNull.Value
+                });
+
+                command.Parameters.Add(new NpgsqlParameter("p_employment_type", NpgsqlDbType.Text)
+                {
+                    Value = (object?)employmentType ?? DBNull.Value
                 });
 
                 command.Parameters.Add(new NpgsqlParameter("p_is_remote", NpgsqlDbType.Boolean)
