@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Offer_collector.Models;
 using Offer_collector.Models.AI;
@@ -6,9 +7,11 @@ using Offer_collector.Models.DatabaseService;
 using Offer_collector.Models.UrlBuilders;
 using offer_manager.Interfaces;
 using offer_manager.Models.FilterService;
+using offer_manager.Models.Offers.dtoObjects;
 using offer_manager.Models.Others;
 using offer_manager.Models.PaginationService;
 using offer_manager.Models.WorkerService;
+using shared_models.Dto;
 using StackExchange.Redis;
 using System.Collections.Frozen;
 using System.ComponentModel;
@@ -25,27 +28,37 @@ namespace offer_manager.Controllers
     {
         private readonly IWorkerService _workerService;
         private readonly DBService _databaseService;
+        private readonly IMapper _mapper;
         private readonly PaginationService _pagination;
         private readonly FilterService _filterService;
         private readonly StaticSettings _statSettings;
         private readonly AIProcessor _aiService;
 
-        public OfferController(IWorkerService workerService, PaginationService pagination, FilterService filterService, StaticSettings statSettings, AIProcessor aiService, DBService databaseService)
+        public OfferController(IWorkerService workerService, PaginationService pagination, FilterService filterService, StaticSettings statSettings, AIProcessor aiService, DBService databaseService, IMapper mapper)
         {
             _workerService = workerService;
             _databaseService = databaseService;
+            _mapper = mapper;
             _pagination = pagination;
             _filterService = filterService;
             _statSettings = statSettings;
             _aiService = aiService;
         }
 
-        [HttpGet("getOffersDatabase")]
-        public async Task<IActionResult> GetOffersFromDatabase(SearchFilters searchFilter, int pageOffset = 0, int offerPerpage = -1)
+        [HttpPost("offers-database")]
+        public async Task<IActionResult> GetOffersFromDatabase(SearchDto searchFilter, int pageOffset = 0, int perpage = -1)
         {
             FrozenSet<UOS?> dbOffers = await _databaseService.GetOffers(searchFilter);
 
-            PaginationResponse paginationResponse = _pagination.CreatePagedResult(dbOffers.Where(o => o != null).Cast<UOS>(), pageOffset, offerPerpage);
+            var filteredOffers = dbOffers
+            .Where(o => o != null)
+            .Where(o => string.IsNullOrEmpty(searchFilter.EmploymentType) || o!.Employment.Types.Contains(searchFilter.EmploymentType))
+            .Where(o => string.IsNullOrEmpty(searchFilter.SalaryPeriod) || o!.Salary.Period == searchFilter.SalaryPeriod)
+            .Where(o => string.IsNullOrEmpty(searchFilter.EmploymentSchedule) || o!.Employment.Schedules.Contains(searchFilter.EmploymentSchedule)).Cast<UOS>();
+
+            List<OfferDTO> offersDTO = _mapper.Map<List<OfferDTO>>(filteredOffers);
+
+            PaginationResponse<OfferDTO> paginationResponse = _pagination.CreatePagedResult(offersDTO, pageOffset, perpage);
 
             return Ok(new
             {
@@ -55,7 +68,7 @@ namespace offer_manager.Controllers
         }
 
         // GET api/<OfferController>/5
-        [HttpGet("getOffersScrapped")]
+        [HttpGet("offers-scrapped")]
         public async Task<IActionResult> GetScrappedOffers([FromBody] jobIdsDto jobIds, int batchId = -1, bool usedAi = false, bool addToDatabase = false)
         {
 

@@ -11,6 +11,10 @@
         StudentPractice = 7,         
         Volunteering = 8
     }
+    public enum SalaryPeriod
+    {
+        None = 0,
+    }
     public enum WorkTimeType
     {
         FullTimeStandardHours = 1,     

@@ -1,5 +1,4 @@
-﻿using Offer_collector.Models;
-using Offer_collector.Models.UrlBuilders;
+﻿using shared_models.Dto;
 using System.Collections.Frozen;
 using UnifiedOfferSchema;
 
@@ -9,6 +8,6 @@ namespace offer_manager.Interfaces
     {
         Task<(bool, List<string>)> AddOffersToDatabaseAsync(List<string> aiOffers);
         Task<Dictionary<string, string>> GetSystemPromptParamsAsync();
-        Task<FrozenSet<UOS?>> GetOffers(SearchFilters searchFilters);
+        Task<FrozenSet<UOS?>> GetOffers(SearchDto searchFilters);
     }
 }

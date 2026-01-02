@@ -1,8 +1,9 @@
+import { language } from "../list/Offer/language";
+
 export interface ApiDynamicFilters {
-  languagesNames: string[];
-  languagesLevels: string[];
-  experienceMonths: number[];
+  languages: language[];
   experienceLevels: string[];
+  educationNames: string[];
 }
 
 export type FilterValue = string | number;

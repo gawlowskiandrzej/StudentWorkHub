@@ -1,8 +1,9 @@
 ﻿using LLMParser;
 using Newtonsoft.Json;
-using Offer_collector.Models.UrlBuilders;
 using offer_manager.Interfaces;
+using offer_manager.Models.Dictionaries;
 using OffersConnector;
+using shared_models.Dto;
 using System.Collections.Frozen;
 using UnifiedOfferSchema;
 
@@ -69,7 +70,7 @@ namespace Offer_collector.Models.DatabaseService
             }
         }
 
-        public async Task<FrozenSet<UOS?>> GetOffers(SearchFilters searchFilters)
+        public async Task<FrozenSet<UOS?>> GetOffers(SearchDto searchFilters)
         {
             try
             {
@@ -104,6 +105,25 @@ namespace Offer_collector.Models.DatabaseService
                 { "TASK", Prompts.descriptionInformationExtratorTask },
                 { "RESTRICTIONS", joinedRestrictions }
             };
+        }
+
+        public async Task<DictionariesDto> GetDictionaries(List<string> dicNames)
+        {
+            try
+            {
+                var dictionaries = await connector.GetSimpleLookups(dicNames);
+                return new DictionariesDto
+                {
+                    EmploymentSchedules = dictionaries[dicNames[0]].Select(_ => _.Value).ToList(),
+                    EmploymentType = dictionaries[dicNames[1]].Select(_ => _.Value).ToList(),
+                    SalaryPeriods = dictionaries[dicNames[2]].Select(_ => _.Value).ToList()
+                };
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+           
         }
     }
 }

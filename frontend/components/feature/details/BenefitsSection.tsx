@@ -43,7 +43,7 @@ export function BenefitsSection({ benefits }: benefitsSection) {
                 </div>
 
                 <div className={`${detailsStyles["skill-section-content"]} thight-section`}>
-                    {benefits ? Array.from({ length: rowsCount }).map((_, rowIndex) => {
+                    {(benefits && benefits.length > 0) ? Array.from({ length: rowsCount }).map((_, rowIndex) => {
                         const start = rowIndex * BENEFITS_PER_ROW;
                         const rowItems = visibleBenefits?.slice(
                             start,

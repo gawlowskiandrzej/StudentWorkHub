@@ -34,7 +34,7 @@ export function EducationSection({ educations }: educationSection) {
                     <div className={detailsStyles["line-10"]}></div>
                 </div>
                 <div className={detailsStyles["skill-section-content thight-section"]}>
-                    {educations ? Array.from({ length: rowsCount }).map((_, rowIndex) => {
+                    {(educations && educations.length > 0) ? Array.from({ length: rowsCount }).map((_, rowIndex) => {
                         const start = rowIndex * EDUCATION_PER_ROW;
                         const rowItems = visibleEducation?.slice(
                             start,
