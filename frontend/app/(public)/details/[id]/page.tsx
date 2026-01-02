@@ -13,16 +13,18 @@ import { InfoSection } from "@/components/feature/details/InfoSection";
 import detailsStyles from '../../../../styles/OfferDetails.module.css';
 import buttonStyles from '../../../../styles/ButtonStyle.module.css';
 import { useTranslation } from "react-i18next";
+import { useOffers } from "@/store/OffersContext";
 
 export default function DetailsPage() {
     const params = useParams();
     const id = params.id as string;
     const router = useRouter();
-    const {t} = useTranslation("details");
+    const { offersResponse, loading, error } = useOffers();
+    const { t } = useTranslation("details");
     function goBackToListView() {
         router.back();
     };
-    const offer = offersJson.pagination.items.find(
+    const offer = offersResponse?.pagination.items.find(
         (item) => item.id === Number(id)
     );
     if (!offer) {
@@ -39,80 +41,80 @@ export default function DetailsPage() {
         : '/icons/company0.svg';
     return (
         <div className={detailsStyles["offer-details-view"]}>
-    <div className={detailsStyles["offer-details-view-navigation"]}>
-        <div className={`${detailsStyles["go-back-button"]} ${detailsStyles["scale-hover"]}`}>
-            <div
-                className={`flex flex-row items-center self-stretch text-left justify-start cursor-pointer gap-3`}
-                onClick={() => goBackToListView()}
-            >
-                <ArrowLeft className={`secondary ${detailsStyles["chevron-left"]}`} /> {t("goBackButton")}
-            </div>
-        </div>
-        <div className={detailsStyles["categories-header"]}>
-            <div className={detailsStyles["leading-category"]}>{offer.category.leadingCategory}</div>
-            <ChevronRight />
-            {offer.category.subCategories ? (
-                <div className={detailsStyles["subcategory-subcategory"]}>
-                    {offer.category.subCategories?.join(" / ")}
+            <div className={detailsStyles["offer-details-view-navigation"]}>
+                <div className={`${detailsStyles["go-back-button"]} ${detailsStyles["scale-hover"]}`}>
+                    <div
+                        className={`flex flex-row items-center self-stretch text-left justify-start cursor-pointer gap-3`}
+                        onClick={() => goBackToListView()}
+                    >
+                        <ArrowLeft className={`secondary ${detailsStyles["chevron-left"]}`} /> {t("goBackButton")}
+                    </div>
                 </div>
-            ) : (
-                <div className={detailsStyles["subcategory-subcategory"]}>{t("noSubCategories")}</div>
-            )}
-        </div>
-    </div>
-
-    <div className={detailsStyles["offer-details-view-content"]}>
-        <div className={detailsStyles["general-details"]}>
-            <div className={detailsStyles["general-header"]}>
-                <div className={detailsStyles["companyWrapper"]}>
-                    <img className={detailsStyles["company"]} src={logoUrl} />
-                </div>
-                <div className={detailsStyles["header-of-details"]}>
-                    <div className={detailsStyles["job-main-info"]}>
-                        <div className={detailsStyles["frame-53"]}>
-                            <div className={detailsStyles["job-title"]}>{offer.jobTitle}</div>
-                            <div className={detailsStyles["company-name"]}>{offer.company.name}</div>
+                <div className={detailsStyles["categories-header"]}>
+                    <div className={detailsStyles["leading-category"]}>{offer.category.leadingCategory}</div>
+                    <ChevronRight />
+                    {offer.category.subCategories ? (
+                        <div className={detailsStyles["subcategory-subcategory"]}>
+                            {offer.category.subCategories?.join(" / ")}
                         </div>
-                        <div className={detailsStyles["frame-73"]}>
-                            <div className={detailsStyles["_100-200-z"]}>
-                                {offer.salary.from != null && offer.salary.to != null
-                                    ? `${formatSalaryValue(offer.salary.from)} ${offer.salary.currency} - ${formatSalaryValue(offer.salary.to)} ${offer.salary.currency} / ${offer.salary.period}`
-                                    : t("noSalary")}
+                    ) : (
+                        <div className={detailsStyles["subcategory-subcategory"]}>{t("noSubCategories")}</div>
+                    )}
+                </div>
+            </div>
+
+            <div className={detailsStyles["offer-details-view-content"]}>
+                <div className={detailsStyles["general-details"]}>
+                    <div className={detailsStyles["general-header"]}>
+                        <div className={detailsStyles["companyWrapper"]}>
+                            <img className={detailsStyles["company"]} src={logoUrl} />
+                        </div>
+                        <div className={detailsStyles["header-of-details"]}>
+                            <div className={detailsStyles["job-main-info"]}>
+                                <div className={detailsStyles["frame-53"]}>
+                                    <div className={detailsStyles["job-title"]}>{offer.jobTitle}</div>
+                                    <div className={detailsStyles["company-name"]}>{offer.company.name}</div>
+                                </div>
+                                <div className={detailsStyles["frame-73"]}>
+                                    <div className={detailsStyles["_100-200-z"]}>
+                                        {offer.salary.from != null && offer.salary.to != null
+                                            ? `${formatSalaryValue(offer.salary.from)} ${offer.salary.currency} - ${formatSalaryValue(offer.salary.to)} ${offer.salary.currency} / ${offer.salary.period}`
+                                            : t("noSalary")}
+                                    </div>
+                                </div>
                             </div>
+                            <ProgressBar
+                                progress={progress}
+                                expiresAt={new Date(offer.dates.expires)}
+                            />
                         </div>
                     </div>
-                    <ProgressBar
-                        progress={progress}
-                        expiresAt={new Date(offer.dates.expires)}
-                    />
+
+                    <div className={detailsStyles["line-6"]}></div>
+
+                    <InfoSection offer={offer} />
+                    <SkillsSection offerSkills={offer.requirements.skills ?? []} />
+                    <LanguageSection languages={offer.requirements.languages ?? []} />
+                    <EducationSection educations={offer.requirements.education} />
+                    <BenefitsSection benefits={offer.benefits} />
+
+                    <div
+                        className={buttonStyles["main-button"]}
+                        onClick={() => window.open(offer.url, "_blank", "noopener,noreferrer")}
+                    >
+                        <div className={buttonStyles["find-mathing-job"]}>{t("goToOfferPage")}</div>
+                    </div>
+                </div>
+
+                <div className={detailsStyles["right-column-details"]}>
+                    <div
+                        className={buttonStyles["main-button"]}
+                        onClick={() => window.open(offer.url, "_blank", "noopener,noreferrer")}
+                    >
+                        <div className={buttonStyles["find-mathing-job"]}>{t("goToOfferPage")}</div>
+                    </div>
                 </div>
             </div>
-
-            <div className={detailsStyles["line-6"]}></div>
-
-            <InfoSection offer={offer} />
-            <SkillsSection offerSkills={offer.requirements.skills} />
-            <LanguageSection languages={offer.requirements.languages} />
-            <EducationSection educations={offer.requirements.education} />
-            <BenefitsSection benefits={offer.benefits} />
-
-            <div
-                className={buttonStyles["main-button"]}
-                onClick={() => window.open(offer.url, "_blank", "noopener,noreferrer")}
-            >
-                <div className={buttonStyles["find-mathing-job"]}>{t("goToOfferPage")}</div>
-            </div>
         </div>
-
-        <div className={detailsStyles["right-column-details"]}>
-            <div
-                className={buttonStyles["main-button"]}
-                onClick={() => window.open(offer.url, "_blank", "noopener,noreferrer")}
-            >
-                <div className={buttonStyles["find-mathing-job"]}>{t("goToOfferPage")}</div>
-            </div>
-        </div>
-    </div>
-</div>
     );
 }

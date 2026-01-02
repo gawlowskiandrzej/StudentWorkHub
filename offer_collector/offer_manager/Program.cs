@@ -1,9 +1,11 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Offer_collector.Models.AI;
 using Offer_collector.Models.DatabaseService;
 using offer_manager.Interfaces;
 using offer_manager.Models.FilterService;
 using offer_manager.Models.Others;
+using offer_manager.Models.Others.AutoMapper;
 using offer_manager.Models.PaginationService;
 using offer_manager.Models.Users;
 using offer_manager.Models.WorkerService;
@@ -23,14 +25,34 @@ namespace offer_manager
 
             var redisConfig = builder.Configuration.GetSection("RedisServer");
             var apiKeysConfig = builder.Configuration.GetSection("ApiKeys");
+            var frontendConfig = builder.Configuration.GetSection("Frontend");
             var geminiKey = apiKeysConfig.GetValue<string>("GeminiKey");
             builder.Services.Configure<StaticSettings>(
                 builder.Configuration.GetSection("StaticSettings")
             );
             string redisHostname = redisConfig.GetValue<string>("Host") ?? "";
             int redisPort = redisConfig.GetValue<int>("Port");
+            int portProdApi = frontendConfig.GetValue<int>("PortProdApi");
+            int portDevApi = frontendConfig.GetValue<int>("PortDevApi");
+            int portDevFront = frontendConfig.GetValue<int>("PortDev");
+            string ipDevFront = frontendConfig.GetValue<string>("IpDev") ?? "";
+            string ipProdApi = frontendConfig.GetValue<string>("IpProdApi") ?? "";
+            string ipDevApi = frontendConfig.GetValue<string>("IpDevApi") ?? "";
+
 
             DatabaseSettings dbSettings = builder.Configuration.GetSection("DatabaseSettings").Get<DatabaseSettings>() ?? new DatabaseSettings();
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend", policy =>
+                {
+                    policy.WithOrigins($"http://{ipDevApi}:{portDevApi}", $"https://{ipDevApi}:{portDevApi}", $"http://{ipProdApi}:{portProdApi}", $"https://{ipProdApi}:{portProdApi}", $"http://{ipDevFront}:{portDevFront}", $"https://{ipDevFront}:{portDevFront}")
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                });
+            });
+
+            builder.Services.AddAutoMapper(typeof(OfferProfile));
 
             builder.Services.AddSingleton(sp =>
                 sp.GetRequiredService<IOptions<StaticSettings>>().Value
@@ -39,19 +61,19 @@ namespace offer_manager
 
             builder.Services.AddSingleton(new DBService(dbSettings.Username, dbSettings.Password, dbSettings.Host, dbSettings.Port, dbSettings.Database));
 
-            builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-            {
-                var options = ConfigurationOptions.Parse($"{redisHostname}:{redisPort}");
-                options.AllowAdmin = true;
+            //builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+            //{
+            //    var options = ConfigurationOptions.Parse($"{redisHostname}:{redisPort}");
+            //    options.AllowAdmin = true;
 
-                var redis = ConnectionMultiplexer.Connect(options);
+            //    var redis = ConnectionMultiplexer.Connect(options);
 
-                var server = redis.GetServer(redisHostname ?? "", redisPort);
-                server.FlushDatabase();
+            //    var server = redis.GetServer(redisHostname ?? "", redisPort);
+            //    server.FlushDatabase();
 
-                return redis;
-            });
-
+            //    return redis;
+            //});
+           
             builder.Services.AddScoped<IWorkerService, WorkerService>();
             builder.Services.AddScoped<PaginationService>();
             builder.Services.AddScoped<FilterService>();
@@ -97,11 +119,11 @@ namespace offer_manager
 
             var app = builder.Build();
 
+            app.UseCors("AllowFrontend");
+            app.UseHttpsRedirection();
+
             app.UseSwagger();
             app.UseSwaggerUI();
-            // Configure the HTTP request pipeline.
-
-            app.UseHttpsRedirection();
             //app.UseAuthorization();
 
             app.MapControllers();

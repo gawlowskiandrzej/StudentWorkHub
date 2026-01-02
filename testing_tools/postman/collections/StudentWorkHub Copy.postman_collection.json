@@ -74,6 +74,7 @@
       },
       "request": {
         "method": "GET",
+        "header": [],
         "body": {
           "mode": "raw",
           "raw": "",
@@ -104,13 +105,15 @@
             }
           ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "create_scrapped_offers_request",
       "id": "218ea751-c7d4-4cef-b7f5-e6f30fa8e512",
       "request": {
         "method": "POST",
+        "header": [],
         "body": {
           "mode": "raw",
           "raw": "",
@@ -136,7 +139,8 @@
             }
           ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "get_offers_fromdatabase",
@@ -177,7 +181,20 @@
             "getOffersDatabase"
           ]
         }
-      }
+      },
+      "response": []
+    },
+    {
+      "name": "get_search_dictionaries",
+      "id": "f4fac1ae-1481-49ef-a7ba-a31bb1762c5b",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": ""
+        }
+      },
+      "response": []
     }
   ],
   "variable": [

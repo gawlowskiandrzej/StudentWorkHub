@@ -11,6 +11,10 @@ namespace offer_manager.Models.WorkerService
     {
         private readonly IConnectionMultiplexer _redis;
 
+        public WorkerService()
+        {
+            
+        }
         public WorkerService(IConnectionMultiplexer redis)
         {
             _redis = redis;

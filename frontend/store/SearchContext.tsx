@@ -8,9 +8,9 @@ import { usePagination } from "./PaginationContext";
 import { searchFilterKeywords } from "@/types/list/searchFilterKeywords";
 
 export type ExtraFiltersState = {
-    workType?: string;
-    workTime?: string;
     employmentType?: string;
+    employmentSchedules?: string;
+    salaryPeriods?: string;
     salary?: string;
 };
 type SearchContextType = {
@@ -32,6 +32,7 @@ type SearchContextType = {
     searchFilterKeywords: searchFilterKeywords;
     setSearchFilterKeywords: (key: keyof searchFilterKeywords, value?: string) => void;
 
+    clearAll: () => void;
     clearFilters: () => void;
 };
 const MAX_RECENT = 5;
@@ -51,8 +52,8 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     const [sorts, setSort] = useState<sortType>({ sort: "IdDesc" });
     const [searchFilterKeywords, setSearchFilterKeywordsState] = useState<searchFilterKeywords>({skillName: "", educationName: "", benefitName: ""});
 
-    const clearFilters = () => { setFilters({}); setExtraFilters({}); setSearch({ category: "", city: "", keyword: "" }); setOffset(0); setSearchFilterKeywordsState({skillName: "", educationName: "", benefitName: ""}) }
-
+    const clearAll = () => { setFilters({}); setExtraFilters({}); setSearch({ category: "", city: "", keyword: "" }); setOffset(0); setSearchFilterKeywordsState({skillName: "", educationName: "", benefitName: ""}) }
+    const clearFilters = () => {setExtraFilters({});setSearchFilterKeywordsState({skillName: "", educationName: "", benefitName: ""}); setOffset(0);}
     const toggleFilter = (key: FilterKey, value: FilterValue) => {
         setOffset(0);
         setFilters(prev => {
@@ -116,7 +117,8 @@ export function SearchProvider({ children }: { children: ReactNode }) {
             setExtraFilter,
             setSearchFilterKeywords,
             toggleFilter,
-            clearFilters,
+            clearAll,
+            clearFilters
         }}>
             {children}
         </SearchContext.Provider>

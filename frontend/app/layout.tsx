@@ -6,6 +6,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { SearchProvider } from "@/store/SearchContext";
 import { PaginationProvider } from "@/store/PaginationContext";
+import { OffersProvider } from "@/store/OffersContext";
 
 const roboto = Roboto({
   weight: '400',
@@ -32,13 +33,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pl" className={roboto.className}>
       <body>
         <I18nProvider>
-          <PaginationProvider>
-            <Navbar />
-            <SearchProvider>
-              <main className="min-h-screen">{children}</main>
-            </SearchProvider>
-            <Footer />
-          </PaginationProvider>
+          
+            <PaginationProvider>
+              <Navbar />
+              <SearchProvider>
+                <OffersProvider>
+                <main className="min-h-screen">{children}</main>
+                </OffersProvider>
+              </SearchProvider>
+              <Footer />
+            </PaginationProvider>
         </I18nProvider>
       </body>
     </html>

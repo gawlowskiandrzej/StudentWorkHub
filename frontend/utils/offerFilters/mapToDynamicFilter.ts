@@ -1,25 +1,27 @@
-import { ApiDynamicFilters, dynamicFilter } from "@/types/details/dynamicFilter";
+import { dynamicFilterResponse } from "@/types/api/offer";
+import { dynamicFilter } from "@/types/details/dynamicFilter";
 
 export function mapApiFilters(
-  api: ApiDynamicFilters
+  api?: dynamicFilterResponse
 ): dynamicFilter[] {
+  if (!api) return [];
   return [
-    {
-      key: "languages",
-      header: "Języki",
-      items: api.languagesNames.map(name => ({
-        label: name,
-        value: name.toLowerCase(),
-      })),
-    },
-    {
-      key: "languageLevels",
-      header: "Poziom języka",
-      items: api.languagesLevels.map(level => ({
-        label: level,
-        value: level,
-      })),
-    },
+    // {
+    //   key: "languages",
+    //   header: "Języki",
+    //   items: api.languagesNames.map(name => ({
+    //     label: name,
+    //     value: name.toLowerCase(),
+    //   })),
+    // },
+    // {
+    //   key: "languageLevels",
+    //   header: "Poziom języka",
+    //   items: api.languagesLevels.map(level => ({
+    //     label: level,
+    //     value: level,
+    //   })),
+    // },
     // {
     //   key: "experienceMonths",
     //   header: "Doświadczenie (miesiące)",

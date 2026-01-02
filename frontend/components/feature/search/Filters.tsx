@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectTrigger,
@@ -10,6 +9,7 @@ import {
   SelectLabel,
   SelectItem,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { X } from "lucide-react";
 
 type FilterItem = {
@@ -24,23 +24,31 @@ export interface FilterProps {
   clearable?: boolean;
   items?: FilterItem[];
   value?: string | undefined;
+  loading?: boolean;
   onChange: (value: string) => void;
 }
 
-export function Filter({ label = "Options", className, variant, clearable = false, items, value, onChange }: FilterProps) {
+export function Filter({ label = "Options", className, variant, clearable = false, loading = false, items, value, onChange }: FilterProps) {
   // const itemsWithEmpty: FilterItem[] = [
   //   ...items,
   //   ...(clearable ? [{ label: "Wyczyść", value: "__clear__" }] : []),
   // ];
-
+  if (loading) {
+    return (
+      <div className="flex flex-row gap-3">
+        <Skeleton className="h-5 w-[100px] bg-primary" />
+        <Skeleton className="h-5 w-[20px] bg-primary" />
+      </div>
+    );
+  }
   return (
     <Select value={value} onValueChange={(val) =>
       onChange(val === "__clear__" ? "" : val)
     }>
       <SelectTrigger color={variant} className={`w-auto cursor-pointer border-0 m-0 ${className}`}>
-          <SelectValue placeholder={`${label}`} />
+        <SelectValue placeholder={`${label}`} />
       </SelectTrigger>
-       {(value !="" && value != undefined && clearable)? <X className="text-red-500 p-0 mr-2 cursor-pointer" size={16} onClick={() => onChange("")} /> : ""}
+      {(value != "" && value != undefined && clearable) ? <X className="text-red-500 p-0 mr-2 cursor-pointer" size={16} onClick={() => onChange("")} /> : ""}
 
       <SelectContent>
         <SelectGroup>

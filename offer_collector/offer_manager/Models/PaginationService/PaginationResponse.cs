@@ -2,9 +2,9 @@
 
 namespace offer_manager.Models.PaginationService
 {
-    public class PaginationResponse
+    public class PaginationResponse<T>
     {
-        public IEnumerable<UOS> Items { get; set; } = new List<UOS>();
+        public IEnumerable<T> Items { get; set; } = new List<T>();
         public int Page { get; set; }
         public int PageSize { get; set; }
         public long TotalItems { get; set; }
