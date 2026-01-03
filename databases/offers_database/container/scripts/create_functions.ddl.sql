@@ -580,3 +580,78 @@ AS $$
     )
     FROM public.sub_categories;
 $$;
+
+CREATE OR REPLACE FUNCTION public.get_external_offer_urls_array()
+RETURNS text[]
+LANGUAGE sql
+STABLE
+AS $$
+    SELECT array_agg(
+        rtrim(s.base_url, '/') || '/' || ltrim(eo.query_string, '/')
+        ORDER BY o.id
+    )
+    FROM public.offers o
+    JOIN public.external_offers eo ON eo.offer_id = o.id
+    JOIN public.sources s ON s.id = o.source_id;
+$$;
+
+CREATE OR REPLACE FUNCTION public.external_offer_exists(
+    p_full_url      text,
+    p_job_title     text DEFAULT NULL,
+    p_company_name  text DEFAULT NULL,
+    p_city          text DEFAULT NULL
+)
+RETURNS boolean
+LANGUAGE plpgsql
+STABLE
+AS $$
+DECLARE
+    v_source_id   smallint;
+    v_base_trim   text;
+    v_query_str   text;
+BEGIN
+    IF p_full_url IS NULL OR btrim(p_full_url) = '' THEN
+        RETURN FALSE;
+    END IF;
+
+    -- Find matching source by base_url (normalized without trailing slash)
+    SELECT s.id, rtrim(s.base_url, '/')
+    INTO v_source_id, v_base_trim
+    FROM public.sources s
+    WHERE p_full_url LIKE rtrim(s.base_url, '/') || '/%'
+       OR p_full_url = rtrim(s.base_url, '/')
+       OR p_full_url = rtrim(s.base_url, '/') || '/'
+    ORDER BY char_length(s.base_url) DESC
+    LIMIT 1;
+
+    IF v_source_id IS NULL THEN
+        RETURN FALSE;
+    END IF;
+
+    -- Extract query_string part (everything after base_url + '/')
+    IF p_full_url = v_base_trim OR p_full_url = v_base_trim || '/' THEN
+        RETURN FALSE; -- full URL without "rest of link" is not an offer
+    END IF;
+
+    v_query_str := substr(p_full_url, char_length(v_base_trim) + 2);
+    v_query_str := trim(both '/' from v_query_str);
+
+    IF v_query_str = '' THEN
+        RETURN FALSE;
+    END IF;
+
+    RETURN EXISTS (
+        SELECT 1
+        FROM public.offers o
+        JOIN public.external_offers eo ON eo.offer_id = o.id
+        JOIN public.companies c ON c.id = o.company_id
+        LEFT JOIN public.location_details ld ON ld.id = o.location_detail_id
+        LEFT JOIN public.cities ci ON ci.id = ld.city_id
+        WHERE o.source_id = v_source_id
+          AND trim(both '/' from eo.query_string) = v_query_str
+          AND (p_job_title    IS NULL OR o.job_title = p_job_title)
+          AND (p_company_name IS NULL OR c.name     = p_company_name)
+          AND (p_city         IS NULL OR ci.city    = p_city)
+    );
+END;
+$$;

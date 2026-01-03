@@ -115,5 +115,5 @@ SELECT setval(pg_get_serial_sequence('public.last_names','id'),
 SELECT setval(pg_get_serial_sequence('public.second_names','id'),
     (SELECT COALESCE(MAX(id),0) FROM public.second_names), true);
 
-SELECT setval(pg_get_serial_sequence('public.preferences','id'),
-    (SELECT COALESCE(MAX(id),0) FROM public.preferences), true);
+SELECT setval(pg_get_serial_sequence('public.preferences','user_id'),
+    (SELECT COALESCE(MAX(user_id),0) FROM public.preferences), true);
