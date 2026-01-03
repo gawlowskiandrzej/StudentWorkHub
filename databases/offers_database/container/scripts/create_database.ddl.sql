@@ -337,6 +337,9 @@ CREATE INDEX IF NOT EXISTS idx_offers_salary_period_id
     ON public.offers (salary_period_id);
 CREATE INDEX IF NOT EXISTS idx_offers_leading_category_id
     ON public.offers (leading_category_id);
+CREATE INDEX IF NOT EXISTS offers_expires_idx
+    ON public.offers (expires) 
+        WHERE expires IS NOT NULL;
 
 -- junction helpers
 CREATE INDEX IF NOT EXISTS idx_skills_junction_skill_offer
@@ -363,4 +366,3 @@ CREATE INDEX IF NOT EXISTS idx_benefits_junction_benefit_offer
 
 CREATE INDEX IF NOT EXISTS idx_sub_categories_junction_sub_offer
     ON public.sub_categories_junction (sub_category_id, offer_id);
-

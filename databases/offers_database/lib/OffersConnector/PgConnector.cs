@@ -1012,7 +1012,7 @@ namespace OffersConnector
         /// </returns>
         /// <exception cref="PgConnectorException">Thrown when a database error occurs.</exception>
         /// <exception cref="OperationCanceledException">Thrown if <paramref name="cancellationToken"/> is signaled.</exception>
-        public async Task<bool> ExternalOfferExists(
+        public async Task<bool> ExternalOfferExistsAsync(
             string fullUrl,
             string? jobTitle = null,
             string? companyName = null,
