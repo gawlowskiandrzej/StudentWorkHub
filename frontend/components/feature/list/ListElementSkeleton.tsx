@@ -5,10 +5,10 @@ import buttonStyles from "../../../styles/ButtonStyle.module.css";
 export function ListElementSkeleton() {
   return (
     <div
-      className={`${listStyles["offer-list-header"]} ${buttonStyles["scale-hover"]} min-h-[110px]`}
+      className={`${listStyles["offer-list-header"]} ${buttonStyles["scale-hover"]} min-h-[110px] border border-muted animate-pulse`}
     >
-      <div className={`${listStyles["companyWrapper"]} bg-primary`}>
-        <Skeleton className="w-full h-full rounded-md" />
+      <div>
+        <Skeleton className="w-[75px] h-[75px] rounded-md" />
       </div>
 
       <div className={listStyles["offer-header"]}>

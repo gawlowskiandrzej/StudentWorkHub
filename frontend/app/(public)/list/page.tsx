@@ -20,6 +20,7 @@ import { searchKeywordFilters } from "@/store/data/searchKeywordFilterData";
 import { ListElementSkeleton } from "@/components/feature/list/ListElementSkeleton";
 import { useMemo, useState } from "react";
 import { useOffers } from "@/store/OffersContext";
+import { DynamicFilterSkeleton } from "@/components/feature/list/DynamicFilterSkeleton";
 
 export type FiltersState = Partial<
   Record<FilterKey, Set<FilterValue>>
@@ -66,7 +67,9 @@ export default function OfferList() {
       </div>
       <div className={listStyles["offers-list"]}>
         <div className={dynamicFilterStyles["dynamic-filter"]}>
-          {dynamicFilters.map((filter) => (
+          { loading
+          ? <DynamicFilterSkeleton/>
+          : dynamicFilters.map((filter) => (
             <DynamicFilter key={filter.key}
               filterKey={filter.key}
               header={filter.header}
@@ -96,7 +99,7 @@ export default function OfferList() {
                 value={sorts.sort}>
               </Filter>
             </div>
-            <Pagination offset={offset} limit={limit} count={total} onChange={setOffset} />
+            <Pagination loading={loading} offset={offset} limit={limit} count={total} onChange={setOffset} />
           </div>
           {loading ? (
             Array.from({ length: 10 }).map((_, i) => <ListElementSkeleton key={i} />)
@@ -104,7 +107,7 @@ export default function OfferList() {
             filteredOffers.map((offer) => <ListElement key={offer.id} offer={offer} />)
           )}
           <div className={listStyles["second-pagination"]}>
-            <Pagination offset={offset} limit={limit} count={total} onChange={setOffset} />
+            <Pagination loading={loading} offset={offset} limit={limit} count={total} onChange={setOffset} />
           </div>
         </div>
 

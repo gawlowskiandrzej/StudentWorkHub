@@ -421,8 +421,7 @@
   display: flex;
   flex-direction: row;
   gap: 15px;
-  margin-top: 15px;
-  align-items: flex-start;
+  align-items: flex-end;
   justify-content: left;
   align-self: stretch;
   flex: 1;
