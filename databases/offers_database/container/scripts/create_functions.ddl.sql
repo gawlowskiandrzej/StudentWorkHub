@@ -1,6 +1,8 @@
 CREATE OR REPLACE FUNCTION public.get_dictionaries_text()
 RETURNS JSONB
 LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
 STABLE
 AS $$
 SELECT jsonb_build_object(
@@ -26,6 +28,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_sources_base_urls()
 RETURNS TEXT[]
 LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
 STABLE
 AS $$
     SELECT COALESCE(
@@ -58,6 +62,8 @@ CREATE OR REPLACE FUNCTION public.search_external_offers_by_keywords(
 )
 RETURNS SETOF JSONB
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 STABLE
 AS $$
 DECLARE
@@ -368,6 +374,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_sources_dict()
 RETURNS JSONB
 LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
 STABLE
 AS $$
     SELECT COALESCE(
@@ -386,6 +394,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_companies_dict()
 RETURNS JSONB
 LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
 STABLE
 AS $$
     SELECT COALESCE(
@@ -404,6 +414,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_currencies_dict()
 RETURNS JSONB
 LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
 STABLE
 AS $$
     SELECT COALESCE(
@@ -416,6 +428,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_salary_periods_dict()
 RETURNS JSONB
 LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
 STABLE
 AS $$
     SELECT COALESCE(
@@ -428,6 +442,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_skills_dict()
 RETURNS JSONB
 LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
 STABLE
 AS $$
     SELECT COALESCE(
@@ -440,6 +456,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_experience_levels_dict()
 RETURNS JSONB
 LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
 STABLE
 AS $$
     SELECT COALESCE(
@@ -452,6 +470,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_education_levels_dict()
 RETURNS JSONB
 LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
 STABLE
 AS $$
     SELECT COALESCE(
@@ -464,6 +484,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_languages_dict()
 RETURNS JSONB
 LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
 STABLE
 AS $$
     SELECT COALESCE(
@@ -476,6 +498,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_language_levels_dict()
 RETURNS JSONB
 LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
 STABLE
 AS $$
     SELECT COALESCE(
@@ -488,6 +512,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_cities_dict()
 RETURNS JSONB
 LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
 STABLE
 AS $$
     SELECT COALESCE(
@@ -500,6 +526,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_streets_dict()
 RETURNS JSONB
 LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
 STABLE
 AS $$
     SELECT COALESCE(
@@ -512,6 +540,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_postal_codes_dict()
 RETURNS JSONB
 LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
 STABLE
 AS $$
     SELECT COALESCE(
@@ -524,6 +554,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_employment_schedules_dict()
 RETURNS JSONB
 LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
 STABLE
 AS $$
     SELECT COALESCE(
@@ -536,6 +568,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_employment_types_dict()
 RETURNS JSONB
 LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
 STABLE
 AS $$
     SELECT COALESCE(
@@ -548,6 +582,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_benefits_dict()
 RETURNS JSONB
 LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
 STABLE
 AS $$
     SELECT COALESCE(
@@ -560,6 +596,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_leading_categories_dict()
 RETURNS JSONB
 LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
 STABLE
 AS $$
     SELECT COALESCE(
@@ -572,6 +610,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_sub_categories_dict()
 RETURNS JSONB
 LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
 STABLE
 AS $$
     SELECT COALESCE(
@@ -584,6 +624,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_external_offer_urls_array()
 RETURNS text[]
 LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
 STABLE
 AS $$
     SELECT array_agg(
@@ -603,6 +645,8 @@ CREATE OR REPLACE FUNCTION public.external_offer_exists(
 )
 RETURNS boolean
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 STABLE
 AS $$
 DECLARE
@@ -659,6 +703,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.offers_cleanup_expired()
 RETURNS trigger
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 BEGIN
   DELETE FROM public.offers

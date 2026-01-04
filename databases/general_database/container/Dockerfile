@@ -3,6 +3,9 @@ ENV POSTGRES_INITDB_ARGS="--auth=scram-sha-256 --data-checksums"
 
 ENV TZ="Europe/Warsaw"
 
+COPY --chown=postgres:postgres ./scripts/create_users.sh /docker-entrypoint-initdb.d/0_create_users.sh
+RUN chmod +x /docker-entrypoint-initdb.d/*.sh || true
+
 COPY --chown=postgres:postgres ./scripts/prepare_postgre.sql /docker-entrypoint-initdb.d/10_prepare_postgre.sql
 COPY --chown=postgres:postgres ./scripts/create_database.ddl.sql /docker-entrypoint-initdb.d/20_create_database.ddl.sql
 COPY --chown=postgres:postgres ./scripts/create_procedures.ddl.sql /docker-entrypoint-initdb.d/30_create_procedures.ddl.sql

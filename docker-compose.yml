@@ -1,139 +1,175 @@
 services:
 
-  # -----------------------------
-  # DATABASES
-  # -----------------------------
-  db_offers:
-    build:
-      context: ./databases/offers_database/container
-    image: local/postgres-offers:17.6
-    container_name: postgres-offers
-    restart: unless-stopped
-    env_file: ./databases/offers_database/container/.env
-    ports:
-      - "5432:5432"
-    volumes:
-      - pg_offers:/var/lib/postgresql/data
-      
-  db_general:
-    build:
-      context: ./databases/general_database/container
-    image: local/postgres-general:17.6
-    container_name: postgres-general
-    restart: unless-stopped
-    env_file: ./databases/general_database/container/.env
-    ports:
-      - "5433:5432"
-    volumes:
-      - pg_general:/var/lib/postgresql/data
-
-  # -----------------------------
-  # REDIS
-  # -----------------------------
-  redis:
-    image: redis:7
-    container_name: redis
-    ports:
-      - "6379:6379"
+    # -----------------------------
+    # DATABASES
+    # -----------------------------
+    db_offers:
+        build:
+            context: ./databases/offers_database/container
+        image: local/postgres-offers:17.6
+        container_name: postgres-offers
+        restart: unless-stopped
+        env_file: ./databases/offers_database/container/.env
+        ports:
+            - "5432:5432"
+        volumes:
+            - pg_offers:/var/lib/postgresql/data
+            
+    db_general:
+        build:
+            context: ./databases/general_database/container
+        image: local/postgres-general:17.6
+        container_name: postgres-general
+        restart: unless-stopped
+        env_file: ./databases/general_database/container/.env
+        ports:
+            - "5433:5432"
+        volumes:
+            - pg_general:/var/lib/postgresql/data
+    
+    db_backup:
+        build:
+            context: ./databases/backup
+        image: local/database-backup:17.6
+        container_name: database-backup
+        restart: unless-stopped
+        env_file: ./databases/backup/.env
+        depends_on:
+            - db_general
+        volumes:
+            - db_general_backups:/backups/db_general
+            - ./backups/db_general:/repo_host
+        
+    # -----------------------------
+    # LOGS
+    # -----------------------------
+    log_server:
+        build:
+            context: ./log_server/server/
+            args:
+                APP_DIR: /log_server
+        container_name: log-server
+        restart: unless-stopped
+        ports:
+            - "54000:54000"
+            - "54001:54001"
+        volumes:
+            - logs:/log_server/logs
+            - public_keys:/log_server/public_keys
 
     # -----------------------------
-  # FRONTEND (DEV)
-  # -----------------------------
-  frontend-dev:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.dev
-    container_name: frontend_dev
-    ports:
-      - "4000:4000"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    environment:
-      - PORT=4000	
-      - NODE_ENV=development
-      - CHOKIDAR_USEPOLLING=true
-      - NEXT_WEBPACK_USEPOLLING=1
-      - NEXT_WATCH_MODE=1
-    depends_on:
-      - offer_manager
+    # REDIS
+    # -----------------------------
+    redis:
+        image: redis:7
+        container_name: redis
+        ports:
+            - "6379:6379"
 
-  # -----------------------------
-  # FRONTEND (PROD)
-  # -----------------------------
-  #frontend-prod:
-   # build:
-    #  context: ./frontend
-     # dockerfile: Dockerfile
-   # container_name: frontend_prod
-    #ports:
-     # - "8080:80"
-   # environment:
-    #  - MODE=production
-    #depends_on:
-     # - offer_manager
+    # -----------------------------
+    # FRONTEND (DEV)
+    # -----------------------------
+    frontend-dev:
+        build:
+            context: ./frontend
+            dockerfile: Dockerfile.dev
+        container_name: frontend_dev
+        ports:
+            - "4000:4000"
+        volumes:
+            - ./frontend:/app
+            - /app/node_modules
+        environment:
+            - PORT=4000	
+            - NODE_ENV=development
+            - CHOKIDAR_USEPOLLING=true
+            - NEXT_WEBPACK_USEPOLLING=1
+            - NEXT_WATCH_MODE=1
+        depends_on:
+            - offer_manager
 
-  # -----------------------------
-  # OFFER MANAGER (.NET API)
-  # -----------------------------
-  offer_manager:
-    build:
-      context: ./offer_collector
-      dockerfile: Dockerfile.offer_manager
-    container_name: offer_manager
-    env_file: ./.env
-    environment:
-      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
-      DatabaseSettings__Host: postgres-offers
-      DatabaseSettings__Port: ${POSTGRES_PORT}
-      DatabaseSettings__Database: ${POSTGRES_DB}
-      DatabaseSettings__Username: ${POSTGRES_USER}
-      DatabaseSettings__Password: ${POSTGRES_PASSWORD}
-      RedisServer__Host: redis
-      RedisServer__Port: 6379
-      StaticSettings__NumberOfAvailablePortals: ${STATIC_NumberOfAvailablePortals}
-      StaticSettings__JobsTimeoutMinutes: ${STATIC_JobsTimeoutMinutes}
-      ASPNETCORE_URLS: http://+:80
-    ports:
-      - "5059:80"
-    depends_on:
-      - redis
-      - db_offers
-      - headless_browser
+    # -----------------------------
+    # FRONTEND (PROD)
+    # -----------------------------
+    #frontend-prod:
+     # build:
+        #    context: ./frontend
+         # dockerfile: Dockerfile
+     # container_name: frontend_prod
+        #ports:
+         # - "8080:80"
+     # environment:
+        #    - MODE=production
+        #depends_on:
+         # - offer_manager
 
-  # -----------------------------
-  # WORKER (.NET)
-  # -----------------------------
-  worker:
-    build:
-      context: ./offer_collector
-      dockerfile: Dockerfile.worker
-    env_file: ./.env
-    environment:
-      RedisServer__Host: redis
-      RedisServer__Port: 6379
-      NodeServer__Host: headless_browser
-      NodeServer__Port: 3000
-      DelayBetweenRequestsMs: ${DELAY_BETWEEN_REQUESTS_MS}
-      ASPNETCORE_URLS: http://+:80
-    depends_on:
-      - redis
-      - db_offers
-      - headless_browser
+    # -----------------------------
+    # OFFER MANAGER (.NET API)
+    # -----------------------------
+    offer_manager:
+        build:
+            context: ./offer_collector
+            dockerfile: Dockerfile.offer_manager
+        container_name: offer_manager
+        env_file: ./.env
+        environment:
+            ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+            DatabaseSettings__Host: postgres-offers
+            DatabaseSettings__Port: ${POSTGRES_PORT}
+            DatabaseSettings__Database: ${POSTGRES_DB}
+            DatabaseSettings__Username: ${POSTGRES_USER}
+            DatabaseSettings__Password: ${POSTGRES_PASSWORD}
+            RedisServer__Host: redis
+            RedisServer__Port: 6379
+            StaticSettings__NumberOfAvailablePortals: ${STATIC_NumberOfAvailablePortals}
+            StaticSettings__JobsTimeoutMinutes: ${STATIC_JobsTimeoutMinutes}
+            ASPNETCORE_URLS: http://+:80
+        ports:
+            - "5059:80"
+        volumes:
+            - public_keys:/log_server/public_keys
+        depends_on:
+            - redis
+            - db_offers
+            - db_general
+            - headless_browser
 
-  # -----------------------------
-  # HEADLESS NODE BROWSER
-  # -----------------------------
-  headless_browser:
-    build:
-      context: ./offer_collector/headless_browser
-    container_name: headless_browser
-    ports:
-      - "3000:3000"
+    # -----------------------------
+    # WORKER (.NET)
+    # -----------------------------
+    worker:
+        build:
+            context: ./offer_collector
+            dockerfile: Dockerfile.worker
+        env_file: ./.env
+        environment:
+            RedisServer__Host: redis
+            RedisServer__Port: 6379
+            NodeServer__Host: headless_browser
+            NodeServer__Port: 3000
+            DelayBetweenRequestsMs: ${DELAY_BETWEEN_REQUESTS_MS}
+            ASPNETCORE_URLS: http://+:80
+        depends_on:
+            - redis
+            - db_offers
+            - headless_browser
+
+    # -----------------------------
+    # HEADLESS NODE BROWSER
+    # -----------------------------
+    headless_browser:
+        build:
+            context: ./offer_collector/headless_browser
+        container_name: headless_browser
+        ports:
+            - "3000:3000"
 
 # -----------------------------
 # VOLUMES
 # -----------------------------
 volumes:
-  pg_offers:
-  pg_general:
+    pg_offers:
+    pg_general:
+    logs:
+    public_keys:
+    db_general_backups:

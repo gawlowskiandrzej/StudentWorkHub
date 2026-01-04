@@ -49,6 +49,8 @@ CREATE OR REPLACE PROCEDURE public.add_source(
         IN p_base_url VARCHAR(256)
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 BEGIN
         INSERT INTO public.sources (name, base_url)
@@ -98,6 +100,8 @@ CREATE OR REPLACE PROCEDURE public.upsert_external_offer(
     OUT o_action TEXT
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_source_id SMALLINT;
@@ -344,6 +348,8 @@ CREATE OR REPLACE PROCEDURE public.upsert_external_offers_batch(
     OUT o_results public.batch_result[]
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     i int;
@@ -436,6 +442,8 @@ CREATE OR REPLACE PROCEDURE public.delete_offers_by_id(
     IN p_offer_ids bigint[]
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 BEGIN
     -- Delete only offers that are in the given list and not saved
@@ -449,6 +457,8 @@ CREATE OR REPLACE PROCEDURE public.mark_as_saved(
     IN p_offer_id bigint
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 BEGIN
     -- Mark offer as saved for the given ID
@@ -462,6 +472,8 @@ CREATE OR REPLACE PROCEDURE public.mark_as_unsaved(
     IN p_offer_id bigint
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 BEGIN
     -- Mark offer as not saved for the given ID

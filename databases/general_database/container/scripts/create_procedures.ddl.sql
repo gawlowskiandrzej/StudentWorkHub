@@ -8,6 +8,8 @@ CREATE OR REPLACE PROCEDURE public.standard_add_user(
     OUT o_user_id    bigint
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_first_name_id bigint;
@@ -153,6 +155,8 @@ CREATE OR REPLACE PROCEDURE public.set_user_remember_token(
     OUT p_success   BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 BEGIN
     -- user_id must not be NULL
@@ -191,6 +195,8 @@ CREATE OR REPLACE PROCEDURE public.set_user_password(
     OUT p_success  BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 BEGIN
     -- user_id must not be NULL
@@ -229,6 +235,8 @@ CREATE OR REPLACE PROCEDURE public.set_user_phone(
     OUT p_success BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 BEGIN
     -- user_id must not be NULL
@@ -282,6 +290,8 @@ CREATE OR REPLACE PROCEDURE public.set_user_first_name(
     OUT p_success     BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_first_name_id BIGINT;
@@ -332,6 +342,8 @@ CREATE OR REPLACE PROCEDURE public.set_user_second_name(
     OUT p_success      BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_second_name_id BIGINT;
@@ -382,6 +394,8 @@ CREATE OR REPLACE PROCEDURE public.set_user_last_name(
     OUT p_success    BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_last_name_id BIGINT;
@@ -431,6 +445,8 @@ CREATE OR REPLACE PROCEDURE public.delete_user(
     OUT p_success BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 BEGIN
     -- user_id must not be NULL
@@ -462,6 +478,8 @@ CREATE OR REPLACE PROCEDURE public.set_weights_order_by_option(
     OUT p_success BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_row_count INTEGER;
@@ -481,6 +499,8 @@ CREATE OR REPLACE PROCEDURE public.set_weights_mean_value_ids(
     OUT p_success BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_row_count INTEGER;
@@ -500,6 +520,8 @@ CREATE OR REPLACE PROCEDURE public.set_weights_vector(
     OUT p_success BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_row_count INTEGER;
@@ -519,6 +541,8 @@ CREATE OR REPLACE PROCEDURE public.set_weights_mean_dist(
     OUT p_success BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_row_count INTEGER;
@@ -538,6 +562,8 @@ CREATE OR REPLACE PROCEDURE public.set_weights_means_value_sum(
     OUT p_success BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_row_count INTEGER;
@@ -557,6 +583,8 @@ CREATE OR REPLACE PROCEDURE public.set_weights_means_value_ssum(
     OUT p_success BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_row_count INTEGER;
@@ -576,6 +604,8 @@ CREATE OR REPLACE PROCEDURE public.set_weights_means_value_count(
     OUT p_success BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_row_count INTEGER;
@@ -595,6 +625,8 @@ CREATE OR REPLACE PROCEDURE public.set_weights_means_weight_sum(
     OUT p_success BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_row_count INTEGER;
@@ -614,6 +646,8 @@ CREATE OR REPLACE PROCEDURE public.set_weights_means_weight_ssum(
     OUT p_success BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_row_count INTEGER;
@@ -633,6 +667,8 @@ CREATE OR REPLACE PROCEDURE public.set_weights_means_weight_count(
     OUT p_success BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_row_count INTEGER;
@@ -663,6 +699,8 @@ CREATE OR REPLACE PROCEDURE public.insert_search_history(
     IN  p_employment_type_ids     SMALLINT[]    DEFAULT '{}'
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 BEGIN
     o_result := FALSE;
@@ -718,6 +756,8 @@ CREATE OR REPLACE PROCEDURE public.set_leading_category_preference(
     OUT p_success BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 BEGIN
     IF p_leading_category_id IS NULL OR p_leading_category_id < 1 THEN
@@ -744,6 +784,8 @@ CREATE OR REPLACE PROCEDURE public.set_salary_range_preference (
     OUT p_success BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_current_from NUMERIC(8,2);
@@ -808,6 +850,8 @@ CREATE OR REPLACE PROCEDURE public.set_employment_type_preference (
     OUT p_success BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_new_ids SMALLINT[];
@@ -846,6 +890,8 @@ CREATE OR REPLACE PROCEDURE public.set_language_preference (
     OUT p_success BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_lang_ids  SMALLINT[];
@@ -923,6 +969,8 @@ CREATE OR REPLACE PROCEDURE public.set_job_status_preference(
     OUT p_success BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_status_name VARCHAR(50);
@@ -980,6 +1028,8 @@ CREATE OR REPLACE PROCEDURE public.set_city_preference(
     OUT p_success BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_city_name VARCHAR(256);
@@ -1038,6 +1088,8 @@ CREATE OR REPLACE PROCEDURE public.set_work_types_preference(
     OUT p_success BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_desired_ids SMALLINT[] := '{}'::SMALLINT[];
@@ -1137,6 +1189,8 @@ CREATE OR REPLACE PROCEDURE public.set_skills_preference(
     OUT p_success BOOLEAN
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_len_names INT;

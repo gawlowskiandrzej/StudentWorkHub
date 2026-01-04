@@ -14,9 +14,11 @@ CREATE TYPE public.preference_dto AS (
     skill_entry_dates       TIMESTAMPTZ[]
 );
 
-CREATE OR REPLACE FUNCTION get_user_password(p_email TEXT)
+CREATE OR REPLACE FUNCTION public.get_user_password(p_email TEXT)
 RETURNS TABLE(user_id BIGINT, password TEXT)
 LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
 AS $$
     SELECT u.id, u.password
     FROM public.users u
@@ -27,6 +29,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.check_user_token(p_token TEXT)
 RETURNS BIGINT
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_user_id BIGINT;
@@ -43,6 +47,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_weights_json(p_user_id BIGINT)
 RETURNS JSONB
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     result JSONB;
@@ -59,6 +65,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_user_json(p_user_id BIGINT)
 RETURNS JSONB
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     result JSONB;
@@ -100,8 +108,9 @@ CREATE OR REPLACE FUNCTION public.user_has_permission(
 )
 RETURNS BOOLEAN
 LANGUAGE plpgsql
-AS
-$$
+SECURITY DEFINER
+SET search_path = public
+AS $$
 DECLARE
     v_has_permission BOOLEAN;
 BEGIN
@@ -132,6 +141,8 @@ CREATE OR REPLACE FUNCTION public.get_search_history_json(
 )
 RETURNS jsonb
 LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
 STABLE
 AS $$
     SELECT COALESCE(
@@ -150,6 +161,8 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_user_preferences(p_user_id BIGINT)
 RETURNS public.preference_dto
 LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
 STABLE
 AS $$
     SELECT ROW(
