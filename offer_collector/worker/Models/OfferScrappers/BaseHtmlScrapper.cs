@@ -8,8 +8,8 @@ public abstract class BaseHtmlScraper
     protected readonly HttpClient _client = new HttpClient();
     private readonly ClientType _clientType = 0;
     protected string htmlBody = "";
-    protected int maxOfferCount;
-    protected int offersPerPage;
+    public int maxOfferCount;
+    public int offersPerPage;
     private HeadlessBrowser headlessBrowser = new HeadlessBrowser();
     
     public BaseHtmlScraper(ClientType clientType)

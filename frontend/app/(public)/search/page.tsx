@@ -13,10 +13,11 @@ import { toLabelValueFormat } from '../../../utils/others/toLabelValueFormat';
 import { useDictionaries } from "@/hooks/useDictionaries";
 import { staticFilterItem } from "@/types/search/staticFilterItem";
 import { Skeleton } from "@/components/ui/skeleton";
+import { search } from "@/types/search/search";
 
 const Search = () => {
     const {setExtraFilters ,addRecentSearch, setSearch, setHasSearched } = useSearch();
-    const [localSearch, setLocalSearch] = useState({});
+    const [localSearch, setLocalSearch] = useState<search>({});
     const [localExtraFilters, setLocalExtraFilters] = useState<ExtraFiltersState>({});
     const { t } = useTranslation(["searchView", "searchbar", "common"])
     const { dictionaries, loading } = useDictionaries();

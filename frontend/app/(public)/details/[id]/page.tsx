@@ -53,7 +53,7 @@ export default function DetailsPage() {
                 <div className={detailsStyles["categories-header"]}>
                     <div className={detailsStyles["leading-category"]}>{offer.category.leadingCategory}</div>
                     <ChevronRight />
-                    {offer.category.subCategories ? (
+                    {offer.category.subCategories && offer.category.subCategories?.length > 0 ? (
                         <div className={detailsStyles["subcategory-subcategory"]}>
                             {offer.category.subCategories?.join(" / ")}
                         </div>

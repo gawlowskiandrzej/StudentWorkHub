@@ -8,14 +8,15 @@ namespace Offer_collector.Models.UrlBuilders
         public OlxPracaUrlBuilder() : base(baseUrl) { }
         protected override string BuildBaseUrl(SearchFilters searchFilters,Dictionary<string, string> parameters)
         {
+            string url = baseUrl;
             if (!string.IsNullOrEmpty(searchFilters.Localization))
             {
                 string clearLocalization = searchFilters.Localization.ToLower().RemoveDiacritics();
-                baseUrl += $"/{clearLocalization}"; 
+                url += $"/{clearLocalization}"; 
             }
 
             if (!string.IsNullOrEmpty(searchFilters.Keyword))
-                baseUrl += $"/q-{searchFilters.Keyword}";
+                url += $"/q-{searchFilters.Keyword}";
 
             if (searchFilters.EmploymentType != null)
             {
@@ -43,7 +44,7 @@ namespace Offer_collector.Models.UrlBuilders
                 };
             }
 
-            return $"{baseUrl}";
+            return $"{url}";
         }
         protected override Dictionary<string, string> AddPaging(Dictionary<string, string> parameters, int pageId)
         {

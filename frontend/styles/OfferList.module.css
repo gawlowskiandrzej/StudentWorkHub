@@ -30,10 +30,16 @@
   align-self: stretch;
   flex-shrink: 0;
   display: grid;
-  gap: 0px;
+  gap: 15%;
   position: relative;
   grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   grid-template-rows: repeat(1, fit-content(100%));
+}
+.search-bar-buttons{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 .frame-159 {
   border-radius: 15px;

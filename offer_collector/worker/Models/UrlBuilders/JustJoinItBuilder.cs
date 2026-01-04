@@ -10,12 +10,13 @@ namespace Offer_collector.Models.UrlBuilders
         public JustJoinItBuilder() : base(baseUrl) { }
         protected override string BuildBaseUrl(SearchFilters searchFilters,Dictionary<string, string> parameters)
         {
+            string url = baseUrl;
             if (!string.IsNullOrEmpty(searchFilters.Keyword))
                 parameters["keyword"] = searchFilters.Keyword;
             if (!string.IsNullOrEmpty(searchFilters.Localization))
             {
                 string clearLocalization = searchFilters.Localization.ToLower().RemoveDiacritics();
-                baseUrl += $"/{clearLocalization}"; 
+                url += $"/{clearLocalization}"; 
             }
             if (searchFilters.EmploymentType != null)
             {
@@ -45,7 +46,7 @@ namespace Offer_collector.Models.UrlBuilders
                 };
             }
 
-            return $"{baseUrl}";
+            return $"{url}";
         }
         protected override Dictionary<string, string> AddPaging(Dictionary<string, string> parameters, int pageId)
         {

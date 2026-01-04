@@ -69,7 +69,18 @@ namespace Offer_collector.Models.DatabaseService
                 return (false, new List<long?> { }, errors);
             }
         }
-
+        public async Task<IEnumerable<string>> GetUrlHashes()
+        {
+            try
+            {
+                FrozenSet<string> urls = await connector.GetExternalOfferUrlsAsync();
+                return urls;
+            }
+            catch (Exception)
+            {
+                return new List<string>();
+            }
+        }
         public async Task<FrozenSet<UOS?>> GetOffers(SearchDto searchFilters)
         {
             try

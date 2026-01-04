@@ -101,7 +101,7 @@ export const OffersProvider = ({ children }: { children: React.ReactNode }) => {
 
         setScrapping(false);
       } else {
-        setTimeout(fetchScrapStatus, 10000);
+        setTimeout(fetchScrapStatus, 2000);
       }
     } catch {
       if (!isCancelled) {
