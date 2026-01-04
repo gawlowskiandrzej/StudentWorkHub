@@ -3,12 +3,16 @@ ENV POSTGRES_INITDB_ARGS="--auth=scram-sha-256 --data-checksums"
 
 ENV TZ="Europe/Warsaw"
 
+COPY --chown=postgres:postgres ./scripts/create_users.sh /docker-entrypoint-initdb.d/0_create_users.sh
+RUN chmod +x /docker-entrypoint-initdb.d/*.sh || true
+
 COPY --chown=postgres:postgres ./scripts/prepare_postgre.sql /docker-entrypoint-initdb.d/10_prepare_postgre.sql
 COPY --chown=postgres:postgres ./scripts/create_database.ddl.sql /docker-entrypoint-initdb.d/20_create_database.ddl.sql
 COPY --chown=postgres:postgres ./scripts/create_procedures.ddl.sql /docker-entrypoint-initdb.d/30_create_procedures.ddl.sql
 COPY --chown=postgres:postgres ./scripts/create_functions.ddl.sql /docker-entrypoint-initdb.d/40_create_functions.ddl.sql
 COPY --chown=postgres:postgres ./scripts/prefill_dictionaries.dml.sql /docker-entrypoint-initdb.d/50_prefill_dictionaries.dml.sql
-COPY --chown=postgres:postgres ./scripts/prefill_offers.dml.sql /docker-entrypoint-initdb.d/60_prefill_offers.dml.sql
+COPY --chown=postgres:postgres ./scripts/create_triggers.ddl.sql /docker-entrypoint-initdb.d/60_create_triggers.ddl.sql
+COPY --chown=postgres:postgres ./scripts/prefill_offers.dml.sql /docker-entrypoint-initdb.d/70_prefill_offers.dml.sql
 
 EXPOSE 5432
 

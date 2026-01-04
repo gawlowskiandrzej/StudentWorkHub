@@ -1,6 +1,12 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
+RUN apt update && apt upgrade -y && \
+    apt install -y --no-install-recommends \
+        ca-certificates \
+        openssl && \
+    apt clean && rm -rf /var/lib/apt/lists/*
+
 COPY ./libs ./libs
 # Copy shared_models first
 COPY ./shared_models ./shared_models
@@ -21,4 +27,9 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/publish .
 EXPOSE 80
-ENTRYPOINT ["dotnet", "offer_manager.dll"]
+
+COPY ./scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["dotnet", "offer_manager.dll"]

@@ -960,6 +960,118 @@ namespace OffersConnector
         }
 
         /// <summary>
+        /// Loads all external offer full URLs from the database by calling public.get_external_offer_urls_array().
+        /// </summary>
+        /// <param name="cancellationToken">Token used to cancel execution.</param>
+        /// <returns>
+        /// A frozen set of full URLs. Returns <see cref="FrozenSet{T}.Empty"/> when the database returns NULL
+        /// or when the result cannot be safely interpreted.
+        /// </returns>
+        /// <exception cref="PgConnectorException">Thrown when a database error occurs.</exception>
+        /// <exception cref="OperationCanceledException">Thrown if <paramref name="cancellationToken"/> is signaled.</exception>
+        public async Task<FrozenSet<string>> GetExternalOfferUrlsAsync(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                await using NpgsqlConnection connection =
+                    await _dataSource.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+                await using NpgsqlCommand command = new("SELECT public.get_external_offer_urls_array();", connection);
+
+                object? dbResult = await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
+
+                if (dbResult is null || dbResult is DBNull)
+                    return FrozenSet<string>.Empty;
+
+                if (dbResult is string[] urls)
+                    return urls.ToFrozenSet();
+
+                return FrozenSet<string>.Empty;
+            }
+            catch (NpgsqlException ex)
+            {
+                throw new PgConnectorException("A database error occurred while fetching external offer URLs.", ex);
+            }
+            catch (Exception ex) when (ex is not PgConnectorException && ex is not OperationCanceledException)
+            {
+                throw new PgConnectorException("An unexpected error occurred while fetching external offer URLs.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Checks whether an external offer already exists in the database by calling public.external_offer_exists().
+        /// </summary>
+        /// <param name="fullUrl">Full offer URL (required).</param>
+        /// <param name="jobTitle">Optional exact-match filter for the job title.</param>
+        /// <param name="companyName">Optional exact-match filter for the company name.</param>
+        /// <param name="city">Optional exact-match filter for the city name.</param>
+        /// <param name="cancellationToken">Token used to cancel execution.</param>
+        /// <returns>
+        /// True if the offer exists; otherwise false. Returns false when <paramref name="fullUrl"/> is empty/whitespace,
+        /// when the database returns NULL, or when the result cannot be safely interpreted.
+        /// </returns>
+        /// <exception cref="PgConnectorException">Thrown when a database error occurs.</exception>
+        /// <exception cref="OperationCanceledException">Thrown if <paramref name="cancellationToken"/> is signaled.</exception>
+        public async Task<bool> ExternalOfferExistsAsync(
+            string fullUrl,
+            string? jobTitle = null,
+            string? companyName = null,
+            string? city = null,
+            CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(fullUrl))
+                return false;
+
+            try
+            {
+                await using NpgsqlConnection connection =
+                    await _dataSource.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+                await using NpgsqlCommand command = new(
+                    "SELECT public.external_offer_exists(@p_full_url, @p_job_title, @p_company_name, @p_city);",
+                    connection);
+
+                // Required
+                command.Parameters.Add(new NpgsqlParameter<string>("p_full_url", fullUrl.Trim())
+                {
+                    NpgsqlDbType = NpgsqlDbType.Text
+                });
+
+                // Optional (NULL when not provided)
+                command.Parameters.Add(new NpgsqlParameter("p_job_title", NpgsqlDbType.Text)
+                {
+                    Value = string.IsNullOrWhiteSpace(jobTitle) ? DBNull.Value : jobTitle
+                });
+                command.Parameters.Add(new NpgsqlParameter("p_company_name", NpgsqlDbType.Text)
+                {
+                    Value = string.IsNullOrWhiteSpace(companyName) ? DBNull.Value : companyName
+                });
+                command.Parameters.Add(new NpgsqlParameter("p_city", NpgsqlDbType.Text)
+                {
+                    Value = string.IsNullOrWhiteSpace(city) ? DBNull.Value : city
+                });
+
+                object? dbResult = await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
+
+                if (dbResult is null || dbResult is DBNull)
+                    return false;
+
+                if (dbResult is bool exists)
+                    return exists;
+
+                return false;
+            }
+            catch (NpgsqlException ex)
+            {
+                throw new PgConnectorException("A database error occurred while checking external offer existence.", ex);
+            }
+            catch (Exception ex) when (ex is not PgConnectorException && ex is not OperationCanceledException)
+            {
+                throw new PgConnectorException("An unexpected error occurred while checking external offer existence.", ex);
+            }
+        }
+
+        /// <summary>
         /// Asynchronously disposes the underlying <see cref="NpgsqlDataSource"/> and releases pooled connections.
         /// Safe to call multiple times.
         /// </summary>

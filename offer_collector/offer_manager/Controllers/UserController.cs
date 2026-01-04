@@ -387,12 +387,6 @@ namespace offer_manager.Controllers
                 if (!string.IsNullOrWhiteSpace(request.UserPhone))
                     dataFields.Add(_fieldUserPhone, request.UserPhone);
 
-                foreach(var field in dataFields)
-                {
-                    Console.WriteLine(field.Key);
-                    Console.WriteLine(field.Value);
-                }
-
                 Dictionary<string, bool> fieldResults = await _userController.UpdateDataAsync(userId, dataFields);
 
                 return Ok(new UpdateDataResponse
@@ -1306,7 +1300,6 @@ namespace offer_manager.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, new GetPreferencesResponse
                 {
                     ErrorMessage = _errInternalServer,
