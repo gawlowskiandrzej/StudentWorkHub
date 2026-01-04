@@ -57,21 +57,12 @@ services:
       - MODE=development
     depends_on:
       - offer_manager
+    env_file:
+      - .env.docker
 
   # -----------------------------
   # FRONTEND (PROD)
   # -----------------------------
-  frontend-prod:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: frontend_prod
-    ports:
-      - "8080:80"
-    environment:
-      - MODE=production
-    depends_on:
-      - offer_manager
 
   # -----------------------------
   # OFFER MANAGER (.NET API)
@@ -92,12 +83,6 @@ services:
       RedisServer__Port: 6379
       StaticSettings__NumberOfAvailablePortals: ${STATIC_NumberOfAvailablePortals}
       StaticSettings__JobsTimeoutMinutes: ${STATIC_JobsTimeoutMinutes}
-      Frontend__PortProdApi: 7044
-      Frontend__PortDevApi: 5059
-      Frontend__IpProdApi: localhost
-      Frontend__IpDevApi: offer_manager
-      Frontend__PortDev: 4000
-      Frontend__IpDev: frontend-dev
       ASPNETCORE_URLS: http://+:5059
     ports:
       - "5059:5059"
@@ -113,7 +98,6 @@ services:
     build:
       context: ./offer_collector
       dockerfile: Dockerfile.worker
-    container_name: worker
     
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}

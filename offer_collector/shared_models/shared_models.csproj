@@ -22,7 +22,7 @@
       <HintPath>..\libs\LLMParser.dll</HintPath>
     </Reference>
     <Reference Include="OffersConnector">
-      <HintPath>..\..\databases\offers_database\lib\OffersConnector.dll</HintPath>
+      <HintPath>..\libs\OffersConnector.dll</HintPath>
     </Reference>
     <Reference Include="UnifiedOfferSchema">
       <HintPath>..\libs\UnifiedOfferSchema.dll</HintPath>
