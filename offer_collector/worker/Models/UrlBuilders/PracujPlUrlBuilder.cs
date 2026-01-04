@@ -6,6 +6,7 @@
         public PracujPlUrlBuilder() : base(baseUrl) { }
         protected override string BuildBaseUrl(SearchFilters searchFilters, Dictionary<string, string> parameters)
         {
+            string url = baseUrl;
             if (searchFilters.EmploymentType != null)
             {
                 parameters["tc"] = searchFilters.EmploymentType switch
@@ -37,11 +38,11 @@
             }
 
             if (!string.IsNullOrEmpty(searchFilters.Keyword))
-                baseUrl += $"/{searchFilters.Keyword};kw";
+                url += $"/{searchFilters.Keyword};kw";
             if (!string.IsNullOrEmpty(searchFilters.Localization))
-                baseUrl += $"/{searchFilters.Localization};wp";
+                url += $"/{searchFilters.Localization};wp";
 
-            return $"{baseUrl}";
+            return $"{url}";
         }
         protected override Dictionary<string, string> AddPaging(Dictionary<string, string> parameters, int pageId)
         {

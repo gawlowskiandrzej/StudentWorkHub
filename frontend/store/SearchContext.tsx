@@ -48,7 +48,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     const [search, setSearch] = useState<search>({
         category: "",
         keyword: "",
-        city: ""
+        localization: ""
     });
 
     const [filters, setFilters] = useState<FiltersState>({});
@@ -59,7 +59,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     const [sorts, setSort] = useState<sortType>({ sort: "IdDesc" });
     const [searchFilterKeywords, setSearchFilterKeywordsState] = useState<searchFilterKeywords>({skillName: "", educationName: "", benefitName: ""});
 
-    const clearAll = () => { setFilters({}); setExtraFilters({}); setSearch({ category: "", city: "", keyword: "" }); setOffset(0); setSearchFilterKeywordsState({skillName: "", educationName: "", benefitName: ""}) }
+    const clearAll = () => { setFilters({}); setExtraFilters({}); setSearch({ category: "", localization: "", keyword: "" }); setOffset(0); setSearchFilterKeywordsState({skillName: "", educationName: "", benefitName: ""}) }
     const clearFilters = () => {setExtraFilters({});setSearchFilterKeywordsState({skillName: "", educationName: "", benefitName: ""}); setOffset(0);}
     const toggleFilter = (key: FilterKey, value: FilterValue) => {
         setOffset(0);
@@ -92,7 +92,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
             const filtered = prev.filter(
                 s =>
                     s.keyword !== next.keyword ||
-                    s.city !== next.city ||
+                    s.localization !== next.localization ||
                     s.category !== next.category
             );
 

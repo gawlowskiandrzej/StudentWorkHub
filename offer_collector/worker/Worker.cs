@@ -28,7 +28,7 @@ public class Worker : BackgroundService
     {
         try
         {
-            await PreloadDbHashesToRedis(stoppingToken);
+           // await PreloadDbHashesToRedis(stoppingToken);
 
             _logger.LogInformation("Worker started...");
             while (!stoppingToken.IsCancellationRequested)
@@ -47,7 +47,7 @@ public class Worker : BackgroundService
 
                 if (jobTask != null)
                 {
-                    _logger.LogInformation($"Worker is now processing job {jobTask.JobId}");
+                    
 
                     var stopwatch = Stopwatch.StartNew(); // Start pomiaru czasu
                     await ProcessJob(jobTask, stoppingToken);
@@ -80,23 +80,27 @@ public class Worker : BackgroundService
         job.TotalBatches = 0;
         job.BathList = new List<string>();
         job.ErrorMessage = new List<string>();
+        _logger.LogInformation($"Worker is now processing job {task.JobId} on site {((OfferSitesTypes)task.SiteTypeId)}");
         try
         {
+            int duplicated = 0;
             await foreach (var (offers, errors) in fetcher.FetchOffers(task.SearchFilters, cancellation, task.Offset, bathSize: task.BatchSize))
             {
                 bool anyNewOffersFethed = false;
+                
                 if (offers.Count == 0) break;
                 foreach (var offer in offers)
                 {
-                    string hash = Cryptography.ComputeUrlHash(offer.url);
+                    string hash = offer.url;
 
                     bool isNew = await _redisDb.SetAddAsync("offers:db:index", hash);
-                    if (!isNew) { anyNewOffersFethed = true; continue; }
+                    if (!isNew) { anyNewOffersFethed = true; duplicated++; continue; }
 
+                    offer.description += $".&.{task.SearchFilters.Keyword}.&.";
                     job.BathList.Add(JsonConvert.SerializeObject(offer));
                     job.ErrorMessage.AddRange(errors);
                 }
-                if (job.BathList.Count >= task.BatchSize || (job.BathList.Count == 0 && anyNewOffersFethed == false))
+                if (job.BathList.Count >= task.BatchSize || (job.BathList.Count == 0 && anyNewOffersFethed == false) || (fetcher.scrapper?.maxOfferCount == duplicated))
                     break;
             }
 
@@ -112,45 +116,5 @@ public class Worker : BackgroundService
             job.Status = BathStatus.error;
             job.ErrorMessage.Add(ex.Message);
         }
-    }
-
-    private async Task PreloadDbHashesToRedis(CancellationToken cancellationToken)
-    {
-        string lockKey = "offers:db:index:bootstrap:lock";
-        string readyKey = "offers:db:index:ready";
-
-        // próbujemy ustawiæ lock – tylko jeden worker wykona preload
-        bool isLeader = await _redisDb.StringSetAsync(lockKey, Environment.MachineName, TimeSpan.FromMinutes(10), When.NotExists);
-        if (!isLeader)
-        {
-            // inny worker ju¿ robi preload lub zrobi³ go wczeœniej
-            _logger.LogInformation("Preload hashów DB ju¿ wykonany przez inny worker.");
-            return;
-        }
-
-        _logger.LogInformation("Preloading hashów z bazy do Redis SET...");
-
-        long lastId = 0;
-        const int batchSize = 10000;
-
-        while (!cancellationToken.IsCancellationRequested)
-        {
-            // pobieramy batch URLi z DB
-            var rows = await _dbService.GetExternalOffers();
-
-            if (!rows.Any()) break;
-
-            foreach (var row in rows)
-            {
-                string hash = Cryptography.ComputeUrlHash(row.Url);
-                await _redisDb.SetAddAsync("offers:db:index", hash);
-            }
-            break;
-        }
-
-        // oznaczamy, ¿e preload zakoñczony
-        await _redisDb.StringSetAsync(readyKey, "1");
-
-        _logger.LogInformation("Preload hashów DB zakoñczony.");
     }
 }

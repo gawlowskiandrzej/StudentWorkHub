@@ -6,8 +6,8 @@ type Resources = {
   hero: typeof hero;
   common: typeof common;
 };
-
 export const useT = <NS extends keyof Resources>(ns: NS) => {
-  const { t } = useTranslation(ns);
-  return (key: keyof Resources[NS]) => t(key as string);
+  const { t } = useTranslation<NS>();
+
+  return <K extends keyof Resources[NS] & string>(key: K) => t(key);
 };

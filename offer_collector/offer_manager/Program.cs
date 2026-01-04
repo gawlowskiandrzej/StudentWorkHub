@@ -67,16 +67,13 @@ namespace offer_manager
                 options.AllowAdmin = true;
 
                 var redis = ConnectionMultiplexer.Connect(options);
-
-                var server = redis.GetServer(redisHostname ?? "", redisPort);
-                server.FlushDatabase();
-
                 return redis;
             });
 
             builder.Services.AddScoped<IWorkerService, WorkerService>();
             builder.Services.AddScoped<PaginationService>();
             builder.Services.AddScoped<FilterService>();
+            builder.Services.AddHostedService<RedisPreloadHostedService>();
 
             PasswordPolicySettings passwordPolicySettings = builder.Configuration.GetSection("PasswordPolicySettings").Get<PasswordPolicySettings>() ?? new();
 

@@ -21,7 +21,7 @@ namespace worker.Models
 
         public bool IsUsingAi { get; }
 
-        BaseHtmlScraper? scrapper;
+        public BaseHtmlScraper? scrapper;
         BaseUrlBuilder? urlBuilder;
         PaginationModule? paginationModule;
 

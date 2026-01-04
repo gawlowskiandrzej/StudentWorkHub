@@ -147,6 +147,15 @@ namespace offer_manager.Controllers
                     })
                     .ToList();
                 }
+                if (!addToDatabase)
+                {
+                    unifiedOffers = mergedOffers
+                    .Select((json, index) => {
+                        var offer = JsonConvert.DeserializeObject<UOS>(json) ?? new UOS();
+                        return offer;
+                    })
+                    .ToList();
+                }
 
                 List<OfferDTO> responseOffers = _mapper.Map<List<OfferDTO>>(unifiedOffers);
                 return Ok(new ScrappedOffersResponseDto()

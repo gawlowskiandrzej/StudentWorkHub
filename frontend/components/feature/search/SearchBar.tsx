@@ -59,8 +59,8 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
                 <div className={searchStyles["city-search"]}>
                     <input
                         placeholder={t("searchCityPlaceholder")}
-                        value={value?.city || ""}
-                        onChange={(e) => handleChange("city", e.target.value)}
+                        value={value?.localization || ""}
+                        onChange={(e) => handleChange("localization", e.target.value)}
                         className={`${searchStyles["city"]} px-3`}
                     />
                 </div>

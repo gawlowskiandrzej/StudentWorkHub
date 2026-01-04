@@ -22,18 +22,22 @@ import { useMemo, useState } from "react";
 import { useOffers } from "@/store/OffersContext";
 import { DynamicFilterSkeleton } from "@/components/feature/list/DynamicFilterSkeleton";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+import { Plus } from "lucide-react";
+import { search } from "@/types/search/search";
 
 export type FiltersState = Partial<
   Record<FilterKey, Set<FilterValue>>
 >;
 
 export default function OfferList() {
-  const { search, setSearch, filters, toggleFilter, sorts, searchFilterKeywords, setSearchFilterKeywords, setSorting, clearFilters } = useSearch();
-  const [localSearch, setLocalSearch] = useState(search || {}); // lokalny search
+  const { search, setSearch, filters, toggleFilter, sorts, searchFilterKeywords, setSearchFilterKeywords, setSorting, addRecentSearch, setHasSearched, clearFilters } = useSearch();
+  const [localSearch, setLocalSearch] = useState(search || {});
   const { limit, offset, setOffset } = usePagination();
   const { t } = useTranslation(["common", "list"]);
-  const { offersResponse, loading, startScrapping, scrapping, error } = useOffers();
+  const { offersResponse, loading, startScrapping, scrapping } = useOffers();
   const offers = offersResponse?.pagination.items ?? [];
+  const [la, setLa] = useState(false);
 
 
   const { filteredOffers, total } = useOfferList(
@@ -51,23 +55,33 @@ export default function OfferList() {
     { label: t("list:sort.salaryDesc"), value: "Salaryasc" },
     { label: t("list:sort.nameAsc"), value: "Nameasc" },
   ];
-
+  const searchNew = () => {
+        addRecentSearch(localSearch);
+        setSearch(localSearch);
+        setHasSearched(true);
+    };
   const dynamicFilters = useMemo(() => mapApiFilters(offersResponse?.dynamicFilter), [offersResponse?.dynamicFilter]);
-  
+
   return (
     <div className={listStyles["offer-list-view"]}>
       <div className={listStyles["search-bar-component"]}>
         <div className={listStyles["search-bar-list"]}>
           <SearchBar value={localSearch} onChange={setLocalSearch} />
-          {/* <div className={`${buttonStyle["main-button"]}`}>
-            <img className={listStyles["search"]} src="/icons/search0.svg" /> */}
-            
-          <Button className="w-[100px]" onClick={startScrapping} disabled={scrapping}>
-            {scrapping && <span className={`${buttonStyle["spinner"]} ${scrapping ? buttonStyle["animate"] : ""}`} />}
-            {scrapping ? "Scrapowanie..." : "Dodaj nowe"}
-          </Button>
-
-          {/* </div> */}
+          <div className={listStyles["search-bar-buttons"]}>
+            <Button
+              disabled={scrapping}
+              style={{ width: la ? 210 : 185 }} // px
+              className={`transition-[width] duration-300 ease-in-out py-5.5 px-3 inline-flex items-center cursor-pointer justify-center overflow-hidden ${buttonStyle["big-scale"]}`}
+              onClick={startScrapping}
+            >
+              <Plus/>
+              {scrapping ? "Scrapowanie..." : "Pozyskaj nowe"}
+              {scrapping && <Spinner />}
+            </Button>
+            <div onClick={searchNew} className={`${buttonStyle["main-button"]}`}>
+              <img className={listStyles["search"]} src="/icons/search0.svg" /> {t("findMatchingJob")}
+            </div>
+          </div>
         </div>
         <LastSearches />
       </div>
@@ -122,3 +136,4 @@ export default function OfferList() {
     </div>
   );
 }
+

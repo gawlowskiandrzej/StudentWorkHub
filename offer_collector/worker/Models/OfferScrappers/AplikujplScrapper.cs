@@ -211,13 +211,21 @@ namespace Offer_collector.Models.OfferScrappers
             try
             {
                 var maxNode = doc.DocumentNode.SelectSingleNode(
-                    "//div[contains(@class,'hidden sm:flex sm:flex-1 sm:items-center sm:justify-between')]/div/p/span[3]"
+                   "//div[contains(@class,'hidden sm:flex sm:flex-1 sm:items-center sm:justify-between')]/div/p/span[3]"
                 );
-
-                if (maxNode != null && int.TryParse(maxNode.InnerText, out int cnt))
-                    maxOfferCount = cnt;
+                if (maxNode == null)
+                {
+                    maxNode = doc.DocumentNode.SelectSingleNode(
+                        "//span[contains(@class,'test-span text-sm sm:text-base text-gray-600')]/span"
+                    );
+                    if (maxNode != null && int.TryParse(maxNode.InnerText.Split(' ')[0], out int cnt))
+                        maxOfferCount = cnt;
+                }
                 else
-                    errors.Add("Cannot read max offers count.");
+                {
+                    if (maxNode != null && int.TryParse(maxNode.InnerText, out int cnt))
+                        maxOfferCount = cnt;
+                }
             }
             catch (Exception ex)
             {

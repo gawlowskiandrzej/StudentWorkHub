@@ -38,24 +38,27 @@
   align-items: center;
   justify-content: center;
 }
-.scale-hover{
-  transition: transform 0.5s ease;
+.big-scale{
+  background: var(
+    --button-gradient,
+    linear-gradient(90deg, rgba(60, 131, 246, 1) 0%, rgba(30, 59, 138, 1) 100%)
+  ) !important;
+  box-shadow: 1px 2px 6px 0px rgba(127, 195, 255, 0.3),
+    -1px -2px 6px 0px rgba(0, 140, 255, 0.2);
+    border-radius: 13px;
+    color: var(--white, #f8faff);
+  text-align: center;
+  font-size: var(--subHeaderSize);
+}
+.scale-hover, .big-scale{
+  transition: all 0.5s ease;
   cursor: pointer;
 }
 .scale-hover:hover {
   transform: scale(1.005);
 }
-
-.spinner {
-  width: 16px;
-  height: 16px;
-  margin-right: 8px;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  border-top-color: #fff;
-  border-radius: 50%;
-}
-.spinner.animate {
-  animation: spin 0.8s linear infinite;
+.big-scale:hover{
+  transform: scale(1.035);
 }
 
 @keyframes spin {

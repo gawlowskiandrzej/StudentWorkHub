@@ -11,7 +11,7 @@ export function Pagination({ offset, limit, count, loading=false , onChange }: P
     const totalPages = Math.ceil(count / limit);
 
     const hasPrev = offset > 0;
-    const hasNext = true;
+    const hasNext = currentPage < totalPages;
 
     const handlePrev = () => {
         if (!hasPrev) return;
@@ -54,7 +54,7 @@ export function Pagination({ offset, limit, count, loading=false , onChange }: P
                 onClick={handleNext}
                 aria-label="Next page"
             >
-                <ArrowRight size={20}/>
+                {hasNext && <ArrowRight size={20}/>}
             </button>
         </div>
     );
