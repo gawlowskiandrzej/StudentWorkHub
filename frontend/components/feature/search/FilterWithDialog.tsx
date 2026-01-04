@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChevronDownIcon } from "lucide-react";
 import { ExtraFiltersState } from "@/store/SearchContext";
-import { Input } from "@/components/ui/Input";
+import { Input } from "@/components/ui/input";
 
 export type salaryFilter = {
     label: string;

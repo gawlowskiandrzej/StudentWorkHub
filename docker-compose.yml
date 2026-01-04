@@ -83,6 +83,7 @@ services:
       RedisServer__Port: 6379
       StaticSettings__NumberOfAvailablePortals: ${STATIC_NumberOfAvailablePortals}
       StaticSettings__JobsTimeoutMinutes: ${STATIC_JobsTimeoutMinutes}
+      ApiKeys__GeminiKey: ${GEMINI_KEY}
       ASPNETCORE_URLS: http://+:5059
     ports:
       - "5059:5059"
