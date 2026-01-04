@@ -48,6 +48,10 @@ export function ListElement({ offer }: { offer: offer }) {
                                 <img className={listStyles["vector5"]} src="/icons/document.svg" />
                                 <div className={listStyles["employment-schedules"]}>{offer.employment.schedules?.join(' / ')}</div>
                             </div>
+                            <div className={listStyles["job-header-sub-item"]}>
+                                <img className={listStyles["vector5"]} src="/icons/linkedin0.svg" />
+                                <div className={listStyles["employment-schedules"]}>{offer.source}</div>
+                            </div>
                         </div>
                     </div>
                     <div className={listStyles["offer-header-salary-date"]}>

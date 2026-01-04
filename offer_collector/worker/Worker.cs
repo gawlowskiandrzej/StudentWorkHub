@@ -1,12 +1,11 @@
 using Newtonsoft.Json;
 using Offer_collector.Models;
-using Offer_collector.Models.PracujPl;
-using Offer_collector.Models.UrlBuilders;
+using OffersConnector;
 using StackExchange.Redis;
-using System.Collections.Generic;
 using System.Diagnostics;
 using worker.Models;
 using worker.Models.DTO;
+using worker.Models.Tools;
 
 namespace worker;
 
@@ -14,12 +13,14 @@ public class Worker : BackgroundService
 {
     private readonly ILogger<Worker> _logger;
     private readonly IConnectionMultiplexer _redis;
+    private readonly PgConnector _dbService;
     private readonly IDatabase _redisDb;
 
-    public Worker(ILogger<Worker> logger, IConnectionMultiplexer redis)
+    public Worker(ILogger<Worker> logger, IConnectionMultiplexer redis, PgConnector dbService)
     {
         _logger = logger;
         _redis = redis;
+        _dbService = dbService;
         _redisDb = _redis.GetDatabase();
     }
 
@@ -27,6 +28,8 @@ public class Worker : BackgroundService
     {
         try
         {
+            await PreloadDbHashesToRedis(stoppingToken);
+
             _logger.LogInformation("Worker started...");
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -75,20 +78,32 @@ public class Worker : BackgroundService
         job.StartTime = DateTime.UtcNow;
         await _redisDb.StringSetAsync(jobKey, JsonConvert.SerializeObject(job));
         job.TotalBatches = 0;
-        job.BathList = new List<List<string>>();
+        job.BathList = new List<string>();
         job.ErrorMessage = new List<string>();
         try
         {
             await foreach (var (offers, errors) in fetcher.FetchOffers(task.SearchFilters, cancellation, task.Offset, bathSize: task.BatchSize))
             {
+                bool anyNewOffersFethed = false;
+                if (offers.Count == 0) break;
+                foreach (var offer in offers)
+                {
+                    string hash = Cryptography.ComputeUrlHash(offer.url);
 
-                job.BathList.Add(offers);
-                job.ErrorMessage.AddRange(errors);
-                if (job.BathList.Sum(_ => _.Count) >= task.BatchSize)
+                    bool isNew = await _redisDb.SetAddAsync("offers:db:index", hash);
+                    if (!isNew) { anyNewOffersFethed = true; continue; }
+
+                    job.BathList.Add(JsonConvert.SerializeObject(offer));
+                    job.ErrorMessage.AddRange(errors);
+                }
+                if (job.BathList.Count >= task.BatchSize || (job.BathList.Count == 0 && anyNewOffersFethed == false))
                     break;
             }
 
-            job.Status = BathStatus.completed;
+            if (job.BathList.Count == 0)
+                job.Status = BathStatus.completed;
+            else
+                job.Status = BathStatus.completed;
             job.EndTime = DateTime.UtcNow;
             await _redisDb.StringSetAsync(jobKey, JsonConvert.SerializeObject(job));
         }
@@ -97,5 +112,45 @@ public class Worker : BackgroundService
             job.Status = BathStatus.error;
             job.ErrorMessage.Add(ex.Message);
         }
+    }
+
+    private async Task PreloadDbHashesToRedis(CancellationToken cancellationToken)
+    {
+        string lockKey = "offers:db:index:bootstrap:lock";
+        string readyKey = "offers:db:index:ready";
+
+        // próbujemy ustawiæ lock – tylko jeden worker wykona preload
+        bool isLeader = await _redisDb.StringSetAsync(lockKey, Environment.MachineName, TimeSpan.FromMinutes(10), When.NotExists);
+        if (!isLeader)
+        {
+            // inny worker ju¿ robi preload lub zrobi³ go wczeœniej
+            _logger.LogInformation("Preload hashów DB ju¿ wykonany przez inny worker.");
+            return;
+        }
+
+        _logger.LogInformation("Preloading hashów z bazy do Redis SET...");
+
+        long lastId = 0;
+        const int batchSize = 10000;
+
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            // pobieramy batch URLi z DB
+            var rows = await _dbService.GetExternalOffers();
+
+            if (!rows.Any()) break;
+
+            foreach (var row in rows)
+            {
+                string hash = Cryptography.ComputeUrlHash(row.Url);
+                await _redisDb.SetAddAsync("offers:db:index", hash);
+            }
+            break;
+        }
+
+        // oznaczamy, ¿e preload zakoñczony
+        await _redisDb.StringSetAsync(readyKey, "1");
+
+        _logger.LogInformation("Preload hashów DB zakoñczony.");
     }
 }

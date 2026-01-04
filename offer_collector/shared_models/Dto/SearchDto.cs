@@ -1,4 +1,6 @@
-﻿namespace shared_models.Dto
+﻿using Offer_collector.Models.UrlBuilders;
+
+namespace shared_models.Dto
 {
     public class SearchDto
     {
@@ -8,7 +10,18 @@
         public string? EmploymentType { get; set; }
         public string? SalaryPeriod { get; set; }
         public string? EmploymentSchedule { get; set; }
-        public decimal? SalaryFrom { get; set; }
-        public decimal? SalaryTo { get; set; }
+        public string? SalaryFrom { get; set; }
+        public string? SalaryTo { get; set; }
+
+        public SearchFilters ToSearchFilters()
+        {
+            return new SearchFilters
+            {
+                Keyword = Keyword,
+                Category = Category,
+                Localization = Localization,
+                //TODO
+            };
+        }
     }
 }

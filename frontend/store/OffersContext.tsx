@@ -2,13 +2,18 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { OfferApi } from "@/lib/api/controllers/offer";
 import { useSearch } from "@/store/SearchContext";
-import { offerListResponse } from "@/types/api/offer";
+import { offerListResponse, scrappingStatus } from "@/types/api/offer";
+import { jobIds } from "@/types/api/jobIds";
+import { offer } from "@/types/list/Offer/offer";
 
 interface OffersContextType {
   offersResponse: offerListResponse | null;
   loading: boolean;
   error: string | null;
   fetchOffers: () => void;
+
+  startScrapping: () => Promise<void>;
+  scrapping: boolean;
 }
 
 // Tworzymy context
@@ -16,8 +21,10 @@ const OffersContext = createContext<OffersContextType | undefined>(undefined);
 
 // Provider
 export const OffersProvider = ({ children }: { children: React.ReactNode }) => {
-  const { search, extraFilters } = useSearch();
-
+  const { search, extraFilters, hasSearched } = useSearch();
+  const [scrapping, setScrapping] = useState(false);
+  const [scrapStatus, setScrapStatus] = useState<scrappingStatus | null>(null);
+  const [jobIds, setJobIds] = useState<jobIds | null>(null);
   const [offersResponse, setOffers] = useState<offerListResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +41,7 @@ export const OffersProvider = ({ children }: { children: React.ReactNode }) => {
             ...response.data.pagination,
             items: response.data.pagination.items || [],
           },
-          dynamicFilters: response.data.dynamicFilters || {},
+          dynamicFilter: response.data.dynamicFilter || {},
         });
       }
     } catch (e) {
@@ -44,12 +51,90 @@ export const OffersProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+
+  const startScrapping = async () => {
+    if (scrapping) return;
+
+    try {
+      setScrapping(true);
+      setError(null);
+
+      const res = await OfferApi.createScrapper(search, extraFilters);
+      setJobIds(res.data);
+    } catch {
+      setError("Błąd podczas scrapowania");
+      setScrapping(false);
+    }
+  };
+
   useEffect(() => {
+  if (!scrapping || !jobIds) return;
+
+  let isCancelled = false;
+
+  const fetchScrapStatus = async () => {
+    try {
+      const res = await OfferApi.getScrappedOffers(jobIds);
+      if (!res.data || isCancelled) return;
+
+      const { scrappingStatus, databaseOffersResponse } = res.data;
+      setScrapStatus(scrappingStatus);
+
+      if (scrappingStatus.scrappingDone) {
+        setOffers(prev => {
+          if (!prev) return databaseOffersResponse;
+
+          const mergedItems = mergeOffers(
+            prev.pagination.items,
+            databaseOffersResponse.pagination.items
+          );
+
+          return {
+            pagination: {
+              ...prev.pagination,
+              items: mergedItems,
+              totalItems: mergedItems.length,
+            },
+            dynamicFilter: databaseOffersResponse.dynamicFilter,
+          };
+        });
+
+        setScrapping(false);
+      } else {
+        setTimeout(fetchScrapStatus, 10000);
+      }
+    } catch {
+      if (!isCancelled) {
+        setScrapping(false);
+        setError("Błąd podczas pobierania statusu scrapowania");
+      }
+    }
+  };
+
+  fetchScrapStatus();
+
+  return () => {
+    isCancelled = true; 
+  };
+}, [scrapping, jobIds]);
+
+  const mergeOffers = (oldOffers: offer[], newOffers: offer[]) => {
+    const map = new Map<string, offer>();
+
+    [...oldOffers, ...newOffers].forEach(offer => {
+      map.set(offer.id.toString(), offer);
+    });
+
+    return Array.from(map.values());
+  };
+
+  useEffect(() => {
+    if (!hasSearched) return;
     fetchOffers();
-  }, [search, extraFilters]);
+  }, [search, extraFilters, hasSearched]);
 
   return (
-    <OffersContext.Provider value={{ offersResponse, loading, error, fetchOffers }}>
+    <OffersContext.Provider value={{ offersResponse, loading, error, scrapping, fetchOffers, startScrapping }}>
       {children}
     </OffersContext.Provider>
   );

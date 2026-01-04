@@ -11,7 +11,8 @@ export type ExtraFiltersState = {
     employmentType?: string;
     employmentSchedules?: string;
     salaryPeriods?: string;
-    salary?: string;
+    salaryFrom?: string;
+    salaryTo?: string;
 };
 type SearchContextType = {
     search: search;
@@ -20,11 +21,16 @@ type SearchContextType = {
     filters: FiltersState;
     toggleFilter: (key: FilterKey, value: FilterValue) => void;
 
+    hasSearched: boolean;
+    setHasSearched: (hasSearched: boolean) => void;
+
     recentSearches: search[];
     addRecentSearch: (search: search) => void;
 
     extraFilters: ExtraFiltersState;
     setExtraFilter: (key: keyof ExtraFiltersState, value?: string) => void;
+
+    setExtraFilters: (filters: ExtraFiltersState) => void;
 
     sorts: sortType;
     setSorting: (key: "sort", value: string) => void;
@@ -49,6 +55,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     const [extraFilters, setExtraFilters] = useState<ExtraFiltersState>({});
     const [recentSearches, setRecentSearches] = useState<search[]>([]);
     const { setOffset } = usePagination();
+    const [hasSearched, setHasSearched] = useState(false);
     const [sorts, setSort] = useState<sortType>({ sort: "IdDesc" });
     const [searchFilterKeywords, setSearchFilterKeywordsState] = useState<searchFilterKeywords>({skillName: "", educationName: "", benefitName: ""});
 
@@ -111,14 +118,17 @@ export function SearchProvider({ children }: { children: ReactNode }) {
             extraFilters,
             recentSearches,
             searchFilterKeywords,
+            hasSearched,
             sorts,
             setSorting,
             addRecentSearch,
             setExtraFilter,
             setSearchFilterKeywords,
+            setExtraFilters,
             toggleFilter,
             clearAll,
-            clearFilters
+            clearFilters,
+            setHasSearched
         }}>
             {children}
         </SearchContext.Provider>

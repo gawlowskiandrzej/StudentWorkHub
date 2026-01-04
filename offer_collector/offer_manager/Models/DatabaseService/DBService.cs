@@ -24,13 +24,13 @@ namespace Offer_collector.Models.DatabaseService
         /// <summary>
         /// Dodaje listę ofert do bazy danych.
         /// </summary>
-        public async Task<(bool, List<string>)> AddOffersToDatabaseAsync(List<string> aiOffers)
+        public async Task<(bool, IEnumerable<long?>,List<string>)> AddOffersToDatabaseAsync(List<string> aiOffers)
         {
             List<string> errors = new List<string>();   
             if (aiOffers == null || aiOffers.Count == 0)
             {
                 errors.Add("No offers to add to database");
-                return (false, errors);
+                return (false, new List<long?> { } ,errors);
             }
 
             try
@@ -61,12 +61,12 @@ namespace Offer_collector.Models.DatabaseService
                         errors.Add($"{JsonConvert.SerializeObject(new { offer = offersList.ElementAt(i), error = batchResults.Values.ElementAt(i).Error }, Formatting.Indented)}");
                 }
 
-                return (true, errors);
+                return (true , batchResults.Values.Select(_ => _.OfferId),errors);
             }
             catch (Exception ex)
             {
                 errors.Add($"Unexpected error while adding offers to database: {ex.Message}");
-                return (false, errors);
+                return (false, new List<long?> { }, errors);
             }
         }
 
@@ -77,8 +77,8 @@ namespace Offer_collector.Models.DatabaseService
                 var uosOffers = await connector.GetExternalOffers(
                 search_text: searchFilters.Keyword,
                 leadingCategory: searchFilters.Category,
-                salaryFrom: searchFilters.SalaryFrom,
-                salaryTo: searchFilters.SalaryTo,
+                salaryFrom: searchFilters.SalaryFrom != null ? decimal.Parse(searchFilters.SalaryFrom) : null,
+                salaryTo: searchFilters.SalaryTo != null ? decimal.Parse(searchFilters.SalaryTo) : null,
                 locationCity: searchFilters.Localization
                 );
                 return uosOffers;

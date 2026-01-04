@@ -6,10 +6,24 @@ namespace worker.Models.DTO
     {
         public string JobId { get; set; }
         public BathStatus Status { get; set; }
-        public List<List<string>> BathList { get; set; }
+        public List<string> BathList { get; set; }
         public int TotalBatches { get; set; }
         public List<string> ErrorMessage { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
+
+        public JobInfoDto ToJobInfoDto() 
+        {
+            return new JobInfoDto
+            {
+                JobId = JobId,
+                Status = Status.ToString(),
+            };
+        }
+    }
+    public class JobInfoDto
+    {
+        public string? JobId { get; set; }
+        public string? Status { get; set; }
     }
 }

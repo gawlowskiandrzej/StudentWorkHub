@@ -200,7 +200,7 @@ namespace Offer_collector.Models.OfferFetchers
         {
             // TODO Fix null issues with invalid casting JustJoinIt offers 
             const string marker = "self.__next_f.push([1,\"5:";
-            const string endMarker = "}]]}]\\n\"])";
+            const string endMarker = "]}]\\n\"])";
 
             var startIndex = htmlSource.IndexOf(marker);
             if (startIndex == -1) return null;

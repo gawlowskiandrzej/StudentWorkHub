@@ -70,7 +70,7 @@ namespace Offer_collector.Models
         public int id { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
         public OfferSitesTypes source { get; set; } // Pracujpl / olx ...
-        public string? url { get; set; } // redirect url to source of offer
+        public string url { get; set; } = ""; // redirect url to source of offer
         public string? jobTitle { get; set; }
         public Company company { get; set; } = new Company();
         public string? description { get; set; }

@@ -23,7 +23,7 @@ export function DynamicFilter({
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent className={`${dynamicFilterStyles["checkboxes"]} overflow-hidden transition-all data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down`}>
-        {items.map((item, index) => (
+        {items?.map((item, index) => (
           <label key={index} className={`${dynamicFilterStyles["offer-list-filter-item"]} cursor-pointer`}>
             <Checkbox className={dynamicFilterStyles["frame-20"]}
              checked={selected?.has(item.value) ?? false}
