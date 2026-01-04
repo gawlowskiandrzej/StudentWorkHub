@@ -51,7 +51,6 @@ CREATE TABLE public.companies (
     name VARCHAR(256) NOT NULL,
     logo_url TEXT,
     CONSTRAINT uq_companies_name UNIQUE (name),
-    CONSTRAINT uq_companies_logo_url UNIQUE (logo_url)
 );
 
 -- =========================================================
