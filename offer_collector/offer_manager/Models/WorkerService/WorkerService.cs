@@ -2,6 +2,7 @@
 using Offer_collector.Models;
 using Offer_collector.Models.UrlBuilders;
 using offer_manager.Interfaces;
+using shared_models.Dto;
 using StackExchange.Redis;
 using worker.Models.DTO;
 
@@ -29,10 +30,11 @@ namespace offer_manager.Models.WorkerService
             return JsonConvert.DeserializeObject<JobInfo>(jobData!);
         }
 
-        public async Task<string> CreateJobAsync(SearchFilters filters, OfferSitesTypes offerSitetype, int batchSize, int batchLimit, int offset)
+        public async Task<string> CreateJobAsync(SearchDto filters, OfferSitesTypes offerSitetype, int batchSize, int batchLimit, int offset)
         {
             string jobId = Guid.NewGuid().ToString();
             IDatabase db = _redis.GetDatabase();
+
 
             JobTask jobTask = new JobTask
             {
@@ -40,7 +42,7 @@ namespace offer_manager.Models.WorkerService
                 SiteTypeId = (int)offerSitetype,
                 BatchSize = batchSize,
                 BatchLimit = batchLimit,
-                SearchFilters = filters,
+                SearchFilters = filters.ToSearchFilters(),
                 Offset = offset
             };
 
@@ -51,7 +53,7 @@ namespace offer_manager.Models.WorkerService
                 JobId = jobId,
                 Status = BathStatus.queued,
                 TotalBatches = 0,
-                BathList = new List<List<string>>(),
+                BathList = new List<string>(),
                 ErrorMessage = new List<string>(),
             };
 

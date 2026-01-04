@@ -61,19 +61,19 @@ namespace offer_manager
 
             builder.Services.AddSingleton(new DBService(dbSettings.Username, dbSettings.Password, dbSettings.Host, dbSettings.Port, dbSettings.Database));
 
-            //builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-            //{
-            //    var options = ConfigurationOptions.Parse($"{redisHostname}:{redisPort}");
-            //    options.AllowAdmin = true;
+            builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+            {
+                var options = ConfigurationOptions.Parse($"{redisHostname}:{redisPort}");
+                options.AllowAdmin = true;
 
-            //    var redis = ConnectionMultiplexer.Connect(options);
+                var redis = ConnectionMultiplexer.Connect(options);
 
-            //    var server = redis.GetServer(redisHostname ?? "", redisPort);
-            //    server.FlushDatabase();
+                var server = redis.GetServer(redisHostname ?? "", redisPort);
+                server.FlushDatabase();
 
-            //    return redis;
-            //});
-           
+                return redis;
+            });
+
             builder.Services.AddScoped<IWorkerService, WorkerService>();
             builder.Services.AddScoped<PaginationService>();
             builder.Services.AddScoped<FilterService>();

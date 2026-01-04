@@ -3,7 +3,7 @@ import searchStyle from "../../../styles/SearchView.module.css";
 import buttonStyles from "../../../styles/ButtonStyle.module.css";
 import footerStyle from '../../../styles/Footer.module.css'
 import { Filter } from "@/components/feature/search/Filters";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { SearchBar } from "@/components/feature/search/SearchBar";
 import { FilterWithDialog } from "@/components/feature/search/FilterWithDialog";
 import { useRouter } from 'next/navigation';
@@ -12,17 +12,28 @@ import { useTranslation } from "react-i18next";
 import { toLabelValueFormat } from '../../../utils/others/toLabelValueFormat';
 import { useDictionaries } from "@/hooks/useDictionaries";
 import { staticFilterItem } from "@/types/search/staticFilterItem";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Search = () => {
-    const { search, extraFilters, setExtraFilter, addRecentSearch, clearFilters, setSearch } = useSearch();
-    const [localSearch, setLocalSearch] = useState({}); 
+    const {setExtraFilters ,addRecentSearch, setSearch, setHasSearched } = useSearch();
+    const [localSearch, setLocalSearch] = useState({});
+    const [localExtraFilters, setLocalExtraFilters] = useState<ExtraFiltersState>({});
     const { t } = useTranslation(["searchView", "searchbar", "common"])
     const { dictionaries, loading } = useDictionaries();
     const router = useRouter();
+    const setLocalExtraFilter = <K extends keyof ExtraFiltersState>(
+    key: K,
+    value: ExtraFiltersState[K]
+    ) => {
+        setLocalExtraFilters(prev => ({
+            ...prev,
+            [key]: value,
+        }));
+    };
     const items: staticFilterItem[][] = [
         toLabelValueFormat(dictionaries?.employmentType || []),
         toLabelValueFormat(dictionaries?.employmentSchedules || []),
-        toLabelValueFormat(dictionaries?.salaryPeriods|| [])
+        toLabelValueFormat(dictionaries?.salaryPeriods || [])
     ]
     const filterConfigs: { key: keyof ExtraFiltersState; label: string; items: staticFilterItem[] }[] = [
         { key: "employmentType", label: t("searchView:workTypeFilterTitle"), items: items[0] },
@@ -30,8 +41,10 @@ const Search = () => {
         { key: "salaryPeriods", label: t("searchView:employmentType"), items: items[2] },
     ];
     const gotoListPage = () => {
-        addRecentSearch(search);
+        addRecentSearch(localSearch);
         setSearch(localSearch);
+        setExtraFilters(localExtraFilters);
+        setHasSearched(true);
         router.push('/list');
     };
     return (
@@ -45,7 +58,7 @@ const Search = () => {
                         <span className={searchStyle["search-view-header-span2"]}> {t("searchView:searchViewTitlePart2")}</span>
                     </span>
                 </div>
-                <SearchBar value={localSearch} onChange={setLocalSearch}/>
+                <SearchBar value={localSearch} onChange={setLocalSearch} />
                 <div className={searchStyle["search-sub-section"]}>
                     <div className={searchStyle["sub-filters"]}>
                         <div className={searchStyle["sub-filters"]}>
@@ -56,20 +69,29 @@ const Search = () => {
                                         label={label}
                                         items={items}
                                         loading={loading}
-                                        value={extraFilters[key]}
-                                        onChange={(v) => setExtraFilter(key, v)}
+                                        value={localExtraFilters[key]}
+                                        onChange={(v) => setLocalExtraFilter(key, v)}
                                     />
                                 </div>
                             ))}
-                            <div className={`${searchStyle["basic-filter-item"]}`}>
-                            <FilterWithDialog
-                                label={t("searchView:salary")}
-                                value={extraFilters.salary}
-                                onChange={(v) => setExtraFilter("salary", v)}>
-                            </FilterWithDialog>
+                            {
+                                loading ?
+                                    <div className="flex flex-row gap-3">
+                                        <Skeleton className="h-5 w-[100px] bg-primary" />
+                                        <Skeleton className="h-5 w-[20px] bg-primary" />
+                                    </div>
+                                    :
+                                    <div className={`${searchStyle["basic-filter-item"]}`}>
+                                        <FilterWithDialog
+                                            label={t("searchView:salary")}
+                                            value={[localExtraFilters.salaryFrom ?? "", localExtraFilters.salaryTo ?? ""]}
+                                            onChange={setLocalExtraFilter}>
+                                        </FilterWithDialog>
+                                    </div>
+                            }
+
                         </div>
-                        </div>
-                        
+
                     </div>
                     <div onClick={gotoListPage} className={buttonStyles["main-button"]}>
                         <img className={`${footerStyle["search"]} mt-0.5`} src="/icons/search0.svg" />

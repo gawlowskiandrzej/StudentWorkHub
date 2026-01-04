@@ -69,7 +69,7 @@ namespace worker.Models
             }
         }
 
-        public async IAsyncEnumerable<(List<string> offers, List<string> errors)> FetchOffers(SearchFilters searchFilter, CancellationToken cancellationToken,int offset = 0, int bathSize = 5)
+        public async IAsyncEnumerable<(List<UnifiedOfferSchemaClass> offers, List<string> errors)> FetchOffers(SearchFilters searchFilter, CancellationToken cancellationToken,int offset = 0, int bathSize = 5)
         {
             if (paginationModule != null)
             {
@@ -104,9 +104,9 @@ namespace worker.Models
                         //ExportTo.ExportToJs(unifiedOfferSchemas, $"{Enum.GetName(typeof(OfferSitesTypes), siteTypeId)}.json");
                         //List<UnifiedOfferSchemaClass> offers = ExportTo.LoadFromJs($"{Enum.GetName(typeof(OfferSitesTypes), siteTypeId)}.json");
                         // Processed by Ai
-                        List<string> outgoingOffers = new List<string>();
-                        foreach (UnifiedOfferSchemaClass item in unifiedOfferSchemastemp)
-                           outgoingOffers.Add(JsonConvert.SerializeObject(item));
+                        //List<string> outgoingOffers = new List<string>();
+                        //foreach (UnifiedOfferSchemaClass item in unifiedOfferSchemastemp)
+                           //outgoingOffers.Add(JsonConvert.SerializeObject(item));
                        // else
                         //{
                             //(List<string> aioffers, List<string> errormessages) processedOffers = await llm.ProcessUnifiedSchemas(unifiedOfferSchemastemp, DatabaseService, bathSize);
@@ -116,7 +116,7 @@ namespace worker.Models
                         //errrosAll.AddRange(processedOffers.errormessages);
                         //if (_saveToLocalFile)
                             //ExportTo.ExportToJs(errrosAll, $"{Enum.GetName(typeof(OfferSitesTypes), _offerSitesTypes)}-errors.json");
-                        yield return (outgoingOffers, errors);
+                        yield return (unifiedOfferSchemastemp, errors);
                     }
                 }
             }

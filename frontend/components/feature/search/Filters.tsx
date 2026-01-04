@@ -23,7 +23,7 @@ export interface FilterProps {
   variant?: "primary" | "secondary";
   clearable?: boolean;
   items?: FilterItem[];
-  value?: string | undefined;
+  value?: string | string[] | undefined;
   loading?: boolean;
   onChange: (value: string) => void;
 }
@@ -42,7 +42,7 @@ export function Filter({ label = "Options", className, variant, clearable = fals
     );
   }
   return (
-    <Select value={value} onValueChange={(val) =>
+    <Select value={Array.isArray(value) ? "" : value ?? ""} onValueChange={(val) =>
       onChange(val === "__clear__" ? "" : val)
     }>
       <SelectTrigger color={variant} className={`w-auto cursor-pointer border-0 m-0 ${className}`}>

@@ -8,6 +8,7 @@ using Offer_collector.Models.UrlBuilders;
 using offer_manager.Interfaces;
 using offer_manager.Models.FilterService;
 using offer_manager.Models.Offers.dtoObjects;
+using offer_manager.Models.Offers.DtoObjects;
 using offer_manager.Models.Others;
 using offer_manager.Models.PaginationService;
 using offer_manager.Models.WorkerService;
@@ -48,121 +49,132 @@ namespace offer_manager.Controllers
         [HttpPost("offers-database")]
         public async Task<IActionResult> GetOffersFromDatabase(SearchDto searchFilter, int pageOffset = 0, int perpage = -1)
         {
-            FrozenSet<UOS?> dbOffers = await _databaseService.GetOffers(searchFilter);
-
-            var filteredOffers = dbOffers
-            .Where(o => o != null)
-            .Where(o => string.IsNullOrEmpty(searchFilter.EmploymentType) || o!.Employment.Types.Contains(searchFilter.EmploymentType))
-            .Where(o => string.IsNullOrEmpty(searchFilter.SalaryPeriod) || o!.Salary.Period == searchFilter.SalaryPeriod)
-            .Where(o => string.IsNullOrEmpty(searchFilter.EmploymentSchedule) || o!.Employment.Schedules.Contains(searchFilter.EmploymentSchedule)).Cast<UOS>();
-
-            List<OfferDTO> offersDTO = _mapper.Map<List<OfferDTO>>(filteredOffers);
-
-            PaginationResponse<OfferDTO> paginationResponse = _pagination.CreatePagedResult(offersDTO, pageOffset, perpage);
-
-            return Ok(new
+            try
             {
-                pagination = paginationResponse,
-                dynamicFilters = _filterService.GetDynamicFilters(dbOffers)
-            });
+                FrozenSet<UOS?> dbOffers = await _databaseService.GetOffers(searchFilter);
+
+                var filteredOffers = dbOffers
+                .Where(o => o != null)
+                .Where(o => string.IsNullOrEmpty(searchFilter.EmploymentType) || o!.Employment.Types.Contains(searchFilter.EmploymentType))
+                .Where(o => string.IsNullOrEmpty(searchFilter.SalaryPeriod) || o!.Salary.Period == searchFilter.SalaryPeriod)
+                .Where(o => string.IsNullOrEmpty(searchFilter.EmploymentSchedule) || o!.Employment.Schedules.Contains(searchFilter.EmploymentSchedule)).Cast<UOS>();
+
+                List<OfferDTO> offersDTO = _mapper.Map<List<OfferDTO>>(filteredOffers);
+
+                PaginationResponse<OfferDTO> paginationResponse = _pagination.CreatePagedResult(offersDTO, pageOffset, perpage);
+
+                return Ok(new DatabaseOffersResponseDto()
+                {
+                    Pagination = paginationResponse,
+                    DynamicFilter = _filterService.GetDynamicFilters(dbOffers)
+                });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new DatabaseOffersResponseDto()
+                {
+                   Error = new List<string> { e.Message },
+                });
+            }
+            
         }
 
         // GET api/<OfferController>/5
-        [HttpGet("offers-scrapped")]
+        [HttpPost("offers-scrapped")]
         public async Task<IActionResult> GetScrappedOffers([FromBody] jobIdsDto jobIds, int batchId = -1, bool usedAi = false, bool addToDatabase = false)
         {
 
-            var completedJobs = new List<JobInfo>();
-            var pendingJobs = new List<object>();
-            foreach (var id in jobIds.JobIds)
+            try
             {
-                JobInfo? job = await _workerService.GetJobAsync(id);
-                if (job == null)
+                var completedJobs = new List<JobInfo>();
+                var pendingJobs = new List<JobInfoDto>();
+                foreach (var id in jobIds.JobIds)
                 {
-                    pendingJobs.Add(new { id, reason = "not_found" });
-                    continue;
-                }
-
-                if (job.Status != BathStatus.completed)
-                {
-                    pendingJobs.Add(new { id, status = job.Status.ToString() });
-                    continue;
-                }
-
-                if (batchId > 0)
-                {
-                    if (job.BathList == null || job.BathList.Count <= batchId)
+                    JobInfo? job = await _workerService.GetJobAsync(id);
+                    if (job == null)
                     {
-                        pendingJobs.Add(new
-                        {
-                            id,
-                            reason = "batch_not_ready",
-                            batch = batchId
-                        });
+                        pendingJobs.Add(new JobInfoDto { JobId = id, Status = BathStatus.notfound.ToString() });
                         continue;
                     }
+
+                    if (job.Status != BathStatus.completed)
+                    {
+                        pendingJobs.Add(new JobInfoDto { JobId = id, Status = job.Status.ToString() });
+                        continue;
+                    }
+
+                    completedJobs.Add(job);
                 }
 
-                completedJobs.Add(job);
-            }
-            
-            if (pendingJobs.Count > 0)
-            {
-                return Ok(new
+                if (pendingJobs.Count > 0)
                 {
-                    status = "pending",
-                    waitingFor = pendingJobs
+                    return Ok(new ScrappedOffersResponseDto {ScrappingStatus = new ScrappingStatus { jobInfos = pendingJobs } } );
+                }
+
+                List<string> mergedOffers = new List<string>();
+
+                foreach (var job in completedJobs)
+                {
+                    mergedOffers.AddRange(job.BathList);
+                }
+
+                DateTime earliestStart = completedJobs
+                .Min(j => j.StartTime);
+
+                DateTime latestEnd = completedJobs
+                    .Max(j => j.EndTime);
+
+                TimeSpan totalDuration = latestEnd - earliestStart;
+                IEnumerable<string> errors = completedJobs.Where(j => j.ErrorMessage != null && j.ErrorMessage.Count > 0)
+                    .SelectMany(j => j.ErrorMessage!);
+
+                List<UOS> unifiedOffers = mergedOffers.Select(_ => JsonConvert.DeserializeObject<UOS>(_) ?? new UOS()).GroupBy(_ => _.Url).Select(_ => _.First()).ToList();
+                if (usedAi)
+                {
+                    (List<string?>, List<string>) aiResponse = await _aiService.ProcessUnifiedSchemas(mergedOffers, await _databaseService.GetSystemPromptParamsAsync());
+                    mergedOffers = aiResponse.Item1.Where(_ => !string.IsNullOrEmpty(_)).Select(_ => _!).ToList();
+                    errors = errors.Concat(aiResponse.Item2);
+                }
+                if (addToDatabase)
+                {
+                    (bool isSuccess, IEnumerable<long?> offerIds, List<string> dbErrors) = await _databaseService.AddOffersToDatabaseAsync(mergedOffers);
+                    errors = errors.Concat(dbErrors);
+                    unifiedOffers = mergedOffers
+                    .Select((json, index) => {
+                        var offer = JsonConvert.DeserializeObject<UOS>(json) ?? new UOS();
+                        offer.Id = offerIds.ElementAtOrDefault(index);
+                        return offer;
+                    })
+                    .ToList();
+                }
+
+                List<OfferDTO> responseOffers = _mapper.Map<List<OfferDTO>>(unifiedOffers);
+                return Ok(new ScrappedOffersResponseDto()
+                {
+                    DatabaseOffersResponse = new DatabaseOffersResponseDto
+                    {
+                        Pagination = _pagination.CreatePagedResult(responseOffers, 0, -1),
+                        DynamicFilter = _filterService.GetDynamicFilters(FrozenSet.ToFrozenSet<UOS?>(unifiedOffers))
+                    },
+                    ScrappingStatus = new ScrappingStatus { jobInfos = completedJobs.Select(_ => _.ToJobInfoDto()).ToList(), ScrappingDone = true, ScrappingDuration = totalDuration.TotalSeconds.ToString("F2") }
                 });
             }
-
-            List<string> mergedOffers = new List<string>();
-
-            foreach (var job in completedJobs)
+            catch (Exception e)
             {
-                if (batchId > -1)
-                    mergedOffers.AddRange(job.BathList[batchId]);
-                else
-                    mergedOffers.AddRange(job.BathList.SelectMany(b => b));
+                return BadRequest(new ScrappedOffersResponseDto()
+                {
+                    DatabaseOffersResponse = new DatabaseOffersResponseDto
+                    {
+                         Error = new List<string> { e.Message }
+                    }
+                });
             }
-
-            DateTime earliestStart = completedJobs
-            .Min(j => j.StartTime);
-
-            DateTime latestEnd = completedJobs
-                .Max(j => j.EndTime);
-
-            TimeSpan totalDuration = latestEnd - earliestStart;
-            IEnumerable<string> errors = completedJobs.Where(j => j.ErrorMessage != null && j.ErrorMessage.Count > 0)
-                .SelectMany(j => j.ErrorMessage!);
-
-            List<UnifiedOfferSchemaClass> unifiedOffers = mergedOffers.Select(_ => JsonConvert.DeserializeObject<UnifiedOfferSchemaClass>(_) ?? new UnifiedOfferSchemaClass()).GroupBy(_ => _.url).Select(_ => _.First()).ToList();
-            mergedOffers = unifiedOffers.Select(_ => JsonConvert.SerializeObject(_)).ToList();
-
-            if (usedAi)
-            {
-                (List<string?>, List<string>) aiResponse = await _aiService.ProcessUnifiedSchemas(mergedOffers, await _databaseService.GetSystemPromptParamsAsync());
-                mergedOffers = aiResponse.Item1.Where(_ => !string.IsNullOrEmpty(_)).Select(_ => _!).ToList();
-                errors = errors.Concat(aiResponse.Item2);
-            }
-            if (addToDatabase)
-            {
-                (bool isSuccess, List<string> dbErrors) = await _databaseService.AddOffersToDatabaseAsync(mergedOffers);
-                errors = errors.Concat(dbErrors);
-            }
-
-
-            return Ok(new
-            {
-               batch = mergedOffers,
-               errors = errors,
-               dynamicFilter = _filterService.GetDynamicFilters(FrozenSet.ToFrozenSet<UOS?>(mergedOffers.Select(o => JsonConvert.DeserializeObject<UOS>(o)))),
-                scrappingDuration = totalDuration.TotalSeconds.ToString("F2")
-            });
+            
         }
 
         // POST api/<OfferController>
-        [HttpPost]
-        public async Task<IActionResult> CreateScrappers([FromBody] SearchFilters filters, int batchSize = 5, int batchLimit = 1, int offset = 0)
+        [HttpPost("create-scrappers")]
+        public async Task<IActionResult> CreateScrappers([FromBody] SearchDto filters, int batchSize = 5, int batchLimit = 1, int offset = 0)
         {
             List<string>jobIds = new List<string>();
             for (int i = 0; i < _statSettings.NumberOfAvailablePortals * batchLimit; i++)
@@ -171,9 +183,9 @@ namespace offer_manager.Controllers
 
             }
             
-            return Ok(new 
+            return Ok(new jobIdsDto
             {
-                jobIds = jobIds
+                JobIds = jobIds
             });
         }
         // DELETE api/<OfferController>/5

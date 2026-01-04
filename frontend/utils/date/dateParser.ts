@@ -6,5 +6,5 @@ export function parseDateTimeSpecial(dateTime: string): Date {
   return new Date(year, month - 1, day, hour, minute, second);
 }
 export function parseDateTime(dateTime: string): Date{
-  return new Date()
+  return new Date(dateTime)
 }

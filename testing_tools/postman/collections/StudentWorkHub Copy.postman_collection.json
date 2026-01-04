@@ -54,7 +54,9 @@
               "",
               "pm.visualizer.set(template, createPayload());"
             ],
-            "type": "text/javascript"
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
           }
         },
         {
@@ -64,7 +66,9 @@
             "exec": [
               ""
             ],
-            "type": "text/javascript"
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
           }
         }
       ],
@@ -77,7 +81,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "",
+          "raw": "{\r\n  \"jobIds\": \r\n    [\r\n        \"8af23902-639a-4460-ae96-1114911173e7\",\r\n        \"6cbacb00-a733-454e-9736-07cf355d4eff\",\r\n        \"157985ad-c4b9-4ad8-9c70-dd1a59e46495\",\r\n        \"5d187589-bc4b-45c7-bb4e-a8d8e06e0892\"\r\n    ]\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -97,11 +101,13 @@
           "query": [
             {
               "key": "usedAi",
-              "value": "false"
+              "value": "false",
+              "uuid": "121e3222-240d-4b2e-a50b-df36a1b48b33"
             },
             {
               "key": "addToDatabase",
-              "value": "false"
+              "value": "false",
+              "uuid": "c87f778b-ae67-4b98-b60a-ffacfc31b585"
             }
           ]
         }

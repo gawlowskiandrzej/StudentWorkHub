@@ -65,6 +65,10 @@ const Footer = () => {
           </div>
         </div>
       </div>
+      <div className={footerStyles["copyright"]}>
+        <div className={footerStyles["student-work-hub"]}>StudentWorkHub</div>
+        <div className={footerStyles["copy-right-text"]}>Copyright 2025. All rights reserved.</div>
+      </div>
     </footer>
   );
 };

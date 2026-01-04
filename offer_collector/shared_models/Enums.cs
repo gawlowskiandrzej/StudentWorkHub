@@ -48,6 +48,7 @@
         completed,
         queued,
         running,
-        pending
+        pending,
+        notfound
     }
 }

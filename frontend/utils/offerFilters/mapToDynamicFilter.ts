@@ -4,7 +4,7 @@ import { dynamicFilter } from "@/types/details/dynamicFilter";
 export function mapApiFilters(
   api?: dynamicFilterResponse
 ): dynamicFilter[] {
-  if (!api) return [];
+  if (!api || api.experienceLevels?.length < 1) return [];
   return [
     // {
     //   key: "languages",
@@ -35,7 +35,7 @@ export function mapApiFilters(
     {
       key: "experienceLevels",
       header: "Poziom doświadczenia",
-      items: api.experienceLevels.map(level => ({
+      items: api.experienceLevels?.map(level => ({
         label: level,
         value: level,
       })),
