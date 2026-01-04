@@ -8,7 +8,7 @@ set -eu
 : "${APP_DB_USER:?APP_DB_USER is required}"
 : "${APP_DB_PASSWORD:?APP_DB_PASSWORD is required}"
 
-echo "[init] Creating roles: ${BACKUP_DB_USER}, ${APP_DB_USER}"
+echo "[init] Creating roles:  ${APP_DB_USER}"
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<SQL
 -- Security baseline: don't let random roles connect/create by default
