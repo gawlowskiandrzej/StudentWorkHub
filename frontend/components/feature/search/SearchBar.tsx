@@ -37,7 +37,7 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
             <div className={searchStyles["searchbar"]}>
                 <div className={searchStyles["phrase-search"]}>
                     <input
-                        className={`${searchStyles["phrase"]} px-3`}
+                        className={`${searchStyles["city"]} px-3`}
                         value={value?.keyword || ""}
                         onChange={(e) => handleChange("keyword", e.target.value)}
                         placeholder={t("searchKeywordPlaceholder")}
