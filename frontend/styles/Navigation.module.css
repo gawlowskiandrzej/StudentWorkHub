@@ -104,7 +104,6 @@
   height: 100vh;
   background: var(--background);
   z-index: 50;
-  padding: 24px;
   transition: right 0.3s ease-in-out;
 }
 

@@ -1,0 +1,389 @@
+.user-profile-info-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  align-self: stretch;
+  flex-shrink: 0;
+  gap: 30px;
+  position: relative;
+}
+.user-profile-info-element {
+  background: rgba(0, 0, 0, 0.01);
+  border-radius: 15px;
+  border-style: solid;
+  border-color: #ffffff;
+  border-width: 1px;
+  padding: 20px 35px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  align-self: stretch;
+  flex-shrink: 0;
+  height: 140px;
+  position: relative;
+}
+.header-profile {
+  align-self: stretch;
+  flex-shrink: 0;
+  display: grid;
+  gap: 0px;
+  position: relative;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.15fr);
+  grid-template-rows: repeat(1, fit-content(100%));
+}
+.personal-information {
+  color: #ffffff;
+  text-align: left;
+  font-family: "Roboto-SemiBold", sans-serif;
+  font-size: var(--subHeader);
+  font-weight: 600;
+  position: relative;
+  width: 346px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  grid-column: 1 / span 1;
+  grid-row: 1 / span 1;
+}
+.edit-icon {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+  overflow: visible;
+  grid-column: 2 / span 1;
+  grid-row: 1 / span 1;
+}
+.username-sec {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  gap: 25px;
+  position: relative;
+}
+.user-icon {
+  background: var(--primary, #3c83f6);
+  border-radius: 9.84px;
+  display: flex;
+  height: 35px;
+  width: 35px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--navigationshadow-box-shadow);
+  flex-shrink: 0;
+  position: relative;
+}
+.user2 {
+  flex-shrink: 0;
+  width: 21px;
+  height: 21px;
+  position: relative;
+  overflow: visible;
+}
+.username-label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  align-self: stretch;
+  flex-shrink: 0;
+  width: 331px;
+  position: relative;
+}
+.user-name-and-surname {
+  color: var(--primary, #3c83f6);
+  text-align: left;
+  font-family: "Roboto-Medium", sans-serif;
+  font-size: var(--subheader, 16px);
+  font-weight: 500;
+  position: relative;
+  align-self: stretch;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.line-8 {
+  margin-top: -1px;
+  border-style: solid;
+  border-color: rgba(255, 255, 255, 0.6);
+  border-width: 1px 0 0 0;
+  align-self: stretch;
+  flex-shrink: 0;
+  height: 0px;
+  position: relative;
+}
+.job-preferences {
+  color: #ffffff;
+  text-align: left;
+  font-family: "Roboto-SemiBold", sans-serif;
+  font-size: var(--subHeader);
+  font-weight: 600;
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.user-profile-settings-elements {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  align-self: stretch;
+  flex-shrink: 0;
+  gap: 30px;
+  position: relative;
+}
+.profile-element {
+  background: rgba(0, 0, 0, 0.01);
+  border-radius: 15px;
+  border-style: solid;
+  border-color: #ffffff;
+  border-width: 1px;
+  padding: 20px 27px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  align-self: stretch;
+  flex-shrink: 0;
+  position: relative;
+}
+.profile-user-item {
+  align-self: stretch;
+  flex-shrink: 0;
+  display: grid;
+  gap: 0px;
+  position: relative;
+  grid-template-columns: minmax(0, 0.45fr) minmax(0, 1fr) minmax(0, 0.15fr);
+  grid-template-rows: repeat(1, fit-content(100%));
+}
+.edit-icon-container {
+  display: flex;
+  flex-direction: row;
+  gap: 0px;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+  overflow: visible;
+  grid-column: 3 / span 1;
+  grid-row: 1 / span 1;
+}
+.preety-icon-container {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-start;
+  height: 38.3px;
+  position: relative;
+  grid-column: 2 / span 1;
+  grid-row: 1 / span 1;
+}
+.preety-icon {
+  background: var(--primary, #3c83f6);
+  border-radius: 8.4px;
+  padding: 9px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  flex-shrink: 0;
+  position: relative;
+  box-shadow: var(--navigationshadow-box-shadow);
+}
+.tag {
+  flex-shrink: 0;
+  width: 21.5px;
+  height: 21.5px;
+  position: relative;
+  overflow: visible;
+}
+.category {
+  color: #ffffff;
+  text-align: left;
+  font-family: "Roboto-SemiBold", sans-serif;
+  font-size: var(--subHeader);
+  font-weight: 600;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  grid-column: 1 / span 1;
+  grid-row: 1 / span 1;
+}
+.profile-items-sub {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  align-self: stretch;
+  flex-shrink: 0;
+  position: relative;
+}
+.category-from-list {
+  color: var(--primary, #3c83f6);
+  text-align: left;
+  font-family: "Roboto-Regular", sans-serif;
+  font-size: var(--mediumSize);
+  font-weight: 400;
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.profile-element2 {
+  background: rgba(0, 0, 0, 0.01);
+  border-radius: 15px;
+  border-style: solid;
+  border-color: #ffffff;
+  border-width: 1px;
+  padding: 20px 35px 20px 35px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  align-self: stretch;
+  flex-shrink: 0;
+  height: 168.3px;
+  position: relative;
+  box-shadow: var(--navigationshadow-box-shadow);
+}
+.edit-icon-container2 {
+  display: flex;
+  flex-direction: row;
+  gap: 0px;
+  align-items: center;
+  justify-content: flex-end;
+  height: 38.3px;
+  position: relative;
+  overflow: visible;
+  grid-column: 3 / span 1;
+  grid-row: 1 / span 1;
+}
+.map-pin {
+  flex-shrink: 0;
+  width: 21.5px;
+  height: 21.5px;
+  position: relative;
+  overflow: visible;
+}
+.category-from-list2 {
+  color: var(--primary, #3c83f6);
+  text-align: left;
+  font-family: "Roboto-Regular", sans-serif;
+  font-size: var(--subheader, 16px);
+  font-weight: 400;
+  position: relative;
+  align-self: stretch;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.edit-icon-container3 {
+  display: flex;
+  flex-direction: row;
+  gap: 0px;
+  align-items: center;
+  justify-content: flex-end;
+  height: 38.3px;
+  position: relative;
+  overflow: visible;
+  grid-column: 3 / span 1;
+  grid-row: 1 / span 1;
+}
+.dollar-sign {
+  flex-shrink: 0;
+  width: 21.5px;
+  height: 21.5px;
+  position: relative;
+  overflow: visible;
+}
+.edit-icon-container4 {
+  display: flex;
+  flex-direction: row;
+  gap: 0px;
+  align-items: center;
+  justify-content: flex-end;
+  height: 38.3px;
+  position: relative;
+  overflow: visible;
+  grid-column: 3 / span 1;
+  grid-row: 1 / span 1;
+}
+.alert-circle {
+  flex-shrink: 0;
+  width: 21.5px;
+  height: 21.5px;
+  position: relative;
+  overflow: visible;
+}
+.edit-icon-container5 {
+  display: flex;
+  flex-direction: row;
+  gap: 0px;
+  align-items: center;
+  justify-content: flex-end;
+  height: 38.3px;
+  position: relative;
+  overflow: visible;
+  grid-column: 3 / span 1;
+  grid-row: 1 / span 1;
+}
+.flag {
+  flex-shrink: 0;
+  width: 21.5px;
+  height: 21.5px;
+  position: relative;
+  overflow: visible;
+}
+.profile-element3 {
+  background: rgba(0, 0, 0, 0.01);
+  border-radius: 15px;
+  border-style: solid;
+  border-color: #ffffff;
+  border-width: 1px;
+  padding: 20px 35px 20px 35px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  align-self: stretch;
+  flex-shrink: 0;
+  height: 134px;
+  position: relative;
+  box-shadow: 4px 4px 16px 0px rgba(255, 255, 255, 0.25);
+}
+.edit-icon-container6 {
+  display: flex;
+  flex-direction: row;
+  gap: 0px;
+  align-items: center;
+  justify-content: flex-end;
+  height: 38.3px;
+  position: relative;
+  overflow: visible;
+  grid-column: 3 / span 1;
+  grid-row: 1 / span 1;
+}
+.gift {
+  flex-shrink: 0;
+  width: 21.5px;
+  height: 21.5px;
+  position: relative;
+  overflow: visible;
+}
