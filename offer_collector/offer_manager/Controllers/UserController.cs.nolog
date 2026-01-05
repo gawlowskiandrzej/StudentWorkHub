@@ -88,50 +88,8 @@ namespace offer_manager.Controllers
         /// </summary>
         private readonly JwtOptions _jwtOptions = jwtOptions;
 
-        /// <summary>
-        /// Application logger used by <see cref="UserController"/> to record diagnostic and audit-style events.
-        /// Uses the custom <see cref="Logger"/> (not Microsoft.Extensions.Logging).
-        /// Logging must never affect request processing; all logging calls are wrapped with safeguards.
-        /// </summary>
+
         private readonly Logger _logger = logger;
-
-        /// <summary>
-        /// Attempts to write a log entry using the custom <see cref="Logger"/>.
-        /// The log is tagged with controller and action context: <c>["UserController", action]</c>.
-        /// Any exceptions thrown by the logger are swallowed to ensure logging never breaks an HTTP request.
-        /// </summary>
-        /// <param name="type">
-        /// Log severity/type (e.g. <c>"INFO"</c>, <c>"WARNING"</c>, <c>"ERROR"</c>, <c>"DEBUG"</c>, <c>"NOTIFICATION"</c>).
-        /// </param>
-        /// <param name="action">
-        /// Logical action name (typically the endpoint/method name) used as part of the log context.
-        /// </param>
-        /// <param name="message">Human-readable log message.</param>
-        private void TryLog(string type, string action, string message)
-        {
-            try
-            {
-                _logger.Add(type, new[] { "UserController", action }, message);
-            }
-            catch
-            {
-                // Never fail a request due to logging.
-            }
-        }
-
-        /// <summary>
-        /// Helper that logs an exception as an <c>"ERROR"</c> entry for the given action.
-        /// The message format is: <c>{action}: {ExceptionType}: {ExceptionMessage}</c>.
-        /// This method is safe to call from catch blocks; it never throws.
-        /// </summary>
-        /// <param name="action">
-        /// Logical action name (typically the endpoint/method name) to associate the exception with.
-        /// </param>
-        /// <param name="ex">The exception instance to be logged.</param>
-        private void TryLogException(string action, Exception ex)
-        {
-            TryLog("ERROR", action, $"{action}: {ex.GetType().Name}: {ex.Message}");
-        }
 
         /// <summary>
         /// Registers a new user using email and password credentials.
@@ -146,54 +104,36 @@ namespace offer_manager.Controllers
             [FromBody] StandardRegisterUserRequest? request
         )
         {
-            const string action = "standard-register";
-            TryLog("INFO", action, "Request received.");
             if (request is null)
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new StandardRegisterUserResponse { ErrorMessage = _errEmptyRequest });
-            }
 
             if (string.IsNullOrWhiteSpace(request.Email) ||
                 string.IsNullOrWhiteSpace(request.Password) ||
                 string.IsNullOrWhiteSpace(request.FirstName) ||
                 string.IsNullOrWhiteSpace(request.LastName))
             {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new StandardRegisterUserResponse { ErrorMessage = "Uzupełnij wszystkie wymagane pola i spróbuj ponownie." });
             }
 
             if (!_emailRegex.IsMatch(request.Email))
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new StandardRegisterUserResponse { ErrorMessage = _errInvalidEmail });
-            }
 
             if (!_userPasswordPolicy.ValidatePassword(request.Password).IsValid)
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new StandardRegisterUserResponse { ErrorMessage = "Hasło nie spełnia wymagań bezpieczeństwa." });
-            }
 
             try
             {
                 (bool result, string error) = await _userController.StandardRegisterAsync(_userPasswordPolicy, request.Email, request.Password, request.FirstName, request.LastName);
                 if (!result)
-                {
-                    TryLog("ATTENTION", action, "Conflict.");
                     return Conflict(new StandardRegisterUserResponse
                     {
                         ErrorMessage = "Ten e-mail jest już zajęty."
                     });
-                }
 
-                TryLog("NOTIFICATION", action, "Created.");
                 return StatusCode(StatusCodes.Status201Created, new StandardRegisterUserResponse { ErrorMessage = string.Empty });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ERROR", action, "Internal server error response.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new StandardRegisterUserResponse { ErrorMessage = _errInternalServer });
             }
         }
@@ -211,11 +151,8 @@ namespace offer_manager.Controllers
             [FromBody] StandardLoginRequest? request
         )
         {
-            const string action = "standard-login";
-            TryLog("INFO", action, "Request received.");
             if (request is null)
             {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new StandardLoginResponse
                 {
                     ErrorMessage = _errEmptyRequest,
@@ -226,7 +163,6 @@ namespace offer_manager.Controllers
 
             if (string.IsNullOrWhiteSpace(request.Login) || string.IsNullOrWhiteSpace(request.Password))
             {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new StandardLoginResponse
                 {
                     ErrorMessage = "Uzupełnij login i hasło.",
@@ -237,7 +173,6 @@ namespace offer_manager.Controllers
 
             if (!_emailRegex.IsMatch(request.Login))
             {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new StandardLoginResponse
                 {
                     ErrorMessage = _errInvalidEmail,
@@ -250,20 +185,16 @@ namespace offer_manager.Controllers
             {
                 (bool result, string error, string? rememberToken, long? userId) = await _userController.StandardAuthAsync(request.Login, request.Password, request.RememberMe);
                 if (!result)
-                {
-                    TryLog("ATTENTION", action, "Unauthorized.");
                     return Unauthorized(new StandardLoginResponse
                     {
                         ErrorMessage = "Niepoprawny login lub hasło.",
                         Jwt = string.Empty,
                         RememberMeToken = string.Empty
                     });
-                }
 
                 if (userId is null)
                     throw new Exception("Empty userId");
 
-                TryLog("NOTIFICATION", action, "Success.");
                 return Ok(new StandardLoginResponse
                 {
                     ErrorMessage = string.Empty,
@@ -271,10 +202,8 @@ namespace offer_manager.Controllers
                     RememberMeToken = rememberToken ?? string.Empty
                 });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ERROR", action, "Internal server error response.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new StandardLoginResponse
                 {
                     ErrorMessage = _errInternalServer,
@@ -298,11 +227,8 @@ namespace offer_manager.Controllers
             [FromBody] TokenLoginRequest? request
         )
         {
-            const string action = "token-login";
-            TryLog("INFO", action, "Request received.");
             if (request is null)
             {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new TokenLoginResponse
                 {
                     ErrorMessage = _errEmptyRequest,
@@ -313,7 +239,6 @@ namespace offer_manager.Controllers
 
             if (string.IsNullOrWhiteSpace(request.Token))
             {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new TokenLoginResponse
                 {
                     ErrorMessage = "Pusty token.",
@@ -326,20 +251,16 @@ namespace offer_manager.Controllers
             {
                 (bool result, string error, string? rememberToken, long? userId) = await _userController.AuthWithTokenAsync(request.Token);
                 if (!result)
-                {
-                    TryLog("ATTENTION", action, "Unauthorized.");
                     return Unauthorized(new TokenLoginResponse
                     {
                         ErrorMessage = "Niepoprawny token.",
                         Jwt = string.Empty,
                         RememberMeToken = string.Empty
                     });
-                }
 
                 if (userId is null)
                     throw new Exception("Empty userId");
 
-                TryLog("NOTIFICATION", action, "Success.");
                 return Ok(new TokenLoginResponse
                 {
                     ErrorMessage = string.Empty,
@@ -347,10 +268,8 @@ namespace offer_manager.Controllers
                     RememberMeToken = rememberToken ?? string.Empty
                 });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ERROR", action, "Internal server error response.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new TokenLoginResponse
                 {
                     ErrorMessage = _errInternalServer,
@@ -374,11 +293,8 @@ namespace offer_manager.Controllers
             [FromBody] UpdateDataRequest? request
         )
         {
-            const string action = "update-data";
-            TryLog("INFO", action, "Request received.");
             if (request is null)
             {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new UpdateDataResponse
                 {
                     ErrorMessage = _errEmptyRequest,
@@ -391,7 +307,6 @@ namespace offer_manager.Controllers
 
             if (string.IsNullOrWhiteSpace(request.Jwt))
             {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new UpdateDataResponse
                 {
                     ErrorMessage = _errLoginRequired,
@@ -410,8 +325,6 @@ namespace offer_manager.Controllers
 
 
             if (!hasAnyUpdate)
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new UpdateDataResponse
                 {
                     ErrorMessage = _errNothingToUpdate,
@@ -420,35 +333,29 @@ namespace offer_manager.Controllers
                     UserLastNameUpdated = false,
                     UserPhoneUpdated = false
                 });
-            }
 
             if (!string.IsNullOrWhiteSpace(request.UserPhone))
             {
                 if (!_phoneRegex.IsMatch(request.UserPhone))
-                {
-                    TryLog("WARNING", action, "BadRequest.");
                     return BadRequest(new UpdateDataResponse
-                    {
+                    { 
                         ErrorMessage = "Niepoprawny format numeru telefonu.",
                         UserFirstNameUpdated = false,
                         UserSecondNameUpdated = false,
                         UserLastNameUpdated = false,
                         UserPhoneUpdated = false
                     });
-                }
             }
 
             long userId;
             try
             {
-                userId = JwtUtils.GetUserId(_jwtOptions, request.Jwt);
+                userId = JwtUtils.GetUserId(_jwtOptions, request.Jwt);                
             }
             catch (SecurityTokenExpiredException)
             {
-                TryLog("ATTENTION", action, "JWT expired.");
-                TryLog("ATTENTION", action, "Unauthorized.");
-                return Unauthorized(new UpdateDataResponse
-                {
+                return Unauthorized(new UpdateDataResponse 
+                { 
                     ErrorMessage = _errJwtExpired,
                     UserFirstNameUpdated = false,
                     UserSecondNameUpdated = false,
@@ -456,10 +363,8 @@ namespace offer_manager.Controllers
                     UserPhoneUpdated = false
                 });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new UpdateDataResponse
                 {
                     ErrorMessage = _errJwtInvalid,
@@ -488,7 +393,6 @@ namespace offer_manager.Controllers
 
                 Dictionary<string, bool> fieldResults = await _userController.UpdateDataAsync(userId, dataFields);
 
-                TryLog("NOTIFICATION", action, "Success.");
                 return Ok(new UpdateDataResponse
                 {
                     ErrorMessage = string.Empty,
@@ -498,12 +402,10 @@ namespace offer_manager.Controllers
                     UserPhoneUpdated = fieldResults.TryGetValue(_fieldUserPhone, out bool phone) && phone
                 });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ERROR", action, "Internal server error response.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new UpdateDataResponse
-                {
+                { 
                     ErrorMessage = _errInternalServer,
                     UserFirstNameUpdated = false,
                     UserSecondNameUpdated = false,
@@ -527,19 +429,11 @@ namespace offer_manager.Controllers
             [FromBody] UpdateWeightsRequest? request
         )
         {
-            const string action = "update-weights";
-            TryLog("INFO", action, "Request received.");
             if (request is null)
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new UpdateWeightsResponse { ErrorMessage = _errEmptyRequest });
-            }
 
             if (string.IsNullOrWhiteSpace(request.Jwt))
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new UpdateWeightsResponse { ErrorMessage = _errLoginRequired });
-            }
 
             bool hasAnyUpdate =
                 (request.OrderByOption is not null && request.OrderByOption.Length > 0) ||
@@ -554,10 +448,7 @@ namespace offer_manager.Controllers
                 (request.MeansWeightCount is not null && request.MeansWeightCount.Length > 0);
 
             if (!hasAnyUpdate)
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new UpdateWeightsResponse { ErrorMessage = _errNothingToUpdate });
-            }
 
             long userId;
             try
@@ -566,14 +457,10 @@ namespace offer_manager.Controllers
             }
             catch (SecurityTokenExpiredException)
             {
-                TryLog("ATTENTION", action, "JWT expired.");
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new UpdateWeightsResponse { ErrorMessage = _errJwtExpired });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new UpdateWeightsResponse { ErrorMessage = _errJwtInvalid });
             }
 
@@ -613,7 +500,6 @@ namespace offer_manager.Controllers
 
                 Dictionary<string, bool> fieldResults = await _userController.UpdateWeightsAsync(userId, dataFields);
 
-                TryLog("NOTIFICATION", action, "Success.");
                 return Ok(new UpdateWeightsResponse
                 {
                     ErrorMessage = string.Empty,
@@ -629,10 +515,8 @@ namespace offer_manager.Controllers
                     MeansWeightCountUpdated = fieldResults.TryGetValue(_fieldMeansWeightCount, out bool mwc) && mwc
                 });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ERROR", action, "Internal server error response.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new UpdateWeightsResponse { ErrorMessage = _errInternalServer });
             }
         }
@@ -651,25 +535,14 @@ namespace offer_manager.Controllers
             [FromBody] ChangePasswordRequest? request
         )
         {
-            const string action = "change-password";
-            TryLog("INFO", action, "Request received.");
             if (request is null)
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new ChangePasswordResponse { ErrorMessage = _errEmptyRequest });
-            }
 
             if (string.IsNullOrWhiteSpace(request.Jwt))
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new ChangePasswordResponse { ErrorMessage = _errLoginRequired });
-            }
 
             if (string.IsNullOrWhiteSpace(request.NewPassword))
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new ChangePasswordResponse { ErrorMessage = "Puste hasło." });
-            }
 
             long userId;
             try
@@ -678,14 +551,10 @@ namespace offer_manager.Controllers
             }
             catch (SecurityTokenExpiredException)
             {
-                TryLog("ATTENTION", action, "JWT expired.");
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new ChangePasswordResponse { ErrorMessage = _errJwtExpired });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new ChangePasswordResponse { ErrorMessage = _errJwtInvalid });
             }
 
@@ -695,13 +564,10 @@ namespace offer_manager.Controllers
                 if (!result)
                     throw new Exception("Password change failed");
 
-                TryLog("NOTIFICATION", action, "Success.");
                 return Ok(new ChangePasswordResponse { ErrorMessage = string.Empty });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ERROR", action, "Internal server error response.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new ChangePasswordResponse { ErrorMessage = _errInternalServer });
             }
         }
@@ -720,19 +586,11 @@ namespace offer_manager.Controllers
             [FromBody] LogoutRequest? request
         )
         {
-            const string action = "logout";
-            TryLog("INFO", action, "Request received.");
             if (request is null)
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new LogoutResponse { ErrorMessage = _errEmptyRequest });
-            }
 
             if (string.IsNullOrWhiteSpace(request.Jwt))
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new LogoutResponse { ErrorMessage = _errLoginRequired });
-            }
 
             long userId;
             try
@@ -741,14 +599,10 @@ namespace offer_manager.Controllers
             }
             catch (SecurityTokenExpiredException)
             {
-                TryLog("ATTENTION", action, "JWT expired.");
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new LogoutResponse { ErrorMessage = _errJwtExpired });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new LogoutResponse { ErrorMessage = _errJwtInvalid });
             }
 
@@ -756,13 +610,10 @@ namespace offer_manager.Controllers
             {
                 await _userController.LogoutAsync(userId);
 
-                TryLog("NOTIFICATION", action, "Success.");
                 return Ok(new LogoutResponse { ErrorMessage = string.Empty });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ERROR", action, "Internal server error response.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new LogoutResponse { ErrorMessage = _errInternalServer });
             }
         }
@@ -781,25 +632,14 @@ namespace offer_manager.Controllers
             [FromBody] CheckPermissionRequest? request
         )
         {
-            const string action = "check-permission";
-            TryLog("INFO", action, "Request received.");
             if (request is null)
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new CheckPermissionResponse { ErrorMessage = _errEmptyRequest });
-            }
 
             if (string.IsNullOrWhiteSpace(request.Jwt))
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new CheckPermissionResponse { ErrorMessage = _errLoginRequired });
-            }
 
             if (string.IsNullOrWhiteSpace(request.PermissionName))
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new CheckPermissionResponse { ErrorMessage = "Pusta nazwa permisji." });
-            }
 
             long userId;
             try
@@ -808,14 +648,10 @@ namespace offer_manager.Controllers
             }
             catch (SecurityTokenExpiredException)
             {
-                TryLog("ATTENTION", action, "JWT expired.");
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new CheckPermissionResponse { ErrorMessage = _errJwtExpired });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new CheckPermissionResponse { ErrorMessage = _errJwtInvalid });
             }
 
@@ -824,18 +660,12 @@ namespace offer_manager.Controllers
                 bool hasPermission = await _userController.CheckPermissionAsync(userId, request.PermissionName);
 
                 if (!hasPermission)
-                {
-                    TryLog("ATTENTION", action, "Forbidden.");
                     return StatusCode(StatusCodes.Status403Forbidden, new CheckPermissionResponse { ErrorMessage = "Brak uprawnień." });
-                }
 
-                TryLog("NOTIFICATION", action, "Success.");
                 return Ok(new CheckPermissionResponse { ErrorMessage = string.Empty });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ERROR", action, "Internal server error response.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new CheckPermissionResponse { ErrorMessage = _errInternalServer });
             }
         }
@@ -854,19 +684,11 @@ namespace offer_manager.Controllers
             [FromBody] InsertSearchHistoryRequest? request
         )
         {
-            const string action = "insert-search-history";
-            TryLog("INFO", action, "Request received.");
             if (request is null)
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new InsertSearchHistoryResponse { ErrorMessage = _errEmptyRequest });
-            }
 
             if (string.IsNullOrWhiteSpace(request.Jwt))
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new InsertSearchHistoryResponse { ErrorMessage = _errLoginRequired });
-            }
 
             bool hasAnyUpdate =
                 !string.IsNullOrWhiteSpace(request.Keywords) ||
@@ -883,10 +705,7 @@ namespace offer_manager.Controllers
                 (request.EmploymentTypeIds is not null && request.EmploymentTypeIds.Length > 0);
 
             if (!hasAnyUpdate)
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new InsertSearchHistoryResponse { ErrorMessage = _errNothingToUpdate });
-            }
 
             long userId;
             try
@@ -895,17 +714,13 @@ namespace offer_manager.Controllers
             }
             catch (SecurityTokenExpiredException)
             {
-                TryLog("ATTENTION", action, "JWT expired.");
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new InsertSearchHistoryResponse { ErrorMessage = _errJwtExpired });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new InsertSearchHistoryResponse { ErrorMessage = _errJwtInvalid });
             }
-
+            
             try
             {
                 bool result = await _userController.InsertSearchHistoryAsync(
@@ -919,13 +734,10 @@ namespace offer_manager.Controllers
                 if (!result)
                     throw new Exception("Inserting history failed");
 
-                TryLog("NOTIFICATION", action, "Success.");
                 return Ok(new InsertSearchHistoryResponse { ErrorMessage = string.Empty });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ERROR", action, "Internal server error response.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new InsertSearchHistoryResponse { ErrorMessage = _errInternalServer });
             }
         }
@@ -944,19 +756,11 @@ namespace offer_manager.Controllers
             [FromBody] DeleteUserRequest? request
         )
         {
-            const string action = "delete-user";
-            TryLog("INFO", action, "Request received.");
             if (request is null)
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new DeleteUserResponse { ErrorMessage = _errEmptyRequest });
-            }
 
             if (string.IsNullOrWhiteSpace(request.Jwt))
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new DeleteUserResponse { ErrorMessage = _errLoginRequired });
-            }
 
             long userId;
             try
@@ -965,14 +769,10 @@ namespace offer_manager.Controllers
             }
             catch (SecurityTokenExpiredException)
             {
-                TryLog("ATTENTION", action, "JWT expired.");
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new DeleteUserResponse { ErrorMessage = _errJwtExpired });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new DeleteUserResponse { ErrorMessage = _errJwtInvalid });
             }
 
@@ -982,13 +782,10 @@ namespace offer_manager.Controllers
                 if (!result)
                     throw new Exception("Removing user failed");
 
-                TryLog("NOTIFICATION", action, "Success.");
                 return Ok(new DeleteUserResponse { ErrorMessage = string.Empty });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ERROR", action, "Internal server error response.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new DeleteUserResponse { ErrorMessage = _errInternalServer });
             }
         }
@@ -1007,19 +804,11 @@ namespace offer_manager.Controllers
             [FromBody] RefreshJwtRequest? request
         )
         {
-            const string action = "refresh-jwt";
-            TryLog("INFO", action, "Request received.");
             if (request is null)
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new RefreshJwtResponse { ErrorMessage = _errEmptyRequest, Jwt = string.Empty });
-            }
 
             if (string.IsNullOrWhiteSpace(request.Jwt))
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new RefreshJwtResponse { ErrorMessage = _errLoginRequired, Jwt = string.Empty });
-            }
 
             long userId;
             try
@@ -1028,31 +817,24 @@ namespace offer_manager.Controllers
             }
             catch (SecurityTokenExpiredException)
             {
-                TryLog("ATTENTION", action, "JWT expired.");
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new RefreshJwtResponse { ErrorMessage = _errJwtExpired, Jwt = string.Empty });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new RefreshJwtResponse { ErrorMessage = _errJwtInvalid, Jwt = string.Empty });
             }
 
             try
             {
-                TryLog("NOTIFICATION", action, "Success.");
                 return Ok(new RefreshJwtResponse
                 {
                     ErrorMessage = string.Empty,
                     Jwt = JwtUtils.Generate(_jwtOptions, userId)
                 });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ERROR", action, "Internal server error response.");
-                return StatusCode(StatusCodes.Status500InternalServerError, new RefreshJwtResponse
+                return StatusCode(StatusCodes.Status500InternalServerError, new RefreshJwtResponse 
                 {
                     ErrorMessage = _errInternalServer,
                     Jwt = string.Empty
@@ -1074,19 +856,11 @@ namespace offer_manager.Controllers
             [FromBody] CheckJwtRequest? request
         )
         {
-            const string action = "check-jwt";
-            TryLog("INFO", action, "Request received.");
             if (request is null)
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new CheckJwtResponse());
-            }
 
             if (string.IsNullOrWhiteSpace(request.Jwt))
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new CheckJwtResponse());
-            }
 
             long userId;
             try
@@ -1095,18 +869,13 @@ namespace offer_manager.Controllers
             }
             catch (SecurityTokenExpiredException)
             {
-                TryLog("ATTENTION", action, "JWT expired.");
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new CheckJwtResponse());
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new CheckJwtResponse());
             }
 
-            TryLog("NOTIFICATION", action, "Success.");
             return Ok(new CheckJwtResponse { Result = true });
         }
 
@@ -1124,19 +893,11 @@ namespace offer_manager.Controllers
             [FromBody] GetSearchHistoryRequest? request
         )
         {
-            const string action = "get-search-history";
-            TryLog("INFO", action, "Request received.");
             if (request is null)
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new GetSearchHistoryResponse { ErrorMessage = _errEmptyRequest, SearchHistory = JsonDocument.Parse("[]").RootElement.Clone() });
-            }
 
             if (string.IsNullOrWhiteSpace(request.Jwt))
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new GetSearchHistoryResponse { ErrorMessage = _errLoginRequired, SearchHistory = JsonDocument.Parse("[]").RootElement.Clone() });
-            }
 
             long userId;
             try
@@ -1145,14 +906,10 @@ namespace offer_manager.Controllers
             }
             catch (SecurityTokenExpiredException)
             {
-                TryLog("ATTENTION", action, "JWT expired.");
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new GetSearchHistoryResponse { ErrorMessage = _errJwtExpired, SearchHistory = JsonDocument.Parse("[]").RootElement.Clone() });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new GetSearchHistoryResponse { ErrorMessage = _errJwtInvalid, SearchHistory = JsonDocument.Parse("[]").RootElement.Clone() });
             }
 
@@ -1161,21 +918,55 @@ namespace offer_manager.Controllers
                 string json = await _userController.GetSearchHistoryAsync(userId, request.Limit, HttpContext.RequestAborted);
                 using JsonDocument doc = JsonDocument.Parse(json);
 
-                TryLog("NOTIFICATION", action, "Success.");
                 return Ok(new GetSearchHistoryResponse
                 {
                     ErrorMessage = string.Empty,
                     SearchHistory = doc.RootElement.Clone()
                 });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ERROR", action, "Internal server error response.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new GetSearchHistoryResponse
                 {
                     ErrorMessage = _errInternalServer,
                     SearchHistory = JsonDocument.Parse("[]").RootElement.Clone()
+                });
+            }
+        }
+
+        /// <summary>
+        /// Returns the most recent N stored searches (globally, across all users).
+        /// For full request/response details and examples, see <c>UserAPI-DOCS.md</c>.
+        /// </summary>
+        /// <param name="request">Request body containing the limit (N).</param>
+        /// <returns>
+        /// 200 with payload; 400 on invalid input; 500 on server error.
+        /// </returns>
+        [HttpPost("get-last-searches")]
+        public async Task<ActionResult<GetLastSearchesResponse>> GetLastSearches(
+            [FromBody] GetLastSearchesRequest? request
+        )
+        {
+            if (request is null)
+                return BadRequest(new GetLastSearchesResponse { ErrorMessage = _errEmptyRequest, LastSearches = JsonDocument.Parse("[]").RootElement.Clone() });
+
+            try
+            {
+                string json = await _userController.GetLastSearchesAsync(request.Limit, HttpContext.RequestAborted);
+                using JsonDocument doc = JsonDocument.Parse(json);
+
+                return Ok(new GetLastSearchesResponse
+                {
+                    ErrorMessage = string.Empty,
+                    LastSearches = doc.RootElement.Clone()
+                });
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new GetLastSearchesResponse
+                {
+                    ErrorMessage = _errInternalServer,
+                    LastSearches = JsonDocument.Parse("[]").RootElement.Clone()
                 });
             }
         }
@@ -1194,19 +985,11 @@ namespace offer_manager.Controllers
             [FromBody] GetWeightsRequest? request
         )
         {
-            const string action = "get-weights";
-            TryLog("INFO", action, "Request received.");
             if (request is null)
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new GetWeightsResponse { ErrorMessage = _errEmptyRequest, Weights = JsonDocument.Parse("{}").RootElement.Clone() });
-            }
 
             if (string.IsNullOrWhiteSpace(request.Jwt))
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new GetWeightsResponse { ErrorMessage = _errLoginRequired, Weights = JsonDocument.Parse("{}").RootElement.Clone() });
-            }
 
             long userId;
             try
@@ -1215,14 +998,10 @@ namespace offer_manager.Controllers
             }
             catch (SecurityTokenExpiredException)
             {
-                TryLog("ATTENTION", action, "JWT expired.");
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new GetWeightsResponse { ErrorMessage = _errJwtExpired, Weights = JsonDocument.Parse("{}").RootElement.Clone() });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new GetWeightsResponse { ErrorMessage = _errJwtInvalid, Weights = JsonDocument.Parse("{}").RootElement.Clone() });
             }
 
@@ -1231,17 +1010,14 @@ namespace offer_manager.Controllers
                 string json = await _userController.GetWeightsAsync(userId, HttpContext.RequestAborted);
                 using JsonDocument doc = JsonDocument.Parse(json);
 
-                TryLog("NOTIFICATION", action, "Success.");
                 return Ok(new GetWeightsResponse
                 {
                     ErrorMessage = string.Empty,
                     Weights = doc.RootElement.Clone()
                 });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ERROR", action, "Internal server error response.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new GetWeightsResponse
                 {
                     ErrorMessage = _errInternalServer,
@@ -1264,19 +1040,11 @@ namespace offer_manager.Controllers
             [FromBody] GetDataRequest? request
         )
         {
-            const string action = "get-data";
-            TryLog("INFO", action, "Request received.");
             if (request is null)
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new GetDataResponse { ErrorMessage = _errEmptyRequest, UserData = JsonDocument.Parse("{}").RootElement.Clone() });
-            }
 
             if (string.IsNullOrWhiteSpace(request.Jwt))
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new GetDataResponse { ErrorMessage = _errLoginRequired, UserData = JsonDocument.Parse("{}").RootElement.Clone() });
-            }
 
             long userId;
             try
@@ -1285,14 +1053,10 @@ namespace offer_manager.Controllers
             }
             catch (SecurityTokenExpiredException)
             {
-                TryLog("ATTENTION", action, "JWT expired.");
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new GetDataResponse { ErrorMessage = _errJwtExpired, UserData = JsonDocument.Parse("{}").RootElement.Clone() });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new GetDataResponse { ErrorMessage = _errJwtInvalid, UserData = JsonDocument.Parse("{}").RootElement.Clone() });
             }
 
@@ -1301,17 +1065,14 @@ namespace offer_manager.Controllers
                 string json = await _userController.GetDataAsync(userId, HttpContext.RequestAborted);
                 using JsonDocument doc = JsonDocument.Parse(json);
 
-                TryLog("NOTIFICATION", action, "Success.");
                 return Ok(new GetDataResponse
                 {
                     ErrorMessage = string.Empty,
                     UserData = doc.RootElement.Clone()
                 });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ERROR", action, "Internal server error response.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new GetDataResponse
                 {
                     ErrorMessage = _errInternalServer,
@@ -1334,19 +1095,11 @@ namespace offer_manager.Controllers
             [FromBody] UpdatePreferencesRequest? request
         )
         {
-            const string action = "update-preferences";
-            TryLog("INFO", action, "Request received.");
             if (request is null)
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new UpdatePreferencesResponse { ErrorMessage = _errEmptyRequest });
-            }
 
             if (string.IsNullOrWhiteSpace(request.Jwt))
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new UpdatePreferencesResponse { ErrorMessage = _errLoginRequired });
-            }
 
             bool hasAnyUpdate =
                 request.LeadingCategoryId is not null ||
@@ -1363,10 +1116,7 @@ namespace offer_manager.Controllers
                 );
 
             if (!hasAnyUpdate)
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new UpdatePreferencesResponse { ErrorMessage = _errNothingToUpdate });
-            }
 
             long userId;
             try
@@ -1375,14 +1125,10 @@ namespace offer_manager.Controllers
             }
             catch (SecurityTokenExpiredException)
             {
-                TryLog("ATTENTION", action, "JWT expired.");
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new UpdatePreferencesResponse { ErrorMessage = _errJwtExpired });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new UpdatePreferencesResponse { ErrorMessage = _errJwtInvalid });
             }
 
@@ -1419,7 +1165,6 @@ namespace offer_manager.Controllers
             {
                 Dictionary<string, bool> fieldResults = await _userController.UpdatePreferencesAsync(userId, dataFields);
 
-                TryLog("NOTIFICATION", action, "Success.");
                 return Ok(new UpdatePreferencesResponse
                 {
                     ErrorMessage = string.Empty,
@@ -1455,10 +1200,8 @@ namespace offer_manager.Controllers
                     fieldResults.TryGetValue(_fieldSkills, out bool skMonths) && skMonths
                 });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ERROR", action, "Internal server error response.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new UpdatePreferencesResponse { ErrorMessage = _errInternalServer });
             }
         }
@@ -1478,19 +1221,11 @@ namespace offer_manager.Controllers
             [FromBody] GetPreferencesRequest? request
         )
         {
-            const string action = "get-preferences";
-            TryLog("INFO", action, "Request received.");
             if (request is null)
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new GetPreferencesResponse { ErrorMessage = _errEmptyRequest, Preferences = JsonDocument.Parse("{}").RootElement.Clone() });
-            }
 
             if (string.IsNullOrWhiteSpace(request.Jwt))
-            {
-                TryLog("WARNING", action, "BadRequest.");
                 return BadRequest(new GetPreferencesResponse { ErrorMessage = _errLoginRequired, Preferences = JsonDocument.Parse("{}").RootElement.Clone() });
-            }
 
             long userId;
             try
@@ -1499,14 +1234,10 @@ namespace offer_manager.Controllers
             }
             catch (SecurityTokenExpiredException)
             {
-                TryLog("ATTENTION", action, "JWT expired.");
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new GetPreferencesResponse { ErrorMessage = _errJwtExpired, Preferences = JsonDocument.Parse("{}").RootElement.Clone() });
             }
-            catch (Exception ex)
+            catch
             {
-                TryLogException(action, ex);
-                TryLog("ATTENTION", action, "Unauthorized.");
                 return Unauthorized(new GetPreferencesResponse { ErrorMessage = _errJwtInvalid, Preferences = JsonDocument.Parse("{}").RootElement.Clone() });
             }
 
@@ -1595,7 +1326,6 @@ namespace offer_manager.Controllers
 
                 if (isIncomplete)
                 {
-                    TryLog("WARNING", action, "Unprocessable entity.");
                     return StatusCode(StatusCodes.Status422UnprocessableEntity, new GetPreferencesResponse
                     {
                         ErrorMessage = "Preferences are incomplete",
@@ -1603,7 +1333,6 @@ namespace offer_manager.Controllers
                     });
                 }
 
-                TryLog("NOTIFICATION", action, "Success.");
                 return Ok(new GetPreferencesResponse
                 {
                     ErrorMessage = string.Empty,
@@ -1612,8 +1341,6 @@ namespace offer_manager.Controllers
             }
             catch (Exception ex)
             {
-                TryLogException(action, ex);
-                TryLog("ERROR", action, "Internal server error response.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new GetPreferencesResponse
                 {
                     ErrorMessage = _errInternalServer,
@@ -1621,56 +1348,5 @@ namespace offer_manager.Controllers
                 });
             }
         }
-        /// <summary>
-        /// Returns the most recent N stored searches (globally, across all users).
-        /// For full request/response details and examples, see <c>UserAPI-DOCS.md</c>.
-        /// </summary>
-        /// <param name="request">Request body containing the limit (N).</param>
-        /// <returns>
-        /// 200 with payload; 400 on invalid input; 500 on server error.
-        /// </returns>
-        [HttpPost("get-last-searches")]
-        public async Task<ActionResult<GetLastSearchesResponse>> GetLastSearches(
-            [FromBody] GetLastSearchesRequest? request
-        )
-        {
-            const string action = "get-last-searches";
-            TryLog("INFO", action, "Request received.");
-
-            if (request is null)
-            {
-                TryLog("WARNING", action, "BadRequest. Empty request.");
-                return BadRequest(new GetLastSearchesResponse
-                {
-                    ErrorMessage = _errEmptyRequest,
-                    LastSearches = JsonDocument.Parse("[]").RootElement.Clone()
-                });
-            }
-
-            try
-            {
-                TryLog("DEBUG", action, $"Fetching last searches. Limit={request.Limit}.");
-                string json = await _userController.GetLastSearchesAsync(request.Limit, HttpContext.RequestAborted);
-                using JsonDocument doc = JsonDocument.Parse(json);
-
-                TryLog("NOTIFICATION", action, "Ok.");
-                return Ok(new GetLastSearchesResponse
-                {
-                    ErrorMessage = string.Empty,
-                    LastSearches = doc.RootElement.Clone()
-                });
-            }
-            catch (Exception ex)
-            {
-                TryLogException(action, ex);
-                TryLog("ERROR", action, "Internal server error response.");
-                return StatusCode(StatusCodes.Status500InternalServerError, new GetLastSearchesResponse
-                {
-                    ErrorMessage = _errInternalServer,
-                    LastSearches = JsonDocument.Parse("[]").RootElement.Clone()
-                });
-            }
-        }
-
     }
 }
