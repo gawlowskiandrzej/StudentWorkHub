@@ -6,6 +6,7 @@ import buttonStyles from "../../styles/ButtonStyle.module.css";
 import { Jura } from "next/font/google";
 import { useTranslation } from "react-i18next";
 import { Menu, X } from "lucide-react";
+import { Sidemenu } from "../feature/other/Sidemenu";
 
 const jura = Jura({
   weight: ["400", "700"],
@@ -64,22 +65,7 @@ const Navbar = () => {
       )}
 
       {/* Slide menu */}
-      <div
-        className={`${navigationStyles.sideMenu} ${
-          menuOpen ? navigationStyles.open : ""
-        }`}
-      >
-        <X
-          className="cursor-pointer mb-4"
-          onClick={() => setMenuOpen(false)}
-        />
-
-        <ul>
-          <li onClick={() => router.push("/")}>Home</li>
-          <li onClick={() => router.push("/projects")}>Projects</li>
-          <li onClick={() => router.push("/profile")}>Profile</li>
-        </ul>
-      </div>
+      <Sidemenu menuOpen={menuOpen} router={router} setMenuOpen={setMenuOpen}/>
     </>
   );
 };
