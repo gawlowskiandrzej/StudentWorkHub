@@ -1,55 +1,29 @@
-import OptionsNavigationStyles from '@/styles/OptionNavigation.module.css'
+import sideMenuStyles from '@/styles/SideMenuStyle.module.css'
 
 export function OptionsNavigation() {
     return (
-        <div className={OptionsNavigationStyles["options-nav-menu"]}>
-            <div className={OptionsNavigationStyles["user-profile-nav-item"]}>
-                <img
-                    className={OptionsNavigationStyles["user"]}
-                    src="../icons/user1.svg"
-                    alt="Profile"
-                />
-                <div className={OptionsNavigationStyles["profile"]}>Profile</div>
-            </div>
-
-            <div className={OptionsNavigationStyles["user-profile-nav-item"]}>
-                <img
-                    className={OptionsNavigationStyles["user"]}
-                    src="../icons/check-circle0.svg"
-                    alt="Matched for you"
-                />
-                <div className={OptionsNavigationStyles["profile"]}>Matched for you</div>
-            </div>
-
-            <div className={OptionsNavigationStyles["user-profile-nav-item"]}>
-                <img
-                    className={OptionsNavigationStyles["user"]}
-                    src="../icons/briefcase0.svg"
-                    alt="Application history"
-                />
-                <div className={OptionsNavigationStyles["profile"]}>
-                    Application history
+        <div className={`${sideMenuStyles["navigation"]} `}>
+                    <div className={sideMenuStyles["pofile-nav"]}>
+                        <img className={sideMenuStyles["user2"]} src="/icons/user1.svg" />
+                        <div className={sideMenuStyles["side-menu-item"]} >Profile</div>
+                    </div>
+                    <div className={sideMenuStyles["pofile-nav"]}>
+                        <img className={sideMenuStyles["user2"]} src="/icons/check-circle0.svg" />
+                        <div className={sideMenuStyles["side-menu-item"]} >Matched for you</div>
+                    </div>
+                    <div className={sideMenuStyles["pofile-nav"]}>
+                        <img className={sideMenuStyles["user2"]} src="/icons/briefcase0.svg" />
+                        <div className={sideMenuStyles["side-menu-item"]}>Application history</div>
+                    </div>
+                    <div className={sideMenuStyles["pofile-nav"]}>
+                        <img className={sideMenuStyles["user2"]} src="/icons/sliders0.svg" />
+                        <div className={sideMenuStyles["side-menu-item"]} >Settings</div>
+                    </div>
+                    <div className={sideMenuStyles["pofile-nav"]}>
+                        <img className={sideMenuStyles["user2"]} src="/icons/log-in0.svg" />
+                        <div className={sideMenuStyles["side-menu-item"]} >Logout</div>
+                    </div>
                 </div>
-            </div>
-
-            <div className={OptionsNavigationStyles["user-profile-nav-item"]}>
-                <img
-                    className={OptionsNavigationStyles["user"]}
-                    src="../icons/sliders0.svg"
-                    alt="Settings"
-                />
-                <div className={OptionsNavigationStyles["profile"]}>Settings</div>
-            </div>
-
-            <div className={OptionsNavigationStyles["user-profile-nav-item"]}>
-                <img
-                    className={OptionsNavigationStyles["user"]}
-                    src="../icons/log-in0.svg"
-                    alt="Logout"
-                />
-                <div className={OptionsNavigationStyles["profile"]}>Logout</div>
-            </div>
-        </div>
 
     );
 }

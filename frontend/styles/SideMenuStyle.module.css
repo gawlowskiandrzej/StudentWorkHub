@@ -18,8 +18,8 @@
   align-items: center;
   justify-content: space-between;
   align-self: stretch;
+  margin-bottom: 30px;
   flex-shrink: 0;
-  height: 319px;
   position: relative;
 }
 .close-nav {
@@ -73,8 +73,8 @@
 }
 .user {
   flex-shrink: 0;
-  width: 38.4px;
-  height: 38.4px;
+  width: 30.4px;
+  height: 30.4px;
   
   position: relative;
   overflow: visible;
@@ -95,10 +95,11 @@
 .navigation {
   background: rgba(0, 0, 0, 0.01);
   border-radius: 21.25px;
-  padding: 55px 0px 0px 0px;
+  padding: 0px 0px 0px 0px;
   display: flex;
   flex-direction: column;
-  gap: 25.65px;
+  gap: 15.65px;
+  width: 203px;
   align-items: center;
   justify-content: flex-start;
   align-self: stretch;
