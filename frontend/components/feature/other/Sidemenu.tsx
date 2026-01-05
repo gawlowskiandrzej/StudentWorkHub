@@ -9,6 +9,10 @@ export type sideMenuProps = {
 }
 
 export function Sidemenu({ router, menuOpen, setMenuOpen }: sideMenuProps) {
+    const openOptions = () => {
+        router.push("/options");
+        setMenuOpen(false);
+    }
     return (
         <div
             className={`${navigationStyles.sideMenu} ${menuOpen ? navigationStyles.open : ""
@@ -29,23 +33,23 @@ export function Sidemenu({ router, menuOpen, setMenuOpen }: sideMenuProps) {
                     <div className={sideMenuStyles["user-name-sur"]}>User name user surname</div>
                 </div>
                 <div className={sideMenuStyles["navigation"]}>
-                    <div className={sideMenuStyles["pofile-nav"]} onClick={() => {router.push("/profile")}}>
+                    <div className={sideMenuStyles["pofile-nav"]} onClick={openOptions}>
                         <img className={sideMenuStyles["user2"]} src="/icons/user1.svg" />
                         <div className={sideMenuStyles["side-menu-item"]} >Profile</div>
                     </div>
-                    <div className={sideMenuStyles["pofile-nav"]} onClick={() => {router.push("/profile")}}>
+                    <div className={sideMenuStyles["pofile-nav"]} onClick={openOptions}>
                         <img className={sideMenuStyles["user2"]} src="/icons/check-circle0.svg" />
                         <div className={sideMenuStyles["side-menu-item"]} >Matched for you</div>
                     </div>
-                    <div className={sideMenuStyles["pofile-nav"]} onClick={() => {router.push("/profile")}}>
+                    <div className={sideMenuStyles["pofile-nav"]} onClick={openOptions}>
                         <img className={sideMenuStyles["user2"]} src="/icons/briefcase0.svg" />
                         <div className={sideMenuStyles["side-menu-item"]}>Application history</div>
                     </div>
-                    <div className={sideMenuStyles["pofile-nav"]} onClick={() => {router.push("/profile")}}>
+                    <div className={sideMenuStyles["pofile-nav"]} onClick={openOptions}>
                         <img className={sideMenuStyles["user2"]} src="/icons/sliders0.svg" />
                         <div className={sideMenuStyles["side-menu-item"]} >Settings</div>
                     </div>
-                    <div className={sideMenuStyles["pofile-nav"]} onClick={() => {router.push("/profile")}}>
+                    <div className={sideMenuStyles["pofile-nav"]} onClick={openOptions}>
                         <img className={sideMenuStyles["user2"]} src="/icons/log-in0.svg" />
                         <div className={sideMenuStyles["side-menu-item"]} >Logout</div>
                     </div>
