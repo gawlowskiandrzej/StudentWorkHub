@@ -1314,6 +1314,56 @@ namespace Users
         }
 
         /// <summary>
+        /// Retrieves the most recent search history entries (globally, across all users)
+        /// as a JSON string using the <c>public.get_last_searches_json</c> PostgreSQL function.
+        /// The JSON result contains an array of search history entries ordered from the most
+        /// recent to the oldest one.
+        /// </summary>
+        /// <param name="limit">
+        /// Maximum number of search history entries to return. If the value is less than
+        /// or equal to zero, an empty JSON array is returned.
+        /// </param>
+        /// <param name="dataSource">PostgreSQL data source used to create and execute the command.</param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// A JSON string representing the most recent search history entries. When no
+        /// matching entries exist, an empty JSON array (<c>[]</c>) is returned.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">
+        /// Thrown when an unexpected database error occurs while retrieving the search history.
+        /// </exception>
+        internal static async Task<string> GetLastSearchesJsonAsync(
+            int limit,
+            NpgsqlDataSource dataSource,
+            CancellationToken cancellation = default)
+        {
+            // Respect cancellation before initiating the scalar query.
+            cancellation.ThrowIfCancellationRequested();
+
+            await using NpgsqlCommand command = dataSource.CreateCommand(
+                "SELECT public.get_last_searches_json(@p_limit);");
+
+            command.Parameters.AddWithValue("p_limit", limit);
+
+            try
+            {
+                object? result = await command.ExecuteScalarAsync(cancellation);
+
+                // If the function would ever return NULL (it currently returns []), fallback to empty array.
+                if (result is null || result is DBNull)
+                    return "[]";
+
+                // Npgsql maps jsonb to string by default.
+                return (string)result;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                throw new UserDbQueryException("Database error while retrieving search history.", ex);
+            }
+        }
+
+        /// <summary>
         /// Inserts a new search history entry for the specified user using the
         /// <c>public.insert_search_history</c> stored procedure.
         /// </summary>

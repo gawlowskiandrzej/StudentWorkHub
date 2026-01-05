@@ -1008,6 +1008,51 @@ namespace Users
         }
 
         /// <summary>
+        /// Retrieves the most recent search history entries (globally, across all users) as a JSON string.
+        /// </summary>
+        /// <remarks>
+        /// This object does not store any user context and the operation is not user-scoped.
+        /// Returned JSON is produced by the database and defaults to an empty array (<c>[]</c>) when no entries exist.
+        /// </remarks>
+        /// <param name="limit">
+        /// Maximum number of search history entries to return. If the value is less than or equal to zero,
+        /// an empty JSON array (<c>[]</c>) is returned.
+        /// </param>
+        /// <param name="cancellation">Cancellation token to observe during the operation.</param>
+        /// <returns>
+        /// A JSON string representing the most recent search history entries, or <c>[]</c> when empty.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
+        /// <exception cref="UserDbQueryException">
+        /// Thrown when an unexpected database error occurs while retrieving the search history.
+        /// </exception>
+        /// <exception cref="UserException">Thrown when input validation fails or an unexpected error occurs.</exception>
+        public async Task<string> GetLastSearchesAsync(
+            int limit,
+            CancellationToken cancellation = default)
+        {
+            cancellation.ThrowIfCancellationRequested();
+
+            if (limit < 1)
+                return "[]";
+
+            try
+            {
+                string json = await DatabaseQueries.GetLastSearchesJsonAsync(
+                    limit,
+                    _dataSource,
+                    cancellation);
+
+                // Defensive fallback in case the DB ever returns empty/whitespace.
+                return string.IsNullOrWhiteSpace(json) ? "[]" : json;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException && ex is not UserDbQueryException)
+            {
+                throw new UserException("Failed to retrieve last searches.", ex);
+            }
+        }
+
+        /// <summary>
         /// Inserts a new search history entry for the specified user.
         /// </summary>
         /// <remarks>
