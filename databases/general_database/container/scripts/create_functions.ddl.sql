@@ -146,13 +146,34 @@ SET search_path = public
 STABLE
 AS $$
     SELECT COALESCE(
-        jsonb_agg(to_jsonb(sub) - 'search_date' - 'id'),
+        jsonb_agg(to_jsonb(sub) - 'search_date' - 'id' - 'user_id'),
         '[]'::jsonb
     )
     FROM (
         SELECT *
         FROM public.search_histories
         WHERE user_id = p_user_id
+        ORDER BY search_date DESC, id DESC
+        LIMIT GREATEST(COALESCE(p_limit, 0), 0)
+    ) AS sub;
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_last_searches_json(
+    p_limit INTEGER
+)
+RETURNS jsonb
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+    SELECT COALESCE(
+        jsonb_agg(to_jsonb(sub) - 'search_date' - 'id' - 'user_id'),
+        '[]'::jsonb
+    )
+    FROM (
+        SELECT *
+        FROM public.search_histories
         ORDER BY search_date DESC, id DESC
         LIMIT GREATEST(COALESCE(p_limit, 0), 0)
     ) AS sub;
