@@ -537,7 +537,6 @@
     "searchHistory": [
         {
             "city_id": 1,
-            "user_id": 1,
             "distance": 40,
             "keywords": "DevOps AWS",
             "is_hybrid": false,
@@ -556,7 +555,6 @@
         },
         {
             "city_id": 1,
-            "user_id": 1,
             "distance": 50,
             "keywords": "Inżynier AI ML",
             "is_hybrid": true,
@@ -583,6 +581,77 @@
 {
     "errorMessage": "<non-empty string>",
     "searchHistory": []
+}
+```
+
+---
+
+## POST /api/users/get-last-searches
+
+**Purpose:** Fetch the most recent N searches (globally, across all users).
+The returned entries are **anonymized** (no `user_id`).
+
+### Body parameters
+
+* `limit` (number, required; must be > 0)
+
+> ⚠ **WARNING**
+> `limit` MUST be provided and must be > 0, otherwise you should expect an empty result.
+
+### Example request
+
+```json
+{
+    "limit": 2
+}
+```
+
+### Possible responses
+
+* **200 OK** (example)
+
+```json
+{
+    "errorMessage": "",
+    "lastSearches": [
+        {
+            "city_id": 1,
+            "distance": 40,
+            "keywords": "DevOps AWS",
+            "is_hybrid": false,
+            "is_remote": true,
+            "salary_to": 22000.00,
+            "salary_from": 13000.00,
+            "salary_period_id": 4,
+            "salary_currency_id": 4,
+            "employment_type_ids": [5],
+            "leading_category_id": 40,
+            "employment_schedule_ids": [1]
+        },
+        {
+            "city_id": 1,
+            "distance": 50,
+            "keywords": "Inżynier AI ML",
+            "is_hybrid": true,
+            "is_remote": true,
+            "salary_to": 24000.00,
+            "salary_from": 14000.00,
+            "salary_period_id": 4,
+            "salary_currency_id": 1,
+            "employment_type_ids": [5],
+            "leading_category_id": 35,
+            "employment_schedule_ids": [1, 10]
+        }
+    ]
+}
+```
+
+* **400 Bad Request** / **500 Internal Server Error**
+
+```json
+{
+    "errorMessage": "<non-empty string>",
+    "lastSearches": []
 }
 ```
 

@@ -1,26 +1,12 @@
-version: "3.9"
+version: "4.0"
 
 services:
-
   # -----------------------------
   # DATABASES
   # -----------------------------
-  db_offers:
-    build:
-      context: ./databases/offers_database/container
-    image: local/postgres-offers:17.6
-    container_name: postgres-offers
-    restart: unless-stopped
-    env_file: ./databases/offers_database/container/.env
-    ports:
-      - "5432:5432"
-    volumes:
-      - pg_offers:/var/lib/postgresql/data
-      - ./databases/offers_database/container/scripts:/docker-entrypoint-initdb.d:ro
-
   db_general:
     build:
-      context: ./databases/general_database/container
+        context: ./databases/general_database/container
     image: local/postgres-general:17.6
     container_name: postgres-general
     restart: unless-stopped
@@ -29,7 +15,50 @@ services:
       - "5433:5432"
     volumes:
       - pg_general:/var/lib/postgresql/data
-      - ./databases/general_database/container/scripts:/docker-entrypoint-initdb.d:ro
+      
+  db_offers:
+    build:
+        context: ./databases/offers_database/container
+    image: local/postgres-offers:17.6
+    container_name: postgres-offers
+    restart: unless-stopped
+    env_file: ./databases/offers_database/container/.env
+    ports:
+      - "5432:5432"
+    depends_on:
+      - db_general
+    volumes:
+      - pg_offers:/var/lib/postgresql/data
+    
+  db_backup:
+    build:
+        context: ./databases/backup
+    image: local/database-backup:17.6
+    container_name: database-backup
+    restart: unless-stopped
+    env_file: ./databases/backup/.env
+    depends_on:
+      - db_general
+    volumes:
+      - db_general_backups:/backups/db_general
+      - ./backups/db_general:/repo_host
+
+  # -----------------------------
+  # LOGS
+  # -----------------------------
+  log_server:
+    build:
+      context: ./log_server/server/
+      args:
+          APP_DIR: /log_server
+    container_name: log-server
+    restart: unless-stopped
+    ports:
+      - "54000:54000"
+      - "54001:54001"
+    volumes:
+      - logs:/log_server/logs
+      - public_keys:/log_server/public_keys
 
   # -----------------------------
   # REDIS
@@ -87,9 +116,12 @@ services:
       ASPNETCORE_URLS: http://+:5059
     ports:
       - "5059:5059"
+    volumes:
+      - public_keys:/log_server/public_keys
     depends_on:
       - redis
       - db_offers
+      - db_general
       - headless_browser
 
   # -----------------------------
@@ -134,3 +166,6 @@ services:
 volumes:
   pg_offers:
   pg_general:
+  logs:
+  public_keys:
+  db_general_backups:

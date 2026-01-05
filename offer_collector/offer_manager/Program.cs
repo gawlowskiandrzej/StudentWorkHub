@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Offer_collector.Models.AI;
 using Offer_collector.Models.DatabaseService;
@@ -11,6 +10,7 @@ using offer_manager.Models.Users;
 using offer_manager.Models.WorkerService;
 using StackExchange.Redis;
 using Users;
+using LogClient;
 
 namespace offer_manager
 {
@@ -112,6 +112,14 @@ namespace offer_manager
                 password: generalDbSettings.Password,
                 host: generalDbSettings.Host,
                 port: generalDbSettings.Port
+            ));
+
+            builder.Services.AddSingleton(new Logger(
+                "offer-manager",
+                "client-api",
+                true,
+                10,
+                true
             ));
 
             var app = builder.Build();

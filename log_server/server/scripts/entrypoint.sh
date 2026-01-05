@@ -8,26 +8,29 @@ KEY_DIR="${APP_DIR}/public_keys"
 PRIVATE_KEY="${APP_DIR}/server.key"
 CERT_PATH="${KEY_DIR}/log_server.crt"
 
-# Ensure key directory exists (it is a shared Docker volume)
 mkdir -p "${KEY_DIR}"
-chmod 1777 "${KEY_DIR}"
+chmod 1777 "${KEY_DIR}" 2>/dev/null || true
 
-# Generate certificate only if it does not exist yet
-if [ ! -f "${CERT_PATH}" ]; then
-    echo "[log_server] Generating TLS key and certificate in ${APP_DIR}..."
-    openssl req -x509 -newkey rsa:4096 \
-        -keyout "${PRIVATE_KEY}" \
-        -out "${CERT_PATH}" \
-        -days 3650 -nodes \
-        -subj "/CN=log-server"
+# If either cert OR key is missing -> regenerate both
+if [ ! -f "${CERT_PATH}" ] || [ ! -f "${PRIVATE_KEY}" ]; then
+  echo "[log_server] TLS material incomplete -> regenerating private key + certificate..."
 
-    # file ownership będzie appuser:appuser, bo skrypt działa jako appuser
-    chmod 604 "${CERT_PATH}"
-    chmod 0400 "${PRIVATE_KEY}"
-    echo "[log_server] Certificate generated at ${CERT_PATH}"
+  # Start clean (ignore errors)
+  rm -f "${CERT_PATH}" "${PRIVATE_KEY}" 2>/dev/null || true
+
+  openssl req -x509 -newkey rsa:4096 \
+    -keyout "${PRIVATE_KEY}" \
+    -out "${CERT_PATH}" \
+    -days 3650 -nodes \
+    -subj "/CN=log-server"
+
+  # file ownership będzie appuser:appuser, bo skrypt działa jako appuser
+  chmod 604 "${CERT_PATH}" 2>/dev/null || true
+  chmod 0400 "${PRIVATE_KEY}" 2>/dev/null || true
+
+  echo "[log_server] Certificate generated at ${CERT_PATH}"
 else
-    echo "[log_server] Existing certificate found at ${CERT_PATH}, skipping generation."
+  echo "[log_server] Certificate and private key OK, skipping generation."
 fi
 
-# Start the main process
 exec "$@"

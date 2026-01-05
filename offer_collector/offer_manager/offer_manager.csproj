@@ -36,6 +36,9 @@
     <Reference Include="Users">
       <HintPath>..\libs\Users.dll</HintPath>
     </Reference>
+    <Reference Include="LogClient">
+      <HintPath>..\libs\LogClient.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
