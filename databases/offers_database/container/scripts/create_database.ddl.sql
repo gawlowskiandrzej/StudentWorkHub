@@ -50,7 +50,7 @@ CREATE TABLE public.companies (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(256) NOT NULL,
     logo_url TEXT,
-    CONSTRAINT uq_companies_name UNIQUE (name),
+    CONSTRAINT uq_companies_name UNIQUE (name)
 );
 
 -- =========================================================
