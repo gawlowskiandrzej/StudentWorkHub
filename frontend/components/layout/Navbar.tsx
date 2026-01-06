@@ -41,7 +41,12 @@ const Navbar = () => {
         </div>
 
         <div className={navigationStyles["signin-frame"]}>
-          <div
+          <div onClick={() => {router.push("/login")}}
+            className={`${buttonStyles["main-button"]} ${navigationStyles["register-button"]}`}
+          >
+            <div className="text-xs">{t("navigation:login")}</div>
+          </div>
+          <div onClick={() => {router.push("/register")}}
             className={`${buttonStyles["main-button"]} ${navigationStyles["register-button"]}`}
           >
             <div className="text-xs">{t("navigation:register")}</div>

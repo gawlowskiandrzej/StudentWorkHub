@@ -1,0 +1,280 @@
+.register-account,
+.register-account * {
+  box-sizing: border-box;
+}
+.register-account {
+  opacity: 0.96;
+  background: var(--background);
+  height: calc(100vh - 96px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.unsplash-0-zx-1-b-dv-5-bny {
+  border-radius: 14px;
+  opacity: 0.35;
+  width: 450px;
+  height: 675px;
+  position: absolute;
+  left: 130.91px;
+  top: 202.23px;
+  box-shadow: 4px 4px 16px 0px rgba(255, 255, 255, 0.5);
+  transform-origin: 0 0;
+  transform: rotate(2deg) scale(0.75, 0.75);
+  object-fit: cover;
+}
+.unsplash-g-1-kr-4-ozfoac {
+  border-radius: 14px;
+  opacity: 0.4;
+  width: 621px;
+  height: 413px;
+  position: absolute;
+  left: 1183px;
+  top: 367.5px;
+  box-shadow: 4px 4px 16px 0px rgba(255, 255, 255, 0.5);
+  transform-origin: 0 0;
+  transform: rotate(-3deg) scale(0.75, 0.75);
+  object-fit: cover;
+}
+.register-column {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  align-items: center;
+  justify-content: center;
+  width: 400px;
+  left: 658px;
+  top: 0px;
+}
+.register-form-with-button {
+  background: rgba(0, 0, 0, 0.01);
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  width: 532px;
+  position: relative;
+}
+.register-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  align-items: center;
+  justify-content: flex-start;
+  align-self: stretch;
+  flex-shrink: 0;
+  position: relative;
+}
+.create-an-account {
+  color: #ffffff;
+  text-align: center;
+  font-family: "Roboto-Bold", sans-serif;
+  font-size: var(--semiheader, 21px);
+  font-weight: 700;
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.register-inputs-items {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  align-items: center;
+  justify-content: flex-start;
+  align-self: stretch;
+  flex-shrink: 0;
+  position: relative;
+}
+.username-surname-items {
+  align-self: stretch;
+  flex-shrink: 0;
+  display: grid;
+  gap: 45px;
+  position: relative;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(1, fit-content(100%));
+}
+.basic-input {
+  background: rgba(0, 0, 0, 0.01);
+  border-radius: var(--mediumsize, 13px);
+  border-style: solid;
+  border-color: #fbfbfb;
+  border-width: 1.15px;
+  padding: 20px;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  box-shadow: 2px 2px 16px 0px rgba(255, 255, 255, 0.25);
+  grid-column: 1 / span 1;
+  grid-row: 1 / span 1;
+}
+.email {
+  color: #ffffff;
+  text-align: left;
+  font-family: "Roboto-Regular", sans-serif;
+  font-size: var(--subheader, 16px);
+  font-weight: 400;
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.basic-input2 {
+  background: rgba(0, 0, 0, 0.01);
+  border-radius: var(--mediumsize, 13px);
+  border-style: solid;
+  border-color: #fbfbfb;
+  border-width: 1.15px;
+  padding: 20px;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  box-shadow: 2px 2px 16px 0px rgba(255, 255, 255, 0.25);
+  grid-column: 2 / span 1;
+  grid-row: 1 / span 1;
+}
+.email-password-items {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  justify-content: flex-start;
+  align-self: stretch;
+  flex-shrink: 0;
+  position: relative;
+}
+.basic-input3 {
+  background: rgba(0, 0, 0, 0.01);
+  border-radius: var(--mediumsize, 13px);
+  border-style: solid;
+  border-color: #fbfbfb;
+  border-width: 1.15px;
+  padding: 20px;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-start;
+  align-self: stretch;
+  flex-shrink: 0;
+  position: relative;
+  box-shadow: 2px 2px 16px 0px rgba(255, 255, 255, 0.25);
+}
+.email2 {
+  color: #ffffff;
+  text-align: left;
+  font-family: "Roboto-Regular", sans-serif;
+  font-size: var(--subHeader);
+  font-weight: 400;
+  position: relative;
+  width: 377px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.accept-rodo-clouse {
+  align-self: stretch;
+  flex-shrink: 0;
+  display: grid;
+  gap: 12px;
+  row-gap: 24px;
+  position: relative;
+  grid-template-columns: 27px minmax(0, 1fr);
+  grid-template-rows: repeat(1, fit-content(100%));
+}
+.checkbox {
+  background: var(--primary, #3c83f6);
+  border-radius: 4.86px;
+  padding: 0px 1.3px 0px 1.3px;
+  width: 23.25px;
+  height: 23.24px;
+  position: relative;
+  overflow: hidden;
+  grid-column: 1 / span 1;
+  grid-row: 1 / span 1;
+}
+.check {
+  width: 23.24px;
+  height: 23.24px;
+  position: absolute;
+  left: 0px;
+  top: -1.3px;
+  overflow: visible;
+  aspect-ratio: 1;
+}
+.i-consent-to-the {
+  text-align: justified;
+  font-family: "Roboto-SemiBold", sans-serif;
+  font-size: var(--normalSize, 13px);
+  font-weight: 600;
+  position: relative;
+  grid-column: 2 / span 1;
+  grid-row: 1 / span 1;
+}
+.clause-div{
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+}
+.i-consent-to{
+  color: #9f3939;
+  font-size: var(--subHeader);
+}
+.i-consent {
+  color: var(--secondary);
+  font-size: var(--normalSize);
+}
+.main-button {
+  background: var(
+    --button-gradient,
+    linear-gradient(90deg, rgba(60, 131, 246, 1) 0%, rgba(30, 59, 138, 1) 100%)
+  );
+  border-radius: 13px;
+  border-width: 1px;
+  border-style: solid;
+  border-image: transparent;
+  border-image-slice: 1;
+  padding: 20px 55px 20px 55px;
+  display: flex;
+  flex-direction: row;
+  gap: 45px;
+  align-items: center;
+  justify-content: flex-start;
+  flex-shrink: 0;
+  position: relative;
+  box-shadow: 1px 2px 6px 0px rgba(127, 195, 255, 0.3),
+    2px 4px 18px 0px rgba(114, 191, 255, 0.2),
+    -2px -4px 18px 0px rgba(0, 140, 255, 0.2),
+    -1px -2px 6px 0px rgba(0, 140, 255, 0.2);
+}
+.users {
+  flex-shrink: 0;
+  width: 28.8px;
+  height: 28.8px;
+  position: relative;
+  overflow: visible;
+}
+.create {
+  color: var(--white, #f8faff);
+  text-align: center;
+  font-family: "Roboto-SemiBold", sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
