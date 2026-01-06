@@ -9,6 +9,7 @@ import details from "./locales/pl/details.json";
 import searchbar from "./locales/pl/searchbar.json";
 import searchView from "./locales/pl/searchView.json";
 import loginView from "./locales/pl/login.json";
+import register from "./locales/pl/register.json";
 
 declare module "i18next" {
   interface CustomTypeOptions {
@@ -24,6 +25,7 @@ declare module "i18next" {
       searchbar: typeof searchbar;
       searchView: typeof searchView;
       loginView: typeof loginView;
+      register: typeof register;
     };
   }
 }

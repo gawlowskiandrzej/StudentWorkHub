@@ -1,0 +1,8 @@
+{
+    "createAccount": "Utwórz konto",
+    "name": "Imię", 
+    "surname": "Nazwisko",
+    "clause": "Wyrażam zgodę na przetwarzanie moich danych osobowych w celu utworzenia i prowadzenia konta użytkownika na stronie internetowej, zgodnie z rozporządzeniem Parlamentu Europejskiego i Rady (UE) 2016/679 (RODO) oraz Polityką prywatności. Zapoznałem się z jej treścią i akceptuję jej postanowienia.",
+    "register": "Utwórz konto",
+    "creatingAccount": "Tworzenie konta"
+}

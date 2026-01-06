@@ -11,6 +11,7 @@ import plDetails from "./locales/pl/details.json";
 import plSearchbar from "./locales/pl/searchbar.json";
 import plSearchView from "./locales/pl/searchView.json";
 import plLogin from "./locales/pl/login.json";
+import plRegister from "./locales/pl/register.json";
 // EN
 import enCommon from "./locales/en/common.json";
 import enNavbar from "./locales/en/navigation.json";
@@ -21,11 +22,12 @@ import enDetails from "./locales/en/details.json";
 import enSearchbar from "./locales/en/searchbar.json";
 import enSearchView from "./locales/en/searchView.json";
 
+
 i18n.use(initReactI18next).init({
   lng: "pl",
   fallbackLng: "en",
 
-  ns: ["common", "navigation", "footer", "hero", "list", "details", "searchbar", "searchView", "loginView"],
+  ns: ["common", "navigation", "footer", "hero", "list", "details", "searchbar", "searchView", "loginView", "register"],
   defaultNS: "common",
 
   resources: {
@@ -38,7 +40,8 @@ i18n.use(initReactI18next).init({
       details: plDetails,
       searchbar: plSearchbar,
       searchView: plSearchView,
-      loginView: plLogin
+      loginView: plLogin,
+      register: plRegister
     },
     en: {
       common: enCommon,
