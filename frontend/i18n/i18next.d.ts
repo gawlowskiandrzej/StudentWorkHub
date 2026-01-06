@@ -8,6 +8,7 @@ import list from "./locales/pl/list.json";
 import details from "./locales/pl/details.json";
 import searchbar from "./locales/pl/searchbar.json";
 import searchView from "./locales/pl/searchView.json";
+import loginView from "./locales/pl/login.json";
 
 declare module "i18next" {
   interface CustomTypeOptions {
@@ -22,6 +23,7 @@ declare module "i18next" {
       details: typeof details;
       searchbar: typeof searchbar;
       searchView: typeof searchView;
+      loginView: typeof loginView;
     };
   }
 }

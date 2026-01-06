@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useUser } from "@/store/UserContext";
+import { useUser } from "@/store/userContext";
 
 /**
  * Refresh JWT automatically when it is close to expiring.

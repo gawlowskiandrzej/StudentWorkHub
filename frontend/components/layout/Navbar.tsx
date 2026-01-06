@@ -44,6 +44,11 @@ const Navbar = () => {
           <div
             className={`${buttonStyles["main-button"]} ${navigationStyles["register-button"]}`}
           >
+            <div className="text-xs">{t("navigation:login")}</div>
+          </div>
+          <div
+            className={`${buttonStyles["main-button"]} ${navigationStyles["register-button"]}`}
+          >
             <div className="text-xs">{t("navigation:register")}</div>
           </div>
 

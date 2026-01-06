@@ -5,6 +5,7 @@ import { Filter } from "./Filters";
 import { leading_categories } from '@/store/data/Dictionaries.json';
 import { toLabelValueFormat } from "@/utils/others/toLabelValueFormat";
 import { search } from "@/types/search/search";
+import { FloatingLabelInput } from "@/components/ui/floatingInput";
 
 // Typ całego lokalnego searcha
 
@@ -35,14 +36,14 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
     return (
         <div className={searchStyles["search-section"]}>
             <div className={searchStyles["searchbar"]}>
-                <div className={searchStyles["phrase-search"]}>
-                    <input
-                        className={`${searchStyles["city"]} px-3`}
+                {/* <div className={searchStyles["phrase-search"]}> */}
+                    <FloatingLabelInput
+                        // className={`${searchStyles["city"]} px-3`}
                         value={value?.keyword || ""}
                         onChange={(e) => handleChange("keyword", e.target.value)}
-                        placeholder={t("searchKeywordPlaceholder")}
+                        label={t("searchKeywordPlaceholder")}
                     />
-                </div>
+                {/* </div> */}
 
                 <div className={searchStyles["major-study-search"]}>
                     <Filter
@@ -57,11 +58,11 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
                 </div>
 
                 <div className={searchStyles["city-search"]}>
-                    <input
-                        placeholder={t("searchCityPlaceholder")}
+                    <FloatingLabelInput
+                        label={t("searchCityPlaceholder")}
                         value={value?.localization || ""}
                         onChange={(e) => handleChange("localization", e.target.value)}
-                        className={`${searchStyles["city"]} px-3`}
+                        // className={`${searchStyles["city"]} px-3`}
                     />
                 </div>
             </div>

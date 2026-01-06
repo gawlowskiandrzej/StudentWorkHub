@@ -180,7 +180,22 @@ input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-
+input{
+  border-radius: var(--radius);
+  box-shadow: 2px 2px 16px 0px rgba(255, 255, 255, 0.25);
+}
 input[type="number"] {
   -moz-appearance: textfield;
 }
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+    -webkit-text-fill-color: var(--primary) !important;
+    box-shadow: 0 0 0 1000px transparent inset !important;
+    background-color: transparent !important;
+    transition: background-color 9999s ease-in-out 0s;
+    border: 1px solid var(--secondary) !important;
+}
+

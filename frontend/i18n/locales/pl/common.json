@@ -1,4 +1,8 @@
 {
     "findMatchingJob": "Znajdź swoją ofertę",
-    "siteSubHeader": "wystartuj swoją karierę!"
+    "siteSubHeader": "wystartuj swoją karierę!",
+    "email": "Email",
+    "password": "Hasło",
+    "signIn": "Zaloguj",
+    "rememberMe": "Zapamiętaj mnie"
 }
