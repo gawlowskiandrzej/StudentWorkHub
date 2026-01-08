@@ -296,7 +296,7 @@
   align-self: stretch;
   flex-shrink: 0;
   display: grid;
-  gap: 0px;
+  gap: 10px;
   position: relative;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-template-rows: repeat(1, fit-content(100%));

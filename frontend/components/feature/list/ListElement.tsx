@@ -7,6 +7,7 @@ import { formatDateTime } from '@/utils/date/dateFormatter';
 import { formatSalaryValue } from '@/utils/salary/formatSalary';
 import listStyles from "../../../styles/OfferList.module.css";
 import buttonStyles from "../../../styles/ButtonStyle.module.css";
+import Link from 'next/link';
 
 export function ListElement({ offer }: { offer: offer }) {
     const router = useRouter();
@@ -24,7 +25,9 @@ export function ListElement({ offer }: { offer: offer }) {
         : '/icons/company0.svg';
 
     return (
-        <div className={`${listStyles["offer-list-header"]} ${buttonStyles["scale-hover"]}`} onClick={() => goToDetails(offer.id)}>
+        <Link
+         href={`/details/${offer.id}`}
+         className={`${listStyles["offer-list-header"]} ${buttonStyles["scale-hover"]}`} onClick={() => goToDetails(offer.id)}>
             <div className={listStyles['companyWrapper']}>
                 <img className={listStyles["company"]} src={`${logoUrl}`} />
             </div>
@@ -64,6 +67,6 @@ export function ListElement({ offer }: { offer: offer }) {
                     </div>
                 </div>
             </div>
-        </div>
+        </Link>
     );
 }

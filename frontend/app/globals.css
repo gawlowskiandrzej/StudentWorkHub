@@ -180,10 +180,6 @@ input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-input{
-  border-radius: var(--radius);
-  box-shadow: 2px 2px 16px 0px rgba(255, 255, 255, 0.25);
-}
 input[type="number"] {
   -moz-appearance: textfield;
 }

@@ -51,8 +51,8 @@ export function EducationSection({ educations }: educationSection) {
                                         className={detailsStyles[`skill-section-item${idx + 1}`]}
                                     >
                                         <img
-                                            className={detailsStyles["education"]}
-                                            src="/icons/light/educationLight.svg"
+                                            className={`${detailsStyles["education"]}`}
+                                            src="/icons/light/educationlight.svg"
                                             alt='education'
                                         />
                                         <div className={detailsStyles["city-name"]}>

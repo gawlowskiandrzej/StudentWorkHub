@@ -46,6 +46,7 @@ const Navbar = () => {
           >
             <div className="text-xs">{t("navigation:login")}</div>
           </div>
+          /
           <div onClick={() => {router.push("/register")}}
             className={`${buttonStyles["main-button"]} ${navigationStyles["register-button"]}`}
           >
