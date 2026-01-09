@@ -18,8 +18,8 @@
     width: 450px;
     height: 675px;
     position: absolute;
-    left: 130.91px;
-    top: 202.23px;
+    left: 15%;
+    top: 15%;
     box-shadow: 4px 4px 16px 0px rgba(255, 255, 255, 0.5);
     transform-origin: 0 0;
     transform: rotate(2deg) scale(0.75, 0.75);
@@ -32,8 +32,8 @@
     width: 621px;
     height: 413px;
     position: absolute;
-    left: 1183px;
-    top: 367.5px;
+    left: 65%;
+    top: 25%;
     box-shadow: 4px 4px 16px 0px rgba(255, 255, 255, 0.5);
     transform-origin: 0 0;
     transform: rotate(-3deg) scale(0.75, 0.75);

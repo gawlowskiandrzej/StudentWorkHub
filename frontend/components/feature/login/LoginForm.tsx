@@ -162,14 +162,14 @@ export function LoginForm() {
                     />
 
                     { }
-                    <div className={errorSlotClass} aria-live="polite">
+                    {/* <div className={errorSlotClass} aria-live="polite">
                         <div
                             className={`${errorBoxClass} ${!error ? errorHiddenClass : ""}`}
                             role={error ? "alert" : undefined}
                         >
                             {error || "\u00A0"}
                         </div>
-                    </div>
+                    </div> */}
                 </div>
             </div>
 
