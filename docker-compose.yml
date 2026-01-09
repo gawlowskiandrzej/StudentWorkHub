@@ -1,4 +1,4 @@
-version: "4.0"
+#version: "4.0"
 
 services:
   # -----------------------------
@@ -30,18 +30,18 @@ services:
     volumes:
       - pg_offers:/var/lib/postgresql/data
     
-  # db_backup:
-  #   build:
-  #       context: ./databases/backup
-  #   image: local/database-backup:17.6
-  #   container_name: database-backup
-  #   restart: unless-stopped
-  #   env_file: ./databases/backup/.env
-  #   depends_on:
-  #     - db_general
-  #   volumes:
-  #     - db_general_backups:/backups/db_general
-  #     - ./backups/db_general:/repo_host
+  db_backup:
+    build:
+        context: ./databases/db_backup
+    image: local/database-backup:17.6
+    container_name: database-backup
+    restart: unless-stopped
+    env_file: ./databases/db_backup/.env
+    depends_on:
+      - db_general
+    volumes:
+      - db_general_backups:/backups/db_general
+      - ./backups/db_general:/repo_host
 
   # -----------------------------
   # LOGS

@@ -5,7 +5,7 @@ import buttonStyles from '@/styles/ButtonStyle.module.css'
 import { useTranslation } from 'react-i18next';
 import { FloatingLabelInput } from '@/components/ui/floatingInput';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useRegisterState } from '@/hooks/userRegister';
+import { useRegisterState } from '@/hooks/useRegister';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 

@@ -1,50 +1,183 @@
-import loginStyles from '@/styles/LoginStyles.module.css'
-import buttonStyles from '@/styles/ButtonStyle.module.css'
-import { Checkbox } from '@/components/ui/checkbox'
-import { FloatingLabelInput } from '@/components/ui/floatingInput'
-import { useTranslation } from 'react-i18next'
-import { useLoginState } from '@/hooks/useLogin'
-import { Button } from '@/components/ui/button'
-import { Spinner } from '@/components/ui/spinner'
+"use client";
+
+import { useEffect, useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+
+import loginStyles from "@/styles/LoginStyles.module.css";
+import buttonStyles from "@/styles/ButtonStyle.module.css";
+import { Checkbox } from "@/components/ui/checkbox";
+import { FloatingLabelInput } from "@/components/ui/floatingInput";
+import { useTranslation } from "react-i18next";
+import { useLoginState } from "@/hooks/useLogin";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+
+// Redirect code to use on other sites: router.replace(`/login?next=${encodeURIComponent(window.location.pathname + window.location.search + window.location.hash)}`);
+const MAIN_PATH = "/";
+
+const AUTH_LS_KEYS = {
+    jwt: "auth.jwt",
+    jwtExpiresAtMs: "auth.jwtExpiresAtMs",
+} as const;
+
+function hasValidJwtInLocalStorage(): boolean {
+    try {
+        const jwt = localStorage.getItem(AUTH_LS_KEYS.jwt);
+        if (!jwt) return false;
+
+        const expiresAtStr = localStorage.getItem(AUTH_LS_KEYS.jwtExpiresAtMs);
+        if (!expiresAtStr) return true;
+
+        const expiresAt = Number(expiresAtStr);
+        if (!Number.isFinite(expiresAt)) return true;
+
+        return expiresAt > Date.now();
+    } catch {
+        return false;
+    }
+}
+
+function safeSameOriginPath(input: string): string | null {
+    try {
+        const url = new URL(input, window.location.origin);
+        if (url.origin !== window.location.origin) return null;
+
+        const path = `${url.pathname}${url.search}${url.hash}`;
+        if (path === "/login" || path.startsWith("/login?")) return null;
+
+        return path;
+    } catch {
+        return null;
+    }
+}
+
+function resolveRedirectTarget(nextParam: string | null): string {
+    if (nextParam) {
+        const target = safeSameOriginPath(nextParam);
+        if (target) return target;
+    }
+
+    if (document.referrer) {
+        const target = safeSameOriginPath(document.referrer);
+        if (target) return target;
+    }
+
+    return MAIN_PATH;
+}
 
 export function LoginForm() {
-    const { t } = useTranslation(["common", "loginView"]);
-    const { state, update, submit, loading } = useLoginState();
-    return (
-        <div className={loginStyles["login-form-column"]}>
-            <div className={loginStyles["login-form"]}>
-                <div className={loginStyles["login-to-your-account"]}>
-                    {t("loginView:loginToYourAccount")}
-                </div>
+    const router = useRouter();
+    const isAuthed = useMemo(() => hasValidJwtInLocalStorage(), []);
+    useEffect(() => {
+        if (isAuthed) {
+            router.replace(MAIN_PATH);
+        }
+    }, [router]);
 
-                <div className={loginStyles["login-form-inputs"]}>
-                    <FloatingLabelInput type='text' label={t("common:email")} onChange={(e) => update("email", e.target.value)} />
-                    <FloatingLabelInput type='password' label={t("password")} onChange={(e) => update("password", e.target.value)} />
+    const { t } = useTranslation(["common", "loginView"]);
+    const searchParams = useSearchParams();
+    const { state, update, submit, loading, error } = useLoginState();
+
+    const columnClass = loginStyles["login-form-column"];
+    const formClass = loginStyles["login-form"];
+    const titleClass = loginStyles["login-to-your-account"];
+    const inputsClass = loginStyles["login-form-inputs"];
+    const rememberWrapClass = `${loginStyles["remember-me-clouse"]} w-full!`;
+    const checkboxClass = loginStyles["checkbox"];
+    const rememberTextClass = loginStyles["remember-me"];
+    const iconClass = loginStyles["log-out"];
+    const signInTextClass = loginStyles["sign-in"];
+
+    const errorSlotClass = loginStyles["login-error-slot"];
+    const errorBoxClass = loginStyles["login-error-box"];
+    const errorHiddenClass = loginStyles["login-error-hidden"];
+
+    const buttonClass =
+        `transition-[width] duration-300 gap-4 ease-in-out py-5.5 px-4 ` +
+        `inline-flex items-center cursor-pointer justify-center overflow-hidden ` +
+        `${buttonStyles["big-scale"]}`;
+
+    const handleSubmit = async () => {
+        const ok = await submit();
+        if (!ok) return;
+
+        const nextParam = searchParams.get("next");
+        const target = resolveRedirectTarget(nextParam);
+
+        router.replace(target);
+    };
+
+    useEffect(() => {
+        if (isAuthed) {
+            router.replace(MAIN_PATH);
+        }
+    }, [router]);
+
+    if (isAuthed) {
+        return (
+            <div className={loginStyles["login-form-column"]}>
+                <div className="mt-10 flex justify-center">
+                    <Spinner />
                 </div>
             </div>
-            <div className={`${loginStyles["remember-me-clouse"]} w-full!`}>
-                <label className='flex gap-2 cursor-pointer'>
-                    <Checkbox className={loginStyles["checkbox"]} checked={state.rememberMe} onCheckedChange={(v) => update("rememberMe", Boolean(v))} />
-                    <div className={loginStyles["remember-me"]}>
-                        {t("common:rememberMe")}
-                    </div>
-                </label>
-                <a href='/register' className='text-sm'>Nie masz konta? Zarejestruj się!</a>
-            </div>
-            <div className='mt-5'>
-                <Button onClick={submit} disabled={loading} className={`transition-[width] duration-300 gap-4 ease-in-out py-5.5 px-4 inline-flex items-center cursor-pointer justify-center overflow-hidden ${buttonStyles["big-scale"]}`}>
-                    <img
-                        className={loginStyles["log-out"]}
-                        src="/icons/log-in0.svg"
-                        alt=""
+        );
+    }
+
+    return (
+        <div className={columnClass}>
+            <div className={formClass}>
+                <div className={titleClass}>{t("loginView:loginToYourAccount")}</div>
+
+                <div className={inputsClass}>
+                    <FloatingLabelInput
+                        type="text"
+                        label={t("common:email")}
+                        onChange={(e) => update("email", e.target.value)}
                     />
-                    <div className={loginStyles["sign-in"]}>
-                        {loading ? t("loginView:signInLoading") :t("common:signIn")}
+                    <FloatingLabelInput
+                        type="password"
+                        label={t("password")}
+                        onChange={(e) => update("password", e.target.value)}
+                    />
+
+                    { }
+                    <div className={errorSlotClass} aria-live="polite">
+                        <div
+                            className={`${errorBoxClass} ${!error ? errorHiddenClass : ""}`}
+                            role={error ? "alert" : undefined}
+                        >
+                            {error || "\u00A0"}
+                        </div>
                     </div>
-                    {loading && <Spinner/>}
+                </div>
+            </div>
+
+            <div className={rememberWrapClass}>
+                <label className="flex gap-2 cursor-pointer">
+                    <Checkbox
+                        className={checkboxClass}
+                        checked={state.rememberMe}
+                        onCheckedChange={(v) => update("rememberMe", Boolean(v))}
+                    />
+                    <div className={rememberTextClass}>{t("common:rememberMe")}</div>
+                </label>
+
+                <a href="/register" className="text-sm">
+                    {t("loginView:registerCta")}
+                </a>
+            </div>
+
+            <div className="mt-5">
+                <Button onClick={handleSubmit} disabled={loading} className={buttonClass}>
+                    <img className={iconClass} src="/icons/log-in0.svg" alt="" />
+
+                    <div className={signInTextClass}>
+                        {loading ? t("loginView:signInLoading") : t("common:signIn")}
+                    </div>
+
+                    {loading && <Spinner />}
                 </Button>
             </div>
-
         </div>
     );
 }

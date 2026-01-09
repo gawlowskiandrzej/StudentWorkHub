@@ -94,6 +94,12 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+  
+  /* Login/register error box */
+  --error-bg: rgba(239, 68, 68, 0.75);
+  --error-border: rgba(239, 68, 68, 0.95);
+  --error-text: rgba(255, 245, 245, 1);
+  --error-shadow: 0 6px 18px rgba(239, 68, 68, 0.45);
 }
 
 .dark {
