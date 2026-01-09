@@ -136,5 +136,39 @@ namespace Offer_collector.Models.DatabaseService
             }
            
         }
+
+        /// <summary>
+        /// Pobiera słowniki z ID wykorzystywane podczas ankiety uzytkownika (oferuje baza danych).
+        /// Zwraca listę obiektów z ID i nazwą dla każdego słownika.
+        /// </summary>
+        public async Task<object> GetDictionariesWithIds(List<string> dicNames)
+        {
+            try
+            {
+                var dictionaries = await connector.GetSimpleLookups(dicNames);
+                
+                var result = new
+                {
+                    leading_categories = dictionaries.ContainsKey("leading_categories") 
+                        ? dictionaries["leading_categories"].Select(kvp => new { id = kvp.Key, name = kvp.Value }).ToList()
+                        : (object)new List<object>(),
+                    employment_types = dictionaries.ContainsKey("employment_types")
+                        ? dictionaries["employment_types"].Select(kvp => new { id = kvp.Key, name = kvp.Value }).ToList()
+                        : (object)new List<object>(),
+                    languages = dictionaries.ContainsKey("languages")
+                        ? dictionaries["languages"].Select(kvp => new { id = kvp.Key, name = kvp.Value }).ToList()
+                        : (object)new List<object>(),
+                    language_levels = dictionaries.ContainsKey("language_levels")
+                        ? dictionaries["language_levels"].Select(kvp => new { id = kvp.Key, name = kvp.Value }).ToList()
+                        : (object)new List<object>()
+                };
+
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

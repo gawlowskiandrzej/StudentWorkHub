@@ -1,0 +1,362 @@
+/* ============================================================
+   DESIGN SYSTEM TOKENS
+   ============================================================ */
+
+:root {
+  /* Colors */
+  --color-bg-primary: #000000;
+  --color-bg-secondary: #09090b;
+  --color-bg-tertiary: #18181b;
+  --color-border: #27272a;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #a1a1aa;
+  --color-text-tertiary: #71717a;
+  --color-accent: #3b82f6;
+  --color-accent-dark: #2563eb;
+  --color-accent-light: #60a5fa;
+  --color-error: #ef4444;
+  --color-success: #10b981;
+  --color-shadow: rgba(127, 195, 255, 0.3);
+  --color-shadow-dark: rgba(0, 140, 255, 0.2);
+
+  /* Sizing */
+  --size-button-height: 3.5rem;
+  --size-input-height: 3.5rem;
+  --size-radius-sm: 0.5rem;
+  --size-radius-md: 0.75rem;
+  --size-radius-lg: 1rem;
+
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+
+  /* Breakpoints */
+  --breakpoint-md: 768px;
+}
+
+/* ============================================================
+   LAYOUT CONTAINER
+   ============================================================ */
+
+.container {
+  min-height: 80vh;
+  background-color: var(--color-bg-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-xl) var(--space-md);
+  font-family: sans-serif;
+  overflow-x: hidden;
+}
+
+.header {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-3xl);
+}
+
+.mainContent {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.footer {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  justify-content: center;
+  gap: var(--space-lg);
+  padding: var(--space-xl) 0;
+  margin-top: auto;
+}
+
+/* ============================================================
+   TYPOGRAPHY & COMMON PATTERNS
+   ============================================================ */
+
+.label {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+.requiredStar {
+  color: var(--color-error);
+  margin-left: var(--space-xs);
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.sectionDescription {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+/* ============================================================
+   INPUTS & FORM CONTROLS
+   ============================================================ */
+
+.unifiedInput {
+  background-color: transparent !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--size-radius-lg) !important;
+  color: var(--color-text-primary) !important;
+  height: var(--size-input-height) !important;
+  width: 100% !important;
+  transition: all 0.2s ease !important;
+  padding: 0 var(--space-md) !important;
+  font-size: 0.9375rem !important;
+  box-shadow: 2px 2px 16px rgba(255, 255, 255, 0.25) !important;
+  font-weight: 600 !important;
+}
+
+.unifiedInput svg {
+  color: var(--color-text-primary) !important;
+  width: 1.6rem !important;
+  height: 1.6rem !important;
+  opacity: 1 !important;
+  transition: transform 0.2s ease;
+}
+
+.unifiedInput:focus,
+.unifiedInput[data-state="open"] {
+  border-color: var(--color-accent) !important;
+  outline: none !important;
+  box-shadow: 2px 2px 16px rgba(59, 130, 246, 0.4) !important;
+}
+
+.unifiedInput::placeholder {
+  color: var(--color-text-tertiary) !important;
+}
+
+.unifiedSelectContent{
+  background-color: var(--color-bg-secondary) !important;
+  border: 2px solid #3b82f6 !important;
+  border-radius: var(--size-radius-lg) !important;
+  color: var(--color-text-primary) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8) !important;
+  z-index: 9999;
+  font-size: 0.9375rem !important;
+  font-weight: 600 !important;
+}
+
+.unifiedSelectItem{
+  padding: 10px 12px !important;
+  cursor: pointer !important;
+  color: var(--color-text-primary) !important;
+  outline: none !important;
+  font-size: 0.9375rem !important;
+  font-weight: 600 !important;
+}
+
+.unifiedSelectItem:hover,
+.unifiedSelectItem[data-highlighted]{
+  background-color: var(--color-accent) !important;
+  color: var(--color-text-primary) !important;
+  outline: none !important;
+  font-size: 0.9375rem !important;
+  font-weight: 600 !important;
+}
+
+/* Input Wrapper for labeled inputs */
+.inputWrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.inputLabel {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+/* Special input for earnings (small blue boxes) */
+.earningInput {
+  background-color: var(--color-accent) !important;
+  color: var(--color-text-primary) !important;
+  border: none !important;
+  text-align: center !important;
+  font-weight: 600 !important;
+  border-radius: var(--size-radius-sm) !important;
+  width: 5rem !important;
+  height: 2.5rem !important;
+  padding: 0 !important;
+  font-size: 0.9375rem !important;
+  box-shadow: 2px 2px 16px rgba(255, 255, 255, 0.25) !important;
+  transition: all 0.2s ease !important;
+}
+
+.earningInput:focus {
+  box-shadow: 2px 2px 16px rgba(59, 130, 246, 0.5) !important;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+.button {
+  min-width: 140px;
+  height: var(--size-button-height) !important;
+  border-radius: 0.8rem !important;
+  font-weight: 500 !important;
+  font-size: 0.9375rem !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+}
+
+.nextButton {
+  background: linear-gradient(90deg, rgba(60, 131, 246, 1) 0%, rgba(30, 59, 138, 1) 100%) !important;
+  color: var(--color-text-primary) !important;
+  border: none !important;
+  box-shadow: 1px 2px 6px 0px var(--color-shadow), -1px -2px 6px 0px var(--color-shadow-dark) !important;
+}
+
+.nextButton:hover {
+  transform: scale(1.035) !important;
+  box-shadow: 1px 2px 12px 0px var(--color-shadow), -1px -2px 10px 0px var(--color-shadow-dark) !important;
+}
+
+.nextButton:active {
+  transform: scale(0.98) !important;
+}
+
+.prevButton {
+  background-color: transparent !important;
+  border: 1px solid var(--color-border) !important;
+  color: var(--color-text-secondary) !important;
+  transition: all 0.2s ease !important;
+}
+
+.prevButton:hover {
+  background-color: var(--color-bg-tertiary) !important;
+  color: var(--color-accent-light) !important;
+  border-color: var(--color-accent) !important;
+  transform: scale(1.005) !important;
+}
+
+.prevButton:active {
+  background-color: var(--color-bg-secondary) !important;
+  transform: scale(0.98) !important;
+}
+
+/* ============================================================
+   SELECTION ELEMENTS (Checkbox, Radio)
+   ============================================================ */
+
+.selectionRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  cursor: pointer;
+  padding: var(--space-sm) 0;
+  transition: all 0.2s ease;
+}
+
+.selectionRow:hover {
+  transform: translateX(4px);
+}
+
+.selectionRow:hover label {
+  color: var(--color-accent);
+}
+
+.selectionContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-lg);
+  width: 100%;
+  max-width: 400px;
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.fadeInUp {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+:global(.animate-pulse-slow) {
+  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.progressBar{
+  height: 15px;
+  background-color: var(--color-text-primary);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 640px) {
+  .container {
+    padding: var(--space-lg) var(--space-sm);
+  }
+
+  .header {
+    margin-bottom: var(--space-2xl);
+  }
+
+  .footer {
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .button {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .selectionContainer {
+    grid-template-columns: 1fr;
+  }
+
+
+}

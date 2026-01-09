@@ -1,12 +1,60 @@
+"use client";
+
+import { useEffect, useRef } from 'react';
 import UserInfoCardStyles from '@/styles/UserInfoStyle.module.css'
+import { useUser } from '@/store/userContext';
+import { useProfileCreationDictionaries } from '@/hooks/useDictionaries';
+import { useTranslation } from "react-i18next";
 
 export function UserInfoCard() {
+
+    const { t } = useTranslation("userInfoCard");
+    const { userData, preferences, fetchPreferences, fetchUserData, isAuthenticated } = useUser();
+    const { fullDictionaries, loading } = useProfileCreationDictionaries();
+    const hasFetchedRef = useRef(false);
+
+    useEffect(() => {
+        if (isAuthenticated && !hasFetchedRef.current) {
+            hasFetchedRef.current = true;
+            if (!userData) {
+                fetchUserData();
+            }
+            if (!preferences) {
+                fetchPreferences();
+            }
+        }
+    }, [isAuthenticated, userData, preferences, fetchUserData, fetchPreferences]);
+
+    if (loading || !fullDictionaries) {
+        return <div className={UserInfoCardStyles["user-profile-info-card"]}>{t("loading") || "Loading..."}</div>;
+    }
+
+    // get labels from dictionaries
+    const getCategoryLabel = (categoryId: number | undefined) => {
+        if (!categoryId || !fullDictionaries) return t("notSpecified");
+        return fullDictionaries.leading_categories.find(c => c.id === categoryId)?.name || t("notSpecified");
+    };
+
+    const getWorkplaceTypeLabel = (types: string[] | undefined) => {
+        if (!types || types.length === 0) return t("notSpecified");
+        return types.map(t => t).join(", ");
+    };
+
+    const getLanguageLabel = (languages: any[] | undefined) => {
+        if (!languages || languages.length === 0) return t("notSpecified");
+        return languages.map((lang: any) => {
+            const langName = fullDictionaries.languages.find(l => l.id === lang.language_id)?.name;
+            const levelName = fullDictionaries.language_levels.find(lv => lv.id === lang.language_level_id)?.name;
+            return `${langName}${levelName ? ` (${levelName})` : ''}`;
+        }).join(", ");
+    };
+
     return (
         <div className={UserInfoCardStyles["user-profile-info-card"]}>
             <div className={UserInfoCardStyles["profile-element"]}>
                 <div className={UserInfoCardStyles["header-profile"]}>
                     <div className={UserInfoCardStyles["category"]}>
-                        Personal information
+                        {t("personalInfo")}
                     </div>
                     <div className={UserInfoCardStyles["edit-icon-container"]}>
                         <img
@@ -17,7 +65,7 @@ export function UserInfoCard() {
 
                 </div>
 
-                <div className={UserInfoCardStyles["username-sec"]}>
+            <div className={UserInfoCardStyles["username-sec"]}>
                     <div className={UserInfoCardStyles["user-icon"]}>
                         <img
                             className={UserInfoCardStyles["user2"]}
@@ -26,7 +74,7 @@ export function UserInfoCard() {
                     </div>
                     <div className={UserInfoCardStyles["username-label"]}>
                         <div className={UserInfoCardStyles["user-name-and-surname"]}>
-                            User name and Surname
+                            {userData?.first_name} {userData?.last_name}
                         </div>
                     </div>
                 </div>
@@ -35,7 +83,7 @@ export function UserInfoCard() {
             <div className={UserInfoCardStyles["line-8"]}></div>
 
             <div className={UserInfoCardStyles["job-preferences"]}>
-                Job preferences
+                {t("jobPreferences")}
             </div>
 
             <div className={UserInfoCardStyles["user-profile-settings-elements"]}>
@@ -56,12 +104,12 @@ export function UserInfoCard() {
                             </div>
                         </div>
                         <div className={UserInfoCardStyles["category"]}>
-                            Main category
+                            {t("preferredCategory")}
                         </div>
                     </div>
                     <div className={UserInfoCardStyles["profile-items-sub"]}>
                         <div className={UserInfoCardStyles["category-from-list"]}>
-                            Category from list
+                            {getCategoryLabel(preferences?.leading_category_id)}
                         </div>
                     </div>
                 </div>
@@ -83,15 +131,15 @@ export function UserInfoCard() {
                             </div>
                         </div>
                         <div className={UserInfoCardStyles["category"]}>
-                            Location
+                            {t("preferredLocationAndWorkType")}
                         </div>
                     </div>
                     <div className={UserInfoCardStyles["profile-items-sub"]}>
                         <div className={UserInfoCardStyles["category-from-list"]}>
-                            City name
+                            {preferences?.city_name || t("notSpecified")}
                         </div>
                         <div className={UserInfoCardStyles["category-from-list"]}>
-                            Work type from list [ Remotly, In office, Hybrid ]
+                            {getWorkplaceTypeLabel(preferences?.work_types)}
                         </div>
                     </div>
                 </div>
@@ -113,12 +161,14 @@ export function UserInfoCard() {
                             </div>
                         </div>
                         <div className={UserInfoCardStyles["category"]}>
-                            Employment and salary
+                            {t("employmentAndSalary")}
                         </div>
                     </div>
                     <div className={UserInfoCardStyles["profile-items-sub"]}>
                         <div className={UserInfoCardStyles["category-from-list"]}>
-                            B2B (net/month): From 3000 to 10000
+                            {preferences?.salary_from && preferences?.salary_to
+                                ? `${preferences.salary_from} - ${preferences.salary_to} zł / ${t("month")}`
+                                : t("notSpecified")}
                         </div>
                     </div>
                 </div>
@@ -140,12 +190,12 @@ export function UserInfoCard() {
                             </div>
                         </div>
                         <div className={UserInfoCardStyles["category"]}>
-                            Urgent work
+                            {t("urgentWork")}
                         </div>
                     </div>
                     <div className={UserInfoCardStyles["profile-items-sub"]}>
                         <div className={UserInfoCardStyles["category-from-list"]}>
-                            Yes
+                            {preferences?.job_status === "actively_looking" ? t("yes") : t("no")}
                         </div>
                     </div>
                 </div>
@@ -167,12 +217,12 @@ export function UserInfoCard() {
                             </div>
                         </div>
                         <div className={UserInfoCardStyles["category"]}>
-                            Languages
+                            {t("languages")}
                         </div>
                     </div>
                     <div className={UserInfoCardStyles["profile-items-sub"]}>
                         <div className={UserInfoCardStyles["category-from-list"]}>
-                            English, Polish, Deutsh
+                            {getLanguageLabel(preferences?.languages)}
                         </div>
                     </div>
                 </div>
@@ -194,12 +244,14 @@ export function UserInfoCard() {
                             </div>
                         </div>
                         <div className={UserInfoCardStyles["category"]}>
-                            Your skills (search by phrase)
+                            {t("yourSkillsSearchByPhrase")}
                         </div>
                     </div>
                     <div className={UserInfoCardStyles["profile-items-sub"]}>
                         <div className={UserInfoCardStyles["category-from-list"]}>
-                            Proggraming - 24m, Helpdesk - 12m, Car driving - 12m
+                            {preferences?.skills && preferences.skills.length > 0
+                                ? preferences.skills.map((skill: any) => `${skill.skill_name} - ${skill.experience_months} ${t("monthsShort")}`).join(", ")
+                                : t("notSpecified")}
                         </div>
                     </div>
                 </div>

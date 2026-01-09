@@ -29,5 +29,30 @@ namespace offer_manager.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        /// <summary>
+        /// Returns all dictionaries needed for profile creation form.
+        /// Includes: leading_categories, employment_types, languages, language_levels.
+        /// </summary>
+        [HttpGet("all-dictionaries")]
+        public async Task<IActionResult> ProfileCreationDictionaries()
+        {
+            try
+            {
+                var result = await _dbService.GetDictionariesWithIds(new List<string>
+                {
+                    "leading_categories",
+                    "employment_types",
+                    "languages",
+                    "language_levels"
+                });
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

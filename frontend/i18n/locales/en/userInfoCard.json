@@ -1,0 +1,16 @@
+{
+    "loading": "loading",
+    "preferredLocationAndWorkType": "preferredLocationAndWorkType",
+    "notSpecified": "notSpecified",
+    "month": "month",
+    "employmentAndSalary": "employmentAndSalary",
+    "urgentWork": "urgentWork",
+    "yes": "yes",
+    "no": "no",
+    "languages": "languages",
+    "yourSkillsSearchByPhrase": "yourSkillsSearchByPhrase",
+    "personalInfo": "personalInfo",
+    "jobPreferences": "jobPreferences",
+    "preferredCategory": "preferredCategory",
+    "monthsShort": "monthsShort"
+}

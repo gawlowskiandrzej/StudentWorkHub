@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 import { ExtraFiltersState, useSearch } from "@/store/SearchContext";
 import { useTranslation } from "react-i18next";
 import { toLabelValueFormat } from '../../../utils/others/toLabelValueFormat';
-import { useDictionaries } from "@/hooks/useDictionaries";
+import { useSimpleDictionaries } from "@/hooks/useDictionaries";
 import { staticFilterItem } from "@/types/search/staticFilterItem";
 import { Skeleton } from "@/components/ui/skeleton";
 import { search } from "@/types/search/search";
@@ -20,8 +20,8 @@ const Search = () => {
     const [localSearch, setLocalSearch] = useState<search>({});
     const [localExtraFilters, setLocalExtraFilters] = useState<ExtraFiltersState>({});
     const { t } = useTranslation(["searchView", "searchbar", "common"])
-    const { dictionaries, loading } = useDictionaries();
     const router = useRouter();
+    const { dictionaries, loading, error } = useSimpleDictionaries();
     const setLocalExtraFilter = <K extends keyof ExtraFiltersState>(
     key: K,
     value: ExtraFiltersState[K]

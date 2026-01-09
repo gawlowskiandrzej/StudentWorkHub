@@ -10,6 +10,8 @@ import searchbar from "./locales/pl/searchbar.json";
 import searchView from "./locales/pl/searchView.json";
 import loginView from "./locales/pl/login.json";
 import register from "./locales/pl/register.json";
+import profileCreation from "./locales/pl/profileCreation.json";
+import userInfoCard from "./locales/pl/userInfoCard.json";
 
 declare module "i18next" {
   interface CustomTypeOptions {
@@ -26,6 +28,8 @@ declare module "i18next" {
       searchView: typeof searchView;
       loginView: typeof loginView;
       register: typeof register;
+      profileCreation: typeof profileCreation;
+      userInfoCard: typeof userInfoCard;
     };
   }
 }
