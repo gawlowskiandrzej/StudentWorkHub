@@ -62,17 +62,14 @@
   position: relative;
 }
 .searchbar {
-  border-radius: 16px;
   border-style: solid;
   border-color: #ffffff;
-  border-width: 1px;
-  padding: 0px 0px;
   align-self: stretch;
   flex-shrink: 0;
   display: grid;
-  row-gap: 0px;
+  gap: 20px;
   position: relative;
-  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.2fr) minmax(0, 1fr);
+  grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: repeat(1, minmax(0, 1fr));
 }
 .phrase-search {
@@ -108,10 +105,11 @@
 .major-study-search {
   border-style: solid;
   border-color: #fbfbfb;
-  border-width: 0px 0.92px 0px 0px;
+  border-width: 1px;
   display: flex;
   flex-direction: row;
   gap: 0px;
+  border-radius: var(--radius);
   font-size: var(--mediumSize);
   width: 100%;
   align-items: center;

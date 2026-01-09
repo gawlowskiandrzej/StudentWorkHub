@@ -26,6 +26,10 @@
 .main-button:hover {
   transform: scale(1.035);
 }
+.floating-input{
+  border-radius: var(--radius);
+  box-shadow: 2px 2px 16px 0px rgba(255, 255, 255, 0.25);
+}
 .find-mathing-job {
   color: var(--white, #f8faff);
   text-align: center;

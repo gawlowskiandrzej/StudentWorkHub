@@ -29,7 +29,7 @@ COPY --from=builder /app/next.config.ts ./next.config.ts
 COPY --from=builder /app/package.json ./package.json
 
 # Ustawiamy port Next.js
-EXPOSE 5000
+EXPOSE 4000
 
 # Uruchamiamy aplikację w trybie produkcyjnym
 CMD ["npm", "start"]
