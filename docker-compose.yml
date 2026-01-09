@@ -113,11 +113,16 @@ services:
     container_name: offer_manager
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
-      DatabaseSettings__Host: postgres-offers
-      DatabaseSettings__Port: 5432
+      DatabaseSettings__Host: ${POSTGRES_HOST}
+      DatabaseSettings__Port: ${POSTGRES_PORT}
       DatabaseSettings__Database: ${POSTGRES_DB}
       DatabaseSettings__Username: ${POSTGRES_USER}
       DatabaseSettings__Password: ${POSTGRES_PASSWORD}
+      GeneralDatabaseSettings__Host: ${GENERAL_HOST}
+      GeneralDatabaseSettings__Port: ${GENERAL_PORT}
+      GeneralDatabaseSettings__Database: ${GENERAL_DATABASE}
+      GeneralDatabaseSettings__Username: ${GENERAL_USERNAME}
+      GeneralDatabaseSettings__Password: ${GENERAL_PASSWORD}
       RedisServer__Host: redis
       RedisServer__Port: 6379
       StaticSettings__NumberOfAvailablePortals: ${STATIC_NumberOfAvailablePortals}
