@@ -1,6 +1,7 @@
 "use client";
 import loginStyles from '@/styles/LoginStyles.module.css'
 import { LoginForm } from '@/components/feature/login/LoginForm';
+import { Suspense } from 'react';
 export default function Login() {
     return (
         <div className={loginStyles["login-account"]}>
@@ -14,7 +15,10 @@ export default function Login() {
                 src="/images/login/unsplash-g-1-kr-4-ozfoac0.png"
                 alt=""
             />
-            <LoginForm/>
+            <Suspense fallback={<div className="mt-10 flex justify-center">Loading…</div>}>
+                <LoginForm/>
+            </Suspense>
+            
         </div>
     )
 }

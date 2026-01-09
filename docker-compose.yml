@@ -92,19 +92,17 @@ services:
   # -----------------------------
   # FRONTEND (PROD)
   # -----------------------------
-  # frontend-prod:
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile
-  #   container_name: frontend_prod
-  #   ports:
-  #     - "4000:4000"
-  #   environment:
-  #     - MODE=production
-  #   depends_on:
-  #     - offer_manager
-  #   env_file:
-  #     - .env.docker
+  frontend-prod:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend_prod
+    ports:
+      - "4000:4000"
+    environment:
+      - MODE=production
+    depends_on:
+      - offer_manager
   # -----------------------------
   # OFFER MANAGER (.NET API)
   # -----------------------------

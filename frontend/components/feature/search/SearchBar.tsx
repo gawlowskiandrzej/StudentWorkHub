@@ -1,6 +1,7 @@
 "use client";
 import { useTranslation } from "react-i18next";
 import searchStyles from "../../../styles/SearchView.module.css";
+import buttonStyles from "../../../styles/ButtonStyle.module.css";
 import { Filter } from "./Filters";
 import { leading_categories } from '@/store/data/Dictionaries.json';
 import { toLabelValueFormat } from "@/utils/others/toLabelValueFormat";
@@ -45,7 +46,7 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
                     />
                 {/* </div> */}
 
-                <div className={searchStyles["major-study-search"]}>
+                <div className={`${searchStyles["major-study-search"]} ${buttonStyles["floating-input"]}`}>
                     <Filter
                         clearable={true}
                         className="w-full"
