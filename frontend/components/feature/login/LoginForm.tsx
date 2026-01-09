@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import loginStyles from "@/styles/LoginStyles.module.css";
@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next";
 import { useLoginState } from "@/hooks/useLogin";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { useUser } from "@/store/userContext";
 
 // Redirect code to use on other sites: router.replace(`/login?next=${encodeURIComponent(window.location.pathname + window.location.search + window.location.hash)}`);
 const MAIN_PATH = "/";
@@ -68,15 +69,18 @@ function resolveRedirectTarget(nextParam: string | null): string {
 export function LoginForm() {
     const router = useRouter();
     const isAuthed = useMemo(() => hasValidJwtInLocalStorage(), []);
+    const { t } = useTranslation(["common", "loginView"]);
+    const searchParams = useSearchParams();
+    const { state, update, submit, loading, error } = useLoginState();
+    const { fetchPreferences, preferences } = useUser();
+    
+    const [isCheckingPreferences, setIsCheckingPreferences] = useState(false);
+
     useEffect(() => {
         if (isAuthed) {
             router.replace(MAIN_PATH);
         }
-    }, [router]);
-
-    const { t } = useTranslation(["common", "loginView"]);
-    const searchParams = useSearchParams();
-    const { state, update, submit, loading, error } = useLoginState();
+    }, [router, isAuthed]);
 
     const columnClass = loginStyles["login-form-column"];
     const formClass = loginStyles["login-form"];
@@ -97,21 +101,38 @@ export function LoginForm() {
         `inline-flex items-center cursor-pointer justify-center overflow-hidden ` +
         `${buttonStyles["big-scale"]}`;
 
+    // Effect to handle redirect after preferences are fetched
+    useEffect(() => {
+        if (!isCheckingPreferences) return;
+
+        const performRedirect = async () => {
+            const nextParam = searchParams.get("next");
+            const target = resolveRedirectTarget(nextParam);
+
+            // Check if preferences are incomplete (missing leadingCategory)
+            // If leadingCategory is missing, redirect to profile creation
+            if (!preferences?.leading_category_id) {
+                router.replace("/profile-creation");
+            } else {
+                router.replace(target);
+            }
+
+            setIsCheckingPreferences(false);
+        };
+
+        performRedirect();
+    }, [isCheckingPreferences, preferences, searchParams, router]);
+
     const handleSubmit = async () => {
         const ok = await submit();
         if (!ok) return;
 
-        const nextParam = searchParams.get("next");
-        const target = resolveRedirectTarget(nextParam);
-
-        router.replace(target);
+        // Set flag to fetch preferences and handle redirect
+        setIsCheckingPreferences(true);
+        
+        // Fetch preferences to check if leadingCategory is set
+        await fetchPreferences();
     };
-
-    useEffect(() => {
-        if (isAuthed) {
-            router.replace(MAIN_PATH);
-        }
-    }, [router]);
 
     if (isAuthed) {
         return (

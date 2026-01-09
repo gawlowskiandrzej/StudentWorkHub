@@ -11,7 +11,9 @@ import plDetails from "./locales/pl/details.json";
 import plSearchbar from "./locales/pl/searchbar.json";
 import plSearchView from "./locales/pl/searchView.json";
 import plLogin from "./locales/pl/login.json";
-import plRegister from "./locales/pl/register.json";
+import plRegister from "./locales/pl/register.json";  
+import plProfileCreation from "./locales/pl/profileCreation.json";
+import plUserInfoCard from "./locales/pl/userInfoCard.json";
 // EN
 import enCommon from "./locales/en/common.json";
 import enNavbar from "./locales/en/navigation.json";
@@ -21,13 +23,16 @@ import enList from "./locales/en/list.json";
 import enDetails from "./locales/en/details.json";
 import enSearchbar from "./locales/en/searchbar.json";
 import enSearchView from "./locales/en/searchView.json";
+import enProfileCreation from "./locales/en/profileCreation.json";
+import enUserInfoCard from "./locales/en/userInfoCard.json";
+
 
 
 i18n.use(initReactI18next).init({
   lng: "pl",
   fallbackLng: "en",
 
-  ns: ["common", "navigation", "footer", "hero", "list", "details", "searchbar", "searchView", "loginView", "register"],
+  ns: ["common", "navigation", "footer", "hero", "list", "details", "searchbar", "searchView", "loginView", "register", "profileCreation", "userInfoCard"],
   defaultNS: "common",
 
   resources: {
@@ -41,7 +46,9 @@ i18n.use(initReactI18next).init({
       searchbar: plSearchbar,
       searchView: plSearchView,
       loginView: plLogin,
-      register: plRegister
+      register: plRegister,
+      profileCreation: plProfileCreation,
+      userInfoCard: plUserInfoCard
     },
     en: {
       common: enCommon,
@@ -51,7 +58,9 @@ i18n.use(initReactI18next).init({
       list: enList,
       details: enDetails,
       searchbar: enSearchbar,
-      searchView: enSearchView
+      searchView: enSearchView,
+      profileCreation: enProfileCreation,
+      userInfoCard: enUserInfoCard
     }
   },
 
