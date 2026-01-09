@@ -11,5 +11,6 @@
     "yourSkillsSearchByPhrase": "yourSkillsSearchByPhrase",
     "personalInfo": "personalInfo",
     "jobPreferences": "jobPreferences",
-    "preferredCategory": "preferredCategory"
+    "preferredCategory": "preferredCategory",
+    "monthsShort": "monthsShort"
 }

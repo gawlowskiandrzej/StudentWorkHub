@@ -250,8 +250,8 @@ export function UserInfoCard() {
                     <div className={UserInfoCardStyles["profile-items-sub"]}>
                         <div className={UserInfoCardStyles["category-from-list"]}>
                             {preferences?.skills && preferences.skills.length > 0
-                                ? preferences.skills.map((skill: any) => `${skill.skill_name} - ${skill.experience_months}m`).join(", ")
-                                : "Nie wskazane"}
+                                ? preferences.skills.map((skill: any) => `${skill.skill_name} - ${skill.experience_months} ${t("monthsShort")}`).join(", ")
+                                : t("notSpecified")}
                         </div>
                     </div>
                 </div>
