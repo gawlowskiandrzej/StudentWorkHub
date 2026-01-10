@@ -1,0 +1,7 @@
+# Temporary entry for testing on localhost
+# replace domain with e.g. studentworkhub.cs.put.poznan.pl
+# remove tls internal
+studentworkhub.localhost {
+  tls internal
+  reverse_proxy frontend_prod:4000
+}

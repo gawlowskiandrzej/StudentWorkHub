@@ -168,12 +168,12 @@ services:
   # -----------------------------
   # HEADLESS NODE BROWSER
   # -----------------------------
-  # headless_browser:
-  #   build:
-  #     context: ./offer_collector/headless_browser
-  #   container_name: headless_browser
-  #   ports:
-  #     - "3000:3000"
+  headless_browser:
+    build:
+      context: ./offer_collector/headless_browser
+    container_name: headless_browser
+    ports:
+      - "3000:3000"
 
 # -----------------------------
 # VOLUMES
