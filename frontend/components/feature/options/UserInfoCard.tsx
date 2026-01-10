@@ -14,16 +14,10 @@ export function UserInfoCard() {
     const hasFetchedRef = useRef(false);
 
     useEffect(() => {
-        if (isAuthenticated && !hasFetchedRef.current) {
-            hasFetchedRef.current = true;
-            if (!userData) {
-                fetchUserData();
-            }
-            if (!preferences) {
-                fetchPreferences();
-            }
-        }
-    }, [isAuthenticated, userData, preferences, fetchUserData, fetchPreferences]);
+    if (isAuthenticated && !userData) {
+        fetchUserData();
+    }
+    }, [isAuthenticated, userData, fetchUserData]);
 
     if (loading || !fullDictionaries) {
         return <div className={UserInfoCardStyles["user-profile-info-card"]}>{t("loading") || "Loading..."}</div>;

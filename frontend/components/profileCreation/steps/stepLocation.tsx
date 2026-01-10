@@ -4,6 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { StepProps } from "@/constants/profileCreation/steps";
 import { useTranslation } from "react-i18next";
 import styles from '@/styles/ProfileCreationStyle.module.css';
+import { FloatingLabelInput } from "@/components/ui/floatingInput";
 
 export default function StepLocation({ data, updateData }: StepProps) {
 
@@ -39,11 +40,11 @@ export default function StepLocation({ data, updateData }: StepProps) {
                         {t("enterYourCity")}
                         <span className={styles.requiredStar}>*</span>
                     </label>
-                    <Input
+                    <FloatingLabelInput
                         value={data.location.city}
                         onChange={(e) => updateData("location", { ...data.location, city: e.target.value })}
-                        placeholder={t("cityPlaceholder")}
-                        className={`${styles.unifiedInput} mt-2`}
+                        label={t("cityPlaceholder")}
+                        className={`mt-5`}
                     />
                 </div>
             </div>

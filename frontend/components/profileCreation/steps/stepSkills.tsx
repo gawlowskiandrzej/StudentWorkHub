@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { StepProps } from "@/constants/profileCreation/steps";
 import { useTranslation } from "react-i18next";
 import styles from '@/styles/ProfileCreationStyle.module.css';
+import { FloatingLabelInput } from "@/components/ui/floatingInput";
 
 interface Skill {
   id: string;
@@ -47,18 +48,18 @@ export default function StepSkills({ data, updateData }: StepProps) {
 
       <div className="flex flex-col gap-4 w-full px-4 max-w-md mx-auto">
         <div className="flex gap-3">
-          <Input
-            placeholder={t("skillNamePlaceholder")}
+          <FloatingLabelInput
+            label={t("skillNamePlaceholder")}
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="bg-transparent border-zinc-800 h-12 rounded-lg focus-visible:ring-blue-500 text-white placeholder:text-white"
+            // className="bg-transparent border-zinc-800 h-12 rounded-lg focus-visible:ring-blue-500 text-white placeholder:text-white"
           />
-          <Input
-            placeholder={t("monthsOfExperience")}
+          <FloatingLabelInput
+            label={t("monthsOfExperience")}
             type="number"
             value={months}
             onChange={(e) => setMonths(e.target.value)}
-            className="bg-transparent border-zinc-800 h-12 w-24 rounded-lg focus-visible:ring-blue-500 text-white placeholder:text-white"
+            // className="bg-transparent border-zinc-800 h-12 w-24 rounded-lg focus-visible:ring-blue-500 text-white placeholder:text-white"
           />
         </div>
 

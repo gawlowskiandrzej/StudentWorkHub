@@ -1,12 +1,14 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import navigationStyles from "../../styles/Navigation.module.css";
 import buttonStyles from "../../styles/ButtonStyle.module.css";
 import { Jura } from "next/font/google";
 import { useTranslation } from "react-i18next";
 import { Menu, X } from "lucide-react";
 import { Sidemenu } from "../feature/other/Sidemenu";
+import { useUser } from "@/store/userContext";
+import { Skeleton } from "../ui/skeleton";
 
 const jura = Jura({
   weight: ["400", "700"],
@@ -18,6 +20,14 @@ const Navbar = () => {
   const router = useRouter();
   const { t } = useTranslation(["navigation", "common"]);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { userData, loading,fetchUserData, logout, isAuthenticated} = useUser();
+  useEffect(() => {
+            if (isAuthenticated) {
+                if (!userData) {
+                    fetchUserData();
+                }
+            }
+        }, [isAuthenticated, userData, fetchUserData]);
 
   return (
     <>
@@ -41,6 +51,8 @@ const Navbar = () => {
         </div>
 
         <div className={navigationStyles["signin-frame"]}>
+          {loading? <Skeleton className="w-[100px] h-[25px]"/> : !isAuthenticated ? 
+          <>
           <div onClick={() => {router.push("/login")}}
             className={`${buttonStyles["main-button"]} ${navigationStyles["register-button"]}`}
           >
@@ -51,10 +63,11 @@ const Navbar = () => {
             className={`${buttonStyles["main-button"]} ${navigationStyles["register-button"]}`}
           >
             <div className="text-xs">{t("navigation:register")}</div>
-          </div>
-
+          </div></>
+          :<>{`${userData?.first_name} ${userData?.last_name}`}</> 
+          }
+          
           <img className={navigationStyles["user"]} src="/icons/user0.svg" />
-
           <Menu
             className="cursor-pointer"
             onClick={() => setMenuOpen(true)}
