@@ -134,6 +134,160 @@ namespace offer_manager.Controllers
         }
 
         /// <summary>
+        /// Maps a raw password-policy validation error into a localized, user-facing message.
+        /// The policy error is expected to start with an error code (before the first comma), e.g.:
+        /// <c>"minLength, expected: 8, got 5"</c> or <c>"invalidCharacter, whitespace is not allowed in password"</c>.
+        /// Unknown or empty inputs fall back to a generic message.
+        /// </summary>
+        /// <param name="policyError">Raw error string returned by <see cref="UserPasswordPolicy"/>.</param>
+        /// <returns>Localized message safe to return to the client.</returns>
+        private static string MapPasswordPolicyErrorToUserMessage(string? policyError)
+        {
+            if (string.IsNullOrWhiteSpace(policyError))
+                return "Hasło nie spełnia wymagań bezpieczeństwa.";
+
+            // Errors are like:
+            // "minLength, expected: 8, got 5"
+            // "invalidCharacter, whitespace is not allowed in password"
+            // We take the part before the first comma as the code.
+            string code = policyError.Split(',', 2, StringSplitOptions.TrimEntries)[0];
+
+            return code switch
+            {
+                "nullPassword" => "Hasło jest wymagane.",
+
+                "minLength" => BuildMinLengthMessage(policyError),
+                "maxLength" => BuildMaxLengthMessage(policyError),
+
+                "knownPassword" => "To hasło jest zbyt popularne lub wyciekło. Wybierz inne.",
+
+                "invalidCharacter" => BuildInvalidCharacterMessage(policyError),
+
+                "uppercase" => "Hasło musi zawierać co najmniej jedną wielką literę.",
+                "lowercase" => "Hasło musi zawierać co najmniej jedną małą literę.",
+                "digit" => "Hasło musi zawierać co najmniej jedną cyfrę.",
+                "nonAlphanumeric" => "Hasło musi zawierać co najmniej jeden znak specjalny.",
+
+                "uniqueChars" => BuildUniqueCharsMessage(policyError),
+
+                _ => "Hasło nie spełnia wymagań bezpieczeństwa."
+            };
+        }
+
+        /// <summary>
+        /// Builds a detailed "minimum length" message based on the policy error.
+        /// Attempts to extract the expected and actual lengths from the raw string (expected/got).
+        /// Falls back to a generic message if parsing fails.
+        /// </summary>
+        /// <param name="policyError">Raw policy error string (e.g. <c>"minLength, expected: 8, got 5"</c>).</param>
+        /// <returns>Localized message describing the minimum length requirement.</returns>
+        private static string BuildMinLengthMessage(string policyError)
+        {
+            if (TryExtractExpectedGot(policyError, out int expected, out int got))
+                return $"Hasło jest za krótkie. Minimalna długość: {expected} znaków. Podano: {got}.";
+
+            return "Hasło jest za krótkie.";
+        }
+
+        /// <summary>
+        /// Builds a detailed "maximum length" message based on the policy error.
+        /// Attempts to extract the expected and actual lengths from the raw string (expected/got).
+        /// Falls back to a generic message if parsing fails.
+        /// </summary>
+        /// <param name="policyError">Raw policy error string (e.g. <c>"maxLength, expected: 64, got 80"</c>).</param>
+        /// <returns>Localized message describing the maximum length requirement.</returns>
+        private static string BuildMaxLengthMessage(string policyError)
+        {
+            if (TryExtractExpectedGot(policyError, out int expected, out int got))
+                return $"Hasło jest za długie. Maksymalna długość: {expected} znaków. Podano: {got}.";
+
+            return "Hasło jest za długie.";
+        }
+
+        /// <summary>
+        /// Builds a message for the "unique characters" policy rule.
+        /// Attempts to extract the expected and actual unique character counts from the raw string (expected/got).
+        /// Falls back to a generic message if parsing fails.
+        /// </summary>
+        /// <param name="policyError">Raw policy error string (e.g. <c>"uniqueChars, expected: 5, got 2"</c>).</param>
+        /// <returns>Localized message describing the unique-character requirement.</returns>
+        private static string BuildUniqueCharsMessage(string policyError)
+        {
+            if (TryExtractExpectedGot(policyError, out int expected, out int got))
+                return $"Hasło jest zbyt proste. Użyj co najmniej {expected} różnych znaków (użyto {got}).";
+
+            return "Hasło jest zbyt proste (za mało różnych znaków).";
+        }
+
+        /// <summary>
+        /// Builds a user-facing message for the "invalid character" policy rule.
+        /// Uses case-insensitive substring checks against known policy message fragments.
+        /// Falls back to a generic message if no known fragment is found.
+        /// </summary>
+        /// <param name="policyError">Raw policy error string produced by the password policy.</param>
+        /// <returns>Localized message describing the invalid-character issue.</returns>
+        private static string BuildInvalidCharacterMessage(string policyError)
+        {
+            // Based on current error messages after the comma.
+            if (policyError.Contains("whitespace is not allowed", StringComparison.OrdinalIgnoreCase))
+                return "Hasło zawiera niedozwolony biały znak (np. tabulator lub nową linię).";
+
+            if (policyError.Contains("unexpected special character", StringComparison.OrdinalIgnoreCase))
+                return "Hasło zawiera niedozwolony znak specjalny.";
+
+            return "Hasło zawiera niedozwolony znak.";
+        }
+
+        /// <summary>
+        /// Tries to extract integer values for "expected" and "got" from a policy error string.
+        /// This helper is tolerant to minor formatting differences (e.g. <c>"got 5"</c> and <c>"got: 5"</c>).
+        /// </summary>
+        /// <param name="policyError">Raw policy error string.</param>
+        /// <param name="expected">When successful, the parsed value after <c>"expected:"</c>.</param>
+        /// <param name="got">When successful, the parsed value after <c>"got"</c> or <c>"got:"</c>.</param>
+        /// <returns><c>true</c> when both values are found and parsed; otherwise <c>false</c>.</returns>
+        private static bool TryExtractExpectedGot(string policyError, out int expected, out int got)
+        {
+            bool hasExpected = TryExtractIntAfterLabel(policyError, "expected:", out expected);
+            bool hasGot = TryExtractIntAfterLabel(policyError, "got", out got);
+
+            return hasExpected && hasGot;
+        }
+
+        /// <summary>
+        /// Attempts to find a label in text (case-insensitive) and parse the first integer that follows it.
+        /// After locating the label, the parser skips spaces and an optional colon, then reads consecutive digits.
+        /// </summary>
+        /// <param name="text">Input text to parse.</param>
+        /// <param name="label">Label to search for (e.g. <c>"expected:"</c>, <c>"got"</c>).</param>
+        /// <param name="value">When successful, the parsed integer value.</param>
+        /// <returns><c>true</c> if the label is found and a number is parsed; otherwise <c>false</c>.</returns>
+        private static bool TryExtractIntAfterLabel(string text, string label, out int value)
+        {
+            value = 0;
+
+            int idx = text.IndexOf(label, StringComparison.OrdinalIgnoreCase);
+            if (idx < 0)
+                return false;
+
+            idx += label.Length;
+
+            // Skip spaces and optional colon
+            while (idx < text.Length && (text[idx] == ' ' || text[idx] == ':'))
+                idx++;
+
+            // Read digits
+            int start = idx;
+            while (idx < text.Length && char.IsDigit(text[idx]))
+                idx++;
+
+            if (start == idx)
+                return false;
+
+            return int.TryParse(text[start..idx], out value);
+        }
+
+        /// <summary>
         /// Registers a new user using email and password credentials.
         /// For full request/response details and examples, see <c>UserAPI-DOCS.md</c>.
         /// </summary>
@@ -169,10 +323,14 @@ namespace offer_manager.Controllers
                 return BadRequest(new StandardRegisterUserResponse { ErrorMessage = _errInvalidEmail });
             }
 
-            if (!_userPasswordPolicy.ValidatePassword(request.Password).IsValid)
+            var (isPasswordValid, passwordPolicyError) = _userPasswordPolicy.ValidatePassword(request.Password);
+
+            if (!isPasswordValid)
             {
-                TryLog("WARNING", action, "BadRequest.");
-                return BadRequest(new StandardRegisterUserResponse { ErrorMessage = "Hasło nie spełnia wymagań bezpieczeństwa." });
+                string userMessage = MapPasswordPolicyErrorToUserMessage(passwordPolicyError);
+
+                TryLog("WARNING", action, $"BadRequest. PasswordPolicyError: {passwordPolicyError}");
+                return BadRequest(new StandardRegisterUserResponse { ErrorMessage = userMessage });
             }
 
             try
