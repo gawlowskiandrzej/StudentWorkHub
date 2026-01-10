@@ -1,10 +1,13 @@
 "use client";
 
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
-import { SetStateAction } from "react";
+import { SetStateAction, useEffect, useRef } from "react";
 import navigationStyles from "../../../styles/Navigation.module.css";
 import sideMenuStyles from "../../../styles/SideMenuStyle.module.css";
 import { useUser } from "@/store/userContext";
+import { Skeleton } from "@/components/ui/skeleton";
+import { CARD_TYPES, CardType } from "@/types/options/cardTypes";
+import { useTranslation } from "react-i18next";
 
 export type sideMenuProps = {
   router: AppRouterInstance;
@@ -13,17 +16,32 @@ export type sideMenuProps = {
 };
 
 export function Sidemenu({ router, menuOpen, setMenuOpen }: sideMenuProps) {
-  const { logout, loading } = useUser();
+  const { userData, loading,fetchUserData, logout, isAuthenticated } = useUser();
+  const {t} = useTranslation("navigation");
+  const hasFetchedRef = useRef(false);
 
-  const openOptions = () => {
-    router.push("/options");
+  
+  useEffect(() => {
+          if (isAuthenticated && !hasFetchedRef.current) {
+              hasFetchedRef.current = true;
+              if (!userData) {
+                  fetchUserData();
+              }
+          }
+      }, [isAuthenticated, userData, fetchUserData]);
+  const openOptions = (card: CardType) => {
+    if (!isAuthenticated) {
+    router.push("/login");
+  } else {
+    router.push(`/options?card=${card}`);
+  }
     setMenuOpen(false);
   };
-
   const handleLogout = async () => {
     setMenuOpen(false);
 
     await logout();
+    router.push("/");
   };
 
   return (
@@ -49,37 +67,37 @@ export function Sidemenu({ router, menuOpen, setMenuOpen }: sideMenuProps) {
           </div>
 
           <div className={sideMenuStyles["user-name-sur"]}>
-            User name user surname
+            {isAuthenticated ? <>{`${userData?.first_name} ${userData?.last_name}`}</> : "Nie jesteś zalogowany"}
           </div>
         </div>
 
         <div className={sideMenuStyles["navigation"]}>
-          <div className={sideMenuStyles["pofile-nav"]} onClick={openOptions}>
+          <div className={sideMenuStyles["pofile-nav"]} onClick={() => {openOptions(CARD_TYPES[0])}}>
             <img className={sideMenuStyles["user2"]} src="/icons/user1.svg" />
-            <div className={sideMenuStyles["side-menu-item"]}>Profile</div>
+            <div className={sideMenuStyles["side-menu-item"]}>{t("userInfo")}</div>
           </div>
 
-          <div className={sideMenuStyles["pofile-nav"]} onClick={openOptions}>
+          <div className={sideMenuStyles["pofile-nav"]} onClick={() => {openOptions(CARD_TYPES[1])}}>
             <img
               className={sideMenuStyles["user2"]}
               src="/icons/check-circle0.svg"
             />
-            <div className={sideMenuStyles["side-menu-item"]}>Matched for you</div>
+            <div className={sideMenuStyles["side-menu-item"]}>{t("matchedForYou")}</div>
           </div>
 
-          <div className={sideMenuStyles["pofile-nav"]} onClick={openOptions}>
+          <div className={sideMenuStyles["pofile-nav"]} onClick={() => {openOptions(CARD_TYPES[2])}}>
             <img
               className={sideMenuStyles["user2"]}
               src="/icons/briefcase0.svg"
             />
             <div className={sideMenuStyles["side-menu-item"]}>
-              Application history
+              {t("applicationHistory")}
             </div>
           </div>
 
-          <div className={sideMenuStyles["pofile-nav"]} onClick={openOptions}>
+          <div className={sideMenuStyles["pofile-nav"]} onClick={() => {openOptions(CARD_TYPES[3])}}>
             <img className={sideMenuStyles["user2"]} src="/icons/sliders0.svg" />
-            <div className={sideMenuStyles["side-menu-item"]}>Settings</div>
+            <div className={sideMenuStyles["side-menu-item"]}>{t("settings")}</div>
           </div>
 
           <div
@@ -89,7 +107,7 @@ export function Sidemenu({ router, menuOpen, setMenuOpen }: sideMenuProps) {
           >
             <img className={sideMenuStyles["user2"]} src="/icons/log-in0.svg" />
             <div className={sideMenuStyles["side-menu-item"]}>
-              {loading ? "Logging out..." : "Logout"}
+              {loading ? t("loggingOut") : t("logout")}
             </div>
           </div>
         </div>

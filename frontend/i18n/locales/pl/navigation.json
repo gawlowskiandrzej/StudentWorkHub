@@ -1,4 +1,10 @@
 {
   "register": "Zarejestruj",
-  "login": "Zaloguj"
+  "login": "Zaloguj",
+  "userInfo": "Profil",
+  "matchedForYou": "Dostosowane dla ciebie",
+  "applicationHistory": "Historia aplikacji",
+  "settings": "Ustawienia",
+  "logout": "Wyloguj",
+  "loggingOut": "Wylogowywanie ..."
 }
