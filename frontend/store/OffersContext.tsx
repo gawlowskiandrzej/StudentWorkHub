@@ -10,6 +10,7 @@ interface OffersContextType {
   offersResponse: offerListResponse | null;
   loading: boolean;
   error: string | null;
+  activeJobsCount: number;
   fetchOffers: () => void;
 
   startScrapping: () => Promise<void>;
@@ -25,6 +26,7 @@ export const OffersProvider = ({ children }: { children: React.ReactNode }) => {
   const [scrapping, setScrapping] = useState(false);
   const [scrapStatus, setScrapStatus] = useState<scrappingStatus | null>(null);
   const [jobIds, setJobIds] = useState<jobIds | null>(null);
+  const [activeJobsCount, setActiveJobsCount] = useState<number>(0);
   const [offersResponse, setOffers] = useState<offerListResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,55 +70,60 @@ export const OffersProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-  if (!scrapping || !jobIds) return;
+    if (!scrapping || !jobIds) return;
 
-  let isCancelled = false;
+    let isCancelled = false;
 
-  const fetchScrapStatus = async () => {
-    try {
-      const res = await OfferApi.getScrappedOffers(jobIds);
-      if (!res.data || isCancelled) return;
+    const fetchScrapStatus = async () => {
+      try {
+        const res = await OfferApi.getScrappedOffers(jobIds);
+        if (!res.data || isCancelled) return;
 
-      const { scrappingStatus, databaseOffersResponse } = res.data;
-      setScrapStatus(scrappingStatus);
+        const { scrappingStatus, databaseOffersResponse } = res.data;
+        setScrapStatus(scrappingStatus);
+        const jobCount = scrappingStatus?.jobInfos?.length ?? 4;
+        setActiveJobsCount(jobCount);
 
-      if (scrappingStatus.scrappingDone) {
-        setOffers(prev => {
-          if (!prev) return databaseOffersResponse;
+        if (scrappingStatus.scrappingDone) {
+          setOffers(prev => {
+            if (!prev) return databaseOffersResponse;
 
-          const mergedItems = mergeOffers(
-            prev.pagination.items,
-            databaseOffersResponse.pagination.items
-          );
+            const mergedItems = mergeOffers(
+              prev.pagination.items,
+              databaseOffersResponse.pagination.items
+            );
 
-          return {
-            pagination: {
-              ...prev.pagination,
-              items: mergedItems,
-              totalItems: mergedItems.length,
-            },
-            dynamicFilter: databaseOffersResponse.dynamicFilter,
-          };
-        });
+            return {
+              pagination: {
+                ...prev.pagination,
+                items: mergedItems,
+                totalItems: mergedItems.length,
+              },
+              dynamicFilter: {
+                ...prev.dynamicFilter,
+                ...databaseOffersResponse.dynamicFilter,
+              },
+            };
+          });
 
-        setScrapping(false);
-      } else {
-        setTimeout(fetchScrapStatus, 2000);
+          setScrapping(false);
+        } else {
+          setTimeout(fetchScrapStatus, 2000);
+        }
+      } catch {
+        if (!isCancelled) {
+          setScrapping(false);
+          setError("Błąd podczas pobierania statusu scrapowania");
+        }
       }
-    } catch {
-      if (!isCancelled) {
-        setScrapping(false);
-        setError("Błąd podczas pobierania statusu scrapowania");
-      }
-    }
-  };
+    };
 
-  fetchScrapStatus();
+    fetchScrapStatus();
 
-  return () => {
-    isCancelled = true; 
-  };
-}, [scrapping, jobIds]);
+    return () => {
+      isCancelled = true;
+    };
+  }, [scrapping, jobIds]);
 
   const mergeOffers = (oldOffers: offer[], newOffers: offer[]) => {
     const map = new Map<string, offer>();
@@ -134,7 +141,7 @@ export const OffersProvider = ({ children }: { children: React.ReactNode }) => {
   }, [search, extraFilters, hasSearched]);
 
   return (
-    <OffersContext.Provider value={{ offersResponse, loading, error, scrapping, fetchOffers, startScrapping }}>
+    <OffersContext.Provider value={{ offersResponse, loading, activeJobsCount, error, scrapping, fetchOffers, startScrapping }}>
       {children}
     </OffersContext.Provider>
   );
