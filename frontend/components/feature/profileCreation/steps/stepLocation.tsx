@@ -1,5 +1,4 @@
 "use client";
-import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { StepProps } from "@/constants/profileCreation/steps";
 import { useTranslation } from "react-i18next";

@@ -3,10 +3,8 @@
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { StepProps } from "@/constants/profileCreation/steps";
 import { useTranslation } from "react-i18next";
-import styles from '@/styles/ProfileCreationStyle.module.css';
 import { FloatingLabelInput } from "@/components/ui/floatingInput";
 
 interface Skill {

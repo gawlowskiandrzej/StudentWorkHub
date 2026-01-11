@@ -2,7 +2,7 @@
 
 import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import searchStyles from "../../../styles/SearchView.module.css";
+import searchStyles from "@/styles/SearchView.module.css";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StepProps } from "@/constants/profileCreation/steps";
 import styles from '@/styles/ProfileCreationStyle.module.css';
