@@ -4,5 +4,11 @@
     "email": "Email",
     "password": "Hasło",
     "signIn": "Zaloguj",
-    "rememberMe": "Zapamiętaj mnie"
+    "rememberMe": "Zapamiętaj mnie",
+    "matchedForYou": "Dopasowane dla Ciebie",
+    "loading": "Ładowanie...",
+    "refresh": "Odśwież",
+    "pleaseLoginToSeeMatched": "Zaloguj się aby zobaczyć dopasowane oferty",
+    "completeProfileToSeeMatched": "Uzupełnij swój profil aby zobaczyć dopasowane oferty",
+    "noOffersMatched": "Brak ofert pasujących do Twoich preferencji"
 }

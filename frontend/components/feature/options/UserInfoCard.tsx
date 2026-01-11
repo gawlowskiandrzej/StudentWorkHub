@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import UserInfoCardStyles from '@/styles/UserInfoStyle.module.css'
 import { useUser } from '@/store/userContext';
 import { useProfileCreationDictionaries } from '@/hooks/useDictionaries';
@@ -9,6 +10,7 @@ import { useTranslation } from "react-i18next";
 export function UserInfoCard() {
 
     const { t } = useTranslation("userInfoCard");
+    const router = useRouter();
     const { userData, preferences, fetchPreferences, fetchUserData, isAuthenticated } = useUser();
     const { fullDictionaries, loading } = useProfileCreationDictionaries();
     const hasFetchedRef = useRef(false);
@@ -18,6 +20,16 @@ export function UserInfoCard() {
         fetchUserData();
     }
     }, [isAuthenticated, userData, fetchUserData]);
+
+    useEffect(() => {
+        if (isAuthenticated && !preferences) {
+            fetchPreferences();
+        }
+    }, [isAuthenticated, preferences, fetchPreferences]);
+
+    const handleEditPreferences = () => {
+        router.push("/profile-creation");
+    };
 
     if (loading || !fullDictionaries) {
         return <div className={UserInfoCardStyles["user-profile-info-card"]}>{t("loading") || "Loading..."}</div>;
@@ -50,10 +62,11 @@ export function UserInfoCard() {
                     <div className={UserInfoCardStyles["category"]}>
                         {t("personalInfo")}
                     </div>
-                    <div className={UserInfoCardStyles["edit-icon-container"]}>
+                    <div className={UserInfoCardStyles["edit-icon-container"]} onClick={handleEditPreferences} style={{ cursor: 'pointer' }}>
                         <img
                             className={UserInfoCardStyles["tag"]}
                             src="../../icons/edit-pen.svg"
+                            alt="Edit personal info"
                         />
                     </div>
 
@@ -83,10 +96,11 @@ export function UserInfoCard() {
             <div className={UserInfoCardStyles["user-profile-settings-elements"]}>
                 <div className={UserInfoCardStyles["profile-element"]}>
                     <div className={UserInfoCardStyles["profile-user-item"]}>
-                        <div className={UserInfoCardStyles["edit-icon-container"]}>
+                        <div className={UserInfoCardStyles["edit-icon-container"]} onClick={handleEditPreferences} style={{ cursor: 'pointer' }}>
                             <img
                                 className={UserInfoCardStyles["tag"]}
                                 src="../../icons/edit-pen.svg"
+                                alt="Edit preferred category"
                             />
                         </div>
                         <div className={UserInfoCardStyles["preety-icon-container"]}>
@@ -110,10 +124,11 @@ export function UserInfoCard() {
 
                 <div className={UserInfoCardStyles["profile-element"]}>
                     <div className={UserInfoCardStyles["profile-user-item"]}>
-                        <div className={UserInfoCardStyles["edit-icon-container"]}>
+                        <div className={UserInfoCardStyles["edit-icon-container"]} onClick={handleEditPreferences} style={{ cursor: 'pointer' }}>
                             <img
                                 className={UserInfoCardStyles["tag"]}
                                 src="../../icons/edit-pen.svg"
+                                alt="Edit location and work type"
                             />
                         </div>
                         <div className={UserInfoCardStyles["preety-icon-container"]}>
@@ -140,10 +155,11 @@ export function UserInfoCard() {
 
                 <div className={UserInfoCardStyles["profile-element"]}>
                     <div className={UserInfoCardStyles["profile-user-item"]}>
-                        <div className={UserInfoCardStyles["edit-icon-container"]}>
+                        <div className={UserInfoCardStyles["edit-icon-container"]} onClick={handleEditPreferences} style={{ cursor: 'pointer' }}>
                             <img
                                 className={UserInfoCardStyles["tag"]}
                                 src="../../icons/edit-pen.svg"
+                                alt="Edit employment and salary"
                             />
                         </div>
                         <div className={UserInfoCardStyles["preety-icon-container"]}>
@@ -169,10 +185,11 @@ export function UserInfoCard() {
 
                 <div className={UserInfoCardStyles["profile-element"]}>
                     <div className={UserInfoCardStyles["profile-user-item"]}>
-                        <div className={UserInfoCardStyles["edit-icon-container"]}>
+                        <div className={UserInfoCardStyles["edit-icon-container"]} onClick={handleEditPreferences} style={{ cursor: 'pointer' }}>
                             <img
                                 className={UserInfoCardStyles["tag"]}
                                 src="../../icons/edit-pen.svg"
+                                alt="Edit urgent work status"
                             />
                         </div>
                         <div className={UserInfoCardStyles["preety-icon-container"]}>
@@ -196,10 +213,11 @@ export function UserInfoCard() {
 
                 <div className={UserInfoCardStyles["profile-element"]}>
                     <div className={UserInfoCardStyles["profile-user-item"]}>
-                        <div className={UserInfoCardStyles["edit-icon-container"]}>
+                        <div className={UserInfoCardStyles["edit-icon-container"]} onClick={handleEditPreferences} style={{ cursor: 'pointer' }}>
                             <img
                                 className={UserInfoCardStyles["tag"]}
                                 src="../../icons/edit-pen.svg"
+                                alt="Edit languages"
                             />
                         </div>
                         <div className={UserInfoCardStyles["preety-icon-container"]}>
@@ -223,10 +241,11 @@ export function UserInfoCard() {
 
                 <div className={UserInfoCardStyles["profile-element"]}>
                     <div className={UserInfoCardStyles["profile-user-item"]}>
-                        <div className={UserInfoCardStyles["edit-icon-container"]}>
+                        <div className={UserInfoCardStyles["edit-icon-container"]} onClick={handleEditPreferences} style={{ cursor: 'pointer' }}>
                             <img
                                 className={UserInfoCardStyles["tag"]}
                                 src="../../icons/edit-pen.svg"
+                                alt="Edit skills"
                             />
                         </div>
                         <div className={UserInfoCardStyles["preety-icon-container"]}>

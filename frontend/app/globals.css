@@ -201,3 +201,7 @@ select:-webkit-autofill {
     border: 1px solid var(--secondary) !important;
 }
 
+.customSelectContent{
+  background-color: var(--background) !important;
+  color: white !important;
+}

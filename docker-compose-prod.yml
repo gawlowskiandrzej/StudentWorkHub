@@ -7,9 +7,9 @@ services:
         build:
             context: ./databases/general_database/container
 
+        restart: unless-stopped
         image: local/postgres-general:17.6
         container_name: postgres-general
-        restart: unless-stopped
         env_file: ./databases/general_database/container/.env
         expose:
             - "5433"
@@ -22,9 +22,9 @@ services:
         build:
             context: ./databases/offers_database/container
 
+        restart: unless-stopped
         image: local/postgres-offers:17.6
         container_name: postgres-offers
-        restart: unless-stopped
         env_file: ./databases/offers_database/container/.env
         expose:
             - "5432"
@@ -39,9 +39,9 @@ services:
         build:
             context: ./databases/db_backup
 
+        restart: unless-stopped
         image: local/database-backup:17.6
         container_name: database-backup
-        restart: unless-stopped
         env_file: ./databases/db_backup/.env
         depends_on:
             - db_general
@@ -60,8 +60,8 @@ services:
             args:
                 APP_DIR: /log_server
 
-        container_name: log-server
         restart: unless-stopped
+        container_name: log-server
         expose:
             - "54000"
             - "54001"
@@ -77,6 +77,7 @@ services:
     redis:
         image: redis:7
         container_name: redis
+        restart: unless-stopped
         expose:
             - "6379"
         networks:
@@ -90,6 +91,7 @@ services:
             context: ./frontend
             dockerfile: Dockerfile
 
+        restart: unless-stopped
         container_name: frontend_prod
         expose:
             - "4000"
@@ -108,6 +110,7 @@ services:
             context: ./offer_collector
             dockerfile: Dockerfile.offer_manager
 
+        restart: unless-stopped
         container_name: offer_manager
         environment:
             ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
@@ -147,7 +150,8 @@ services:
         build:
             context: ./offer_collector
             dockerfile: Dockerfile.worker
-        
+
+        restart: unless-stopped
         environment:
             ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
             DatabaseSettings__Host: postgres-offers
@@ -176,6 +180,7 @@ services:
         build:
             context: ./offer_collector/headless_browser
 
+        restart: unless-stopped
         container_name: headless_browser
         expose:
             - "3000"

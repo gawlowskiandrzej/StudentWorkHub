@@ -73,7 +73,7 @@ export default function StepLanguages({ data, updateData }: StepProps) {
               <SelectValue placeholder={t("Language")} />
             </SelectTrigger>
 
-            <SelectContent>
+            <SelectContent className="customSelectContent">
               <SelectGroup>
               <SelectLabel className="text-primary">{t("Language")}</SelectLabel>
               {fullDictionaries.languages.map((language) => (
@@ -105,7 +105,7 @@ export default function StepLanguages({ data, updateData }: StepProps) {
                 <SelectTrigger color={"secondary"} className={`w-full cursor-pointer border-0 m-0`}>
                   <SelectValue placeholder={t("Language")} />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="customSelectContent">
                   <SelectGroup>
                     <SelectLabel className="text-primary">{t("Language")}</SelectLabel>
                   
@@ -126,7 +126,7 @@ export default function StepLanguages({ data, updateData }: StepProps) {
                 <SelectTrigger color={"secondary"} className={`w-full cursor-pointer border-0 m-0 `}>
                   <SelectValue placeholder={t("Level")} />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="customSelectContent">
                   <SelectGroup>
                   <SelectLabel className="text-primary">{t("Level")}</SelectLabel>
                   {fullDictionaries.language_levels.map((level) => (

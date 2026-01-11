@@ -50,7 +50,7 @@ export function Filter({ label = "Options", className, variant, clearable = fals
       </SelectTrigger>
       {(value != "" && value != undefined && clearable) ? <X className="text-red-500 p-0 mr-2 cursor-pointer" size={16} onClick={() => onChange("")} /> : ""}
 
-      <SelectContent>
+      <SelectContent className="customSelectContent">
         <SelectGroup>
           <SelectLabel>{label}</SelectLabel>
 

@@ -14,19 +14,42 @@ import detailsStyles from '../../../../styles/OfferDetails.module.css';
 import buttonStyles from '../../../../styles/ButtonStyle.module.css';
 import { useTranslation } from "react-i18next";
 import { useOffers } from "@/store/OffersContext";
+import { useRanking } from "@/store/RankingContext";
+import { useViewTimeTracker } from "@/hooks/useOfferInteraction";
+import { ShowMoreLikeButton } from "@/components/feature/list/ShowMoreLikeButton";
 
 export default function DetailsPage() {
     const params = useParams();
     const id = params.id as string;
     const router = useRouter();
     const { offersResponse, loading, error } = useOffers();
+    const { recordInteraction, showMoreLikeThis } = useRanking();
     const { t } = useTranslation("details");
-    function goBackToListView() {
-        router.back();
-    };
+    
     const offer = offersResponse?.pagination.items.find(
         (item) => item.id === Number(id)
     );
+    
+    // Track view time
+    useViewTimeTracker(offer ?? null, {
+        minViewDuration: 2000, // 2 seconds minimum
+        onInteraction: (event) => {
+            if (offer) {
+                recordInteraction(offer, event.type, event.durationMs);
+            }
+        }
+    });
+    
+    function goBackToListView() {
+        router.back();
+    };
+    
+    const handleShowMoreLike = () => {
+        if (offer) {
+            showMoreLikeThis(offer);
+        }
+    };
+    
     if (!offer) {
         return <div>Offer not found</div>;
     }
@@ -104,6 +127,13 @@ export default function DetailsPage() {
                     >
                         <div className={buttonStyles["find-mathing-job"]}>{t("goToOfferPage")}</div>
                     </div>
+                    
+                    {/* Show More Like This Button */}
+                    <ShowMoreLikeButton
+                        onClick={handleShowMoreLike}
+                        variant="full"
+                        className="mt-4"
+                    />
                 </div>
 
                 <div className={detailsStyles["right-column-details"]}>
@@ -113,6 +143,13 @@ export default function DetailsPage() {
                     >
                         <div className={buttonStyles["find-mathing-job"]}>{t("goToOfferPage")}</div>
                     </div>
+                    
+                    {/* Show More Like This Button - Right Column */}
+                    <ShowMoreLikeButton
+                        onClick={handleShowMoreLike}
+                        variant="full"
+                        className="mt-4"
+                    />
                 </div>
             </div>
         </div>

@@ -1,7 +1,3 @@
-/* ============================================================
-   DESIGN SYSTEM TOKENS
-   ============================================================ */
-
 :root {
   /* Colors */
   --color-bg-primary: #000000;
@@ -38,10 +34,6 @@
   /* Breakpoints */
   --breakpoint-md: 768px;
 }
-
-/* ============================================================
-   LAYOUT CONTAINER
-   ============================================================ */
 
 .container {
   min-height: 80vh;
@@ -83,10 +75,6 @@
   margin-top: auto;
 }
 
-/* ============================================================
-   TYPOGRAPHY & COMMON PATTERNS
-   ============================================================ */
-
 .label {
   font-size: 0.75rem;
   color: var(--color-text-secondary);
@@ -110,10 +98,6 @@
   font-size: 0.875rem;
   color: var(--color-text-secondary);
 }
-
-/* ============================================================
-   INPUTS & FORM CONTROLS
-   ============================================================ */
 
 .unifiedInput {
   background-color: transparent !important;
@@ -177,7 +161,6 @@
   font-weight: 600 !important;
 }
 
-/* Input Wrapper for labeled inputs */
 .inputWrapper {
   width: 100%;
   display: flex;
@@ -193,7 +176,6 @@
   letter-spacing: 0.05em;
 }
 
-/* Special input for earnings (small blue boxes) */
 .earningInput {
   background-color: var(--color-accent) !important;
   color: var(--color-text-primary) !important;
@@ -213,9 +195,6 @@
   box-shadow: 2px 2px 16px rgba(59, 130, 246, 0.5) !important;
 }
 
-/* ============================================================
-   BUTTONS
-   ============================================================ */
 
 .button {
   min-width: 140px;
@@ -265,9 +244,6 @@
   transform: scale(0.98) !important;
 }
 
-/* ============================================================
-   SELECTION ELEMENTS (Checkbox, Radio)
-   ============================================================ */
 
 .selectionRow {
   display: flex;
@@ -293,10 +269,6 @@
   width: 100%;
   max-width: 400px;
 }
-
-/* ============================================================
-   ANIMATIONS
-   ============================================================ */
 
 @keyframes fadeInUp {
   from {
@@ -331,9 +303,6 @@
   background-color: var(--color-text-primary);
 }
 
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
 
 @media (max-width: 640px) {
   .container {

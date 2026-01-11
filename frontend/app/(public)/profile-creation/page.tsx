@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import profileCreationStyles from '@/styles/ProfileCreationStyle.module.css';
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -17,12 +17,19 @@ export default function CreateProfile() {
 
     const { t } = useTranslation("profileCreation");
     const router = useRouter();
-    const { jwt } = useUser();
+    const { jwt, isAuthenticated, loading } = useUser();
     const { fullDictionaries } = useProfileCreationDictionaries();
 
     const [index, setIndex] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    // Validate authentication on mount and redirect if not logged in
+    useEffect(() => {
+        if (!loading && !isAuthenticated) {
+            router.push("/login");
+        }
+    }, [isAuthenticated, loading, router]);
 
     const [formData, setFormData] = useState({
         major: null as number | null,
@@ -131,6 +138,24 @@ export default function CreateProfile() {
     const CurrentStepComponent = STEPS[index].component;
     const progressValue = ((index + 1) / STEPS.length) * 100;
     const isLastStep = index === STEPS.length - 1;
+
+    // Show loading state while checking authentication
+    if (loading) {
+        return (
+            <div className={profileCreationStyles.container}>
+                <header className={profileCreationStyles.header}>
+                    <div className="bg-blue-500/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-1 animate-in zoom-in duration-500">
+                        <Settings className="w-6 h-6 text-blue-500 animate-spin" />
+                    </div>
+                </header>
+                <main className={profileCreationStyles.mainContent}>
+                    <div className="text-center text-gray-400">
+                        {t("loading") || "Loading..."}
+                    </div>
+                </main>
+            </div>
+        );
+    }
 
     return (
         <div className={profileCreationStyles.container}>

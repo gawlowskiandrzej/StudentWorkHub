@@ -11,6 +11,18 @@
     "Ekspert",
     "Inny"
   ],
+  "experience_levels_map": {
+    "Początkujący": { "min_months": 0, "max_months": 6 },
+    "Średniozaawansowany": { "min_months": 7, "max_months": 18 },
+    "Dobry": { "min_months": 19, "max_months": 30 },
+    "Młodszy specjalista": { "min_months": 12, "max_months": 24 },
+    "Zaawansowany": { "min_months": 31, "max_months": 48 },
+    "Specjalista": { "min_months": 36, "max_months": 60 },
+    "Starszy specjalista": { "min_months": 61, "max_months": 96 },
+    "Biegły": { "min_months": 84, "max_months": 120 },
+    "Ekspert": { "min_months": 121, "max_months": null },
+    "Inny": { "min_months": null, "max_months": null }
+  },
   "language_levels": [
     "A1",
     "A2",
