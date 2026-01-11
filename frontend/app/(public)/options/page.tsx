@@ -7,7 +7,7 @@ import { UserInfoCard } from '@/components/feature/options/UserInfoCard';
 import OptionsStyles from '@/styles/OptionStyle.module.css'
 import { CARD_TYPES, CardType, isCardType } from '@/types/options/cardTypes';
 import { useSearchParams } from 'next/navigation';
-import { useMemo } from 'react';
+import { useMemo, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 
 type NavigationKeys = "register" | "login" | "userInfo" | "matchedForYou" | "applicationHistory" | "settings";
@@ -18,7 +18,7 @@ export const cardTranslationKey: Record<CardType, NavigationKeys> = {
   Settings: "settings",
 };
 
-export default function Options() {
+function OptionsContent() {
   const { t } = useTranslation('navigation');
   const searchParams = useSearchParams();
   const param = searchParams.get('card') as string | null;
@@ -41,5 +41,13 @@ export default function Options() {
         {activeCard === 'Settings' && <Settings />}
       </div>
     </div>
+  );
+}
+
+export default function Options() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <OptionsContent />
+    </Suspense>
   );
 }
