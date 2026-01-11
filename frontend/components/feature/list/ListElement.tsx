@@ -59,7 +59,7 @@ export function ListElement({ offer }: { offer: offer }) {
                     </div>
                     <div className={listStyles["offer-header-salary-date"]}>
                         <div className={listStyles["job-salary"]}>
-                            {offer.salary.from != null && offer.salary.to != null
+                            {offer.salary.from != null && offer.salary.to != null && offer.salary.to != 0 && offer.salary.from != 0 && offer.salary.period != null 
                                 ? `${formatSalaryValue(offer.salary.from)} ${offer.salary.currency} - ${formatSalaryValue(offer.salary.to)} ${offer.salary.currency} / ${offer.salary.period}`
                                 : 'Nie zdefiniowano'}
                         </div>

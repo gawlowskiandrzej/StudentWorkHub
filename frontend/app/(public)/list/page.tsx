@@ -31,11 +31,11 @@ export type FiltersState = Partial<
 >;
 
 export default function OfferList() {
-  const { search, setSearch, filters, toggleFilter, sorts, searchFilterKeywords, setSearchFilterKeywords, setSorting, addRecentSearch, setHasSearched, clearFilters } = useSearch();
+  const { search ,setSearch, filters, toggleFilter, sorts, searchFilterKeywords, setSearchFilterKeywords, setSorting, addRecentSearch, setHasSearched, clearFilters } = useSearch();
   const [localSearch, setLocalSearch] = useState(search || {});
   const { limit, offset, setOffset } = usePagination();
   const { t } = useTranslation(["common", "list"]);
-  const { offersResponse, loading, startScrapping, scrapping } = useOffers();
+  const { offersResponse, loading, activeJobsCount,startScrapping, scrapping } = useOffers();
   const offers = offersResponse?.pagination.items ?? [];
   const [la, setLa] = useState(false);
 
@@ -75,7 +75,7 @@ export default function OfferList() {
               onClick={startScrapping}
             >
               <Plus/>
-              {scrapping ? "Scrapowanie..." : "Pozyskaj nowe"}
+              {scrapping ? `Pobieranie (${activeJobsCount}/4)` : "Pozyskaj nowe"}
               {scrapping && <Spinner />}
             </Button>
             <div onClick={searchNew} className={`${buttonStyle["main-button"]}`}>
@@ -101,11 +101,13 @@ export default function OfferList() {
           {searchKeywordFilters.map((keywordFilter, index) => (
             <SearchFilterKeyword key={index} filterKey={keywordFilter.filterKey} header={keywordFilter.header} value={searchFilterKeywords[keywordFilter.filterKey]} onChange={setSearchFilterKeywords} />
           ))}
+          
           <div className={`${buttonStyle["main-button"]} ${detailsStyles["show-more-button"]}`} onClick={() => clearFilters()}>
             <div className={`${detailsStyles["find-mathing-job"]} text-sm`}>
               Wyczyść filtry
             </div>
           </div>
+          <div className="text-sm text-secondary text-center">Filtry obsługują regex <br/> możesz używać | (lub) & (i), np. budowanie|sprzątanie.</div>
         </div>
         <div className={listStyles["list-with-filter"]}>
           <div className={listStyles["filternav"]}>

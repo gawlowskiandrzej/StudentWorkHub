@@ -183,7 +183,7 @@ export default function CreateProfile() {
                     disabled={isSubmitting}
                     className={profileCreationStyles.nextButton}
                 >
-                    {isSubmitting ? t("sending") || "Sending..." : isLastStep ? t("finish") : t("next")}
+                    {isSubmitting ? t("sending") || "Wysyłanie..." : isLastStep ? t("finish") : t("next")}
                     {!isLastStep && !isSubmitting && <ArrowRight className="ml-2" size={18} />}
                 </Button>
             </footer>
