@@ -51,7 +51,7 @@ export default function StepMajor({ data, updateData }: StepProps) {
               <SelectValue placeholder={t("majorPlaceholder")} />
             </SelectTrigger>
 
-            <SelectContent>
+            <SelectContent className="customSelectContent">
               <SelectGroup>
                 <SelectLabel className="text-primary">{t("majorPlaceholder")}</SelectLabel>
               
