@@ -1,10 +1,10 @@
-import StepEarnings from "@/components/profileCreation/steps/stepEarnings";
-import StepJobStatus from "@/components/profileCreation/steps/stepJobStatus";
-import StepLanguages from "@/components/profileCreation/steps/stepLanguages";
-import StepLocation from "@/components/profileCreation/steps/stepLocation";
-import StepMajor from "@/components/profileCreation/steps/stepMajor";
-import StepReview from "@/components/profileCreation/steps/stepReview";
-import StepSkills from "@/components/profileCreation/steps/stepSkills";
+import StepEarnings from "@/components/feature/profileCreation/steps/stepEarnings";
+import StepJobStatus from "@/components/feature/profileCreation/steps/stepJobStatus";
+import StepLanguages from "@/components/feature/profileCreation/steps/stepLanguages";
+import StepLocation from "@/components/feature/profileCreation/steps/stepLocation";
+import StepMajor from "@/components/feature/profileCreation/steps/stepMajor";
+import StepReview from "@/components/feature/profileCreation/steps/stepReview";
+import StepSkills from "@/components/feature/profileCreation/steps/stepSkills";
 
 export interface StepProps {
   data: any;

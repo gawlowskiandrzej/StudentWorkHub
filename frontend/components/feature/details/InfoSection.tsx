@@ -20,12 +20,12 @@ export function InfoSection({ offer }: infoSection) {
                             : "Nie zdefiniowano adresu"}
                     </div>
                 </div>
-                <div className={detailsStyles["skill-section-item3"]}>
+                {offer.isForUkrainians && <div className={detailsStyles["skill-section-item3"]}>
                     <img className={detailsStyles["map-pin2"]} src="/icons/flag0.svg" />
                     <div className={detailsStyles["city-name"]}>
-                        {offer.isForUkrainians == true ? "Również dla ukaińców" : "Praca przeznaczona dla Polaków"}
+                        Również dla ukaińców
                     </div>
-                </div>
+                </div>}
             </div>
 
             <div className={detailsStyles["skill-section-row"]}>

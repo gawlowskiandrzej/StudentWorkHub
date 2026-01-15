@@ -137,7 +137,7 @@ services:
       - redis
       - db_offers
       - db_general
-      #- headless_browser
+      - headless_browser
 
   # -----------------------------
   # WORKER (.NET)
@@ -163,7 +163,7 @@ services:
     depends_on:
       - redis
       - db_offers
-      #- headless_browser
+      - headless_browser
 
   # -----------------------------
   # HEADLESS NODE BROWSER

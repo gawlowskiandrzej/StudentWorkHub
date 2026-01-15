@@ -2,11 +2,13 @@
 
 import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import searchStyles from "@/styles/SearchView.module.css";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StepProps } from "@/constants/profileCreation/steps";
 import styles from '@/styles/ProfileCreationStyle.module.css';
 import { useTranslation } from "react-i18next";
 import { useProfileCreationDictionaries } from "@/hooks/useDictionaries";
+import { SelectGroup, SelectLabel } from "@radix-ui/react-select";
 
 export default function StepLanguages({ data, updateData }: StepProps) {
 
@@ -62,22 +64,27 @@ export default function StepLanguages({ data, updateData }: StepProps) {
           <label className={styles.inputLabel}>
             {t("nativeLanguage")} <span className={styles.requiredStar}>*</span>
           </label>
-          <Select
+          <div className={searchStyles["major-study-search"]}>
+          <Select 
             value={data.languages.native ? String(data.languages.native) : ""}
             onValueChange={(val) => updateData("languages", { ...data.languages, native: Number(val) })}
           >
-            <SelectTrigger className={styles.unifiedInput}>
+            <SelectTrigger color={"secondary"} className={`w-full cursor-pointer border-0 m-0`}>
               <SelectValue placeholder={t("Language")} />
             </SelectTrigger>
 
-            <SelectContent className={styles.unifiedSelectContent}>
+            <SelectContent className="customSelectContent">
+              <SelectGroup>
+              <SelectLabel className="text-primary">{t("Language")}</SelectLabel>
               {fullDictionaries.languages.map((language) => (
-                <SelectItem key={language.id} value={String(language.id)} className={styles.unifiedSelectItem}>
+                <SelectItem key={language.id} value={String(language.id)}>
                   {language.name}
                 </SelectItem>
               ))}
+              </SelectGroup>
             </SelectContent>
           </Select>
+          </div>
         </div>
       </div>
 
@@ -90,41 +97,50 @@ export default function StepLanguages({ data, updateData }: StepProps) {
         <div className="space-y-3 max-w-md mx-auto px-4">
           {data.languages.others.map((lang: any) => (
             <div key={lang.id} className="flex items-center justify-center gap-2">
+               <div className={searchStyles["major-study-search"]}>
               <Select 
                 value={lang.languageId ? String(lang.languageId) : ""} 
                 onValueChange={(val) => updateLanguageItem(lang.id, "languageId", Number(val))}
               >
-                <SelectTrigger className={styles.unifiedInput}>
+                <SelectTrigger color={"secondary"} className={`w-full cursor-pointer border-0 m-0`}>
                   <SelectValue placeholder={t("Language")} />
                 </SelectTrigger>
-                <SelectContent className={styles.unifiedSelectContent}>
+                <SelectContent className="customSelectContent">
+                  <SelectGroup>
+                    <SelectLabel className="text-primary">{t("Language")}</SelectLabel>
+                  
                   {fullDictionaries.languages.map((language) => (
-                    <SelectItem key={language.id} value={String(language.id)} className={styles.unifiedSelectItem}>
+                    <SelectItem key={language.id} value={String(language.id)}>
                       {language.name}
                     </SelectItem>
                   ))}
+                  </SelectGroup>
                 </SelectContent>
               </Select>
-
+              </div>
+              <div className={`${searchStyles["major-study-search"]} w-32`}>
               <Select 
                 value={lang.levelId ? String(lang.levelId) : ""} 
                 onValueChange={(val) => updateLanguageItem(lang.id, "levelId", Number(val))}
               >
-                <SelectTrigger className={`${styles.unifiedInput} w-32`}>
+                <SelectTrigger color={"secondary"} className={`w-full cursor-pointer border-0 m-0 `}>
                   <SelectValue placeholder={t("Level")} />
                 </SelectTrigger>
-                <SelectContent className={styles.unifiedSelectContent}>
+                <SelectContent className="customSelectContent">
+                  <SelectGroup>
+                  <SelectLabel className="text-primary">{t("Level")}</SelectLabel>
                   {fullDictionaries.language_levels.map((level) => (
-                    <SelectItem key={level.id} value={String(level.id)} className={styles.unifiedSelectItem}>
+                    <SelectItem key={level.id} value={String(level.id)}>
                       {level.name}
                     </SelectItem>
                   ))}
+                  </SelectGroup>
                 </SelectContent>
               </Select>
-
+            </div>
               <button
                 onClick={() => removeLanguage(lang.id)}
-                className="p-2 hover:bg-zinc-800 rounded-lg transition-colors flex-shrink-0"
+                className="p-1 cursor-pointer hover:bg-zinc-800 rounded-lg transition-colors flex-shrink-0"
               >
                 <X size={16} className="text-red-500" />
               </button>
@@ -135,7 +151,7 @@ export default function StepLanguages({ data, updateData }: StepProps) {
         <Button
           variant="outline"
           onClick={addLanguage}
-          className="rounded-full border-zinc-800 text-xs mt-4 hover:bg-zinc-900"
+          className="rounded-full border-zinc-800 text-xs mt-4 hover:bg-secondary hover:text-primary"
         >
           <Plus className="mr-2 h-4 w-4" /> {t("addLanguage")}
         </Button>

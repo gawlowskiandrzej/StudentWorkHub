@@ -18,27 +18,40 @@ import { useOfferList } from "@/hooks/useOfferList";
 import { SearchFilterKeyword } from "@/components/feature/list/SearchFilterKeyword";
 import { searchKeywordFilters } from "@/store/data/searchKeywordFilterData";
 import { ListElementSkeleton } from "@/components/feature/list/ListElementSkeleton";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { useOffers } from "@/store/OffersContext";
 import { DynamicFilterSkeleton } from "@/components/feature/list/DynamicFilterSkeleton";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Plus } from "lucide-react";
 import { search } from "@/types/search/search";
+import { useRanking } from "@/store/RankingContext";
 
 export type FiltersState = Partial<
   Record<FilterKey, Set<FilterValue>>
 >;
 
 export default function OfferList() {
-  const { search, setSearch, filters, toggleFilter, sorts, searchFilterKeywords, setSearchFilterKeywords, setSorting, addRecentSearch, setHasSearched, clearFilters } = useSearch();
+  const { search ,setSearch, filters, toggleFilter, sorts, searchFilterKeywords, setSearchFilterKeywords, setSorting, addRecentSearch, setHasSearched, clearFilters } = useSearch();
   const [localSearch, setLocalSearch] = useState(search || {});
   const { limit, offset, setOffset } = usePagination();
   const { t } = useTranslation(["common", "list"]);
-  const { offersResponse, loading, startScrapping, scrapping } = useOffers();
+  const { offersResponse, loading, activeJobsCount,startScrapping, scrapping } = useOffers();
   const offers = offersResponse?.pagination.items ?? [];
   const [la, setLa] = useState(false);
+  
+  // Ranking integration
+  const { rankOffersList, getOfferScore } = useRanking();
 
+  // Custom sorter for Ranking
+  const customSort = useCallback((items: any[]) => {
+    if (sorts.sort === "Ranking") {
+        const scored = rankOffersList(items);
+        //console.log('[OfferList] Ranking applied globally.');
+        return scored.map(s => items.find(o => o.id === s.offerId)!).filter(Boolean);
+    }
+    return items;
+  }, [rankOffersList, sorts.sort]);
 
   const { filteredOffers, total } = useOfferList(
     filters,
@@ -46,13 +59,16 @@ export default function OfferList() {
     offset,
     limit,
     searchFilterKeywords,
-    offers
+    offers,
+    sorts.sort === "Ranking" ? customSort : undefined
   );
+  
   const items = [
+    { label: t("list:sort.ranking"), value: "Ranking" },
     { label: t("list:sort.idDesc"), value: "IdDesc" },
     { label: t("list:sort.creationAsc"), value: "CreationDate" },
     { label: t("list:sort.salaryDesc"), value: "Salarydesc" },
-    { label: t("list:sort.salaryDesc"), value: "Salaryasc" },
+    { label: t("list:sort.salaryAsc"), value: "Salaryasc" },
     { label: t("list:sort.nameAsc"), value: "Nameasc" },
   ];
   const searchNew = () => {
@@ -75,7 +91,7 @@ export default function OfferList() {
               onClick={startScrapping}
             >
               <Plus/>
-              {scrapping ? "Scrapowanie..." : "Pozyskaj nowe"}
+              {scrapping ? `Pobieranie (${activeJobsCount}/4)` : "Pozyskaj nowe"}
               {scrapping && <Spinner />}
             </Button>
             <div onClick={searchNew} className={`${buttonStyle["main-button"]}`}>
@@ -101,11 +117,13 @@ export default function OfferList() {
           {searchKeywordFilters.map((keywordFilter, index) => (
             <SearchFilterKeyword key={index} filterKey={keywordFilter.filterKey} header={keywordFilter.header} value={searchFilterKeywords[keywordFilter.filterKey]} onChange={setSearchFilterKeywords} />
           ))}
+          
           <div className={`${buttonStyle["main-button"]} ${detailsStyles["show-more-button"]}`} onClick={() => clearFilters()}>
             <div className={`${detailsStyles["find-mathing-job"]} text-sm`}>
               Wyczyść filtry
             </div>
           </div>
+          <div className="text-sm text-secondary text-center">Filtry obsługują regex <br/> możesz używać | (lub) & (i), np. budowanie|sprzątanie.</div>
         </div>
         <div className={listStyles["list-with-filter"]}>
           <div className={listStyles["filternav"]}>
@@ -124,7 +142,13 @@ export default function OfferList() {
           {loading ? (
             Array.from({ length: 10 }).map((_, i) => <ListElementSkeleton key={i} />)
           ) : (
-            filteredOffers.map((offer) => <ListElement key={offer.id} offer={offer} />)
+            filteredOffers.map((offer) => (
+              <ListElement 
+                key={offer.id} 
+                offer={offer} 
+                score={getOfferScore(offer)}
+              />
+            ))
           )}
           <div className={listStyles["second-pagination"]}>
             <Pagination loading={loading} offset={offset} limit={limit} count={total} onChange={setOffset} />

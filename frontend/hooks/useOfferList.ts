@@ -13,16 +13,21 @@ export function useOfferList(
   limit: number,
   searchFilterKeywords: searchFilterKeywords,
   offers?: offer[],
+  customSort?: (items: offer[]) => offer[]
 ) {
 
   const allOffers = useMemo(() => {
   const filtered = offers?.filter((offer) =>
     matchOfferToFilters(offer, filters) &&
     matchSearchFilterKeywords(offer, searchFilterKeywords)
-  );
+  ) || [];
 
-  return sortData(filtered || [], sort);
-}, [filters, sort, searchFilterKeywords, offers]);
+  if (customSort) {
+    return customSort(filtered);
+  }
+
+  return sortData(filtered, sort);
+}, [filters, sort, searchFilterKeywords, offers, customSort]);
 
   const paginatedOffers = useMemo(
     () => allOffers.slice(offset, offset + limit),

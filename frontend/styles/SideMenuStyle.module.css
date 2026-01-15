@@ -120,7 +120,7 @@
   position: relative;
   transition: background-color 0.32s ease;
 }
-.pofile-nav:hover{
+.selected, .pofile-nav:hover{
   cursor: pointer;
   background-color: var(--primary);
 }
