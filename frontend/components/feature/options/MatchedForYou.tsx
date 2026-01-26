@@ -24,6 +24,14 @@ export function MatchedForYou(){
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const hasInitializedFetchRef = useRef(false);
+    const rankOffersListRef = useRef(rankOffersList);
+    const getOfferScoreRef = useRef(getOfferScore);
+
+    // Update refs without triggering re-fetches
+    useEffect(() => {
+        rankOffersListRef.current = rankOffersList;
+        getOfferScoreRef.current = getOfferScore;
+    }, [rankOffersList, getOfferScore]);
 
     const fetchMatchedOffers = useCallback(async () => {
         if (!isAuthenticated || !preferences) {
@@ -175,15 +183,15 @@ export function MatchedForYou(){
                 
                 const mappedConfig = {
                     searchQuery: {
-                        keyword: config.searchQuery.keyword || "(none)",
-                        category: config.searchQuery.category || "(none)",
-                        localization: config.searchQuery.localization || "(none)",
+                        keyword: config.searchQuery.keyword || "",
+                        category: config.searchQuery.category || "",
+                        localization: config.searchQuery.localization || ""
                     },
                     filters: {
-                        salaryFrom: config.filters.salaryFrom || "(none)",
-                        salaryTo: config.filters.salaryTo || "(none)",
+                        salaryFrom: config.filters.salaryFrom || "",
+                        salaryTo: config.filters.salaryTo || "",
                     },
-                    skills: config.searchFilterKeywords.skillName || "(none)"
+                    skills: config.searchFilterKeywords.skillName || ""
                 };
                 
                 console.log(`[MatchedForYou] Config ${i + 1}:`, mappedConfig);
@@ -209,7 +217,7 @@ export function MatchedForYou(){
             console.log('[MatchedForYou] Total offers to rank:', offers.length);
             
             if (offers.length > 0) {
-                const rankedOffers = rankOffersList(offers);
+                const rankedOffers = rankOffersListRef.current(offers);
                 const sortedOffers = rankedOffers
                     .map(scored => offers.find((o: offer) => o.id === scored.offerId)!)
                     .filter(Boolean)
@@ -228,7 +236,7 @@ export function MatchedForYou(){
         } finally {
             setLoading(false);
         }
-    }, [isAuthenticated, preferences, fullDictionaries, rankOffersList]);
+    }, [isAuthenticated, preferences, fullDictionaries]);
 
     useEffect(() => {
         if (isAuthenticated && !hasInitializedFetchRef.current) {
@@ -247,7 +255,7 @@ export function MatchedForYou(){
         return (
             <div className={listStyles["offer-list-view"]}>
                 <div className="p-6 text-center text-gray-500">
-                    {t("pleaseLoginToSeeMatched") || "Zaloguj się aby zobaczyć dopasowane oferty"}
+                    {t("pleaseLoginToSeeMatched")}
                 </div>
             </div>
         );
@@ -257,18 +265,17 @@ export function MatchedForYou(){
         return (
             <div className={listStyles["offer-list-view"]}>
                 <div className="p-6 text-center text-gray-500">
-                    {t("completeProfileToSeeMatched") || "Uzupełnij swój profil aby zobaczyć dopasowane oferty"}
+                    {t("completeProfileToSeeMatched")}
                 </div>
             </div>
         );
     }
 
     return (
-        <div className={listStyles["offer-list-view"]}>
             <div className="p-6">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-bold">
-                        {t("matchedForYou") || "Dopasowane dla Ciebie"}
+                        {t("matchedForYou")}
                     </h2>
                     <Button
                         onClick={fetchMatchedOffers}
@@ -276,7 +283,7 @@ export function MatchedForYou(){
                         className={`${buttonStyle["main-button"]} flex items-center gap-2`}
                     >
                         <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
-                        {loading ? t("loading") || "Ładowanie..." : t("refresh") || "Odśwież"}
+                        {loading ? t("loading") : t("refresh")}
                     </Button>
                 </div>
 
@@ -298,16 +305,15 @@ export function MatchedForYou(){
                             <ListElement 
                                 key={offer.id} 
                                 offer={offer} 
-                                score={getOfferScore(offer)}
+                                score={getOfferScoreRef.current(offer)}
                             />
                         ))}
                     </div>
                 ) : (
                     <div className="p-6 text-center text-gray-500">
-                        {t("noOffersMatched") || "Brak ofert pasujących do Twoich preferencji"}
+                        {t("noOffersMatched")}
                     </div>
                 )}
             </div>
-        </div>
     );
 }

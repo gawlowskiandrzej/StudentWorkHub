@@ -10,7 +10,7 @@ services:
         restart: unless-stopped
         image: local/postgres-general:17.6
         container_name: postgres-general
-        env_file: ./databases/general_database/container/.env
+        env_file: /srv/StudentWorkHub/env/db_general.env
         expose:
             - "5433"
         networks:
@@ -25,13 +25,11 @@ services:
         restart: unless-stopped
         image: local/postgres-offers:17.6
         container_name: postgres-offers
-        env_file: ./databases/offers_database/container/.env
+        env_file: /srv/StudentWorkHub/env/db_offers.env
         expose:
             - "5432"
         networks:
             - private
-        depends_on:
-            - db_general
         volumes:
             - pg_offers:/var/lib/postgresql/data
         
@@ -42,12 +40,12 @@ services:
         restart: unless-stopped
         image: local/database-backup:17.6
         container_name: database-backup
-        env_file: ./databases/db_backup/.env
+        env_file: /srv/StudentWorkHub/env/db_backup.env
         depends_on:
             - db_general
         volumes:
             - db_general_backups:/backups/db_general
-            - ./backups/db_general:/repo_host
+            - /srv/StudentWorkHub/backups/db_general:/repo_host
         networks:
             - private
 
@@ -124,8 +122,8 @@ services:
             GeneralDatabaseSettings__Database: ${GENERAL_DATABASE}
             GeneralDatabaseSettings__Username: ${GENERAL_USERNAME}
             GeneralDatabaseSettings__Password: ${GENERAL_PASSWORD}
-            RedisServer__Host: redis
-            RedisServer__Port: 6379
+            RedisServer__Host: ${REDIS_HOST}
+            RedisServer__Port: ${REDIS_PORT}
             StaticSettings__NumberOfAvailablePortals: ${STATIC_NumberOfAvailablePortals}
             StaticSettings__JobsTimeoutMinutes: ${STATIC_JobsTimeoutMinutes}
             ApiKeys__GeminiKey: ${GEMINI_KEY}
@@ -154,13 +152,13 @@ services:
         restart: unless-stopped
         environment:
             ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
-            DatabaseSettings__Host: postgres-offers
-            DatabaseSettings__Port: 5432
+            DatabaseSettings__Host: ${POSTGRES_HOST}
+            DatabaseSettings__Port: ${POSTGRES_PORT}
             DatabaseSettings__Database: ${POSTGRES_DB}
             DatabaseSettings__Username: ${POSTGRES_USER}
             DatabaseSettings__Password: ${POSTGRES_PASSWORD}
-            RedisServer__Host: redis
-            RedisServer__Port: 6379
+            RedisServer__Host: ${REDIS_HOST}
+            RedisServer__Port: ${REDIS_PORT}
             NodeServer__Host: headless_browser
             NodeServer__Port: 3000
             DelayBetweenRequestsMs: ${DELAY_BETWEEN_REQUESTS_MS}
@@ -202,13 +200,12 @@ services:
             - public
             - private
         volumes:
-            - ./Caddyfile:/etc/caddy/Caddyfile:ro
+            - /srv/StudentWorkHub/configs/Caddyfile:/etc/caddy/Caddyfile:ro
             - caddy_data:/data
             - caddy_config:/config
         depends_on:
             - frontend-prod
             - offer_manager
-
 
 # -----------------------------
 # VOLUMES
