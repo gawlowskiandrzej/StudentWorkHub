@@ -26,7 +26,7 @@ export const OffersProvider = ({ children }: { children: React.ReactNode }) => {
   const [scrapping, setScrapping] = useState(false);
   const [scrapStatus, setScrapStatus] = useState<scrappingStatus | null>(null);
   const [jobIds, setJobIds] = useState<jobIds | null>(null);
-  const [activeJobsCount, setActiveJobsCount] = useState<number>(0);
+  const [activeJobsCount, setActiveJobsCount] = useState<number>(4);
   const [offersResponse, setOffers] = useState<offerListResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

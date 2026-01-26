@@ -91,7 +91,7 @@ export default function OfferList() {
               onClick={startScrapping}
             >
               <Plus/>
-              {scrapping ? `Pobieranie (${activeJobsCount}/4)` : "Pozyskaj nowe"}
+              {scrapping ? `Pobieranie ${(4-activeJobsCount)*25}%` : "Pozyskaj nowe"}
               {scrapping && <Spinner />}
             </Button>
             <div onClick={searchNew} className={`${buttonStyle["main-button"]}`}>

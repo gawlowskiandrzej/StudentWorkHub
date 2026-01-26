@@ -61,14 +61,10 @@ export function ListElement({ offer, showRankingButton = true, score }: ListElem
     return (
         <div 
             className={`${listStyles["offer-list-header"]} ${buttonStyles["scale-hover"]} relative`}
+            onClick={handleClick}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
-            <Link
-                href={`/details/${offer.id}`}
-                className="flex flex-1"
-                onClick={handleClick}
-            >
                 <div className={listStyles['companyWrapper']}>
                     <img className={listStyles["company"]} src={`${logoUrl}`} />
                 </div>
@@ -112,7 +108,6 @@ export function ListElement({ offer, showRankingButton = true, score }: ListElem
                         </div>
                     </div>
                 </div>
-            </Link>
             
             {/* Show More Like This Button */}
             {showRankingButton && (
