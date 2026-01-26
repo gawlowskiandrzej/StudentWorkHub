@@ -1,10 +1,13 @@
-﻿using HtmlAgilityPack;
+﻿using AngleSharp.Dom;
+using HtmlAgilityPack;
 using Newtonsoft.Json;
 using Offer_collector.Models.AplikujPl;
 using Offer_collector.Models.PracujPl;
 using Offer_collector.Models.Tools;
 using Offer_collector.Models.UrlBuilders;
+using StackExchange.Redis;
 using System.Net;
+using System.Runtime.CompilerServices;
 
 namespace Offer_collector.Models.OfferScrappers
 {
@@ -126,7 +129,7 @@ namespace Offer_collector.Models.OfferScrappers
         //        yield return (offerList, errors);
         //}
         public override async IAsyncEnumerable<(string, string, List<string>)>
-     GetOfferAsync(string url = "", int batchSize = 5, int offset = 0)
+     GetOfferAsync(IDatabase redisDB, [EnumeratorCancellation] CancellationToken cancellationToken,string url = "", int batchSize = 5, int offset = 0)
         {
             var errors = new List<string>();
             try
@@ -151,8 +154,14 @@ namespace Offer_collector.Models.OfferScrappers
             // batch równoległy
             foreach (var token in work) 
             {
-                batchTasks.Add(ProcessOfferNodeAsync(token));
+                cancellationToken.ThrowIfCancellationRequested();
+                if (!TryParseHeader(token, out var header, errors))
+                    continue;
 
+                if (await redisDB.SetContainsAsync("offers:db:index", header.link))
+                    continue;
+
+                batchTasks.Add(ProcessOfferNodeAsync(header, errors));
 
                 if (batchTasks.Count >= batchSize)
                 {
@@ -162,6 +171,8 @@ namespace Offer_collector.Models.OfferScrappers
             }
             if (batchTasks.Count > 0)
                 yield return await ProcessBatchAsync(batchTasks, htmlBody);
+            else
+                yield return (JsonConvert.SerializeObject(new List<AplikujplSchema>(), Formatting.Indented), _offerListHtml, errors);
         }
 
         private async Task<(string, string, List<string>)> ProcessBatchAsync(List<Task<(AplikujplSchema, List<string>)>> batchTasks, string htmlBody)
@@ -184,13 +195,10 @@ namespace Offer_collector.Models.OfferScrappers
             );
         }
 
-        private async Task<(AplikujplSchema, List<string>)> ProcessOfferNodeAsync(HtmlNode node)
+        private async Task<(AplikujplSchema, List<string>)> ProcessOfferNodeAsync(OfferListHeader header, List<string> errors)
         {
-            List<string> errors = new List<string>();
             AplikujplSchema schema = new AplikujplSchema();
-            if (!TryParseHeader(node, out var header, errors))
-                return (schema, errors);
-
+           
             schema = new AplikujplSchema { header = header };
 
             // pobieramy HTML szczegółów

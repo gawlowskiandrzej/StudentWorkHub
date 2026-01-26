@@ -5,8 +5,12 @@ using Offer_collector.Models.JustJoinIt;
 using Offer_collector.Models.OfferScrappers;
 using Offer_collector.Models.PracujPl;
 using Offer_collector.Models.UrlBuilders;
+using StackExchange.Redis;
+using System;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using worker.Models.Constants;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Offer_collector.Models.OfferFetchers
 {
@@ -17,7 +21,7 @@ namespace Offer_collector.Models.OfferFetchers
         }
 
         public override async IAsyncEnumerable<(string, string, List<string>)>
-    GetOfferAsync(string url = "", int batchSize = 5, int offset = 0)
+    GetOfferAsync(IDatabase redisDB, [EnumeratorCancellation] CancellationToken cancellationToken, string url = "", int batchSize = 5, int offset = 0)
         {
             // Load main HTML + extract offers
             var (mainHtml, offers, initErrors) = await LoadMainPageAsync(url);
@@ -27,8 +31,7 @@ namespace Offer_collector.Models.OfferFetchers
                 yield return ("", mainHtml, initErrors);
                 yield break;
             }
-
-            // Skip previous batches
+            
             var remainingOffers = offers.Skip(offset * batchSize).ToList();
 
             // Process in batches
@@ -36,7 +39,14 @@ namespace Offer_collector.Models.OfferFetchers
 
             foreach (var offerToken in remainingOffers)
             {
-                batch.Add(ProcessOfferAsync(offerToken));
+                cancellationToken.ThrowIfCancellationRequested();
+                List<string> errors = new List<string>();
+                if (!TryParseSchema(offerToken, out var schema, errors))
+                    continue;
+
+                if (await redisDB.SetContainsAsync("offers:db:index", JustJoinItBuilder.baseUrlOfferDetail + schema.slug))
+                    continue;
+                batch.Add(ProcessOfferAsync(schema, errors));
 
                 if (batch.Count == batchSize)
                 {
@@ -49,6 +59,10 @@ namespace Offer_collector.Models.OfferFetchers
             if (batch.Count > 0)
             {
                 yield return await RunBatchAsync(batch, mainHtml);
+            }
+            else
+            {
+                yield return ("", mainHtml, initErrors);
             }
         }
 
@@ -116,13 +130,8 @@ namespace Offer_collector.Models.OfferFetchers
             return (json, html, errors);
         }
 
-        private async Task<(JustJoinItSchema, List<string>)> ProcessOfferAsync(JToken offerToken)
+        private async Task<(JustJoinItSchema, List<string>)> ProcessOfferAsync(JustJoinItSchema schema, List<string>errors)
         {
-            List<string> errors = new List<string>();
-            // Parse schema
-            if (!TryParseSchema(offerToken, out var schema, errors))
-                return (schema, errors);
-
             // Load offer page
             if (!await TryLoadDetailsHtml(schema, errors))
                 return (schema, errors);
