@@ -359,84 +359,84 @@ DECLARE
     v_error TEXT;
     v_results public.batch_result[] := '{}';
 BEGIN
-    IF p_inputs IS NULL OR array_length(p_inputs, 1) IS NULL THEN
-        o_results := v_results;
-        RETURN;
+    IF p_inputs IS NOT NULL AND array_length(p_inputs, 1) IS NOT NULL THEN
+
+        FOR i IN 1..array_length(p_inputs, 1) LOOP
+            r := p_inputs[i];
+            v_error := NULL;
+            v_action := NULL;
+            v_offer_id := NULL;
+
+            -- This BEGIN...END block creates a subtransaction
+            BEGIN
+                -- Handle null input item (e.g. after parsing error in C#)
+                IF r IS NULL THEN
+                    v_error := 'Input item at this index was null.';
+                ELSE
+                    CALL public.upsert_external_offer(
+                        r.source_name,
+                        r.source_base_url,
+                        r.query_string,
+                        r.job_title,
+                        r.company_name,
+                        r.company_logo_url,
+                        r.description,
+                        r.salary_from,
+                        r.salary_to,
+                        r.currency,
+                        r.salary_period,
+                        r.is_gross,
+                        r.building_number,
+                        r.street,
+                        r.city,
+                        r.postal_code,
+                        r.latitude,
+                        r.longitude,
+                        r.is_remote,
+                        r.is_hybrid,
+                        r.leading_category,
+                        r.sub_categories,
+                        r.skills,
+                        r.skills_experience_months,
+                        r.skills_experience_levels,
+                        r.education_levels,
+                        r.languages,
+                        r.language_levels,
+                        r.employment_types,
+                        r.employment_schedules,
+                        r.published,
+                        r.expires,
+                        r.benefits,
+                        r.is_urgent,
+                        r.is_for_ukrainians,
+                        r.offer_lifespan_expiration,
+                        v_offer_id, -- OUT
+                        v_action    -- OUT
+                    );
+                END IF;
+
+            EXCEPTION WHEN OTHERS THEN
+                -- Subtransaction (CALL) is already rolled back here
+                GET STACKED DIAGNOSTICS v_error = MESSAGE_TEXT;
+            END;
+
+            -- Append success/error result to output array
+            v_results := v_results || ROW(i, v_offer_id, v_action, v_error)::public.batch_result;
+        END LOOP;
+
     END IF;
 
-    FOR i IN 1..array_length(p_inputs, 1) LOOP
-        r := p_inputs[i];
-        v_error := NULL;
-        v_action := NULL;
-        v_offer_id := NULL;
-
-        -- Ten blok BEGIN...END sam w sobie tworzy subtransakcję
-        BEGIN
-            -- Sprawdzamy, czy element nie jest pusty (np. po błędzie parsowania w C#)
-            IF r IS NULL THEN
-                v_error := 'Input item at this index was null.';
-            ELSE
-                -- Wywołujemy procedurę dla pojedynczej oferty
-                CALL public.upsert_external_offer(
-                    r.source_name,
-                    r.source_base_url,
-                    r.query_string,
-                    r.job_title,
-                    r.company_name,
-                    r.company_logo_url,
-                    r.description,
-                    r.salary_from,
-                    r.salary_to,
-                    r.currency,
-                    r.salary_period,
-                    r.is_gross,
-                    r.building_number,
-                    r.street,
-                    r.city,
-                    r.postal_code,
-                    r.latitude,
-                    r.longitude,
-                    r.is_remote,
-                    r.is_hybrid,
-                    r.leading_category,
-                    r.sub_categories,
-                    r.skills,
-                    r.skills_experience_months,
-                    r.skills_experience_levels,
-                    r.education_levels,
-                    r.languages,
-                    r.language_levels,
-                    r.employment_types,
-                    r.employment_schedules,
-                    r.published,
-                    r.expires,
-                    r.benefits,
-                    r.is_urgent,
-                    r.is_for_ukrainians,
-                    r.offer_lifespan_expiration,
-                    v_offer_id, -- OUT
-                    v_action        -- OUT
-                );
-            END IF;
-
-        EXCEPTION WHEN OTHERS THEN
-            -- Kiedy tu trafiamy, subtransakcja (CALL) JEST JUŻ WYCOFANA.
-            -- Musimy tylko pobrać komunikat błędu.
-            GET STACKED DIAGNOSTICS v_error = MESSAGE_TEXT;
-        END;
-        -- Koniec subtransakcji (albo pomyślny, albo obsłużony)
-
-        -- Dodajemy wynik (sukces lub błąd) do tablicy wyjściowej
-        v_results := v_results || ROW(i, v_offer_id, v_action, v_error)::public.batch_result;
-
-    END LOOP;
-
-    -- Zwracamy całą tablicę wyników
+    -- Return results (also for NULL/empty input -> empty array)
     o_results := v_results;
-    
-    -- Główna transakcja zostanie zatwierdzona (COMMIT) automatycznie na końcu.
+
+    -- Cleanup: always execute at the end of the procedure
+    DELETE FROM public.offers
+    WHERE expires IS NOT NULL
+      AND expires < now()
+      AND NOT is_saved;
+
 END;
-$$;;
+$$;
 
 CREATE OR REPLACE PROCEDURE public.delete_offers_by_id(
     IN p_offer_ids bigint[]
