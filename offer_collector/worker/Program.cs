@@ -27,5 +27,6 @@ var headlessSettings = builder.Configuration.GetSection("NodeServer");
 HeadlessbrowserSettings.Host = headlessSettings.GetValue<string>("Host");
 HeadlessbrowserSettings.Port = headlessSettings.GetValue<int>("Port");
 ConstValues.delayBetweenRequests = builder.Configuration.GetValue<int>("DelayBetweenRequestsMs");
+ConstValues.timeoutScraper = builder.Configuration.GetValue<int>("TimeoutScraper");
 var host = builder.Build();
 host.Run();

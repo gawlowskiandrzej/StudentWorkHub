@@ -4,8 +4,11 @@ using Offer_collector.Models.Json;
 using Offer_collector.Models.OfferScrappers;
 using Offer_collector.Models.OlxPraca;
 using Offer_collector.Models.UrlBuilders;
+using StackExchange.Redis;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using worker.Models.Constants;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Offer_collector.Models.OfferFetchers
 {
@@ -127,7 +130,7 @@ namespace Offer_collector.Models.OfferFetchers
         //        yield return (JsonConvert.SerializeObject(olxPracaSchema, Formatting.Indented) ?? "", html, errors);
         //}
         public override async IAsyncEnumerable<(string, string, List<string>)>
-    GetOfferAsync(string url = "", int batchSize = 5, int offset = 0)
+    GetOfferAsync(IDatabase redisDB, [EnumeratorCancellation] CancellationToken cancellationToken,string url = "", int batchSize = 5, int offset = 0)
         {
             var (mainHtml, offers, initialErrors) = await LoadMainPageAsync(url);
 
@@ -145,7 +148,15 @@ namespace Offer_collector.Models.OfferFetchers
 
             foreach (var offerToken in remaining)
             {
-                batch.Add(ProcessOfferAsync(offerToken));
+                cancellationToken.ThrowIfCancellationRequested();
+                List<string> errors = new List<string>();
+                if (!TryParseSchema(offerToken, out var schema, errors))
+                    continue;
+
+                if (await redisDB.SetContainsAsync("offers:db:index", schema.url))
+                    continue;
+
+                batch.Add(ProcessOfferAsync(schema, errors));
 
                 if (batch.Count == batchSize)
                 {
@@ -156,6 +167,8 @@ namespace Offer_collector.Models.OfferFetchers
 
             if (batch.Count > 0)
                 yield return await RunBatchAsync(batch, mainHtml);
+            else
+                yield return ("", mainHtml, initialErrors);
         }
 
         private async Task<(string Html, List<JToken> Offers, List<string> Errors)>
@@ -222,13 +235,8 @@ namespace Offer_collector.Models.OfferFetchers
             return (json, html, errors);
         }
 
-        private async Task<(OlxPracaSchema schema, List<string> errors)> ProcessOfferAsync(JToken offerToken)
+        private async Task<(OlxPracaSchema schema, List<string> errors)> ProcessOfferAsync(OlxPracaSchema schema, List<string> errors)
         {
-            List<string> errors = new List<string>();
-            // Parse base schema
-            if (!TryParseSchema(offerToken, out var schema, errors))
-                return (schema, errors);
-
             // Load details HTML
             if (!await TryLoadOfferHtml(schema, errors))
                 return (schema, errors);

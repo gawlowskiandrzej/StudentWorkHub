@@ -159,6 +159,7 @@ services:
       NodeServer__Host: headless_browser
       NodeServer__Port: 3000
       DelayBetweenRequestsMs: ${DELAY_BETWEEN_REQUESTS_MS}
+      TimeoutScraper: ${TIMEOUT_SCRAPER}
       ASPNETCORE_URLS: http://+:80
     depends_on:
       - redis

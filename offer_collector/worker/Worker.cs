@@ -4,6 +4,7 @@ using OffersConnector;
 using StackExchange.Redis;
 using System.Diagnostics;
 using worker.Models;
+using worker.Models.Constants;
 using worker.Models.DTO;
 using worker.Models.Tools;
 
@@ -81,10 +82,14 @@ public class Worker : BackgroundService
         job.BathList = new List<string>();
         job.ErrorMessage = new List<string>();
         _logger.LogInformation($"Worker is now processing job {task.JobId} on site {((OfferSitesTypes)task.SiteTypeId)}");
+
+        using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(ConstValues.timeoutScraper));
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellation, timeoutCts.Token);
+
         try
         {
             int duplicated = 0;
-            await foreach (var (offers, errors) in fetcher.FetchOffers(task.SearchFilters, cancellation, task.Offset, bathSize: task.BatchSize))
+            await foreach (var (offers, errors) in fetcher.FetchOffers(task.SearchFilters,_redisDb ,linkedCts.Token, task.Offset, bathSize: task.BatchSize))
             {
                 bool anyNewOffersFethed = false;
                 
@@ -111,10 +116,26 @@ public class Worker : BackgroundService
             job.EndTime = DateTime.UtcNow;
             await _redisDb.StringSetAsync(jobKey, JsonConvert.SerializeObject(job));
         }
+        catch (OperationCanceledException) when (timeoutCts.Token.IsCancellationRequested)
+        {
+            // Timeout - zwracamy wynik jaki mamy
+            _logger.LogWarning($"Job {task.JobId} - {((OfferSitesTypes)task.SiteTypeId)} timed out after {ConstValues.timeoutScraper} seconds. Returning {job.BathList.Count} offers.");
+            job.Status = BathStatus.completed;
+            job.EndTime = DateTime.UtcNow;
+            job.ErrorMessage.Add($"Job timed out after {ConstValues.timeoutScraper} seconds - returning partial results");
+            await _redisDb.StringSetAsync(jobKey, JsonConvert.SerializeObject(job));
+        }
+        catch (OperationCanceledException)
+        {
+            // Anulowanie z zewn¹trz
+            throw;
+        }
         catch (Exception ex)
         {
             job.Status = BathStatus.error;
             job.ErrorMessage.Add(ex.Message);
+            job.EndTime = DateTime.UtcNow;
+            await _redisDb.StringSetAsync(jobKey, JsonConvert.SerializeObject(job));
         }
     }
 }

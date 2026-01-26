@@ -1,18 +1,20 @@
 ﻿using Offer_collector.Models;
 using Offer_collector.Models.OfferScrappers;
 using Offer_collector.Models.Tools;
+using StackExchange.Redis;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
 public abstract class BaseHtmlScraper
 {
     protected readonly HttpClient _client = new HttpClient();
-    private readonly ClientType _clientType = 0;
+    private readonly Offer_collector.Models.ClientType _clientType = 0;
     protected string htmlBody = "";
     public int maxOfferCount;
     public int offersPerPage;
     private HeadlessBrowser headlessBrowser = new HeadlessBrowser();
     
-    public BaseHtmlScraper(ClientType clientType)
+    public BaseHtmlScraper(Offer_collector.Models.ClientType clientType)
     {
         if (clientType == 0)
         {
@@ -73,7 +75,7 @@ public abstract class BaseHtmlScraper
     /// <summary>
     /// Abstract method for getting offer
     /// </summary>
-    public abstract IAsyncEnumerable<(string, string, List<string>)> GetOfferAsync(string url = "", int batchSize = 5, int offset = 0);
+    public abstract IAsyncEnumerable<(string, string, List<string>)> GetOfferAsync(IDatabase redisDB, CancellationToken cancellationToken, string url = "", int batchSize = 5, int offset = 0);
     /// <summary>
     /// Decode unnessesary unicode characters
     /// </summary>

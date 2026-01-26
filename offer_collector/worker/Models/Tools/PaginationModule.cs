@@ -2,6 +2,8 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Offer_collector.Models.UrlBuilders;
+using StackExchange.Redis;
+using System.Runtime.CompilerServices;
 using worker.Models.Constants;
 
 namespace Offer_collector.Models.Tools
@@ -24,7 +26,7 @@ namespace Offer_collector.Models.Tools
         /// <summary>
         /// Pobiera wszystkie oferty z paginowanego źródła i zwraca je jako JSON.
         /// </summary>
-        public async IAsyncEnumerable<(string, List<string>, List<string>)> FetchAllOffersAsync(SearchFilters searchFilters, int offset = 0,int maxPages = 5, int bathSize = 5)
+        public async IAsyncEnumerable<(string, List<string>, List<string>)> FetchAllOffersAsync(SearchFilters searchFilters,IDatabase redisDB, [EnumeratorCancellation] CancellationToken cancellationToken ,int offset = 0,int maxPages = 5, int bathSize = 5)
         {
             var allOffers = new List<JToken>();
             int currentPage = 1;
@@ -43,7 +45,7 @@ namespace Offer_collector.Models.Tools
                 while (!success && retryCount < maxRetries)
                 {
 
-                    await foreach (var (batchJson, htmlRaw, scrappingErrors) in _scrapper.GetOfferAsync(url, bathSize, offset))
+                    await foreach (var (batchJson, htmlRaw, scrappingErrors) in _scrapper.GetOfferAsync(redisDB,cancellationToken, url, bathSize, offset))
                     {
                         try
                         {

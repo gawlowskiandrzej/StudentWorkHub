@@ -8,6 +8,8 @@ using Offer_collector.Models.OfferScrappers;
 using Offer_collector.Models.OlxPraca;
 using Offer_collector.Models.Tools;
 using Offer_collector.Models.UrlBuilders;
+using StackExchange.Redis;
+using System.Runtime.CompilerServices;
 using worker.Models.Constants;
 using worker.Models.Tools;
 
@@ -16,7 +18,7 @@ namespace worker.Models
     internal class Fetcher
     {
         private readonly OfferSitesTypes _offerSitesTypes;
-        private readonly ClientType _clientType;
+        private readonly Offer_collector.Models.ClientType _clientType;
         private readonly bool _saveToLocalFile;
 
         public bool IsUsingAi { get; }
@@ -25,7 +27,7 @@ namespace worker.Models
         BaseUrlBuilder? urlBuilder;
         PaginationModule? paginationModule;
 
-        public Fetcher(OfferSitesTypes offerSitesTypes, ClientType clientType = ClientType.httpClient, bool saveToLocalFile = false)
+        public Fetcher(OfferSitesTypes offerSitesTypes, Offer_collector.Models.ClientType clientType = Offer_collector.Models.ClientType.httpClient, bool saveToLocalFile = false)
         {
             _offerSitesTypes = offerSitesTypes;
             _clientType = clientType;
@@ -40,7 +42,7 @@ namespace worker.Models
             switch (_offerSitesTypes)
             {
                 case OfferSitesTypes.Pracujpl:
-                    scrapper = (PracujplScrapper)FactoryScrapper.CreateScrapper(_offerSitesTypes, ClientType.headlessBrowser);
+                    scrapper = (PracujplScrapper)FactoryScrapper.CreateScrapper(_offerSitesTypes, Offer_collector.Models.ClientType.headlessBrowser);
                     urlBuilder = (PracujPlUrlBuilder)UrlBuilderFactory.Create(_offerSitesTypes);
                     break;
                 case OfferSitesTypes.Justjoinit:
@@ -69,7 +71,12 @@ namespace worker.Models
             }
         }
 
-        public async IAsyncEnumerable<(List<UnifiedOfferSchemaClass> offers, List<string> errors)> FetchOffers(SearchFilters searchFilter, CancellationToken cancellationToken,int offset = 0, int bathSize = 5)
+        public async IAsyncEnumerable<(List<UnifiedOfferSchemaClass> offers, List<string> errors)> FetchOffers(
+            SearchFilters searchFilter,
+            IDatabase redisDB,
+            [EnumeratorCancellation]CancellationToken cancellationToken,
+            int offset = 0,
+            int bathSize = 5)
         {
             if (paginationModule != null)
             {
@@ -77,7 +84,7 @@ namespace worker.Models
                 {
                     List<string> errrosAll = new List<string>();
                     List<UnifiedOfferSchemaClass> allOffers = new List<UnifiedOfferSchemaClass>();
-                    await foreach (var (offersJson, htmls, errors) in paginationModule.FetchAllOffersAsync(searchFilter, offset: offset ,bathSize: bathSize))
+                    await foreach (var (offersJson, htmls, errors) in paginationModule.FetchAllOffersAsync(searchFilter, redisDB, cancellationToken, offset: offset, bathSize: bathSize))
                     {
                         List<UnifiedOfferSchemaClass> unifiedOfferSchemastemp = new List<UnifiedOfferSchemaClass>();
                         switch (_offerSitesTypes)
@@ -101,21 +108,6 @@ namespace worker.Models
                             default:
                                 break;
                         }
-                        //ExportTo.ExportToJs(unifiedOfferSchemas, $"{Enum.GetName(typeof(OfferSitesTypes), siteTypeId)}.json");
-                        //List<UnifiedOfferSchemaClass> offers = ExportTo.LoadFromJs($"{Enum.GetName(typeof(OfferSitesTypes), siteTypeId)}.json");
-                        // Processed by Ai
-                        //List<string> outgoingOffers = new List<string>();
-                        //foreach (UnifiedOfferSchemaClass item in unifiedOfferSchemastemp)
-                           //outgoingOffers.Add(JsonConvert.SerializeObject(item));
-                       // else
-                        //{
-                            //(List<string> aioffers, List<string> errormessages) processedOffers = await llm.ProcessUnifiedSchemas(unifiedOfferSchemastemp, DatabaseService, bathSize);
-                            //errors.AddRange(processedOffers.errormessages);
-                            //outgoingOffers = processedOffers.aioffers;
-                        //}
-                        //errrosAll.AddRange(processedOffers.errormessages);
-                        //if (_saveToLocalFile)
-                            //ExportTo.ExportToJs(errrosAll, $"{Enum.GetName(typeof(OfferSitesTypes), _offerSitesTypes)}-errors.json");
                         yield return (unifiedOfferSchemastemp, errors);
                     }
                 }

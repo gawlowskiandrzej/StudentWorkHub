@@ -5,6 +5,8 @@ using Offer_collector.Models.OfferScrappers;
 using Offer_collector.Models.PracujPl;
 using Offer_collector.Models.Tools;
 using Offer_collector.Models.UrlBuilders;
+using StackExchange.Redis;
+using System.Runtime.CompilerServices;
 using worker.Models.Constants;
 
 namespace Offer_collector.Models.OfferFetchers
@@ -15,7 +17,7 @@ namespace Offer_collector.Models.OfferFetchers
         {
         }
 
-        public override async IAsyncEnumerable<(string, string, List<string>)> GetOfferAsync(
+        public override async IAsyncEnumerable<(string, string, List<string>)> GetOfferAsync(IDatabase redisDB, [EnumeratorCancellation] CancellationToken cancellationToken,
     string url = "",
     int batchSize = 5,
     int offset = 0)
@@ -42,7 +44,14 @@ namespace Offer_collector.Models.OfferFetchers
 
             foreach (var token in offers.Skip(skip))
             {
-                batchTasks.Add(ProcessOfferAsync(token));
+                cancellationToken.ThrowIfCancellationRequested();
+                List<string> errors = new List<string>();
+
+                var schema = OfferMapper.DeserializeJToken<PracujplSchema>(token);
+                if (await redisDB.SetContainsAsync("offers:db:index", schema.offers?.FirstOrDefault()?.offerAbsoluteUri))
+                    continue;
+
+                batchTasks.Add(ProcessOfferAsync(schema, errors));
 
                 if (batchTasks.Count >= batchSize)
                 {
@@ -53,16 +62,13 @@ namespace Offer_collector.Models.OfferFetchers
 
             if (batchTasks.Count > 0)
                 yield return await ProcessBatchAsync(batchTasks, htmlBody);
+            else
+                yield return (JsonConvert.SerializeObject(new List<PracujplSchema>(), Formatting.Indented), htmlBody, new List<string>());
         }
-        private async Task<(PracujplSchema?, List<string>)> ProcessOfferAsync(JToken token)
+        private async Task<(PracujplSchema?, List<string>)> ProcessOfferAsync(PracujplSchema schema, List<string> errors)
         {
-            var errors = new List<string>();
-            PracujplSchema? schema = null;
-
             try
             {
-                schema = OfferMapper.DeserializeJToken<PracujplSchema>(token);
-
                 await FetchOfferDetailsAsync(schema, errors);
                 await FetchCompanyProfileAsync(schema, errors);
 
