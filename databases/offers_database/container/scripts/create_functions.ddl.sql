@@ -699,18 +699,3 @@ BEGIN
     );
 END;
 $$;
-
-CREATE OR REPLACE FUNCTION public.offers_cleanup_expired()
-RETURNS trigger
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-BEGIN
-  DELETE FROM public.offers
-  WHERE expires IS NOT NULL
-    AND expires <= now();
-
-  RETURN NULL;
-END;
-$$;
