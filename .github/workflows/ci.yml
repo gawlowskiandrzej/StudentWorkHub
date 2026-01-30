@@ -291,6 +291,8 @@ jobs:
         run: |
           dotnet build offer_manager/offer_manager.csproj --no-restore -c Release
           dotnet build worker/worker.csproj --no-restore -c Release
+          dotnet build offer_manager.Tests/offer_manager.Tests.csproj --no-restore -c Release
+          dotnet build worker.Tests/worker.Tests.csproj --no-restore -c Release
       
       - name: Run tests
         working-directory: offer_collector
