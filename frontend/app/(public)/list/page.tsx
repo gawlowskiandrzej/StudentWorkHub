@@ -26,6 +26,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Plus } from "lucide-react";
 import { search } from "@/types/search/search";
 import { useRanking } from "@/store/RankingContext";
+import { useUser } from "@/store/userContext";
 
 export type FiltersState = Partial<
   Record<FilterKey, Set<FilterValue>>
@@ -36,6 +37,7 @@ export default function OfferList() {
   const [localSearch, setLocalSearch] = useState(search || {});
   const { limit, offset, setOffset } = usePagination();
   const { t } = useTranslation(["common", "list"]);
+  const { isAuthenticated } = useUser();
   const { offersResponse, loading, activeJobsCount,startScrapping, scrapping } = useOffers();
   const offers = offersResponse?.pagination.items ?? [];
   const [la, setLa] = useState(false);
@@ -85,17 +87,17 @@ export default function OfferList() {
           <SearchBar value={localSearch} onChange={setLocalSearch} />
           <div className={listStyles["search-bar-buttons"]}>
             <Button
-              disabled={scrapping}
-              style={{ width: la ? 210 : 185 }} // px
+              disabled={scrapping || !isAuthenticated}
+              style={{ width: la ? 220 : 200 }} // px
               className={`transition-[width] duration-300 ease-in-out py-5.5 px-3 inline-flex items-center cursor-pointer justify-center overflow-hidden ${buttonStyle["big-scale"]}`}
               onClick={startScrapping}
             >
               <Plus/>
-              {scrapping ? `Pobieranie ${(4-activeJobsCount)*25}%` : "Pozyskaj nowe"}
+              {scrapping ? `Pobieranie ${(4-activeJobsCount)*25}%` : isAuthenticated ? "Pozyskaj nowe" : t("list:loginToSearchNew")}
               {scrapping && <Spinner />}
             </Button>
             <div onClick={searchNew} className={`${buttonStyle["main-button"]}`}>
-              <img className={listStyles["search"]} src="/icons/search0.svg" /> {t("findMatchingJob")}
+              <img className={listStyles["search"]} src="/icons/search0.svg" /> { t("findMatchingJob")}
             </div>
           </div>
         </div>
