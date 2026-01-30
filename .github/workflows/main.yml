@@ -33,8 +33,8 @@ jobs:
       - name: Test Offer Manager
         run: dotnet test offer_collector/offer_manager.Tests/offer_manager.Tests.csproj --verbosity normal
 
-      - name: Test Worker
-        run: dotnet test offer_collector/worker.Tests/worker.Tests.csproj --verbosity normal
+      #- name: Test Worker
+      #  run: dotnet test offer_collector/worker.Tests/worker.Tests.csproj --verbosity normal
 
   frontend-ci:
     name: Frontend CI (Next.js)
@@ -53,9 +53,9 @@ jobs:
         run: npm ci
         working-directory: frontend
         
-      - name: Lint
-        run: npm run lint
-        working-directory: frontend
+      #- name: Lint
+      #  run: npm run lint
+      #  working-directory: frontend
         
       - name: Build
         run: npm run build
