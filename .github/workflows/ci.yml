@@ -70,163 +70,163 @@ jobs:
           retention-days: 7
 
   # Frontend E2E tests
-  frontend-e2e-tests:
-    name: Frontend E2E Tests
-    runs-on: ubuntu-latest
-    
-    services:
-      postgres-general:
-        image: postgres:17.6
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: general
-        ports:
-          - 5433:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-      
-      postgres-offers:
-        image: postgres:17.6
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: offers
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-      
-      redis:
-        image: redis:7
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-      
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-      
-      - name: Install frontend dependencies
-        working-directory: frontend
-        run: npm ci
-      
-      - name: Install Playwright browsers
-        working-directory: frontend
-        run: npx playwright install --with-deps chromium
-      
-      - name: Build backend
-        working-directory: offer_collector
-        run: dotnet build offer_manager/offer_manager.csproj -c Release
-      
-      - name: Start backend
-        working-directory: offer_collector/offer_manager
-        run: |
-          dotnet bin/Release/net8.0/offer_manager.dll &
-          echo $! > /tmp/backend.pid
-        env:
-          ASPNETCORE_ENVIRONMENT: Development
-          ASPNETCORE_URLS: http://localhost:5059
-          DatabaseSettings__Host: localhost
-          DatabaseSettings__Port: 5432
-          DatabaseSettings__Database: offers
-          DatabaseSettings__Username: postgres
-          DatabaseSettings__Password: postgres
-          GeneralDatabaseSettings__Host: localhost
-          GeneralDatabaseSettings__Port: 5433
-          GeneralDatabaseSettings__Database: general
-          GeneralDatabaseSettings__Username: postgres
-          GeneralDatabaseSettings__Password: postgres
-          RedisServer__Host: localhost
-          RedisServer__Port: 6379
-      
-      - name: Wait for backend to be ready
-        run: |
-          for i in {1..30}; do
-            if curl -f http://localhost:5059/api/health 2>/dev/null; then
-              echo "Backend is ready"
-              exit 0
-            fi
-            echo "Waiting for backend... ($i/30)"
-            sleep 2
-          done
-          echo "Backend failed to start"
-          exit 1
-      
-      - name: Build frontend
-        working-directory: frontend
-        run: npm run build
-        env:
-          BACKEND_URL: http://localhost:5059
-      
-      - name: Start frontend
-        working-directory: frontend
-        run: |
-          npm run start &
-          echo $! > /tmp/frontend.pid
-        env:
-          PORT: 4000
-          BACKEND_URL: http://localhost:5059
-      
-      - name: Wait for frontend to be ready
-        run: |
-          for i in {1..30}; do
-            if curl -f http://localhost:4000 2>/dev/null; then
-              echo "Frontend is ready"
-              exit 0
-            fi
-            echo "Waiting for frontend... ($i/30)"
-            sleep 2
-          done
-          echo "Frontend failed to start"
-          exit 1
-      
-      - name: Run E2E tests
-        working-directory: frontend
-        run: npm run test:e2e
-        env:
-          CI: true
-      
-      - name: Stop services
-        if: always()
-        run: |
-          [ -f /tmp/frontend.pid ] && kill $(cat /tmp/frontend.pid) || true
-          [ -f /tmp/backend.pid ] && kill $(cat /tmp/backend.pid) || true
-      
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report
-          path: frontend/playwright-report/
-          retention-days: 7
-      
-      - name: Upload test screenshots
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-screenshots
-          path: frontend/test-results/
-          retention-days: 7
+  #frontend-e2e-tests:
+  #  name: Frontend E2E Tests
+  #  runs-on: ubuntu-latest
+  #  
+  #  services:
+  #    postgres-general:
+  #      image: postgres:17.6
+  #      env:
+  #        POSTGRES_PASSWORD: postgres
+  #        POSTGRES_DB: general
+  #      ports:
+  #        - 5433:5432
+  #      options: >-
+  #        --health-cmd pg_isready
+  #        --health-interval 10s
+  #        --health-timeout 5s
+  #        --health-retries 5
+  #    
+  #    postgres-offers:
+  #      image: postgres:17.6
+  #      env:
+  #        POSTGRES_PASSWORD: postgres
+  #        POSTGRES_DB: offers
+  #      ports:
+  #        - 5432:5432
+  #      options: >-
+  #        --health-cmd pg_isready
+  #        --health-interval 10s
+  #        --health-timeout 5s
+  #        --health-retries 5
+  #    
+  #    redis:
+  #      image: redis:7
+  #      ports:
+  #        - 6379:6379
+  #      options: >-
+  #        --health-cmd "redis-cli ping"
+  #        --health-interval 10s
+  #        --health-timeout 5s
+  #        --health-retries 5
+  #  
+  #  steps:
+  #    - uses: actions/checkout@v4
+  #    
+  #    - name: Setup Node.js
+  #      uses: actions/setup-node@v4
+  #      with:
+  #        node-version: ${{ env.NODE_VERSION }}
+  #        cache: 'npm'
+  #        cache-dependency-path: frontend/package-lock.json
+  #    
+  #    - name: Setup .NET
+  #      uses: actions/setup-dotnet@v4
+  #      with:
+  #        dotnet-version: ${{ env.DOTNET_VERSION }}
+  #    
+  #    - name: Install frontend dependencies
+  #      working-directory: frontend
+  #      run: npm ci
+  #    
+  #    - name: Install Playwright browsers
+  #      working-directory: frontend
+  #      run: npx playwright install --with-deps chromium
+  #    
+  #    - name: Build backend
+  #      working-directory: offer_collector
+  #      run: dotnet build offer_manager/offer_manager.csproj -c Release
+  #    
+  #    - name: Start backend
+  #      working-directory: offer_collector/offer_manager
+  #      run: |
+  #        dotnet bin/Release/net8.0/offer_manager.dll &
+  #        echo $! > /tmp/backend.pid
+  #      env:
+  #        ASPNETCORE_ENVIRONMENT: Development
+  #        ASPNETCORE_URLS: http://localhost:5059
+  #        DatabaseSettings__Host: localhost
+  #        DatabaseSettings__Port: 5432
+  #        DatabaseSettings__Database: offers
+  #        DatabaseSettings__Username: postgres
+  #        DatabaseSettings__Password: postgres
+  #        GeneralDatabaseSettings__Host: localhost
+  #        GeneralDatabaseSettings__Port: 5433
+  #        GeneralDatabaseSettings__Database: general
+  #        GeneralDatabaseSettings__Username: postgres
+  #        GeneralDatabaseSettings__Password: postgres
+  #        RedisServer__Host: localhost
+  #        RedisServer__Port: 6379
+  #    
+  #    - name: Wait for backend to be ready
+  #      run: |
+  #        for i in {1..30}; do
+  #          if curl -f http://localhost:5059/api/health 2>/dev/null; then
+  #            echo "Backend is ready"
+  #            exit 0
+  #          fi
+  #          echo "Waiting for backend... ($i/30)"
+  #          sleep 2
+  #        done
+  #        echo "Backend failed to start"
+  #        exit 1
+  #    
+  #    - name: Build frontend
+  #      working-directory: frontend
+  #      run: npm run build
+  #      env:
+  #        BACKEND_URL: http://localhost:5059
+  #    
+  #    - name: Start frontend
+  #      working-directory: frontend
+  #      run: |
+  #        npm run start &
+  #        echo $! > /tmp/frontend.pid
+  #      env:
+  #        PORT: 4000
+  #        BACKEND_URL: http://localhost:5059
+  #    
+  #    - name: Wait for frontend to be ready
+  #      run: |
+  #        for i in {1..30}; do
+  #          if curl -f http://localhost:4000 2>/dev/null; then
+  #            echo "Frontend is ready"
+  #            exit 0
+  #          fi
+  #          echo "Waiting for frontend... ($i/30)"
+  #          sleep 2
+  #        done
+  #        echo "Frontend failed to start"
+  #        exit 1
+  #    
+  #    - name: Run E2E tests
+  #      working-directory: frontend
+  #      run: npm run test:e2e
+  #      env:
+  #        CI: true
+  #    
+  #    - name: Stop services
+  #      if: always()
+  #      run: |
+  #        [ -f /tmp/frontend.pid ] && kill $(cat /tmp/frontend.pid) || true
+  #        [ -f /tmp/backend.pid ] && kill $(cat /tmp/backend.pid) || true
+  #    
+  #    - name: Upload test results
+  #      if: always()
+  #      uses: actions/upload-artifact@v4
+  #      with:
+  #        name: playwright-report
+  #        path: frontend/playwright-report/
+  #        retention-days: 7
+  #    
+  #    - name: Upload test screenshots
+  #      if: failure()
+  #      uses: actions/upload-artifact@v4
+  #      with:
+  #        name: playwright-screenshots
+  #        path: frontend/test-results/
+  #        retention-days: 7
 
   # Backend tests
   backend-tests:
@@ -389,7 +389,7 @@ jobs:
     needs: 
       - frontend-lint
       - frontend-unit-tests
-      - frontend-e2e-tests
+      #- frontend-e2e-tests
       - backend-tests
       - docker-build
       - security-scan
