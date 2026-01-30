@@ -59,7 +59,9 @@ namespace offer_manager
             );
             builder.Services.AddSingleton(new AIProcessor(geminiKey: geminiKey ?? ""));
 
-            builder.Services.AddSingleton(new DBService(dbSettings.Username, dbSettings.Password, dbSettings.Host, dbSettings.Port, dbSettings.Database));
+            builder.Services.AddSingleton<IDatabaseService>(sp => new DBService(dbSettings.Username, dbSettings.Password, dbSettings.Host, dbSettings.Port, dbSettings.Database));
+            // register concrete type too for components that depend on DBService directly
+            builder.Services.AddSingleton<DBService>(sp => (DBService)sp.GetRequiredService<IDatabaseService>());
 
             builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
             {

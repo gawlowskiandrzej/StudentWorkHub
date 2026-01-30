@@ -35,8 +35,11 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             // remove real User service
             services.RemoveAll<User>();
 
-            // mocked DBService
-            var mockDbService = new Mock<DBService>("test", "test", "localhost", 5432, "test");
+            // register TestUser fake
+            services.AddSingleton<User>(_ => new TestUser("test_user", "test_pass", "127.0.0.1", 5432, "db_test"));
+
+            // mocked IDatabaseService
+            var mockDbService = new Mock<IDatabaseService>();
             mockDbService.Setup(d => d.GetDictionaries(It.IsAny<List<string>>()))
                 .ReturnsAsync(new DictionariesDto 
                 { 
@@ -64,41 +67,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             services.AddScoped(_ => mockWorkerService.Object);
             services.AddScoped<WorkerService>(); // Register the concrete class too
             
-            // mocked User
-            // Constructor args must be valid non-empty strings/ints to pass Argument checks in User constructor
-            var mockUser = new Mock<User>("test_user", "test_pass", "127.0.0.1", 5432, "db_test");
-            
-            // State to simulate DB constraints
-            var registeredEmails = new System.Collections.Concurrent.ConcurrentDictionary<string, byte>();
 
-            // Setup Register to succeed
-            mockUser.Setup(u => u.StandardRegisterAsync(
-                It.IsAny<UserPasswordPolicy>(), 
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((UserPasswordPolicy _, string e, string _, string _, string _, CancellationToken _) => {
-                    if (string.IsNullOrEmpty(e)) return (false, "Email empty");
-                    if (!registeredEmails.TryAdd(e, 0)) return (false, "Email already exists");
-                    return (true, "");
-                });
-
-            // Setup Auth to succeed unless "wrong" or "invalid" in password
-            mockUser.Setup(u => u.StandardAuthAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool?>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((string u, string p, bool? r, CancellationToken c) => {
-                     var pass = (p ?? "").ToLower();
-                     if (pass.Contains("wrong") || pass.Contains("invalid"))
-                        return (false, "Invalid credentials", null, null);
-                     return (true, "", "token_abc123", 1L);
-                });
-
-            // Also mock AuthWithTokenAsync if used
-            mockUser.Setup(u => u.AuthWithTokenAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((string t, CancellationToken _) => {
-                     if (string.IsNullOrEmpty(t) || t == "invalid_token" || t.Contains("invalid")) 
-                        return (false, "Invalid token", null, null);
-                    return (true, "", "new_token", 1L);
-                });
-
-            services.AddSingleton(mockUser.Object);
         });
     }
 }

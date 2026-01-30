@@ -33,9 +33,7 @@
     <Reference Include="UnifiedOfferSchema">
       <HintPath>..\libs\UnifiedOfferSchema.dll</HintPath>
     </Reference>
-    <Reference Include="Users">
-      <HintPath>..\libs\Users.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\..\common_libraries\Users\Project\Users.csproj" />
     <Reference Include="LogClient">
       <HintPath>..\libs\LogClient.dll</HintPath>
     </Reference>

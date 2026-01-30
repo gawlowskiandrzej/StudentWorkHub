@@ -133,7 +133,7 @@ namespace Users
         /// <exception cref="UserCryptographicException">
         /// Thrown when password or remember-me token hashing/verification fails.
         /// </exception>
-        public async Task<(bool result, string error, string? rememberToken, long? userId)> StandardAuthAsync(
+        public virtual async Task<(bool result, string error, string? rememberToken, long? userId)> StandardAuthAsync(
             string? username,
             string? password,
             bool? rememberMe,
@@ -260,7 +260,7 @@ namespace Users
         /// <exception cref="UserCryptographicException">
         /// Thrown when hashing/verification of the remember-me token fails or when the provided token has an invalid format.
         /// </exception>
-        public async Task<(bool result, string error, string? rememberToken, long? userId)> AuthWithTokenAsync(
+        public virtual async Task<(bool result, string error, string? rememberToken, long? userId)> AuthWithTokenAsync(
             string? rememberToken,
             CancellationToken cancellation = default)
         {
@@ -356,7 +356,7 @@ namespace Users
         /// <exception cref="UserCryptographicException">
         /// Thrown when password hashing fails or when the hashing configuration is invalid.
         /// </exception>
-        public async Task<(bool result, string error)> StandardRegisterAsync(
+        public virtual async Task<(bool result, string error)> StandardRegisterAsync(
             UserPasswordPolicy upp,
             string? email,
             string? rawPassword,
