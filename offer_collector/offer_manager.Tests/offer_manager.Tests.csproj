@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="Moq" Version="4.20.70" />
+    <PackageReference Include="System.Net.Http.Json" Version="8.0.0" />
+    <PackageReference Include="xunit" Version="2.6.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.5" />
+    <PackageReference Include="FluentAssertions" Version="6.12.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\offer_manager\offer_manager.csproj" />
+    <ProjectReference Include="..\shared_models\shared_models.csproj" />
+    <ProjectReference Include="..\worker\worker.csproj" />
+    <ProjectReference Include="..\..\databases\offers_database\lib\OffersConnector\OffersConnector.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="LLMParser">
+      <HintPath>..\libs\LLMParser.dll</HintPath>
+    </Reference>
+    <Reference Include="UnifiedOfferSchema">
+      <HintPath>..\libs\UnifiedOfferSchema.dll</HintPath>
+    </Reference>
+    <Reference Include="Users">
+      <HintPath>..\libs\Users.dll</HintPath>
+    </Reference>
+    <Reference Include="LogClient">
+      <HintPath>..\libs\LogClient.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

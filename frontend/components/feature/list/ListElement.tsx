@@ -64,6 +64,7 @@ export function ListElement({ offer, showRankingButton = true, score }: ListElem
             onClick={handleClick}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
+            data-testid="offer-card"
         >
                 <div className={listStyles['companyWrapper']}>
                     <img className={listStyles["company"]} src={`${logoUrl}`} />

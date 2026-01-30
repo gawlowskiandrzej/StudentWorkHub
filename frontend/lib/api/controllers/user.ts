@@ -110,10 +110,16 @@ export const UserApi = {
   },
 
   checkPermission: async (dto: CheckPermissionRequestDto) => {
-    return apiClient.post<CheckPermissionResponseDto>(
+    const response = await apiClient.post<CheckPermissionResponseDto>(
       `/users/check-permission`,
       omitUndefined(dto)
     );
+
+    if (response.error) {
+      return { data: null, error: response.error };
+    }
+
+    return response;
   },
 
   insertSearchHistory: async (dto: InsertSearchHistoryRequestDto) => {

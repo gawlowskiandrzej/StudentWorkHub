@@ -1,11 +1,17 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-    async rewrites() {
+  experimental: {
+    // Force turbopack to use this directory as root to fix tailwindcss resolution issues during E2E tests
+    turbo: {
+      root: __dirname,
+    } as any,
+  },
+  async rewrites() {
     return [
       {
         source: "/api/:path*",
-        destination: "http://offer_manager:5059/api/:path*",
+        destination: `${process.env.BACKEND_URL || "http://localhost:5059"}/api/:path*`,
       },
     ];
   },
