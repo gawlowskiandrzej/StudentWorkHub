@@ -21,7 +21,7 @@ set -euo pipefail
 # - docker compose build + up -d --scale worker=4
 #
 # Logs:
-# - Full output is saved to: /srv/StudentWorkHub/build.log
+# - Full output is streamed to the terminal and saved to: /srv/StudentWorkHub/build.log
 
 BASE_DIR="/srv/StudentWorkHub"
 ENV_DIR="${BASE_DIR}/env"
@@ -120,7 +120,7 @@ generate_strong_password() {
     length=20
   fi
 
-  local specials='!@#%^_-+=:.,'
+  local specials='._-'
   local charset="A-Za-z0-9${specials}"
 
   while true; do
@@ -133,7 +133,7 @@ generate_strong_password() {
       && [[ "$pwd" =~ [A-Z] ]] \
       && [[ "$pwd" =~ [a-z] ]] \
       && [[ "$pwd" =~ [0-9] ]] \
-      && [[ "$pwd" =~ [\!\@\#\%\^\_\-\+\=\:\.\,] ]]; then
+      && [[ "$pwd" =~ [._-] ]]; then
       echo -n "$pwd"
       return 0
     fi
@@ -174,9 +174,9 @@ main() {
   # Recreate required directories
   mkdir -p "$ENV_DIR" "$BACKUPS_DIR/db_general" "$CONFIGS_DIR"
 
-  # Redirect all output to build log (keep console minimal)
-  exec 3>&1
-  exec >"$BUILD_LOG" 2>&1
+  # Stream all output to both terminal and build log
+  : >"$BUILD_LOG"
+  exec > >(tee -a "$BUILD_LOG") 2>&1
 
   echo "=== StudentWorkHub deploy started: $(date -Iseconds) ==="
   echo "Repository directory: ${script_dir}"
@@ -252,6 +252,7 @@ main() {
   maybe_start_docker
 
   # Build and run compose (use main.env for ${...} interpolation)
+  export BUILDKIT_PROGRESS=plain
   docker compose --env-file "${ENV_DIR}/main.env" -f "$COMPOSE_FILE" build
   docker compose --env-file "${ENV_DIR}/main.env" -f "$COMPOSE_FILE" up -d --scale worker=4
 
@@ -259,11 +260,9 @@ main() {
   echo "=== StudentWorkHub deploy finished: $(date -Iseconds) ==="
   echo "Build log saved to: ${BUILD_LOG}"
 
-  # Minimal console success output
-  echo "SUCCESS. Build log: ${BUILD_LOG}" >&3
 }
 
-# Minimal console output on failure (details are in build.log if it exists)
+# If something fails, the output above (and build.log) should show why
 if ! main; then
   echo "FAILED. Build log: /srv/StudentWorkHub/build.log" >&2
   exit 1
