@@ -134,6 +134,7 @@ services:
     volumes:
       - public_keys:/log_server/public_keys
     depends_on:
+      - log_server
       - redis
       - db_offers
       - db_general

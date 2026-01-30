@@ -115,11 +115,14 @@ namespace offer_manager
             ));
 
             builder.Services.AddSingleton(new Logger(
-                "offer-manager",
-                "client-api",
-                true,
-                10,
-                true
+                serverId: "offer_manager",
+                clientPrivateKeyPath: "/var/lib/offer_manager/offer_manager.key",
+                clientPublicKeyPath: "/log_server/public_keys/offer_manager.pem",
+                serverCertificatePath: "/log_server/public_keys/log_server.crt",
+                logServerHost: "log_server",
+                logServerPort: 54000,
+                logFlushThreshold: 10,
+                noThrow: true
             ));
 
             var app = builder.Build();

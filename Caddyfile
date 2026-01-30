@@ -35,11 +35,11 @@
 	}
 }
 
-http://studentworkhub.cs.put.poznan.pl {
+http://studentworkhub.localhost {
 	redir https://{host}{uri} permanent
 }
 
-studentworkhub.cs.put.poznan.pl {
+studentworkhub.localhost {
 	encode gzip
 
 	@bad_methods not method GET POST

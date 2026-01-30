@@ -37,6 +37,9 @@ SRC_DB_GENERAL_EXAMPLE="./databases/general_database/container/.env.example"
 SRC_DB_OFFERS_EXAMPLE="./databases/offers_database/container/.env.example"
 SRC_MAIN_EXAMPLE="./main.env.example"
 
+# Offer collector config (relative to repo root)
+SRC_OFFER_MANAGER_APPSETTINGS="./offer_collector/offer_manager/appsettings.json"
+
 # Required config file (relative to repo root)
 SRC_CADDYFILE="./Caddyfile"
 
@@ -52,6 +55,7 @@ require_repo_files() {
 
   for f in "$COMPOSE_FILE" \
            "$SRC_DB_BACKUP_EXAMPLE" "$SRC_DB_GENERAL_EXAMPLE" "$SRC_DB_OFFERS_EXAMPLE" "$SRC_MAIN_EXAMPLE" \
+           "$SRC_OFFER_MANAGER_APPSETTINGS" \
            "$SRC_CADDYFILE"; do
     if [[ ! -f "$f" ]]; then
       echo "ERROR: Missing required file: $f" >&2
@@ -68,6 +72,27 @@ escape_sed_repl() {
   # Escape \, &, and the delimiter |
   echo -n "$1" | sed -e 's/[\/&|\\]/\\&/g'
 }
+
+escape_sed_pattern() {
+  # Escape regex meta chars for sed search patterns
+  # ([], \, /, ., ^, $, *, +, ?, { }, ( ), |)
+  echo -n "$1" | sed -e 's/[][\/.\^$*+?{}()|\\]/\\&/g'
+}
+
+replace_placeholder_in_file() {
+  # Replace ALL occurrences of a placeholder string in a file
+  local file="$1"
+  local placeholder="$2"
+  local value="$3"
+
+  local escaped_placeholder
+  local escaped_value
+  escaped_placeholder="$(escape_sed_pattern "$placeholder")"
+  escaped_value="$(escape_sed_repl "$value")"
+
+  sed -i -E "s|${escaped_placeholder}|${escaped_value}|g" "$file"
+}
+
 
 set_env_var() {
   # Replace entire KEY=... line; if missing, append KEY=value
@@ -207,6 +232,14 @@ main() {
   if [[ -n "${gemini_key}" ]]; then
     set_env_var "${ENV_DIR}/main.env" "GEMINI_KEY" "$gemini_key"
   fi
+
+  # Update offer_manager appsettings.json placeholders (used during image build)
+  replace_placeholder_in_file "$SRC_OFFER_MANAGER_APPSETTINGS" "[DB_OFFERS_PASSWORD]" "$offers_app_password"
+  replace_placeholder_in_file "$SRC_OFFER_MANAGER_APPSETTINGS" "[DB_GENERAL_PASSWORD]" "$general_app_password"
+  if [[ -n "${gemini_key}" ]]; then
+    replace_placeholder_in_file "$SRC_OFFER_MANAGER_APPSETTINGS" "[GEMINI_API_KEY]" "$gemini_key"
+  fi
+
 
   # Permissions
   chown -R root:root "$BASE_DIR"

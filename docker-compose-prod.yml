@@ -10,7 +10,7 @@ services:
         restart: unless-stopped
         image: local/postgres-general:17.6
         container_name: postgres-general
-        env_file: ./databases/general_database/container/.env
+        env_file: /srv/StudentWorkHub/env/db_general.env
         expose:
             - "5433"
         networks:
@@ -25,7 +25,7 @@ services:
         restart: unless-stopped
         image: local/postgres-offers:17.6
         container_name: postgres-offers
-        env_file: ./databases/offers_database/container/.env
+        env_file: /srv/StudentWorkHub/env/db_offers.env
         expose:
             - "5432"
         networks:
@@ -40,12 +40,12 @@ services:
         restart: unless-stopped
         image: local/database-backup:17.6
         container_name: database-backup
-        env_file: ./databases/db_backup/.env
+        env_file: /srv/StudentWorkHub/env/db_backup.env
         depends_on:
             - db_general
         volumes:
             - db_general_backups:/backups/db_general
-            - ./backups/db_general:/repo_host
+            - /srv/StudentWorkHub/backups/db_general:/repo_host
         networks:
             - private
 
@@ -201,7 +201,7 @@ services:
             - public
             - private
         volumes:
-            - ./Caddyfile:/etc/caddy/Caddyfile:ro
+            - /srv/StudentWorkHub/configs/Caddyfile:/etc/caddy/Caddyfile:ro
             - caddy_data:/data
             - caddy_config:/config
         depends_on:
