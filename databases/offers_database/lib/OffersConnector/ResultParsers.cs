@@ -3,7 +3,7 @@
     /// <summary>
     /// Parsers used for parsing database outputs into required formats.
     /// </summary>
-    internal class ResultParsers
+    public class ResultParsers
     {
         /// <summary>
         /// Builds a list of instruction lines describing how standardized dictionary values must be used.
@@ -16,7 +16,7 @@
         /// List of instruction strings. When <paramref name="values"/> is null or empty, an empty list is returned.
         /// The first element is a common preamble, followed by per-field restriction lines.
         /// </returns>
-        internal static List<string> RestrictionsParser(Dictionary<string, List<string>>? values)
+        public static List<string> RestrictionsParser(Dictionary<string, List<string>>? values)
         {
             if (values is null || values.Count < 1)
                 return [];

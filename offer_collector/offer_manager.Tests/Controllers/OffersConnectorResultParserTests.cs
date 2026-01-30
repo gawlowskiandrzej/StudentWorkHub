@@ -10,9 +10,7 @@ public class OffersConnectorResultParserTests
     [Fact]
     public void RestrictionsParser_WithNull_ReturnsEmpty()
     {
-        var result = typeof(ResultParsers)
-            .GetMethod("RestrictionsParser", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)?
-            .Invoke(null, new object?[] { null }) as List<string>;
+        var result = ResultParsers.RestrictionsParser(null);
 
         result.Should().NotBeNull();
         result!.Should().BeEmpty();
@@ -27,9 +25,7 @@ public class OffersConnectorResultParserTests
             { "languages", new List<string> { "PL", "EN" } }
         };
 
-        var result = typeof(ResultParsers)
-            .GetMethod("RestrictionsParser", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)?
-            .Invoke(null, new object?[] { input }) as List<string>;
+        var result = ResultParsers.RestrictionsParser(input);
 
         result.Should().NotBeNull();
         result!.Count.Should().BeGreaterThan(1);
