@@ -35,7 +35,7 @@ COMPOSE_FILE="docker-compose-prod.yml"
 SRC_DB_BACKUP_EXAMPLE="./databases/db_backup/.env.example"
 SRC_DB_GENERAL_EXAMPLE="./databases/general_database/container/.env.example"
 SRC_DB_OFFERS_EXAMPLE="./databases/offers_database/container/.env.example"
-SRC_MAIN_EXAMPLE="./main.env.example"
+SRC_MAIN_EXAMPLE="./.env.example"
 
 # Offer collector config (relative to repo root)
 SRC_OFFER_MANAGER_APPSETTINGS="./offer_collector/offer_manager/appsettings.json"
