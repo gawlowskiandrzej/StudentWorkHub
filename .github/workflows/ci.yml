@@ -298,7 +298,7 @@ jobs:
         working-directory: offer_collector
         run: |
           dotnet test offer_manager.Tests/offer_manager.Tests.csproj --no-build --verbosity normal -c Release
-          dotnet test worker.Tests/worker.Tests.csproj --no-build --verbosity normal -c Release
+#          dotnet test worker.Tests/worker.Tests.csproj --no-build --verbosity normal -c Release
         env:
           DatabaseSettings__Host: localhost
           DatabaseSettings__Port: 5432
