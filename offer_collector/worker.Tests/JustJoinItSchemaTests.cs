@@ -28,7 +28,7 @@ namespace offer_collector.Tests.Unit
         {
             var schema = new JustJoinItSchema
             {
-                employmentTypes = new List<EmploymentType>(),
+                employmentTypes = new List<Offer_collector.Models.JustJoinIt.EmploymentType>(),
                 slug = "test-offer",
                 title = "Engineer"
             };

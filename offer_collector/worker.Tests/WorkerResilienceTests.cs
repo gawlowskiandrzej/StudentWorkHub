@@ -20,6 +20,7 @@ namespace offer_collector.Tests
             var loggerMock = new Mock<ILogger<Worker>>();
             var redisMock = new Mock<IConnectionMultiplexer>();
             var dbMock = new Mock<IDatabase>();
+            var dbServiceMock = new Mock<PgConnector>();
 
             redisMock.Setup(r => r.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(dbMock.Object);
 
@@ -30,7 +31,7 @@ namespace offer_collector.Tests
             dbMock.Setup(d => d.ListRightPopAsync("jobs_queue", It.IsAny<CommandFlags>()))
                   .Returns(() => Task.FromResult(queue.Count > 0 ? queue.Dequeue() : RedisValue.Null));
 
-            var worker = new Worker(loggerMock.Object, redisMock.Object);
+            var worker = new Worker(loggerMock.Object, redisMock.Object, dbServiceMock.Object);
 
             using var cts = new CancellationTokenSource();
             var executeTask = worker.StartAsync(cts.Token);
@@ -48,6 +49,7 @@ namespace offer_collector.Tests
             var loggerMock = new Mock<ILogger<Worker>>();
             var redisMock = new Mock<IConnectionMultiplexer>();
             var dbMock = new Mock<IDatabase>();
+            var dbServiceMock = new Mock<PgConnector>();
 
             redisMock.Setup(r => r.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(dbMock.Object);
 
@@ -59,7 +61,7 @@ namespace offer_collector.Tests
                       return Task.FromResult(RedisValue.Null);
                   });
 
-            var worker = new Worker(loggerMock.Object, redisMock.Object);
+            var worker = new Worker(loggerMock.Object, redisMock.Object, dbServiceMock.Object);
 
             using var cts = new CancellationTokenSource();
             var executeTask = worker.StartAsync(cts.Token);

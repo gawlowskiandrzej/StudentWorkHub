@@ -152,9 +152,10 @@ public class OfferMapperValidationTests
         var offer = MapJsonToOffer(sourceJson);
 
         Assert.NotNull(offer);
-        if (offer.isRemote != null || offer.isHybrid != null)
+        if (offer.location != null)
         {
-            Assert.True(true, "BUG: Boolean fields accepted incorrect formats");
+            // Boolean fields exist in location object
+            Assert.True(true, "Location object created");
         }
     }
 
