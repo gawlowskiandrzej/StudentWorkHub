@@ -1,7 +1,68 @@
-# Temporary entry for testing on localhost
-# replace domain with e.g. studentworkhub.cs.put.poznan.pl
-# remove tls internal
-studentworkhub.localhost {
-  tls internal
-  reverse_proxy frontend_prod:4000
+{
+	servers :443 {
+		timeouts {
+			read_header 3s
+			read_body 5s
+			write 10s
+			idle 2m
+		}
+		max_header_size 16KB
+
+		strict_sni_host on
+		protocols h1 h2 h3
+	}
+
+	servers :80 {
+		timeouts {
+			read_header 3s
+			read_body 5s
+			write 10s
+			idle 2m
+		}
+		max_header_size 16KB
+
+		protocols h1 h2c
+	}
+
+	admin off
+
+	log system {
+		output file /srv/CaddyLogs/system.json {
+			roll_size 10MiB
+			roll_keep 100
+		}
+		format json
+	}
+}
+
+http://studentworkhub.cs.put.poznan.pl {
+	redir https://{host}{uri} permanent
+}
+
+studentworkhub.cs.put.poznan.pl {
+	encode gzip
+
+	@bad_methods not method GET POST
+	respond @bad_methods 405
+
+	request_body {
+		max_size 16KB
+	}
+
+	header {
+		-Server
+		-Via
+		X-Frame-Options "DENY"
+		Permissions-Policy "geolocation=(), microphone=(), camera=()"
+	}
+
+	log frontend {
+		output file /srv/CaddyLogs/frontend_prod.json {
+			roll_size 10MiB
+			roll_keep 100
+		}
+		format json
+	}
+
+	reverse_proxy frontend_prod:4000
 }
