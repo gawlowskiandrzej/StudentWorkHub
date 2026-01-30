@@ -116,7 +116,7 @@ services:
       - "4000:4000"
     environment:
       - MODE=production
-    #  - BACKEND_URL=http://offer_manager:5059
+      - BACKEND_URL=http://offer_manager:5059
     depends_on:
       - offer_manager
   # -----------------------------
