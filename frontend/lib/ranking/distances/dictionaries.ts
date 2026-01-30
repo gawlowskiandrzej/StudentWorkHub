@@ -43,6 +43,7 @@ export function buildDictionariesFromOffers(offers: offer[]): DynamicDictionarie
     const allLanguages = new Set<string>();
     
     for (const offer of offers) {
+        if (!offer) continue;
         if (offer.benefits) {
             for (const benefit of offer.benefits) {
                 const normalized = normalizeString(benefit);

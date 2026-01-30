@@ -9,6 +9,10 @@ export class FreshnessDistanceCalculator implements DistanceCalculator {
     }
     
     sgdDistance(offer: offer, preferences: UserPreferences): number {
+        if (!offer.dates || !offer.dates.published || !offer.dates.expires) {
+            return 0.5;
+        }
+
         const now = new Date();
         const published = this.parseDate(offer.dates.published);
         const expires = this.parseDate(offer.dates.expires);

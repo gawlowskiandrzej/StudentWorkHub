@@ -5,8 +5,12 @@ import { normalizeString } from '../utils';
 export class SalaryDistanceCalculator implements DistanceCalculator {
     
     sgdDistance(offer: offer, preferences: UserPreferences): number {
-        const offerFrom = offer.salary?.from ?? null;
-        const offerTo = offer.salary?.to ?? null;
+        let offerFrom = offer.salary?.from ?? null;
+        let offerTo = offer.salary?.to ?? null;
+        
+        if (typeof offerFrom === 'number' && !Number.isFinite(offerFrom)) offerFrom = null;
+        if (typeof offerTo === 'number' && !Number.isFinite(offerTo)) offerTo = null;
+
         const userFrom = preferences.salaryFrom;
         const userTo = preferences.salaryTo;
         
@@ -31,8 +35,8 @@ export class SalaryDistanceCalculator implements DistanceCalculator {
         }
         
         const distance = offerMin > userMax 
-            ? (offerMin - userMax) / userMax
-            : (userMin - offerMax) / userMin;
+            ? (offerMin - userMax) / Math.max(1, userMax)
+            : (userMin - offerMax) / Math.max(1, userMin);
             
         return Math.min(1, distance);
     }

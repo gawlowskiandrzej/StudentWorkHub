@@ -15,7 +15,8 @@ export class ApiClient {
     const id = setTimeout(() => controller.abort(), timeout);
 
     try {
-      const res = await fetch(`${this.baseUrl}${path}`, {
+      const normalizedPath = path.startsWith('/') && this.baseUrl.endsWith('/') ? path.substring(1) : path;
+      const res = await fetch(`${this.baseUrl}${normalizedPath}`, {
         ...options,
         headers: { "Content-Type": "application/json", ...options.headers },
         signal: controller.signal,
@@ -31,8 +32,10 @@ export class ApiClient {
       return { data, error: null };
     } catch (err: unknown) {
       clearTimeout(id);
-      if (err instanceof Error && err.name === "AbortError") return { data: null, error: "Request timeout" };
-      return { data: null, error: err instanceof Error ? err.message : "Unknown error" };
+      const errName = (err as any)?.name;
+      if (errName === "AbortError") return { data: null, error: "Request timeout" };
+      if (err instanceof Error) return { data: null, error: err.message };
+      return { data: null, error: "Unknown error" };
     }
   }
 

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Offer_collector.Models;
 using Offer_collector.Models.AI;
-using Offer_collector.Models.DatabaseService;
+using offer_manager.Interfaces;
 using Offer_collector.Models.UrlBuilders;
 using offer_manager.Interfaces;
 using offer_manager.Models.FilterService;
@@ -28,14 +28,14 @@ namespace offer_manager.Controllers
     public class OfferController : ControllerBase
     {
         private readonly IWorkerService _workerService;
-        private readonly DBService _databaseService;
+        private readonly IDatabaseService _databaseService;
         private readonly IMapper _mapper;
         private readonly PaginationService _pagination;
         private readonly FilterService _filterService;
         private readonly StaticSettings _statSettings;
         private readonly AIProcessor _aiService;
 
-        public OfferController(IWorkerService workerService, PaginationService pagination, FilterService filterService, StaticSettings statSettings, AIProcessor aiService, DBService databaseService, IMapper mapper)
+        public OfferController(IWorkerService workerService, PaginationService pagination, FilterService filterService, StaticSettings statSettings, AIProcessor aiService, IDatabaseService databaseService, IMapper mapper)
         {
             _workerService = workerService;
             _databaseService = databaseService;

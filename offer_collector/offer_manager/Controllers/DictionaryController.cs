@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Offer_collector.Models.DatabaseService;
+using offer_manager.Interfaces;
 using offer_manager.Models.Dictionaries;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -10,9 +10,9 @@ namespace offer_manager.Controllers
     [ApiController]
     public class DictionaryController : ControllerBase
     {
-        private readonly DBService _dbService;
+        private readonly IDatabaseService _dbService;
 
-        public DictionaryController(DBService dbService)
+        public DictionaryController(IDatabaseService dbService)
         {
             _dbService = dbService;
         }

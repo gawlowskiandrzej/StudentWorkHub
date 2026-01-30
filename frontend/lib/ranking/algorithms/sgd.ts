@@ -33,8 +33,10 @@ export function computeOfferScore(
     let totalWeight = 0;
     
     for (let i = 0; i < FEATURE_COUNT; i++) {
-        const weight = Math.max(0.001, trainer.weights[i]);
-        const similarity = 1 - features.values[i];
+        const rawWeight = trainer.weights[i];
+        const weight = Number.isFinite(rawWeight) ? Math.max(0.001, rawWeight) : 0.001;
+        const distance = Number.isFinite(features.values[i]) ? features.values[i] : 1;
+        const similarity = 1 - distance;
         
         weightedSum += weight * similarity;
         totalWeight += weight;

@@ -12,7 +12,7 @@ namespace offer_manager.Models.Others
 
         public RedisPreloadHostedService(
             IConnectionMultiplexer redis,
-            DBService dbService,
+            IDatabaseService dbService,
             ILogger<RedisPreloadHostedService> logger)
         {
             _redis = redis;
