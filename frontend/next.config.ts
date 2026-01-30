@@ -1,11 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    // Force turbopack to use this directory as root to fix tailwindcss resolution issues during E2E tests
-    turbo: {
-      root: __dirname,
-    } as any,
+  // Force turbopack to use this directory as root to fix tailwindcss resolution issues during E2E tests
+  turbopack: {
+    root: __dirname,
   },
   async rewrites() {
     return [

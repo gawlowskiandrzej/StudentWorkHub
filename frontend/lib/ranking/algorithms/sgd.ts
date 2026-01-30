@@ -8,8 +8,8 @@ import {
     FEATURE_COUNT,
     DEFAULT_ADAM_STATE,
     DEFAULT_SGD_HYPERPARAMETERS
-} from '../types.ts';
-import { clamp } from '../utils.ts';
+} from '../types';
+import { clamp } from '../utils';
 
 export function createSGDTrainer(
     initialWeights?: number[],

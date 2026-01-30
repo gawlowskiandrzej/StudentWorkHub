@@ -280,15 +280,23 @@ jobs:
       
       - name: Restore dependencies
         working-directory: offer_collector
-        run: dotnet restore
+        run: |
+          dotnet restore offer_manager/offer_manager.csproj
+          dotnet restore worker/worker.csproj
+          dotnet restore offer_manager.Tests/offer_manager.Tests.csproj
+          dotnet restore worker.Tests/worker.Tests.csproj
       
       - name: Build
         working-directory: offer_collector
-        run: dotnet build --no-restore -c Release
+        run: |
+          dotnet build offer_manager/offer_manager.csproj --no-restore -c Release
+          dotnet build worker/worker.csproj --no-restore -c Release
       
       - name: Run tests
         working-directory: offer_collector
-        run: dotnet test --no-build --verbosity normal -c Release
+        run: |
+          dotnet test offer_manager.Tests/offer_manager.Tests.csproj --no-build --verbosity normal -c Release
+          dotnet test worker.Tests/worker.Tests.csproj --no-build --verbosity normal -c Release
         env:
           DatabaseSettings__Host: localhost
           DatabaseSettings__Port: 5432
