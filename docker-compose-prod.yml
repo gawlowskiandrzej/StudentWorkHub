@@ -62,9 +62,11 @@ services:
         container_name: log-server
         expose:
             - "54000"
-            - "54001"
+        ports:
+            - "127.0.0.1:54001:54001"
         networks:
             - private
+            - egress
         volumes:
             - logs:/log_server/logs
             - public_keys:/log_server/public_keys
