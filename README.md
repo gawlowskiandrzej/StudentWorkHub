@@ -24,11 +24,12 @@ The application allows searching for job offers and assignments for students by 
 
 ![Logical ERD schema for Offers database](diagrams/images/logical_ERD_schema_v1_3.png)
 
+### General database ###
+
 #### First revision of physical schema for `General` database ####
 > ℹ Physical model is developed with `PostgreSQL` in mind, so field types are using `PostgreSQL` naming.
 
 ![Physical schema General database](diagrams/images/physical_schema_general.png)
-
 
 ### Offer positioning algorithm ###
 > ℹ Displayed offers are arranged according to user preferences. Algorithm weights may adjust based on user actions. To establish the initial weights, the user will be asked a few questions.
