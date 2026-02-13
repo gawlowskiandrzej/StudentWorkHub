@@ -1,28 +1,34 @@
-# StudentWorkHub
+# StudentWorkHub #
 The application allows searching for job offers and assignments for students by integrating with systems such as Pracuj.pl, OlxPraca and many others, through API methods and WebScraping.
-
-### Documentation online ###
-https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sharing&ouid=110049717963508518977&rtpof=true&sd=true
 
 ## Design preview ##
 ![ux/ui_design](diagrams/images/MainPage.png)
 
+### Third revision of system schema ###
+![App schema v3](diagrams/images/app_schema_v3.png)
+
 ## Database schemas ##
 ### Offers database ###
 
-#### First revision of physical schema for offers database ####
+#### Fourth revision of physical schema for `Offers` database ####
 > ℹ Internal offer–specific fields will be included in future revisions, after the creation of the internal offer schema.
 
 > ℹ Physical model is developed with `PostgreSQL` in mind, so field types are using `PostgreSQL` naming.
 
 > ⚠ Database allows only one mastery level per language, in case of more than one mastery level listed in offer, lowest level should be selected. Same logic applies to skills. Every skill may have only one mastery level or/and experience years listed.
 
-![physical schema v1.3](diagrams/images/physical_schema_v1_3.png)
+![Physical schema for Offers database](diagrams/images/physical_schema_v1_4.png)
 
-#### First revision of logical ERD schema for offers database ####
+#### Third revision of logical ERD schema for `Offers` database ####
 > ℹ Internal offer–specific fields will be included in future revisions, after the creation of the internal offer schema.
 
-![Logical ERD schema v1.3](diagrams/images/logical_ERD_schema_v1_3.png)
+![Logical ERD schema for Offers database](diagrams/images/logical_ERD_schema_v1_3.png)
+
+#### First revision of physical schema for `General` database ####
+> ℹ Physical model is developed with `PostgreSQL` in mind, so field types are using `PostgreSQL` naming.
+
+![Physical schema General database](diagrams/images/physical_schema_general.png)
+
 
 ### Offer positioning algorithm ###
 > ℹ Displayed offers are arranged according to user preferences. Algorithm weights may adjust based on user actions. To establish the initial weights, the user will be asked a few questions.
@@ -30,87 +36,23 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
 #### First user survey ####
 > ℹ These questions are used to identify the user's basic preferences.
 
-1. Please indicate the city where you would like to work? (select or enter city).
-2. Please select the jobs you are interested in (prepared offers, multiple options possible).
-3. Please select the industries in which you would like to work (multiple options possible).
-4. Please indicate your preferred salary range (two number fields).
-5. What mode of work do you prefer (remote, on-site, hybrid) – multiple options possible.
-6. Are company perks important to you? (categories e.g. health, sports, general).
-7. Please indicate the working hours that suit you (two number fields).
-8. Are you in urgent need of work? (checkbox).
-9. What form of contract do you prefer (contract of employment, contract of mandate, B2B, contract for specific work, fixed-term contract)?
-
-... possible additional questions for our portal, e.g. when you prefer to receive new job offers (e-mail notification)
+1. Which study track or career direction are you interested in?
+2. What professional experiences and skills would you like to add, and how many months for each?
+3. What salary range do you expect, and is it hourly or monthly?
+4. Which contract types are you interested in?
+5. What is your current job-search status?
+6. What is your native language?
+7. Which other languages do you know?
+8. In which city are you looking for a job?
+9. What employment mode do you prefer?
 
 #### Algorithm ####
+The system uses **feature extraction and normalization** in an **eight-dimensional feature space**, **offer scoring**, and **continuous online learning** from **implicit user feedback** (e.g., **clicks** and **hovers**). It combines **RReliefF** for **feature weighting** with an **SGD-based model** trained using the **ADAM optimizer**. To stabilize updates, it applies **signal accumulation** and maintains **streaming statistics** using **Welford’s online algorithm**.
 
 ### Unified offer schema ###
 > ℹ The `Unified offer schema` standardizes job offers from multiple sources. This transformation enables algorithmic ranking of offers according to user preferences, even when API responses differ in structure. It also simplifies data storage and eliminates redundant site-specific additions.
 
-#### `Unified offer schema` structure: ####
-```json
-{
-    "id": null,
-    "source": "",
-    "url": "",
-    "jobTitle": "",
-    "company": {
-        "name": "",
-        "logoUrl": null
-    },
-    "description": null,
-    "salary": {
-        "from": null,
-        "to": null,
-        "currency": null,
-        "period": null,
-        "type": null
-    },
-    "location": {
-        "buildingNumber": null,
-        "street": null,
-        "city": null,
-        "postalCode": null,
-        "coordinates": {
-            "latitude": null,
-            "longitude": null
-        },
-        "isRemote": null,
-        "isHybrid": null
-    },
-    "category": {
-        "leadingCategory": "",
-        "subCategories": null
-    },
-    "requirements": {
-        "skills": [
-            {
-                "skill": "",
-                "experienceMonths": null,
-                "experienceLevel": null
-            }
-        ],
-        "education": null,
-        "languages": [
-            {
-                "language": "",
-                "level": ""
-            }
-        ]
-    },
-    "employment": {
-        "types": [],
-        "schedules": []
-    },
-    "dates": {
-        "published": "",
-        "expires": null
-    },
-    "benefits": null,
-    "isUrgent": false,
-    "isForUkrainians": false
-}
-```
+![Logical ERD schema for Offers database](diagrams/images/uos_structure.png)
 
 #### `Unified offer schema` fields description ####
 - `id`: *number* - Unique offer identifier.
@@ -159,118 +101,3 @@ https://docs.google.com/document/d/1mnvTexeT-fP2AOvFTb8ArKLz-O7-UmGf/edit?usp=sh
 - `isUrgent`: *boolean* - Indicates whether the company needs to hire urgently.
 - `isForUkrainians`: *boolean* - Indicates whether the position is mainly intended for Ukrainian applicants.
 
-#### Unified offer schema example ####
-```json
-{
-    "id": 123,
-    "source": "pracuj.pl",
-    "url": "https://www.pracuj.pl/praca/inzynier-ka-oprogramowania-python-mid-senior-warszawa-kolska-12,oferta,1004183523",
-    "jobTitle": "Inżynier /-ka oprogramowania Python (mid/senior)",
-    "company": {
-        "name": "NASK",
-        "logoUrl": "https://logos.gpcdn.pl/loga-firm/20011564/54330000-56be-0050-f1b2-08dd9c317145_280x280.png"
-    },
-    "description": "Twój zakres obowiązków, Implementacja rozwiązań na podstawie wymagań projektowych, Implementacja testów automatycznych, Przeglądy kodu kolegów z zespołu, Aktywny udział w spotkaniach zespołu projektowego, w tym proponowanie nowych rozwiązań i...",
-    "salary": {
-        "from": 7000,
-        "to": 16000,
-        "currency": "PLN",
-        "period": "mies.",
-        "type": "brutto"
-    },
-    "location": {
-        "buildingNumber": null,
-        "street": null,
-        "city": "Warszawa",
-        "postalCode": null,
-        "coordinates": {
-            "latitude": 52.25102615356445,
-            "longitude": 20.975749969482422
-        },
-        "isRemote": null,
-        "isHybrid": true
-    },
-    "category": {
-        "leadingCategory": "Information-Technology",
-        "subCategories": ["Programming", "Backend Development"]
-    },
-    "requirements": {
-    "skills": [
-        {
-            "skill": "Python",
-            "experienceMonths": 2,
-            "experienceLevel": ["Mid"]
-        },
-        {
-            "skill": "Django",
-            "experienceMonths": 1,
-            "experienceLevel": ["Junior", "Mid"]
-        },
-        {
-            "skill": "FastAPI",
-            "experienceMonths": null,
-            "experienceLevel": ["Mid"]
-        },
-        {
-            "skill": "Web Services",
-            "experienceMonths": null,
-            "experienceLevel": ["Mid", "Senior"]
-        },
-        {
-            "skill": "HTTP",
-            "experienceMonths": null,
-            "experienceLevel": ["Mid"]
-        },
-        {
-            "skill": "REST",
-            "experienceMonths": null,
-            "experienceLevel": ["Mid"]
-        },
-        {
-            "skill": "SQL",
-            "experienceMonths": 1,
-            "experienceLevel": ["Mid"]
-        },
-        {
-            "skill": "ORM",
-            "experienceMonths": null,
-            "experienceLevel": ["Mid"]
-        },
-        {
-            "skill": "Celery",
-            "experienceMonths": null,
-            "experienceLevel": ["Mid"]
-        }
-        ],
-        "education": null,
-        "languages": [
-            {
-                "language": "English",
-                "level": "B2"
-            }
-        ]
-    },
-    "employment": {
-        "types": [
-            "Umowa o pracę"
-        ],
-        "schedules": [
-            "Pełny etat"
-        ]
-    },
-    "dates": {
-        "published": "2025-07-04 14:33:00",
-        "expires": "2025-07-24 21:59:59"
-    },
-    "benefits": null,
-    "isUrgent": false,
-    "isForUkrainians": false
-}
-```
-
-### Second revision of application project schema ###
-#### With database backup and logging service ####
-![App schema v2.1](diagrams/images/app_schema_v2.1.png)
-
-**Icons used in the diagrams:**
-[react-wordmark](https://icon-sets.iconify.design/devicon/?icon-filter=react-wordmark), [dotnetcore](https://icon-sets.iconify.design/devicon/?icon-filter=dotnetcore), and [postgresql-wordmark](https://icon-sets.iconify.design/devicon/?icon-filter=postgresql-wordmark) icons by konpa, licensed under the MIT License.
