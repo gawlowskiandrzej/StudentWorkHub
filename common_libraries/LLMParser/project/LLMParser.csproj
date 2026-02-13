@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="UnifiedOfferSchema">
+      <HintPath>..\..\..\..\GitRepos\StudentWorkHub\main\common_libraries\UnifiedOfferSchema\UnifiedOfferSchema.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
