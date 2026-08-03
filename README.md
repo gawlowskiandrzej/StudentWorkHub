@@ -1,104 +1,241 @@
-# StudentWorkHub #
-The application allows searching for job offers and assignments for students by integrating with systems such as Pracuj.pl, OlxPraca and many others, through API methods and WebScraping.
+# StudentWorkHub 🚀
 
-## Design preview ##
-![ux/ui_design](diagrams/images/MainPage.png)
+## 🤖 AI-powered job offer aggregation and analysis platform
 
-### Third revision of system schema ###
-![App schema v3](diagrams/images/app_schema_v3.png)
+StudentWorkHub is an intelligent platform designed to collect, normalize and analyze job offers from multiple employment platforms.
 
-## Database schemas ##
-### Offers database ###
+The system integrates with external job sources using API integrations and Web Scraping techniques, transforms heterogeneous job advertisements into a unified data structure, and applies AI-based analysis and ranking algorithms to provide users with relevant job opportunities.
 
-#### Fourth revision of physical schema for `Offers` database ####
-> ℹ Internal offer–specific fields will be included in future revisions, after the creation of the internal offer schema.
+The main goal of the project is to simplify job searching by converting unstructured job market data into structured, searchable and personalized information.
 
-> ℹ Physical model is developed with `PostgreSQL` in mind, so field types are using `PostgreSQL` naming.
+# 🎯 Project Overview
 
-> ⚠ Database allows only one mastery level per language, in case of more than one mastery level listed in offer, lowest level should be selected. Same logic applies to skills. Every skill may have only one mastery level or/and experience years listed.
+Modern job markets contain thousands of offers distributed across many different platforms.
 
-![Physical schema for Offers database](diagrams/images/physical_schema_v1_4.png)
+Each provider uses its own:
 
-#### Third revision of logical ERD schema for `Offers` database ####
-> ℹ Internal offer–specific fields will be included in future revisions, after the creation of the internal offer schema.
+- data structure
+- naming conventions
+- technology descriptions
+- salary formats
+- requirement definitions
 
-![Logical ERD schema for Offers database](diagrams/images/logical_ERD_schema_v1_3.png)
+This makes comparing job opportunities difficult and time-consuming.
 
-### General database ###
+StudentWorkHub solves this problem by introducing a unified processing pipeline:
+```
+External Job Sources
+|
+v
+Data Collection Layer
+|
+v
+Data Cleaning & Normalization
+|
+v
+Unified Offer Schema (UOS)
+|
+v
+AI Analysis Layer
+|
+v
+Offer Ranking Engine
+|
+v
+User Interface
+```
 
-#### First revision of physical schema for `General` database ####
-> ℹ Physical model is developed with `PostgreSQL` in mind, so field types are using `PostgreSQL` naming.
+The system converts raw job advertisements into structured information that can be analyzed, searched and ranked.
 
-![Physical schema General database](diagrams/images/physical_schema_general.png)
 
-### Offer positioning algorithm ###
-> ℹ Displayed offers are arranged according to user preferences. Algorithm weights may adjust based on user actions. To establish the initial weights, the user will be asked a few questions.
+# 📡 Job Offer Sources
 
-#### First user survey ####
-> ℹ These questions are used to identify the user's basic preferences.
+StudentWorkHub aggregates job offers from multiple employment platforms.
 
-1. Which study track or career direction are you interested in?
-2. What professional experiences and skills would you like to add, and how many months for each?
-3. What salary range do you expect, and is it hourly or monthly?
-4. Which contract types are you interested in?
-5. What is your current job-search status?
-6. What is your native language?
-7. Which other languages do you know?
-8. In which city are you looking for a job?
-9. What employment mode do you prefer?
+Data is collected using API integrations and Web Scraping mechanisms.
 
-#### Algorithm ####
-The system uses **feature extraction and normalization** in an **eight-dimensional feature space**, **offer scoring**, and **continuous online learning** from **implicit user feedback** (e.g., **clicks** and **hovers**). It combines **RReliefF** for **feature weighting** with an **SGD-based model** trained using the **ADAM optimizer**. To stabilize updates, it applies **signal accumulation** and maintains **streaming statistics** using **Welford’s online algorithm**.
+Current supported sources:
 
-### Unified offer schema ###
-> ℹ The `Unified offer schema` standardizes job offers from multiple sources. This transformation enables algorithmic ranking of offers according to user preferences, even when API responses differ in structure. It also simplifies data storage and eliminates redundant site-specific additions.
+| Source | Integration method |
+|---|---|
+| Pracuj.pl | Web Scraping |
+| OLX Praca | Web Scraping |
+| Additional employment platforms | Extensible integration layer |
 
-![Logical ERD schema for Offers database](diagrams/images/uos_structure.png)
+Each external source provides different data formats.
 
-#### `Unified offer schema` fields description ####
-- `id`: *number* - Unique offer identifier.
-- `source`: *string* - Offer source **(e.g. "pracuj.pl", "olx")**, used to quickly identify offer provider.
-- `url`: *string* - Offer URL, used to redirect to the original offer source.
-- `jobTitle`: *string* - Job title listed in offer.
-- `company`: *object* - Issuing company details:
-    - `name`: *string* - Company name.
-    - `logoUrl`: *string|null* - Company logo *(optional)*.
-- `description`: *string|null* - Offer description, used for AI-powered tag extraction *(optional)*.
-- `salary`: *object* - Job salary details:
-    - `from`: *number|null* - Minimum salary *(optional)*.
-    - `to`: *number|null* - Maximum salary *(optional)*.
-    - `currency`: *string|null* - Salary currency **(e.g. "PLN", "EUR")** *(optional when `from` and `to` are **null**)*.
-    - `period`: *string|null* - Payment period **(e.g. monthly, weekly, daily)** *(optional when `from` and `to` are **null**)*
-    - `type`: *string|null* - Salary type **(e.g. gross/net)** *(optional when `from` and `to` are **null**)*.
-- `location`: *object* - Work location:
-    - `buildingNumber`: *string|null* - Building number *(optional)*.
-    - `street`: *string|null* - Street name *(optional)*.
-    - `city`: *string|null* - City *(optional)*.
-    - `postalCode`: *string|null* - Postal code *(optional)*.
-    - `coordinates`: *object* - Location coordinates:
-        - `latitude`: *number|null* - Latitude, used to estimate distance *(is **null** when longitude is **null**)*.
-        - `longitude`: *number|null* - Longitude, used to estimate distance *(is **null** when latitude is **null**)*.
-    - `isRemote`: *boolean|null* - Indicates if the work is fully remote *(is **null** when isHybrid is not **null**)*.
-    - `isHybrid`: *boolean|null* - Indicates if the work is hybrid **(partially remote, partially on-site)** *(is **null** when isRemote is not **null**)*.
-- `category`: *object* - offer category:
-    - `leadingCategory`: *string* - Main offer category **(e.g. Information-Technology, Healthcare, Finance)**.
-    - `subCategories`: *array|null* - offer categories **(e.g. ["Programming", "Architecture", "Designing"])** *(optional)*.
-- `requirements`: *object* - Work requirements:
-    - `skills`: *array|null* - Required skills *(optional)*.
-        - `skill`: *string* - Skill name **(e.g. "C++", "Django", "Driver's license")**
-        - `experienceMonths`: *number|null* - Required months of experience *(optional)*.
-        - `experienceLevel`: *array|null* - Required experience level **(e.g. ["Senior", "Intermediate"])** *(optional)*.
-    - `education`: *array|null* - Required education **(e.g. ["Bachelor's degree", "CCNA"])** *(optional)*.
-    - `languages`: *array|null* - Required languages *(optional)*.
-        - `language`: *string* - Language name **(e.g. English, German)**.
-        - `level`: *string* - Language mastery level **(e.g. A2, C1)**
-- `employment`: *object* - Employment details:
-    - `types`: *array* - Type of employment contract **(e.g. ["Contract of mandate", "B2B"])**.
-    - `schedules`: *array* - Work schedule **(e.g. ["Full-time", "Part-time"])**.
-- `dates`: *object*: - Offer lifecycle dates:
-    - `published`: *string* - Offer publication date **(format: `YYYY-MM-DD HH:MI:SS`)**.
-    - `expires`: *string|null* - Offer expiration date **(format: `YYYY-MM-DD HH:MI:SS`)** *(optional)*.
-- `benefits`: *array|null* - Employee benefits offered by the company **(e.g. private medical care, sports card)** *(optional)*.
-- `isUrgent`: *boolean* - Indicates whether the company needs to hire urgently.
-- `isForUkrainians`: *boolean* - Indicates whether the position is mainly intended for Ukrainian applicants.
+The collected data is transformed into the internal **Unified Offer Schema (UOS)**, allowing the rest of the system to operate independently from the original provider.
 
+The architecture allows adding new job portals without modifying the core business logic.
+
+
+## 🔎 Job Offer Aggregation
+
+The system collects and processes job advertisements from different sources.
+
+Features:
+
+- external source integration
+- data extraction
+- duplicate detection
+- validation
+- normalization
+- unified storage
+
+
+## 🤖 AI-powered Offer Analysis
+
+Job descriptions contain large amounts of unstructured information.
+
+StudentWorkHub uses AI-based processing to extract important information:
+
+- required technologies
+- programming languages
+- frameworks
+- technical skills
+- experience level
+- job category
+- additional requirements
+
+
+## 🧠 Intelligent Offer Ranking
+
+The system automatically ranks offers according to user preferences and offer characteristics.
+
+Ranking factors include:
+
+- technology compatibility
+- required skills
+- experience level
+- salary expectations
+- employment type
+- location preferences
+- remote/hybrid work mode
+
+
+## Application Preview
+
+![Main page](diagrams/images/MainPage.png)
+
+
+#  System Architecture
+
+The application follows a modular architecture separating different responsibilities.
+
+![System architecture](diagrams/images/app_schema_v3_eng.png)
+
+
+# 🧩 Unified Offer Schema (UOS)
+
+## Standardized representation of job offers
+
+Different job portals provide different structures.
+
+To solve this problem, StudentWorkHub introduces the **Unified Offer Schema (UOS)**.
+
+UOS acts as a universal representation of job offers regardless of their original source.
+
+Advantages:
+
+- source-independent processing
+- consistent data storage
+- simplified ranking algorithms
+- easier integration of new providers
+- reduced duplication of source-specific logic
+
+
+![Unified Offer Schema](diagrams/images/uos_structure.png)
+
+
+# 📋 Unified Offer Schema Structure
+
+Every ingested offer — regardless of source — is transformed into the **Unified Offer Schema (UOS)** before storage. This enables consistent ranking and eliminates provider-specific quirks downstream.
+
+<details>
+<summary><strong>Field reference</strong></summary>
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | `number` | Unique offer identifier |
+| `source` | `string` | Provider identifier, e.g. `"pracuj.pl"`, `"olx"` |
+| `url` | `string` | Link to the original offer |
+| `jobTitle` | `string` | Job title as listed in the offer |
+| `company.name` | `string` | Company name |
+| `company.logoUrl` | `string \| null` | Company logo URL *(optional)* |
+| `description` | `string \| null` | Full offer description, used for AI tag extraction *(optional)* |
+| `salary.from` | `number \| null` | Minimum salary *(optional)* |
+| `salary.to` | `number \| null` | Maximum salary *(optional)* |
+| `salary.currency` | `string \| null` | e.g. `"PLN"`, `"EUR"` |
+| `salary.period` | `string \| null` | e.g. `"monthly"`, `"weekly"` |
+| `salary.type` | `string \| null` | e.g. `"gross"`, `"net"` |
+| `location.city` | `string \| null` | City |
+| `location.street` | `string \| null` | Street name *(optional)* |
+| `location.buildingNumber` | `string \| null` | Building number *(optional)* |
+| `location.postalCode` | `string \| null` | Postal code *(optional)* |
+| `location.coordinates.latitude` | `number \| null` | Latitude (null when longitude is null) |
+| `location.coordinates.longitude` | `number \| null` | Longitude (null when latitude is null) |
+| `location.isRemote` | `boolean \| null` | Fully remote (null when `isHybrid` is set) |
+| `location.isHybrid` | `boolean \| null` | Hybrid mode (null when `isRemote` is set) |
+| `category.leadingCategory` | `string` | Main category, e.g. `"Information-Technology"` |
+| `category.subCategories` | `array \| null` | Sub-categories, e.g. `["Programming", "Designing"]` |
+| `requirements.skills` | `array \| null` | List of required skills *(optional)* |
+| `requirements.skills[].skill` | `string` | Skill name, e.g. `"Django"`, `"Driver's license"` |
+| `requirements.skills[].experienceMonths` | `number \| null` | Required months of experience *(optional)* |
+| `requirements.skills[].experienceLevel` | `array \| null` | e.g. `["Senior", "Intermediate"]` *(optional)* |
+| `requirements.education` | `array \| null` | e.g. `["Bachelor's degree", "CCNA"]` *(optional)* |
+| `requirements.languages` | `array \| null` | Required languages *(optional)* |
+| `requirements.languages[].language` | `string` | Language name, e.g. `"English"` |
+| `requirements.languages[].level` | `string` | Mastery level, e.g. `"C1"` |
+| `employment.types` | `array` | Contract types, e.g. `["B2B", "Contract of mandate"]` |
+| `employment.schedules` | `array` | Schedules, e.g. `["Full-time", "Part-time"]` |
+| `dates.published` | `string` | Publication date (`YYYY-MM-DD HH:MI:SS`) |
+| `dates.expires` | `string \| null` | Expiration date (`YYYY-MM-DD HH:MI:SS`) *(optional)* |
+| `benefits` | `array \| null` | Employee benefits, e.g. `["private medical care"]` *(optional)* |
+| `isUrgent` | `boolean` | Indicates urgent hiring |
+| `isForUkrainians` | `boolean` | Indicates position primarily targeting Ukrainian applicants |
+
+</details>
+
+<br>
+
+## Getting Started
+
+```bash
+# Clone the repository
+git clone https://github.com/your-org/StudentWorkHub.git
+cd StudentWorkHub
+
+# Install dependencies
+# (instructions per service TBD)
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your database credentials and API keys
+
+# Run database migrations
+# (instructions TBD)
+
+# Start the application
+# (instructions TBD)
+```
+
+<br>
+
+## Contributing
+
+Contributions are welcome. Please open an issue first to discuss what you would like to change, then submit a pull request against the `develop` branch.
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/your-feature`)
+3. Commit your changes (`git commit -m 'feat: add your feature'`)
+4. Push to the branch (`git push origin feature/your-feature`)
+5. Open a Pull Request
+
+Please follow [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.
+
+## License
+
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+
+
+<p align="center">Made with ☕ for students, by students.</p>
