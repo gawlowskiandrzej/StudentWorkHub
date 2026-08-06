@@ -33,9 +33,9 @@ namespace LLMParser
         /// <exception cref="ParserException">Thrown when the response Content-Type is not allowed.</exception>
         /// <exception cref="HttpRequestException">Thrown when the HTTP request fails or a non-success status code is returned.</exception>
         /// <remarks>Validates the response media type and ensures a successful status code before returning content.</remarks>
-        internal static async Task<string> ApiCall(FrozenDictionary<string, string> parsedOffer, HttpClient httpClient, string apiUrl, Dictionary<string, double> allowedResponseTypes, int maxOutputTokens, Func<string, string, int, byte, byte, object> requestBodyParser, CancellationToken cancellationToken, byte tries = 0)
+        internal static async Task<string> ApiCall(FrozenDictionary<string, string> parsedOffer, HttpClient httpClient, string apiUrl, Dictionary<string, double> allowedResponseTypes, int maxOutputTokens, Func<string, string, object, int, object> requestBodyParser, object responseSchema, CancellationToken cancellationToken)
         {
-            object requestBody = requestBodyParser(parsedOffer["system"], parsedOffer["user"], maxOutputTokens, tries, 3);
+            object requestBody = requestBodyParser(parsedOffer["system"], parsedOffer["user"], responseSchema, maxOutputTokens);
 
             string apiPayload = JsonSerializer.Serialize(requestBody);
             using StringContent content = new(apiPayload, Encoding.UTF8, "application/json");

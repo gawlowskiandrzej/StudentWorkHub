@@ -18,7 +18,7 @@ namespace LLMParser
         /// <param name="requestInputTokenLimit">Maximum allowed input tokens for a single request (0 means unlimited/unknown).</param>
         /// <param name="requestOutputTokenLimit">Maximum allowed output tokens for a single request (0 means unlimited/unknown).</param>
         /// <exception cref="ParserException">Thrown when <paramref name="apiUrl"/> is not a valid HTTPS URL or token limits are negative.</exception>
-        public readonly struct API(string apiKey, string apiKeyHeader, string apiUrl, Func<string, string, int, byte, byte, object> requestBodyParser, Func<string, string> outputOfferParser, int requestInputTokenLimit = 0, int requestOutputTokenLimit = 0)
+        public readonly struct API(string apiKey, string apiKeyHeader, string apiUrl, Func<string, string, object, int, object> requestBodyParser, Func<string, string> outputOfferParser, int requestInputTokenLimit = 0, int requestOutputTokenLimit = 0)
         {
             /// <summary>
             /// API key value added to outgoing requests.
@@ -51,7 +51,7 @@ namespace LLMParser
             /// <summary>
             /// Factory delegate creating the request payload for the target API.
             /// </summary>
-            internal readonly Func<string, string, int, byte, byte, object> requestBodyParser = requestBodyParser;
+            internal readonly Func<string, string, object, int, object> requestBodyParser = requestBodyParser;
 
             /// <summary>
             /// Delegate that extracts a normalized offer JSON from raw API response text.
@@ -138,7 +138,7 @@ namespace LLMParser
             /// <summary>
             /// Substitutions for system prompt placeholders.
             /// </summary>
-            internal readonly FrozenDictionary<string, string> systemPromptParameters;
+            internal readonly FrozenDictionary<string, object> systemPromptParameters;
 
             /// <summary>
             /// Substitutions for user prompt placeholders.
@@ -146,31 +146,36 @@ namespace LLMParser
             internal readonly FrozenDictionary<string, string> userPromptParameters;
 
             /// <summary>
-            /// Creates a new prompt set with templates, parameter dictionaries, and an output parser.
+            /// Creates a new prompt set with templates and parameter dictionaries.
             /// </summary>
             /// <param name="systemPrompt">System prompt template.</param>
             /// <param name="userPrompt">User prompt template.</param>
-            /// <param name="outputOfferParser">Delegate parsing raw response into the target offer JSON.</param>
-            /// <param name="systemPromptParameters">Optional parameters used in the system prompt.</param>
-            /// <param name="userPromptParameters">Optional parameters used in the user prompt.</param>
-            public Prompt(string systemPrompt, string userPrompt, Dictionary<string, string>? systemPromptParameters, Dictionary<string, string>? userPromptParameters)
+            /// <param name="systemPromptParameters">
+            /// Optional system prompt inputs. String values are substituted into <c>[{KEY}]</c> placeholders;
+            /// dictionary values (such as the standardized values under <c>RESTRICTIONS</c>) are consumed as data
+            /// rather than substituted into the template. Entries with a blank key, a blank string value,
+            /// or an empty dictionary value are skipped.
+            /// </param>
+            /// <param name="userPromptParameters">Optional parameters substituted into user prompt placeholders. Entries with a blank key or value are skipped.</param>
+            public Prompt(string systemPrompt, string userPrompt, Dictionary<string, object>? systemPromptParameters, Dictionary<string, string>? userPromptParameters)
             {
                 this.systemPrompt = systemPrompt;
                 this.userPrompt = userPrompt;
-                Dictionary<string, string> parameters = [];
+                Dictionary<string, object> systemParameters = [];
                 if (systemPromptParameters != null)
                 {
                     foreach (var parameter in systemPromptParameters)
                     {
-                        if (string.IsNullOrWhiteSpace(parameter.Key) || string.IsNullOrWhiteSpace(parameter.Value))
-                            continue;
-
-                        parameters.Add(parameter.Key, parameter.Value);
+                        if (!string.IsNullOrWhiteSpace(parameter.Key))
+                        {
+                            if ((parameter.Value is string promptFragment && !string.IsNullOrWhiteSpace(promptFragment)) || (parameter.Value is FrozenDictionary<string, List<string>> restrictionsDict && restrictionsDict.Count > 0))
+                                systemParameters.Add(parameter.Key, parameter.Value);
+                        }
                     }
                 }
-                this.systemPromptParameters = parameters.ToFrozenDictionary();
+                this.systemPromptParameters = systemParameters.ToFrozenDictionary();
 
-                parameters = [];
+                Dictionary<string, string>  userParameters = [];
                 if (userPromptParameters != null)
                 {
                     foreach (var parameter in userPromptParameters)
@@ -178,10 +183,10 @@ namespace LLMParser
                         if (string.IsNullOrWhiteSpace(parameter.Key) || string.IsNullOrWhiteSpace(parameter.Value))
                             continue;
 
-                        parameters.Add(parameter.Key, parameter.Value);
+                        userParameters.Add(parameter.Key, parameter.Value);
                     }
                 }
-                this.userPromptParameters = parameters.ToFrozenDictionary();
+                this.userPromptParameters = userParameters.ToFrozenDictionary();
             }
         }
     }

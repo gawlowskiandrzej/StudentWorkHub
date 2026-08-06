@@ -262,11 +262,13 @@ namespace OffersConnector
         }
 
         /// <summary>
-        /// Fetches standardized dictionary values from the database and converts them into textual restriction prompts for the LLM.
+        /// Fetches standardized dictionary values from the database.
         /// </summary>
         /// <param name="cancellationToken">Token used to cancel the database call.</param>
         /// <returns>
-        /// A list of instruction strings describing how to use dictionary-based values; returns an empty list when the database does not return any data.
+        /// An immutable map where each key is a UOS field name and each value is the list of standardized values allowed for that field;
+        /// returns an empty map when the database does not return any data.
+        /// Values are returned as-is, without any prompt formatting applied.
         /// </returns>
         /// <exception cref="PgConnectorException">
         /// Thrown when the database call fails or when the JSON payload has an unexpected shape.
@@ -274,7 +276,7 @@ namespace OffersConnector
         /// <exception cref="OperationCanceledException">
         /// Thrown if <paramref name="cancellationToken"/> is signaled during execution.
         /// </exception>
-        public async Task<List<string>> GetRestrictions(CancellationToken cancellationToken = default)
+        public async Task<FrozenDictionary<string, List<string>>> GetRestrictions(CancellationToken cancellationToken = default)
         {
             try
             {
@@ -287,15 +289,10 @@ namespace OffersConnector
                 object? jsonResult = await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
                 if (jsonResult is string jsonString)
                 {
-                    Dictionary<string, List<string>>? dictionaries = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(jsonString, _jOptionsCi);
-
-                    if (dictionaries is null)
-                        return [];
-
-                    return ResultParsers.RestrictionsParser(dictionaries);
+                    return JsonSerializer.Deserialize<Dictionary<string, List<string>>>(jsonString, _jOptionsCi)?.ToFrozenDictionary() ?? FrozenDictionary<string, List<string>>.Empty;
                 }
 
-                return [];
+                return FrozenDictionary<string, List<string>>.Empty;
             }
             catch (NpgsqlException ex)
             {

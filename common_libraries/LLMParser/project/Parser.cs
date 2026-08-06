@@ -69,6 +69,7 @@ namespace LLMParser
 
         public async Task<List<string?>> ParseBatchAsync(List<string> offers, Settings.Prompt promptSettings, ParserHelpers.ParsingErrorAction onApiFailure = ParserHelpers.ParsingErrorAction.StoreException, CancellationToken cancellationToken = new())
         {
+
             if (offers.Count <= 0)
             {
                 throw new ParserException("Offers list is empty");
@@ -84,6 +85,18 @@ namespace LLMParser
 
             this._batchExceptions = new();
             bool batchSuccess = false;
+
+            FrozenDictionary<string, List<string>>? restrictions = null;
+            if (promptSettings.systemPromptParameters.TryGetValue("RESTRICTIONS", out object? restrictionsValue))
+            {
+                if (restrictionsValue is not FrozenDictionary<string, List<string>> restrictionDictionaries)
+                    throw new ParserException($"systemPromptParameters[RESTRICTIONS] is a {restrictionsValue.GetType()} instead of FrozenDictionary<string, List<string>>.");
+
+                restrictions = restrictionDictionaries;
+            }
+
+            object responseSchema = UosResponseSchema.Build(restrictions);
+
             await Parallel.ForAsync(0, offers.Count, parallelOptions, async (i, cancellationToken) =>
             {
                 string parsedResponse = "";
@@ -113,6 +126,7 @@ namespace LLMParser
                                         this._requestSettings._allowedResponseTypes,
                                         this._apiSettings[apiCtr].requestOutputTokenLimit,
                                         this._apiSettings[apiCtr].requestBodyParser,
+                                        responseSchema,
                                         cancellationToken
                                      );
 
@@ -146,6 +160,7 @@ namespace LLMParser
                             {
                                 try
                                 {
+
                                     responseBody = await ParserHelpers.ApiCall(
                                         parsedOffer,
                                         this._httpClients[0],
@@ -153,8 +168,8 @@ namespace LLMParser
                                         this._requestSettings._allowedResponseTypes,
                                         this._apiSettings[0].requestOutputTokenLimit,
                                         this._apiSettings[0].requestBodyParser,
-                                        cancellationToken,
-                                        offerParserErrorsCount
+                                        responseSchema,
+                                        cancellationToken
                                      );
                                     parsedResponse = this._apiSettings[0].outputOfferParser(responseBody);
 
@@ -173,7 +188,7 @@ namespace LLMParser
                                 }
                                 catch (HttpRequestException ex)
                                 {
-                                   apiErrors.Add(ex);
+                                    apiErrors.Add(ex);
                                 }
                                 catch (Exception ex) when (ex is not UOSException)
                                 {
@@ -190,6 +205,7 @@ namespace LLMParser
                         case ParserHelpers.ParsingErrorAction.StoreException:
                             if (estimatedInputTokens > this._apiSettings[0].requestInputTokenLimit)
                                 throw new ParserException($"Estimated input lenght ({estimatedInputTokens}) is greater than allowed by API ({this._apiSettings[0].requestInputTokenLimit})");
+
                             try
                             {
                                 responseBody = await ParserHelpers.ApiCall(
@@ -199,6 +215,7 @@ namespace LLMParser
                                     this._requestSettings._allowedResponseTypes,
                                     this._apiSettings[0].requestOutputTokenLimit,
                                     this._apiSettings[0].requestBodyParser,
+                                    responseSchema,
                                     cancellationToken
                                 );
                             }
@@ -209,6 +226,7 @@ namespace LLMParser
 
                             parsedResponse = this._apiSettings[0].outputOfferParser(responseBody);
                             parsedOffers[i] = UOSUtils.BuildFromString(offers[i]).MergeWith(parsedResponse).AsString(true);
+
                             break;
 
                         default:

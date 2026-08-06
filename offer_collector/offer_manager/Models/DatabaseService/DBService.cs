@@ -104,17 +104,16 @@ namespace Offer_collector.Models.DatabaseService
         /// <summary>
         /// Pobiera restrykcje z bazy i przygotowuje je do promptów systemowych.
         /// </summary>
-        public async Task<Dictionary<string, string>> GetSystemPromptParamsAsync()
+        public async Task<Dictionary<string, object>> GetSystemPromptParamsAsync()
         {
-            List<string> restrictions = await connector.GetRestrictions();
-            string joinedRestrictions = string.Join("\n", restrictions);
+            FrozenDictionary<string, List<string>> restrictions = await connector.GetRestrictions();
 
-            return new Dictionary<string, string>
+            return new Dictionary<string, object>
             {
                 { "ROLE", Prompts.descriptionInformationExtratorRole },
                 { "RULES", Prompts.descriptionInformationExtratorRules },
                 { "TASK", Prompts.descriptionInformationExtratorTask },
-                { "RESTRICTIONS", joinedRestrictions }
+                { "RESTRICTIONS", restrictions }
             };
         }
 

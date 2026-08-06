@@ -7,8 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="HtmlSanitizer" Version="9.0.886" />
-    <PackageReference Include="Npgsql" Version="9.0.3" />
+    <PackageReference Include="AngleSharp" Version="1.7.1" />
+    <PackageReference Include="HtmlSanitizer" Version="9.1.982" />
+    <PackageReference Include="Npgsql" Version="10.0.3" />
   </ItemGroup>
 
   <ItemGroup>

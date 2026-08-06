@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <Reference Include="UnifiedOfferSchema">
-      <HintPath>..\..\..\..\GitRepos\StudentWorkHub\main\common_libraries\UnifiedOfferSchema\UnifiedOfferSchema.dll</HintPath>
+      <HintPath>..\..\..\offer_collector\libs\UnifiedOfferSchema.dll</HintPath>
     </Reference>
   </ItemGroup>
 

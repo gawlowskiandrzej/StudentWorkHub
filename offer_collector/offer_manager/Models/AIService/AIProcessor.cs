@@ -4,7 +4,7 @@ namespace Offer_collector.Models.AI
 {
     public class AIProcessor
     {
-        static string modelName = PredefinedElements.geminiApiModelNames[1];
+        static string modelName = PredefinedElements.geminiApiModelNames[0];
         Settings.API apiSettings = new(
             "tu klucz api odczytany z env",
             PredefinedElements.geminiApiKeyHeader,
@@ -51,7 +51,7 @@ namespace Offer_collector.Models.AI
 
             llmParser = new([apiSettings], reqSettings);
         }
-        public async Task<(List<string?>, List<string>)> ProcessUnifiedSchemas(List<string> offers, Dictionary<string, string> systemPromptParams)
+        public async Task<(List<string?>, List<string>)> ProcessUnifiedSchemas(List<string> offers, Dictionary<string, object> systemPromptParams)
         {
             List<string> errors = new List<string>();
             List<string> outputs = new List<string>();
